@@ -1,0 +1,142 @@
+Hardware Abstraction Layer
+The Hardware Abstraction Layer abstracts away the hardware and provides a common interface for the kernel to run on. That way, the only thing that needs to be done to port the OS is writing a new HAL.
+The HAL contains these functions:
+	•	Initialization
+-void hal_init_cpu(struct multiboot *mboot_ptr);
+-bus_t **hal_init_system(struct multiboot *mboot_ptr);
+	•	I/O
+-unsigned char inportb(unsigned int port);
+-unsigned char inmemb(unsigned int address);
+-void outportb(unsigned int port, unsigned char data);
+-void outmemb(unsigned int address, unsigned char data);
+-unsigned short inportw(unsigned int port);
+-unsigned short inmemw(unsigned int address);
+-void outportw(unsigned int port, unsigned short data);
+-void outmemw(unsigned int address, unsigned short data);
+-unsigned long inportl(unsigned int port);
+-unsigned long inmeml(unsigned int address);
+-void outportl(unsigned int port, unsigned long data);
+-void outmeml(unsigned int address, unsigned long data);
+	•	IRQs
+-void irq_install_handler(int irq, void *handler);
+-void irq_uninstall_handler(int irq);
+	•	PMM
+-unsigned int pmm_alloc_page();
+-void pmm_free_page(unsigned int address);
+	•	VMM
+- void *get_page(void *dir, unsigned int virtual_address, bool make, unsigned int flags);
+-void map_page(void *dir, unsigned int virtual_address, unsigned int physical_address, unsigned int flags);
+-void unmap_page(void *dir, unsigned int virtual_address);
+-void map_kernel(void *dir);
+-void *create_address_space();
+-void *clone_address_space(void *src);
+-void switch_address_space(void *dir);
+	•	Syscalls
+-void init_syscalls();
+-void syscall_install_handler(int syscall, void *handler);
+
+Kernel
+	•	Memory Management
+The kernel’s memory manager is responsible for creating address spaces for processes. It also provides a kernel heap for data structures to be allocated on.
+
+This is the layout of every process’s address space in i386:
+	•	0x00000000 – 0x000FFFFF	Real mode area
+	•	0x00100000 – 0x3FFFFFFF	Application code and data
+	•	0x40000000 – 0x5FFFFFFF	Libraries
+	•	0x60000000			Heap (grows upwards)
+	•	0xC0000000			Stack (grows downwards)
+	•	0xC0000000 – 0xCFFFFFFF	Kernel code and data
+	•	0xD0000000 – 0xDFFFFFFF	Kernel heap
+	•	0xE0000000 – 0xEFFFFFFF	Loaded modules
+	•	0xF0000000 – 0xF0000FFF	Current page directory
+	•	0xF0001000 – 0xF0400FFF	Current page tables
+	•	0xF0401000 – 0xFFFFFFFF	Memory mapped devices
+	•	VFS
+The kernel’s VFS provides a filesystem abstraction. It uses a node tree with currently opened files cached in memory, but a mountpoint list is also used.
+
+This is the directory layout:
+	•	/apps				User applications
+	•	/bin				Fundamental binaries
+	•	/boot				Files related to boot
+	•	/boot/loader		Boot configuration files
+	•	/boot/modules		Drivers and other modules
+	•	/dev				Device tree
+	•	/etc				System configuration
+	•	/hdd				Mounted hard drives
+	•	/home				Home directories
+	•	/lib				System library files (APIs)
+	•	/media				Mounted removable media
+	•	/mnt				Other mounted drives
+	•	/root				Root home directory
+	•	/sbin				System binaries
+	•	/tmp				Temporary files
+	•	/usr				User secondary root filesystem
+
+
+	•	Multitasking
+The kernel provides multitasking with processes and threads. Processes are self contained tasks with their own threads, address space, and files. Threads are parts of processes that have their own execution path, registers, and stacks, but run in the same address space as every other thread in their parent process. Each process contains at least one executing thread.
+
+Processes and threads can be preemptively multitasked using several different schedulers. One scheduler is round robin, where the processes and threads are ran in order. Another scheduler is priority-based round robin, where there are several priority queues. The queues are run in priority order. Each priority queue has a set of threads waiting to be executed, and the threads are executed in order. With this algorithm, a process’s priority determines whether it is run first. The priority is set by how often the task is run and whether it is important to the system.
+
+A variation of priority-based round robin uses timeslices as well as priority. Priority queues are still used like above, but tasks also get timeslices, which controls how much time they execute for. Finally, a variation of the above uses priority queues and timeslices, but for each priority queue, it also determines what order the tasks should run in. This is the most efficient scheduler, so it should be used.
+	•	IPC
+The kernel provides a few methods of IPC. These are messages, shared memory, signals, semaphores, mutexes, and spinlocks. Most of them are implemented in the kernel, but spinlocks are implemented in the HAL. Spinlocks are required for all other methods to be implemented.
+	•	Syscalls
+The kernel exposes the native API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The native API contains functions that directly call kernel functions.
+
+These are the function categories for syscalls:
+	•	File syscalls
+	•	Process and thread syscalls
+	•	IPC syscalls
+	•	Memory syscalls
+	•	Time and date syscalls
+
+Using the native API directly is not recommended, because most of the functions are very low level. Instead, the user mode APIs, which are implemented in user mode, should be used, because they provide a wrapper for the native API.
+
+
+
+
+
+
+	•	Executable Binaries
+The kernel can execute ELF or PE binaries. When a new program is executed, the code and data from its executable binary is loaded into the process’s address space. Any user libraries that are linked with the kernel are then mapped into the address space as well. The executable binary is dynamically linked with these libraries, and relocated if needed.
+	•	Modules
+The kernel can also load ELF or PE modules. Kernel modules are dynamically linked with the kernel. They can be dynamically loaded or unloaded. Modules are stored in /boot/modules, and can be loaded from the initrd or the hard drive. The initrd contains only hard drive, FAT, video, and keyboard drivers, which are the bare minimum drivers required to get the system running. It also has the HAL. Modules are loaded to the kernel’s module area.
+	•	Devices
+The kernel has a device manager that can detect devices, load and unload drivers, and provide an API for the devices to be used. When the device manager is started, the bus drivers for the system are first loaded. The device manager uses the bus drivers to detect devices on the system and load their drivers. Drivers are normally kernel modules, but some are in user mode. Devices are part of the device tree on /dev, and can be accessed through normal file syscalls or the ioctl syscall, which allows the driver to have special functions.
+Drivers
+The kernel loads drivers through its device manager. Drivers are normally kernel mode modules, but some are in user mode. There are three types of drivers, which are at different levels. Drivers run on top of lower level drivers in a tree structure. When drivers are unloaded, all of the drivers in that depend on it are recursively unloaded.
+The types of drivers are:
+	•	Low Level Drivers
+Low level drivers are the lowest level drivers in the tree. They are bus drivers, which allow the device manager to detect devices on the system. Bus drivers interface directly with the hardware, and provide an interface for other drivers to access the hardware. The bus drivers are loaded on i386 by ACPI, which provides a list of the system buses in the DSDT. Examples of bus drivers are PCI, PCI Express, and USB drivers.
+	•	Middle Level Drivers
+Middle level drivers are drivers that control devices found on a bus. They sit between bus drivers and high level drivers that use software protocols. Middle level drivers work with raw data, and don’t worry about the format of the data. Examples of middle level drivers are video card drivers, storage device drivers, and network card drivers. Some devices, such as input devices, don’t use a middle level driver, and have a high level driver on top of the bus driver.
+	•	High Level Drivers
+High level drivers are the highest level of drivers in the tree. They control software protocols that are part of devices. They run on top of either low level drivers or high level drivers, depending on the type of device. Graphics drivers, filesystem drivers, and networking drivers run on top of middle level drivers, because they are drivers for software protocols that run on top of middle level drivers that deal with raw data. Input drivers, such as keyboard and mouse drivers, are high level drivers that directly implement software protocols, and don’t use middle level drivers. Instead, they run directly on top of low level drivers.
+User Mode
+User mode is the part of the OS that users interface with. It runs on top of the kernel, which provides user mode with the native API and a device driver tree. This allows user mode to access the system, but this access is still managed by the kernel. User mode is responsible for applications, the shell, and users.
+	•	Applications
+User mode is responsible for running user mode applications. It uses the kernel to create a process and execute the application in it. User mode also provides several APIs that wrap the kernel’s native API and a window manager for applications.
+	•	API
+	•	Native API
+The native API is a library of kernel functions. The functions in the native API directly call kernel functions through syscalls. Using the native API is not recommended, because the functions are very low level. Instead, several other APIs are provided that wrap the native API.
+	•	OS API
+The OS provides an API that wraps the native API. The OS API provides applications with a set of kernel functions that allow applications to use all of its services as well as GUI functions that wrap the Window Manager.
+	•	POSIX API
+There is also a POSIX API that wraps the native API. It provides standard POSIX functions to applications, as well as the pthreads API. The POSIX API allows applications on Unix systems to be ported.
+	•	Windows API
+A Windows API is provided as a wrapper of the native API to run Windows applications on the OS. The Windows API emulates the Windows API using native API functions, and emulates its GUI functions using the OS GUI API. There is also a .NET library that runs on top of the native and OS GUI APIs.
+	•	Window Manager
+The Window Manager provides GUI functions. It allows applications to use windows, and provides widgets for them to place on the windows. The Window Manager calls graphical functions that are implemented in the kernel in order to display the windows. The functions in the Window Manager are part of the OS API.
+
+
+
+	•	Shell
+The OS shell allows for file management and program execution. It is written as an application that uses the OS APIs. The OS can use a command line or graphical shell.
+	•	Command Line Shell – Pistachio
+	•	Graphical Shell
+	•	Users
+User mode in the OS provides users and groups. It also uses them to implement security. Users and groups have specific permissions that control what they are allowed to do. User passwords are implemented by the security manager as well.
+	•	Users and Groups
+	•	Security
+

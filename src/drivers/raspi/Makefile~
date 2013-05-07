@@ -1,0 +1,5 @@
+ROOT = ../../..
+	
+all:
+	cd uart; make;
+	cd gpio; make;
