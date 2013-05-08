@@ -6,7 +6,7 @@ CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-point
 OBJFILES = initsys.o interrupts.o led.o mailbox.o main.o memory.o memutils.o textutils.o ports.o timer.o
 
 .s.o:
-	$(CC)-gcc -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/hal/raspi/$@ $<
+	$(CC)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/hal/raspi/$@ $<
  
 .c.o:
 	$(CC)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/hal/raspi/$@ -c $<
