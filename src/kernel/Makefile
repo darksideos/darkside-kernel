@@ -1,9 +1,10 @@
 all:
-	cd debug; make
-	cd init; make
-	cd ipc; make
-	cd mm; make
-	cd modules; make
-	cd syscall; make
-	cd task; make
-	cd vfs; make
+	cd debug; make CFLAGS=$(CFLAGS)
+	cd init; make CFLAGS=$(CFLAGS)
+	cd ipc; make CFLAGS=$(CFLAGS)
+	cd mm; make CFLAGS=$(CFLAGS)
+	cd modules; make CFLAGS=$(CFLAGS)
+	cd syscall; make CFLAGS=$(CFLAGS)
+	cd task; make CFLAGS=$(CFLAGS)
+	cd vfs; make CFLAGS=$(CFLAGS)
+	
