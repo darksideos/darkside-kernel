@@ -14,6 +14,7 @@ kernel-i386.elf:
 	cd src/kernel; make CC=$(i386) BLD_TARGET=i386 CFLAGS=$(CFLAGS_i386)
 	cd src/drivers/graphics/vga; make CC=$(i386)
 	cd src/drivers/ps2; make CC=$(i386)
+	cd src/lib/libgeneric; make CC=$(i386) BLD_TARGET=i386 CFLAGS="$(CFLAGS_i386)"
 	$(i386)-ld -T linker.ld -o $@ build-i386/hal/i386/asm/*.o build-i386/hal/i386/*.o build-i386/kernel/*.o build-i386/drivers/graphics/vga/*.o build-i386/drivers/ps2/*.o -Llib -lgeneric-i386
 
 kernel-raspi.elf:
