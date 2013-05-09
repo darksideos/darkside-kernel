@@ -1,6 +1,7 @@
 *.o
 *.elf
 *.img
+libgeneric-*.a
 .DS_Store
 .DS_Store?
 ._*
