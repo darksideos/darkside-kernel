@@ -47,6 +47,7 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 	uart_puts("Hello UART World");
 	
 	gpio_mode(18, OUTPUT);
+	gpio_write(18, HIGH);
 	while(1) {
 		
 		uart_puts(todec((unsigned int)micros(), 0));
