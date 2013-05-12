@@ -1,5 +1,7 @@
-#define INPUT  0
+#define INPUT 0
 #define OUTPUT 1
+#define LOW 0
+#define HIGH 1
 #define ALT0   4
 #define ALT1   5
 #define ALT2   6
