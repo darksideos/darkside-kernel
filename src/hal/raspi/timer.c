@@ -3,13 +3,13 @@
 
 unsigned long long micros()
 {
-	unsigned long hilong = inportl(SYSTIMER_VALUE + 4);
-	unsigned long lolong = inportl(SYSTIMER_VALUE);
+	unsigned long hilong = inportl(SYSTIMER_VALUE);
+	unsigned long lolong = inportl(SYSTIMER_VALUE + 4);
 	return (unsigned long long)((hilong << 32) | lolong);
 }
 
 void delay(int time)
 {
 	unsigned long long start = micros();
-	while((time * 1000) + start < micros()) __asm__ __volatile__("mov r0, r0");
+	while(micros() - start < (time * 1000)) __asm__ __volatile__("mov r0, r0");
 }

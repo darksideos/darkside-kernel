@@ -49,10 +49,12 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 	gpio_mode(18, OUTPUT);
 	gpio_write(18, HIGH);
 	while(1) {
-		
-		uart_puts(todec((unsigned int)micros(), 0));
-		uart_putch('\n');
-		delay(100);
+		gpio_write(18, LOW);
+// 		uart_puts(todec((unsigned int)micros(), 0));
+// 		uart_putch('\n');
+		delay(1);
+		gpio_write(18, HIGH);
+		delay(1000);
 	}
 
 	while(1);
