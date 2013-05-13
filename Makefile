@@ -1,6 +1,7 @@
 i386	?= i586-elf
 ARM	?= arm-none-eabi
 MOUNT ?= /Volumes/RASPI
+EJECT ?= sudo eject
 
 CFLAGS_i386	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin
 CFLAGS_RASPI	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -Wall -O6 -nostdinc -ffreestanding -nostartfiles -nodefaultlibs -marm -mcpu=arm1176jzf-s
@@ -30,4 +31,4 @@ kernel-raspi.img: kernel-raspi.elf
 
 raspi-install:
 	cp kernel-raspi.img $(MOUNT)/kernel.img
-	sudo eject $(MOUNT)
+	$(EJECT) $(MOUNT)
