@@ -2,10 +2,10 @@
 
 if [ "$(uname -s)" = "Darwin" ]
 	then
-		sudo diskutil attach dsos-fat-i386.img
+		sudo hdiutil attach dsos-fat-i386.img
 		sudo cp kernel-i386.elf /Volumes/Untitled/boot
 		sudo cp menu.lst /Volumes/Untitled/boot/grub
-		sudo diskutil eject Untitled
+		sudo hdiutil eject /Volumes/Untitled
 fi
 
 if [ "$(uname -s)" = "Linux" ]
