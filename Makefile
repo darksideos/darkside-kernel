@@ -11,7 +11,7 @@ CFLAGS_RASPI	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame
 all:
 
 kernel-i386.elf:
-	cd src/hal/i386; make
+	cd src/hal/i386; make CC=$(i386)
 	cd src/kernel; make CC=$(i386) BLD_TARGET=i386 CFLAGS=$(CFLAGS_i386)
 	cd src/drivers/graphics/vga; make CC=$(i386)
 	cd src/drivers/ps2; make CC=$(i386)
