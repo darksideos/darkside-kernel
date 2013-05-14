@@ -1,12 +1,12 @@
 .PHONY: all
 
 all:
-	cd debug; make CFLAGS="$(CFLAGS)"
-	cd init; make CFLAGS="$(CFLAGS)"
-	cd ipc; make CFLAGS="$(CFLAGS)"
-	cd mm; make CFLAGS="$(CFLAGS)"
-	cd modules; make CFLAGS="$(CFLAGS)"
-	cd syscall; make CFLAGS="$(CFLAGS)"
-	cd task; make CFLAGS="$(CFLAGS)"
-	cd vfs; make CFLAGS="$(CFLAGS)"
+	cd debug; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd init; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd ipc; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd mm; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd modules; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd syscall; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd task; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
+	cd vfs; make CFLAGS="$(CFLAGS)" ARCH=$(ARCH)
 	
