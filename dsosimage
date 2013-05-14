@@ -1,0 +1,72 @@
+#!/bin/bash
+
+if [ $3 = "fat32" ]
+	then
+		ID='c'
+fi
+
+CYL=`python3 -c "from math import ceil; print(ceil($2*1000*1024/516960.0))"`
+dd if=/dev/zero of=$1 bs=516096c count=$CYL 1>/dev/null 2>/dev/null
+
+echo "Created disk image."
+
+cat <<EOF | fdisk -u -C$CYL -S63 -H16 $1 -c=dos 1>/dev/null 2>/dev/null
+o
+n
+
+
+
+
+a
+1
+t
+$ID
+w
+EOF
+
+echo "Created partition, set partition ID to $ID."
+
+losetup -o32256 /dev/loop0 $1
+
+echo "Setup loopback device."
+
+if [ $3 = "fat32" ]
+	then
+		mkdosfs -F32 /dev/loop0 1>/dev/null 2>/dev/null
+fi
+
+echo "Formatted loopback device."
+
+mount -t vfat /dev/loop0 $4
+
+echo "Mounted loopback device."
+
+mkdir $4/boot
+mkdir $4/boot/grub
+
+wget -P /tmp ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz 1>/dev/null 2>/dev/null
+tar -zxvf /tmp/grub-0.97-i386-pc.tar.gz -C /tmp 1>/dev/null 2>/dev/null
+
+cp /tmp/grub-0.97-i386-pc/boot/grub/* $4/boot/grub
+
+rm /tmp/grub-0.97-i386-pc.tar.gz
+rm -rf /tmp/grub-0.97-i386-pc
+
+echo "Created directory structure, copied core GRUB files."
+
+umount /dev/loop0
+
+echo "Unmounted loopback device."
+
+losetup -d /dev/loop0
+
+echo "Removed loopback device."
+
+cat <<EOF | grub --device-map=/dev/null 1>/dev/null 2>/dev/null
+device (hd0) $1
+root (hd0,0)
+setup (hd0)
+quit
+EOF
+
+echo "Installed grub on the image."
