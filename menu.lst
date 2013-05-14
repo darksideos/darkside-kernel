@@ -1,0 +1,3 @@
+title   Dark Side OS
+root    (hd0,0)
+kernel  /boot/kernel-i386.elf
