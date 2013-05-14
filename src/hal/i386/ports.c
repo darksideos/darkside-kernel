@@ -57,6 +57,7 @@ unsigned long inportl(unsigned int port)
 unsigned long inmeml(unsigned int address)
 {
 	return *((unsigned long*)address);
+}
 
 void outportl(unsigned int port, unsigned long data)
 {
