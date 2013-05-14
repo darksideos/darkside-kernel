@@ -3,6 +3,6 @@ ROOT = ../../..
 OBJFILES = elf.o elf_types.o initrd.o
  
 .c.o:
-	$(BLD_ARCH)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/kernel/$@ -c $<
+	$(BLD_TARGET)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(ARCH)/kernel/$@ -c $<
 
 all: $(OBJFILES)
