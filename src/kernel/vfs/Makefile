@@ -3,6 +3,6 @@ ROOT = ../../..
 OBJFILES = vfs.o vfs_utils.o
  
 .c.o:
-	$(BLD_ARCH)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/kernel/$@ -c $<
+	$(BLD_TARGET)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(ARCH)/kernel/$@ -c $<
 
 all: $(OBJFILES)
