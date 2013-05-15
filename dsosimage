@@ -37,6 +37,10 @@ fi
 
 echo "Formatted loopback device."
 
+sudo mlabel -i /dev/loop0 ::DarkSideOS
+
+echo "Renamed loopback device."
+
 mount -t vfat /dev/loop0 $4
 
 echo "Mounted loopback device."
