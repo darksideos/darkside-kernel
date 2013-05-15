@@ -63,7 +63,7 @@ system('wget -P /tmp ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz 1>/de
 system('tar -zxvf /tmp/grub-0.97-i386-pc.tar.gz -C /tmp 1>/dev/null 2>/dev/null')
 system('cp /tmp/grub-0.97-i386-pc/boot/grub/* ' + args.mountpoint + '/boot/grub')
 system('rm /tmp/grub-0.97-i386-pc.tar.gz')
-system('rm -rf /tmp/grub-0.97-i386-pc')
+system('rm -rf /tmp/grub-0.97-i386')
 verb('Created directory structure, copied core GRUB files.')
 
 system('umount /dev/loop0')
