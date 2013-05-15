@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ ! -e "dsos-fat-i386.img" ]
+	then
+		echo "Base image not downloaded, downloading"
+		wget http://darksideos.hopto.org/downloads/i386-base.img -O dsos-fat-i386.img
+
+fi
+
 if [ "$(uname -s)" = "Darwin" ]
 	then
 		sudo hdiutil attach dsos-fat-i386.img
