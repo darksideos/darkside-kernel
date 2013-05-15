@@ -14,10 +14,10 @@ all:
 
 kernel-i386.elf:
 	cd src/hal/i386; make
-	cd src/kernel; make ARCH="i386" BLD_TARGET="i586-elf" CFLAGS="$(CFLAGS_i386)"
+	cd src/kernel; make BLD_TARGET=i386 CC=$(i386) CFLAGS="$(CFLAGS_i386)"
 	cd src/drivers/graphics/vga; make
 	cd src/drivers/ps2; make
-	cd src/lib/libgeneric; make ARCH="i386" BLD_TARGET="i586-elf" CFLAGS="$(CFLAGS_i386)"
+	cd src/lib/libgeneric; make BLD_TARGET=i386  CC=$(i386) CFLAGS="$(CFLAGS_i386)"
 	$(i386)-ld -T linker.ld -o $@ build-i386/hal/i386/asm/*.o build-i386/hal/i386/*.o build-i386/kernel/*.o build-i386/drivers/graphics/vga/*.o build-i386/drivers/ps2/*.o -Llib -lgeneric-i386
 
 kernel-raspi.elf:
