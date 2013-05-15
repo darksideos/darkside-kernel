@@ -3,9 +3,9 @@
 if [ "$(uname -s)" = "Darwin" ]
 	then
 		sudo hdiutil attach dsos-fat-i386.img
-		sudo cp kernel-i386.elf /Volumes/Untitled/boot
-		sudo cp menu.lst /Volumes/Untitled/boot/grub
-		sudo hdiutil eject /Volumes/Untitled
+		sudo cp kernel-i386.elf /Volumes/DARKSIDEOS/boot
+		sudo cp menu.lst /Volumes/DARKSIDEOS/boot/grub
+		sudo hdiutil eject /Volumes/DARKSIDEOS
 fi
 
 if [ "$(uname -s)" = "Linux" ]
