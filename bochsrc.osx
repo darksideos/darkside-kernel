@@ -1,4 +1,4 @@
 cpu: reset_on_triple_fault=0
-ata0-master: type=disk, path="darksideos-fat-i386.img", cylinders=500, heads=16, spt=63
+ata0-master: type=disk, path="dsos-fat-i386.img", cylinders=500, heads=16, spt=63
 boot: disk
 display_library: x
