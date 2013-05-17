@@ -1,14 +1,14 @@
 ROOT = ../../../..
 
-CC	?= arm-none-eabi
-CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -Wall -O6 -nostdinc -ffreestanding -nostartfiles -nodefaultlibs -I$(ROOT)/include -L$(ROOT)/lib
+CCBASE	?= arm-none-eabi
+CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -Wall -O6 -nostdinc -ffreestanding -nostartfiles -nodefaultlibs -I$(ROOT)/include -L$(ROOT)/lib
 
 OBJFILES = framebuffer.o text_mode.o
 
 .s.o:
-	$(CC)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/$@ $<
+	$(CCBASE)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/$@ $<
  
 .c.o:
-	$(CC)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/drivers/graphics/raspi/$@ -c $<
+	$(CCBASE)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/drivers/graphics/raspi/$@ -c $<
 	
 all: $(OBJFILES)
