@@ -1,14 +1,14 @@
 ROOT = ../../../..
 
-CC	?= arm-none-eabi
+CCBASE	?= arm-none-eabi
 CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -Wall -O6 -nostdinc -ffreestanding -nostartfiles -nodefaultlibs -I$(ROOT)/include -L$(ROOT)/lib
 
 OBJFILES = gpio.o
 
 .s.o:
-	$(CC)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/drivers/raspi/gpio/$@ $<
+	$(CCBASE)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/drivers/raspi/gpio/$@ $<
  
 .c.o:
-	$(CC)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/drivers/raspi/gpio/$@ -c $<
+	$(CCBASE)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/drivers/raspi/gpio/$@ -c $<
 	
 all: $(OBJFILES)
