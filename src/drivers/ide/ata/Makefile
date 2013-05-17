@@ -1,12 +1,11 @@
 ROOT = ../../../..
 
-CC	= i586-elf-gcc
-CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I$(ROOT)/include
-LD	= i586-elf-ld
+CCBASE	?= i586-elf
+CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I$(ROOT)/include
 
 OBJFILES = ata.o
  
 .c.o:
-	$(CC) $(CFLAGS) -o $(ROOT)/build/drivers/ide/ata/$@ -c $<
+	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build/drivers/ide/ata/$@ -c $<
 	
 all: $(OBJFILES)
