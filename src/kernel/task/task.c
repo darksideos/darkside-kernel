@@ -2,6 +2,7 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/vmm.h>
 #include <kernel/debug/kprintf.h>
+#include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>
@@ -9,8 +10,10 @@
 
 /* Task switching modes
  * Bit 0: 0 - 32 bit protected mode, 1 - 64 bit long mode
- * Bit 1: 0 - Task switching is disabled, 1 - Task switching is enabled */
-unsigned char mode_flags = 0;
+ * Bit 1: 0 - Task switching is disabled, 1 - Task switching is enabled
+ * Bit 2: 0 - still running first thread, 1 - switched into first thread
+ */
+unsigned char mode_flags = 0x04;
 
 /* The ring level that the CPU is currently running at */
 unsigned char ring = 0;
@@ -19,14 +22,43 @@ unsigned char ring = 0;
 extern page_directory_t *current_directory;
 
 /* The system idle process, which runs at full priveleges in kernel mode */
-void system_idle_process()
+void kernel_process_run()
 {
 	/* Go into an infinite loop while we wait for the next task to run */
 	while(1)
 	{
-		//kprintf("System Idle Process\n");
+		kprintf("Kernel Process\n");
 	}
 }
+
+void test_process_run()
+{
+	/* Go into an infinite loop while we wait for the next task to run */
+	while(1)
+	{
+		kprintf("Test Process\n");
+	}
+}
+
+void test2_process_run()
+{
+	/* Go into an infinite loop while we wait for the next task to run */
+	while(1)
+	{
+		kprintf("Test Process 2\n");
+	}
+}
+
+void test3_process_run()
+{
+	/* Go into an infinite loop while we wait for the next task to run */
+	while(1)
+	{
+		kprintf("Test Process 3\n");
+	}
+}
+
+extern volatile process_t **processes;
 
 /* Initialize the multitasking system */
 void init_multitasking()
@@ -38,24 +70,42 @@ void init_multitasking()
 	init_threads();
 
     /* Create the kernel process */
-    process_t *kernel_process = create_process("System Idle Process", &system_idle_process, 0, 1024);
+    process_t *kernel_process = create_process("Kernel Process", &kernel_process_run, 0, 1024);
 
 	/* Give the kernel process its own page directory */
     kernel_process->page_directory = current_directory;
+    
+    process_t *test_process = create_process("Test Process", &test_process_run, 0, 1024);
+
+	/* Give the kernel process its own page directory */
+    test_process->page_directory = current_directory;
+    
+    process_t *test2_process = create_process("Test Process 2", &test2_process_run, 0, 1024);
+
+	/* Give the kernel process its own page directory */
+    test2_process->page_directory = current_directory;
+ 	process_t *test3_process = create_process("Test Process 3", &test3_process_run, 0, 1024);
+
+	/* Give the kernel process its own page directory */
+    test3_process->page_directory = current_directory;
 
 	/* Enable task switching */
 	enable_task_switching();
 
 	/* Initialize the syncronization primitives */
 	init_semaphores();
-
+		kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
+	//bochs_break_e9();
+	
+	asm volatile("sti");
 	/* Start multitasking by switching to the first thread in the kernel process */
-    switchpid(0, 0);
+    kernel_process_run();
 }
 
 /* Switches to the next task using round robin */
 void switch_tasks_roundrobin(void *current_context)
 {
+	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	/* Get the current process and thread, current PID and TID, and number of running processes */
 	process_t *current_process = getprocess();
 	thread_t *current_thread = getthread();
@@ -72,7 +122,7 @@ void switch_tasks_roundrobin(void *current_context)
 	}
 
 	/* If task switching has been disabled, return */
-	if(!(mode_flags & 0x01))
+	if(!(mode_flags & 0x02))
 	{
 		return;
 	}
@@ -86,24 +136,35 @@ void switch_tasks_roundrobin(void *current_context)
 
 	/* Find out if we have more threads to run, and if so, tell the scheduler to switch to the same task and execute the next thread */
 	unsigned int pid, tid;
-	if ((current_tid + 1) < current_process->num_threads)
+	if(mode_flags & 0x04)
 	{
-		pid = current_pid;
-		tid = current_tid + 1;
+		pid = 0;
+		tid = 0;
+		mode_flags &= ~0x04;
 	}
-	/* Otherwise, increment the current PID. If it is equal to the number of running processes, set it to 0 */
 	else
 	{
-		pid = current_pid + 1;
-		if (pid == num_pids)
+		if ((current_tid + 1) < current_process->num_threads)
 		{
-			pid = 0;
+			pid = current_pid;
+			tid = current_tid + 1;
 		}
+		/* Otherwise, increment the current PID. If it is equal to the number of running processes, set it to 0 */
+		else
+		{
+			pid = current_pid + 1;
+			if (pid == num_pids)
+			{
+				pid = 0;
+			}
 
-		tid = 0;
+			tid = 0;
+		}
 	}
-
+	
+	kprintf("PID: %d, TID:%d\n", pid, tid);
 	/* Finally, switch tasks */
+	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	switchpid(pid, tid);
 }
 

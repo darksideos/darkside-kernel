@@ -19,7 +19,7 @@ kernel-i386.elf:
 	cd src/drivers/graphics/vga; make CCBASE=$(i386) 
 	cd src/drivers/ps2; make CCBASE=$(i386) 
 	cd src/lib/libgeneric; make BLD_TARGET=i386  CCBASE=$(i386) CFLAGS="$(CFLAGS_i386)"
-	$(i386)-ld -T linker.ld -o $@ build-i386/hal/i386/asm/*.o build-i386/hal/i386/*.o build-i386/kernel/*.o build-i386/drivers/graphics/vga/*.o build-i386/drivers/ps2/*.o -Llib -lgeneric-i386
+	$(i386)-ld -T linker.ld -o build-i386/$@ build-i386/hal/i386/asm/*.o build-i386/hal/i386/*.o build-i386/kernel/*.o build-i386/drivers/graphics/vga/*.o build-i386/drivers/ps2/*.o -Llib -lgeneric-i386
 
 kernel-raspi.elf:
 	cd src/hal/raspi; make CCBASE=$(ARM)
@@ -35,20 +35,6 @@ kernel-raspi.img: kernel-raspi.elf
 raspi-install:
 	cp kernel-raspi.img $(MOUNT)/kernel.img
 	$(EJECT) $(MOUNT)
-
-i386-osx: kernel-i386.elf
-	sudo diskutil attach dsos-fat-i386.img
-	sudo cp kernel-i386.elf /Volumes/Untitled/boot
-	sudo cp menu.lst /Volumes/Untitled/boot/grub
-	sudo diskutil eject Untitled
-
-i386-linux: kernel-i386.elf
-	sudo losetup -o32256 /dev/loop0 dsos-fat-i386.img
-	sudo mount /dev/loop0 /mnt/hdd
-	sudo cp kernel-i386.elf /mnt/hdd/boot
-	sudo cp menu.lst /mnt/hdd/boot/grub
-	sudo umount /dev/loop0
-	sudo losetup -d /dev/loop0
 
 i386: kernel-i386.elf
 	./updateimage.sh
