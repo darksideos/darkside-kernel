@@ -1,6 +1,7 @@
 #include <lib/libgeneric.h>
 #include <drivers/graphics/text.h>
 #include <kernel/debug/kprintf.h>
+#include <kernel/debug/bochs.h>
 
 #define is_digit(c)     ((c) >= '0' && (c) <= '9')
 
@@ -233,7 +234,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
 void kprintf(const char *fmt, ...)
 {
-	static char buf[1024];
+	char buf[1024];
 
 	va_list args;
 	int i;
@@ -243,7 +244,7 @@ void kprintf(const char *fmt, ...)
 
 	buf[i] = '\0';
 
-	puts(buf);
+	bochs_puts(buf);
 }
 
 void error_kprintf(const char *fmt, ...)

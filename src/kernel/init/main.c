@@ -8,6 +8,7 @@
 #include <kernel/modules/elf.h>
 #include <hal/i386/vmm.h>
 #include <kernel/debug/bochs.h>
+#include <kernel/task/task.h>
 
 extern unsigned int placement_address;
 
@@ -15,7 +16,6 @@ void main(struct multiboot *mboot_ptr)
 {
 	/* Start the VGA text mode driver */
 	init_text_mode(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-	kprintf("Hello, world!");	
 
 	/* Multiboot information */
 //	initrd_header_t *initrd = mboot_ptr->mods_addr->mod_start;
@@ -25,7 +25,7 @@ void main(struct multiboot *mboot_ptr)
 //	placement_address = mboot_ptr->mods_addr->mod_end;
 	
 	/* Call the HAL main function to initialize the CPU */
-//	hal_main(mboot_ptr);
+	hal_main(mboot_ptr);
 
 //	unsigned char *new_initrd = kmalloc(initrd_size);
 //	memcpy(new_initrd, initrd, initrd_size);
@@ -48,6 +48,6 @@ void main(struct multiboot *mboot_ptr)
 	/* Create the init process */
 
 	/* Finally, start multitasking by switching to the kernel process */
-
+	init_multitasking();
 	while(1);
 }

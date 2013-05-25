@@ -406,7 +406,7 @@ irq_common_stub:
     popa
     add esp, 8
     iret
-    
+
 global task_switch_stub
 task_switch_stub:
 	mov esp, eax	; Move the new task's context into ESP

@@ -4,8 +4,8 @@
 #include <kernel/task/process.h>
 
 /* Default size of the user and kernel stack */
-#define DEFAULT_USER_STACK_SIZE	  65536
-#define DEFAULT_KERNEL_STACK_SIZE 8192
+#define DEFAULT_USER_STACK_SIZE	  1048576
+#define DEFAULT_KERNEL_STACK_SIZE 65536
 
 /* Thread structure */
 struct process;
