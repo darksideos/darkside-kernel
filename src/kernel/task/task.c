@@ -11,9 +11,8 @@
 /* Task switching modes
  * Bit 0: 0 - 32 bit protected mode, 1 - 64 bit long mode
  * Bit 1: 0 - Task switching is disabled, 1 - Task switching is enabled
- * Bit 2: 0 - still running first thread, 1 - switched into first thread
  */
-unsigned char mode_flags = 0x04;
+unsigned char mode_flags = 0x00;
 
 /* The ring level that the CPU is currently running at */
 unsigned char ring = 0;
@@ -58,8 +57,6 @@ void test3_process_run()
 	}
 }
 
-extern volatile process_t **processes;
-
 /* Initialize the multitasking system */
 void init_multitasking()
 {
@@ -94,18 +91,14 @@ void init_multitasking()
 
 	/* Initialize the syncronization primitives */
 	init_semaphores();
-		kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
-	//bochs_break_e9();
 	
-	asm volatile("sti");
 	/* Start multitasking by switching to the first thread in the kernel process */
-    kernel_process_run();
+    switchpid(0, 0);
 }
 
 /* Switches to the next task using round robin */
 void switch_tasks_roundrobin(void *current_context)
 {
-	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	/* Get the current process and thread, current PID and TID, and number of running processes */
 	process_t *current_process = getprocess();
 	thread_t *current_thread = getthread();
@@ -127,44 +120,30 @@ void switch_tasks_roundrobin(void *current_context)
 		return;
 	}
 
-	kprintf("Process: 0x%08x\n", current_process);
-	kprintf("Thread: 0x%08x\n", current_thread);
-	kprintf("Thread Context: 0x%08x\n", current_thread->context);
-
 	/* Save the context of the current task */
 	copy_registers(current_thread->context, current_context);
 
 	/* Find out if we have more threads to run, and if so, tell the scheduler to switch to the same task and execute the next thread */
 	unsigned int pid, tid;
-	if(mode_flags & 0x04)
+
+	if ((current_tid + 1) < current_process->num_threads)
 	{
-		pid = 0;
-		tid = 0;
-		mode_flags &= ~0x04;
+		pid = current_pid;
+		tid = current_tid + 1;
 	}
+	/* Otherwise, increment the current PID. If it is equal to the number of running processes, set it to 0 */
 	else
 	{
-		if ((current_tid + 1) < current_process->num_threads)
+		pid = current_pid + 1;
+		if (pid == num_pids)
 		{
-			pid = current_pid;
-			tid = current_tid + 1;
+			pid = 0;
 		}
-		/* Otherwise, increment the current PID. If it is equal to the number of running processes, set it to 0 */
-		else
-		{
-			pid = current_pid + 1;
-			if (pid == num_pids)
-			{
-				pid = 0;
-			}
 
-			tid = 0;
-		}
+		tid = 0;
 	}
 	
-	kprintf("PID: %d, TID:%d\n", pid, tid);
 	/* Finally, switch tasks */
-	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	switchpid(pid, tid);
 }
 
