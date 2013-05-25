@@ -1,0 +1,5 @@
+#!/bin/bash
+for file in `find build-*/* -type f -name *.o`
+do
+rm $file;
+done;
