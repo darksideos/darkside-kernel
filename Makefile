@@ -1,6 +1,6 @@
 i386	?= i586-elf
 ARM	?= arm-none-eabi
-MOUNT ?= /Volumes/RASPI
+MOUNT ?= /media/$(shell whoami)/RASPI
 EJECT ?= sudo eject
 
 OS = $(shell uname -s)
@@ -10,7 +10,8 @@ CFLAGS_RASPI	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame
 
 .PHONY: kernel-i386.elf kernel-raspi.elf kernel.img kernel-raspi.img
 
-all:
+all: 
+	echo "Please use target kernel-raspi.img or i386"
 
 kernel-i386.elf:
 	cd src/hal/i386; make CCBASE=$(i386) 
@@ -24,7 +25,7 @@ kernel-raspi.elf:
 	cd src/hal/raspi; make CCBASE=$(ARM)
 	cd src/drivers/graphics/raspi; make CCBASE=$(ARM)
 	cd src/drivers/raspi; make CCBASE=$(ARM)
-#	cd src/kernel; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS=$(CFLAGS_RASPI)
+	cd src/kernel/debug; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
 	cd src/lib/libgeneric; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
 	$(ARM)-ld -T linker.pi -o $@ lib/raspi-libgcc.a build-raspi/hal/raspi/*.o build-raspi/drivers/graphics/raspi/*.o build-raspi/drivers/raspi/*/*.o lib/libgeneric-raspi.a
 
