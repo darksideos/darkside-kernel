@@ -164,7 +164,7 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 
 	/* Create the first thread in the process */
 	create_thread(new_process, function, argv, user_stack_size);
-
+	kprintf("Process: %08X, threads: %08X, thread: %08X.\n", new_process, new_process->threads, new_process->threads[0]);
 	/* Give the process its own blank page directory and map the kernel into it */
     new_process->page_directory = create_page_directory();
 	map_kernel(new_process->page_directory);
@@ -219,16 +219,20 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 	return new_process;
 }
 
+void check_threads() {
+		kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
+}
+
 /* Switch the current process and thread to a specified one */
 void switchpid(unsigned int pid, unsigned int tid)
 {
 	/* Change the current PID and TID to the new one */
 	current_pid = pid;
 	settid(tid);
-
+	
 	/* Get the new thread's context */
 	struct i386_regs *new_context = processes[pid]->threads[tid]->context;
-
+	
     /* Get the page directory of the new task */
     current_directory = processes[pid]->page_directory;
 
@@ -237,7 +241,8 @@ void switchpid(unsigned int pid, unsigned int tid)
 
 	/* Set the kernel stack in the TSS to the one in the new thread */
 	set_kernel_stack(processes[pid]->threads[tid]->kernel_stack);
-
+	
+	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	/* Finally, switch to the new thread's context */
 	__asm__ __volatile__ ("mov %0, %%eax" :: "r" (new_context));
 	task_switch_stub();

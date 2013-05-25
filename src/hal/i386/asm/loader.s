@@ -28,5 +28,5 @@ start:
 	call main		   ; Call our C code
 
 section .bss
-	resb 8192               ; This reserves 8KBytes of memory here
+	resb 65536               ; This reserves 8KBytes of memory here
 stack:

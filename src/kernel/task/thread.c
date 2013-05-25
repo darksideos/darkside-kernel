@@ -70,7 +70,7 @@ thread_t *create_thread(process_t *parent_process, void (*function)(), char **ar
     
 	/* Create and fill out the thread context */
 	new_thread->context = create_registers(function, getring());
-
+	
 	/* Create the thread's user and kernel stacks */
 	new_thread->kernel_stack = kmalloc_a(DEFAULT_KERNEL_STACK_SIZE) + DEFAULT_KERNEL_STACK_SIZE;
 
