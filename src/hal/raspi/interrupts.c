@@ -102,10 +102,10 @@ void init_interrupts(void)
 
 	/* Use the ARM timer - BCM 2832 peripherals doc, p.196 */
 	/* Enable ARM timer IRQ */
-	outportl(IRQ_ENABLE, 1);
+//	outportl(IRQ_ENABLE, 1);
 
 	/* Interrupt every 1024 * 256 (prescaler) timer ticks */
-	outportl(TIMER_LOAD, 0x400);
+//	outportl(TIMER_LOAD, 0x400);
 
-	outportl(TIMER_CTRL, 0xAA);
+//	outportl(TIMER_CTRL, 0xAA);
 }
