@@ -6,7 +6,7 @@
 #include <hal/raspi/memutils.h>
 #include <drivers/raspi/gpio/gpio.h>
 #include <drivers/raspi/uart/uart.h>
-#include <hal/raspi/timer.h>
+#include <hal/raspi/systimer.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/text_mode.h>
 #include <drivers/graphics/raspi/textutils.h>
@@ -43,7 +43,6 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 	uart_init();
 	init_text_mode(0xFFFF, 0x0000);
 	
-	puts("HELLO WORLD ON SCREEN!\n");
 	uart_puts("Hello UART World");
 	
 	gpio_mode(18, OUTPUT);
@@ -52,10 +51,11 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 		gpio_write(18, LOW);
 // 		uart_puts(todec((unsigned int)micros(), 0));
 // 		uart_putch('\n');
-		delay(1);
+		delay(1000);
 		gpio_write(18, HIGH);
 		delay(1000);
 	}
 
 	while(1);
 }
+
