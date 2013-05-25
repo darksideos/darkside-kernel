@@ -219,10 +219,6 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 	return new_process;
 }
 
-void check_threads() {
-		kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
-}
-
 /* Switch the current process and thread to a specified one */
 void switchpid(unsigned int pid, unsigned int tid)
 {
@@ -242,7 +238,6 @@ void switchpid(unsigned int pid, unsigned int tid)
 	/* Set the kernel stack in the TSS to the one in the new thread */
 	set_kernel_stack(processes[pid]->threads[tid]->kernel_stack);
 	
-	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	/* Finally, switch to the new thread's context */
 	__asm__ __volatile__ ("mov %0, %%eax" :: "r" (new_context));
 	task_switch_stub();
