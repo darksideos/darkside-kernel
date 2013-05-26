@@ -34,6 +34,30 @@ bool memequal(unsigned char *ptr1, unsigned char *ptr2, unsigned int count)
 	return ret;
 }
 
+void memclr(void *address, unsigned int length)
+{
+	register unsigned int addr = (unsigned int)address;
+
+	while((addr & 3) && length)
+	{
+		*((unsigned char*) addr) = 0;
+		addr++;
+		length--;
+	}
+	while(length & 0xfffffffc)
+	{
+		*((unsigned int*) addr) = 0;
+		addr += 4;
+		length -= 4;
+	}
+	while(length)
+	{
+		addr++;
+		length--;
+		*((unsigned char*) addr) = 0;
+	}
+}
+
 int strlen(const char *str)
 {
     int retval;

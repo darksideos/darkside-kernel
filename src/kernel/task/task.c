@@ -1,6 +1,5 @@
 #include <lib/libgeneric.h>
-#include <hal/i386/isrs.h>
-#include <hal/i386/vmm.h>
+#include <kernel/init/hal.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
@@ -63,7 +62,7 @@ extern volatile process_t **processes;
 /* Initialize the multitasking system */
 void init_multitasking()
 {
-    asm volatile("cli");
+	hal_cli();
 
 	/* Initialize processes and threads */
 	init_processes();
@@ -97,7 +96,7 @@ void init_multitasking()
 		kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	//bochs_break_e9();
 	
-	asm volatile("sti");
+	hal_sti();
 	/* Start multitasking by switching to the first thread in the kernel process */
     kernel_process_run();
 }

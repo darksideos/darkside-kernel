@@ -12,7 +12,7 @@
 
 extern unsigned int placement_address;
 
-void main(struct multiboot *mboot_ptr)
+void kernel_main(struct multiboot *mboot_ptr)
 {
 	/* Start the VGA text mode driver */
 	init_text_mode(VGA_COLOR_WHITE, VGA_COLOR_BLACK);

@@ -1,9 +1,9 @@
 #include <hal/raspi/registers.h>
-#include <hal/raspi/ports.h>
+#include <hal/raspi/mmio.h>
 
 unsigned long frc_value()
 {
-	return inportl(SYSTIMER_FRC);
+	return inmeml(SYSTIMER_FRC);
 }
 
 void delay(int time)
