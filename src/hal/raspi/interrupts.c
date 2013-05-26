@@ -1,10 +1,13 @@
 #include <hal/raspi/interrupts.h>
-#include <hal/raspi/led.h>
+#include <hal/raspi/mmio.h>
+#include <drivers/raspi/gpio/gpio.h>
 #include <hal/raspi/memory.h>
 #include <hal/raspi/registers.h>
 #include <drivers/graphics/raspi/textutils.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/text_mode.h>
+
+volatile int ledState = 0;
 
 __attribute__ ((naked, aligned(32))) static void interrupt_vectors(void)
 {
@@ -47,7 +50,9 @@ __attribute__ ((interrupt ("SWI"))) void interrupt_swi(void)
 
 __attribute__ ((interrupt ("IRQ"))) void interrupt_irq(void)
 {
-	outportl(TIMER_IRQ_CLEAR, 0);
+	outmeml(ARMTIMER_CLEAR, 0);
+	gpio_write(18, ledState);
+	ledState = !ledState;
 }
 
 __attribute__ ((interrupt ("ABORT"))) void interrupt_data_abort(void)
@@ -93,19 +98,21 @@ __attribute__ ((interrupt ("ABORT"))) void interrupt_prefetch_abort(void)
 	while(1);
 }
 
-void init_interrupts(void)
+void interrupts_init(void)
 {
 	/* Set interrupt base register */
 	asm volatile("mcr p15, 0, %[addr], c12, c0, 0" : : [addr] "r" (&interrupt_vectors));
 	/* Turn on interrupts */
 	asm volatile("cpsie i");
+	
+	gpio_mode(18, OUTPUT);
 
 	/* Use the ARM timer - BCM 2832 peripherals doc, p.196 */
 	/* Enable ARM timer IRQ */
-//	outportl(IRQ_ENABLE, 1);
+	outmeml(IRQ_ENABLE, 1);
 
 	/* Interrupt every 1024 * 256 (prescaler) timer ticks */
-//	outportl(TIMER_LOAD, 0x400);
+	outmeml(ARMTIMER_LOAD, 0x400);
 
-//	outportl(TIMER_CTRL, 0xAA);
+	outmeml(ARMTIMER_CTRL, 0xAA);
 }
