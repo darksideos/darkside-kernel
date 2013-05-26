@@ -1,5 +1,5 @@
 #include <lib/libgeneric.h>
-#include <hal/i386/isrs.h>
+#include <kernel/init/hal.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>

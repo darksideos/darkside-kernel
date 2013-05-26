@@ -1,39 +1,6 @@
 /* Various memory utilities */
 
 #include <hal/raspi/memutils.h>
-
-/* Clear (set to 0) length bytes of memory starting at address
- */
-void memclr(void *address, unsigned int length)
-{
-	register unsigned int addr = (unsigned int)address;
-
-	/* If the start address is unaligned, fill in the first 1-3 bytes
-	 * until it is
-	 */
-	while((addr & 3) && length)
-	{
-		*((unsigned char*) addr) = 0;
-		addr++;
-		length--;
-	}
-
-	/* Fill in the remaining 32-bit word-aligned memory locations */
-	while(length & 0xfffffffc)
-	{
-		*((unsigned int*) addr) = 0;
-		addr += 4;
-		length -= 4;
-	}
-
-	/* Deal with the remaining 1-3 bytes, if any */
-	while(length)
-	{
-		addr++;
-		length--;
-		*((unsigned char*) addr) = 0;
-	}
-}
 	
 /* Move length bytes from src to dest. Memory areas may overlap
  * Four possibilities:
@@ -118,4 +85,35 @@ void *memmove(void *dest, const void *src, unsigned int length)
 	}
 
 	return dest;
+}
+
+void memclr(void *address, unsigned int length)
+{
+	register unsigned int addr = (unsigned int)address;
+
+	/* If the start address is unaligned, fill in the first 1-3 bytes
+	 * until it is
+	 */
+	while((addr & 3) && length)
+	{
+		*((unsigned char *)addr) = 0;
+		addr++;
+		length--;
+	}
+
+	/* Fill in the remaining 32-bit word-aligned memory locations */
+	while(length & 0xfffffffc)
+	{
+		*((unsigned int *)addr) = 0;
+		addr+=4;
+		length-=4;
+	}
+
+	/* Deal with the remaining 1-3 bytes, if any */
+	while(length)
+	{
+		addr++;
+		length--;
+		*((unsigned char *)addr) = 0;
+	}
 }

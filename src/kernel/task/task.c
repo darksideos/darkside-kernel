@@ -1,6 +1,5 @@
 #include <lib/libgeneric.h>
-#include <hal/i386/isrs.h>
-#include <hal/i386/vmm.h>
+#include <kernel/init/hal.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
@@ -60,7 +59,7 @@ void test3_process_run()
 /* Initialize the multitasking system */
 void init_multitasking()
 {
-    asm volatile("cli");
+	hal_cli();
 
 	/* Initialize processes and threads */
 	init_processes();
@@ -92,6 +91,10 @@ void init_multitasking()
 	/* Initialize the syncronization primitives */
 	init_semaphores();
 	
+<<<<<<< HEAD
+=======
+	hal_sti();
+>>>>>>> raspi
 	/* Start multitasking by switching to the first thread in the kernel process */
     switchpid(0, 0);
 }
