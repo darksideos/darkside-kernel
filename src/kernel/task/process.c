@@ -1,7 +1,5 @@
 #include <lib/libgeneric.h>
-#include <hal/i386/gdt.h>
-#include <hal/i386/isrs.h>
-#include <hal/i386/vmm.h>
+#include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/task/process.h>
@@ -20,9 +18,6 @@ volatile unsigned int num_processes = 0;
 
 /* Current page directory */
 extern page_directory_t *current_directory;
-
-/* Restores the new task's context, defined in interrupt.s */
-extern void task_switch_stub();
 
 /* Initialize processes */
 void init_processes()
@@ -244,8 +239,7 @@ void switchpid(unsigned int pid, unsigned int tid)
 	
 	kprintf("PID0Threads: %08X, thread: %08X\n", processes[0]->threads, processes[0]->threads[0]);
 	/* Finally, switch to the new thread's context */
-	__asm__ __volatile__ ("mov %0, %%eax" :: "r" (new_context));
-	task_switch_stub();
+	task_switch_stub(new_context);
 }
 
 /* Return the current PID */

@@ -43,6 +43,7 @@ typedef struct
 	void  (*switch_page_directory)(void *dir);
 
 	/* Multitasking */
+	void  (*task_switch_stub)(void *context);
 
 	/* Syscalls */
 	void (*hal_init_syscalls)();

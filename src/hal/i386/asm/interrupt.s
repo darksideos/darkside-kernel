@@ -409,6 +409,7 @@ irq_common_stub:
 
 global task_switch_stub
 task_switch_stub:
+	mov eax, [ebp+8]
 	mov esp, eax	; Move the new task's context into ESP
 	
 	mov al, 0x20
