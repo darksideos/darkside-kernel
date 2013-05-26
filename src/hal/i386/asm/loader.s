@@ -24,8 +24,8 @@ start:
     mov esp, stack     ; This points the stack to our new stack area
     
 	push ebx		   ; Push the GRUB multiboot information structure
-	extern main		   ; Tell NASM that our main function is in another file
-	call main		   ; Call our C code
+	extern kernel_main ; Tell NASM that our main function is in another file
+	call kernel_main   ; Call our C code
 
 section .bss
 	resb 65536               ; This reserves 8KBytes of memory here

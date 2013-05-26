@@ -1,3 +1,4 @@
+#include <lib/libgeneric.h>
 #include <kernel/debug/bochs.h>
 
 void bochs_puts(unsigned char *text) {

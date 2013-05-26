@@ -5,6 +5,7 @@ unsigned char *memcpy(unsigned int *dest, const unsigned char *src, int count);
 unsigned char *memset(unsigned int *dest, unsigned char val, int count);
 unsigned short *memsetw(unsigned short *dest, unsigned short val, int count);
 bool memequal(unsigned char *ptr1, unsigned char *ptr2, unsigned int count);
+void memclr(void *address, unsigned int length);
 int strlen(const char *str);
 unsigned char *strcpy(unsigned char *dest, const unsigned char *src);
 unsigned char *strncpy(unsigned char *dest, const unsigned char *src, unsigned int size);
