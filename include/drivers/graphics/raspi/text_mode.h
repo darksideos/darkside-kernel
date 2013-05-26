@@ -12,5 +12,6 @@
 
 void puts(unsigned char *text);
 void putch(unsigned char data);
+void init_text_mode(unsigned short fg, unsigned short bg);
 
 #endif

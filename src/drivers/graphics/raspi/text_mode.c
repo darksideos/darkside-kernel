@@ -4,10 +4,29 @@
 #include <lib/libgeneric.h>
 
 unsigned short fg_color, bg_color;
-
 unsigned char current_x, current_y;
-
 unsigned int max_x, max_y, char_row_bytes;
+
+/* Move to a new line, and, if at the bottom of the screen, scroll the
+ * framebuffer 1 character row upwards, discarding the top row
+ */
+void newline()
+{
+	current_x = 0;
+	
+	if(current_y < (max_y - 1))
+	{
+		current_y++;
+	}
+	else
+	{
+		/* Move everything down one line */
+		memmove(get_graphics_pointer(), get_graphics_pointer() + char_row_bytes, (max_y - 1) * char_row_bytes);
+
+		/* Clear last line on screen */
+		memclr(get_graphics_pointer() + (max_y - 1) * char_row_bytes, char_row_bytes);
+	}
+}
 
 void settextcolor(unsigned short fg, unsigned short bg)
 {
@@ -87,26 +106,5 @@ void puts(unsigned char *text)
 	{
 		putch(*text);
 		text++;
-	}
-}
-
-/* Move to a new line, and, if at the bottom of the screen, scroll the
- * framebuffer 1 character row upwards, discarding the top row
- */
-void newline()
-{
-	current_x = 0;
-	
-	if(current_y < (max_y - 1))
-	{
-		current_y++;
-	}
-	else
-	{
-		/* Move everything down one line */
-		memmove(get_graphics_pointer(), get_graphics_pointer() + char_row_bytes, (max_y - 1) * char_row_bytes);
-
-		/* Clear last line on screen */
-		memclr(get_graphics_pointer() + (max_y - 1) * char_row_bytes, char_row_bytes);
 	}
 }
