@@ -4,9 +4,10 @@
 #include <hal/raspi/mailbox.h>
 #include <hal/raspi/memory.h>
 #include <hal/raspi/memutils.h>
+#include <hal/raspi/systimer.h>
+#include <hal/raspi/interrupts.h>
 #include <drivers/raspi/gpio/gpio.h>
 #include <drivers/raspi/uart/uart.h>
-#include <hal/raspi/systimer.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/text_mode.h>
 #include <drivers/graphics/raspi/textutils.h>
@@ -41,21 +42,23 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 	/* Initialise stuff */
 	mem_init();
 	uart_init();
+	interrupts_init();
 	init_text_mode(0xFFFF, 0x0000);
 	
 	uart_puts("Hello UART World");
 	
+/*
 	gpio_mode(18, OUTPUT);
 	gpio_write(18, HIGH);
 	while(1) {
 		gpio_write(18, LOW);
-// 		uart_puts(todec((unsigned int)micros(), 0));
-// 		uart_putch('\n');
+ 		uart_puts(todec((unsigned int)micros(), 0));
+ 		uart_putch('\n');
 		delay(1000);
 		gpio_write(18, HIGH);
 		delay(1000);
 	}
-
+*/
 	while(1);
 }
 
