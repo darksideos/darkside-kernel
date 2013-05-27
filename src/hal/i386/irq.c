@@ -69,6 +69,17 @@ void irq_uninstall_handler(int irq)
     irqs[irq] = 0;
 }
 
+/* Disable and enable IRQs */
+void hal_cli()
+{
+	__asm__ __volatile__ ("cli");
+}
+
+void hal_sti()
+{
+	__asm__ __volatile__ ("sti");
+}
+
 /* Handle an IRQ */
 void irq_handler(struct i386_regs *r)
 {
