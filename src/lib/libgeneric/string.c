@@ -1,6 +1,16 @@
 #include <lib/libgeneric.h>
 #include <kernel/mm/heap.h>
 
+/* THIS IS A RASPI TEMPORARY FIX */
+
+#ifdef __arm__
+
+unsigned int kmalloc(unsigned int sz) {
+	return 0;
+}
+
+#endif
+
 unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count)
 {
     const char *sp = (const char*) src;
