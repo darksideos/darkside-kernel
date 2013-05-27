@@ -1,5 +1,4 @@
 #include <lib/libgeneric.h>
-#include <kernel/init/hal.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
@@ -90,8 +89,6 @@ void init_multitasking()
 
 	/* Initialize the syncronization primitives */
 	init_semaphores();
-	
-	hal_sti();
 	
 	/* Start multitasking by switching to the first thread in the kernel process */
     switchpid(0, 0);
