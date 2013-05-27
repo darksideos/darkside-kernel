@@ -27,7 +27,7 @@ kernel-raspi.elf:
 	cd src/drivers/raspi; make CCBASE=$(ARM)
 	cd src/kernel; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
 	cd src/lib/libgeneric; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
-	$(ARM)-ld -T linker.pi -o $@ lib/raspi-libgcc.a build-raspi/hal/raspi/*.o build-raspi/drivers/graphics/raspi/*.o build-raspi/drivers/raspi/*/*.o
+	$(ARM)-ld -T linker.pi -o $@ lib/raspi-libgcc.a lib/libgeneric-raspi.a build-raspi/hal/raspi/*.o build-raspi/drivers/graphics/raspi/*.o build-raspi/drivers/raspi/*/*.o
 
 kernel-raspi.img: kernel-raspi.elf
 	$(ARM)-objcopy kernel-raspi.elf -O binary kernel-raspi.img

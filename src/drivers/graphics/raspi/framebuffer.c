@@ -1,6 +1,5 @@
 #include <lib/libgeneric.h>
 #include <hal/raspi/barrier.h>
-#include <hal/raspi/led.h>
 #include <hal/raspi/mailbox.h>
 #include <hal/raspi/memory.h>
 #include <hal/raspi/memutils.h>
@@ -22,7 +21,7 @@ void fb_fail(unsigned int num)
 {
 	while(true)
 	{
-		output(num);
+		/* :( */
 	}
 }
 
@@ -39,7 +38,7 @@ void fb_init()
 	volatile unsigned int mailbuffer[256] __attribute__((aligned (16)));
 
 	/* Physical memory address of the mailbuffer, for passing to VC */
-	unsigned char *physical_mb = mem_v2p((unsigned int) mailbuffer);
+	unsigned char *physical_mb = (unsigned char*) mem_v2p((unsigned int) mailbuffer);
 
 	/* Get the display size */
 	mailbuffer[0] = 8 * 4;		// Total size
@@ -51,7 +50,7 @@ void fb_init()
 	mailbuffer[6] = 0;			// Space for vertical resolution
 	mailbuffer[7] = 0;			// End tag
 
-	write_mailbox(8, physical_mb);
+	write_mailbox(8, (unsigned int) physical_mb);
 
 	read_mailbox(8);
 
@@ -112,7 +111,7 @@ void fb_init()
 
 	mailbuffer[0] = index * 4;				// Buffer size
 
-	write_mailbox(8, physical_mb);
+	write_mailbox(8, (unsigned int) physical_mb);
 
 	read_mailbox(8);
 
@@ -122,7 +121,7 @@ void fb_init()
 		fb_fail(FB_FAIL_SETUP_FRAMEBUFFER);	
 	}
 
-	unsigned int *tag = mailbuffer + 2;
+	unsigned int *tag = ((unsigned int*) mailbuffer) + 2;
 	
 	while(*tag != 0x40001)
 	{
@@ -153,7 +152,7 @@ void fb_init()
 		fb_fail(FB_FAIL_INVALID_TAG_DATA);
 	}
 
-	graphics_ptr = mem_p2v(graphics_ptr_physical);
+	graphics_ptr = (unsigned char*) mem_p2v(graphics_ptr_physical);
 
 	/* Get the framebuffer pitch (bytes per line) */
 	mailbuffer[0] = 7 * 4;		// Total size
@@ -164,7 +163,7 @@ void fb_init()
 	mailbuffer[5] = 0;			// Space for pitch
 	mailbuffer[6] = 0;			// End tag
 
-	write_mailbox(8, physical_mb);
+	write_mailbox(8, (unsigned int) physical_mb);
 
 	read_mailbox(8);
 

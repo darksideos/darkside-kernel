@@ -10,7 +10,7 @@ ordered_array_t create_ordered_array(unsigned int max_size, lessthan_predicate_t
 {
    ordered_array_t to_ret;
    to_ret.array = (void*)kmalloc(max_size*sizeof(type_t));
-   memset(to_ret.array, 0, max_size*sizeof(type_t));
+   memset((unsigned char*) to_ret.array, 0, max_size*sizeof(type_t));
    to_ret.size = 0;
    to_ret.max_size = max_size;
    to_ret.less_than = less_than;
@@ -21,7 +21,7 @@ ordered_array_t place_ordered_array(void *addr, unsigned int max_size, lessthan_
 {
    ordered_array_t to_ret;
    to_ret.array = (type_t*)addr;
-   memset(to_ret.array, 0, max_size*sizeof(type_t));
+   memset((unsigned char*) to_ret.array, 0, max_size*sizeof(type_t));
    to_ret.size = 0;
    to_ret.max_size = max_size;
    to_ret.less_than = less_than;
@@ -35,7 +35,7 @@ void destroy_ordered_array(ordered_array_t *array)
 
 void insert_ordered_array(type_t item, ordered_array_t *array)
 {
-   ASSERT(array->less_than);
+   ASSERT(array->less_than != 0);
    unsigned int iterator = 0;
    while (iterator < array->size && array->less_than(array->array[iterator], item))
        iterator++;
