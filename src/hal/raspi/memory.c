@@ -10,7 +10,7 @@
  */
 
 /* Need to access the page table, etc as physical memory */
-static unsigned int *pagetable = (unsigned const int*) mem_p2v(0x4000); /* 16k */
+static unsigned int *pagetable = (unsigned int*) mem_p2v(0x4000); /* 16k */
 
 /* Last used location in physical RAM */
 extern unsigned int _physbssend;
