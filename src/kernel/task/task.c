@@ -91,10 +91,8 @@ void init_multitasking()
 	/* Initialize the syncronization primitives */
 	init_semaphores();
 	
-<<<<<<< HEAD
-=======
 	hal_sti();
->>>>>>> raspi
+	
 	/* Start multitasking by switching to the first thread in the kernel process */
     switchpid(0, 0);
 }
