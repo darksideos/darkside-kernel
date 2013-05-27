@@ -1,7 +1,7 @@
 #include <lib/libgeneric.h>
 #include <kernel/mm/heap.h>
 
-unsigned char *memcpy(unsigned int *dest, const unsigned char *src, int count)
+unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count)
 {
     const char *sp = (const char*) src;
     char *dp = (char*) dest;
@@ -9,7 +9,7 @@ unsigned char *memcpy(unsigned int *dest, const unsigned char *src, int count)
     return dest;
 }
 
-unsigned char *memset(unsigned int *dest, unsigned char val, int count)
+unsigned char *memset(unsigned char *dest, unsigned char val, int count)
 {
     char *temp = (char *)dest;
     for( ; count != 0; count--) *temp++ = val;
