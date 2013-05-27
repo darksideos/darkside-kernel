@@ -9,8 +9,8 @@
  * Memory from 0x80000000 upwards won't be accessible to user processes
  */
 
-static unsigned int *initpagetable = (unsigned const int*) 0x4000; /* 16K */
-static unsigned int *kerneldatatable = (unsigned const int*) 0x3c00; /* 1K */
+static unsigned int *initpagetable = (unsigned int*) 0x4000; /* 16K */
+static unsigned int *kerneldatatable = (unsigned int*) 0x3c00; /* 1K */
 
 /* initsys calls main() when it's finished, so we need to tell the compiler
  * it's an external symbol
