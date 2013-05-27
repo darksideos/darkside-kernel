@@ -21,7 +21,7 @@ void newline()
 	else
 	{
 		/* Move everything down one line */
-		memmove(get_graphics_pointer(), get_graphics_pointer() + char_row_bytes, (max_y - 1) * char_row_bytes);
+		memcpy(get_graphics_pointer(), get_graphics_pointer() + char_row_bytes, (max_y - 1) * char_row_bytes);
 
 		/* Clear last line on screen */
 		memclr(get_graphics_pointer() + (max_y - 1) * char_row_bytes, char_row_bytes);
@@ -77,7 +77,7 @@ void putch(unsigned char data)
 	{
 		for(col = CHAR_WIDTH - 2; col >= 0; col--)
 		{
-			pixel = get_graphics_pointer() + offset;
+			pixel = (unsigned short*) (get_graphics_pointer() + offset);
 			
 			offset += 2;
 			
@@ -100,7 +100,7 @@ void putch(unsigned char data)
 	}
 }
 
-void puts(unsigned char *text)
+void puts(char *text)
 {
 	while(*text)
 	{

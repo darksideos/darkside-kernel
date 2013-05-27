@@ -10,7 +10,7 @@
 #define CHAR_WIDTH	6
 #define CHAR_HEIGHT 10
 
-void puts(unsigned char *text);
+void puts(char *text);
 void putch(unsigned char data);
 void init_text_mode(unsigned short fg, unsigned short bg);
 

@@ -1,8 +1,8 @@
 #ifndef __STRING_H
 #define __STRING_H
 
-unsigned char *memcpy(unsigned int *dest, const unsigned char *src, int count);
-unsigned char *memset(unsigned int *dest, unsigned char val, int count);
+unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count);
+unsigned char *memset(unsigned char *dest, unsigned char val, int count);
 unsigned short *memsetw(unsigned short *dest, unsigned short val, int count);
 bool memequal(unsigned char *ptr1, unsigned char *ptr2, unsigned int count);
 void memclr(void *address, unsigned int length);
