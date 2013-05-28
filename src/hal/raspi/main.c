@@ -2,8 +2,8 @@
 #include <hal/raspi/barrier.h>
 #include <hal/raspi/interrupts.h>
 #include <hal/raspi/mailbox.h>
-#include <hal/raspi/memory.h>
-#include <hal/raspi/memutils.h>
+#include <hal/raspi/vmm.h>
+#include <lib/libgeneric.h>
 #include <hal/raspi/systimer.h>
 #include <hal/raspi/interrupts.h>
 #include <drivers/raspi/gpio/gpio.h>

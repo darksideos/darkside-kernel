@@ -1,4 +1,4 @@
-#include <hal/raspi/memory.h>
+#include <hal/raspi/vmm.h>
 
 /* Virtual memory layout
  *ha
