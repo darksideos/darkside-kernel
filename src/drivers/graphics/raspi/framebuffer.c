@@ -1,8 +1,7 @@
 #include <lib/libgeneric.h>
 #include <hal/raspi/barrier.h>
 #include <hal/raspi/mailbox.h>
-#include <hal/raspi/memory.h>
-#include <hal/raspi/memutils.h>
+#include <hal/raspi/vmm.h>
 #include <drivers/graphics/raspi/textutils.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 

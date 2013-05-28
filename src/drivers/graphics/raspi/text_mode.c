@@ -36,7 +36,7 @@ void settextcolor(unsigned short fg, unsigned short bg)
 
 void clear()
 {
-	memclr(get_graphics_pointer(), (get_width() * get_height()));
+	memclr(get_graphics_pointer(), (get_pitch() * get_height()));
 }
 
 void init_text_mode(unsigned short fg, unsigned short bg)

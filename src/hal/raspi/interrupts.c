@@ -1,7 +1,7 @@
 #include <hal/raspi/interrupts.h>
 #include <hal/raspi/mmio.h>
 #include <drivers/raspi/gpio/gpio.h>
-#include <hal/raspi/memory.h>
+#include <hal/raspi/vmm.h>
 #include <hal/raspi/registers.h>
 #include <drivers/graphics/raspi/textutils.h>
 #include <drivers/graphics/raspi/framebuffer.h>
