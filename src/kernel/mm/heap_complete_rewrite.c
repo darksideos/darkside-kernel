@@ -9,7 +9,7 @@ heap_t *uheap = 0;
 void *kmalloc(unsigned int size)
 {
 	/* Allocate the memory */
-	void *address = heap_alloc(kheap, size, false);
+	void *address = heap_malloc(kheap, size, false);
 
 	/* Return the address */
 	return address;
@@ -18,7 +18,7 @@ void *kmalloc(unsigned int size)
 void *kmalloc_a(unsigned int size)
 {
 	/* Allocate the memory */
-	void *address = heap_alloc(kheap, size, true);
+	void *address = heap_malloc(kheap, size, true);
 
 	/* Return the address */
 	return address;
@@ -27,7 +27,7 @@ void *kmalloc_a(unsigned int size)
 void *kmalloc_p(unsigned int size, unsigned int *phys)
 {
 	/* Allocate the memory */
-	void *address = heap_alloc(kheap, size, false);
+	void *address = heap_malloc(kheap, size, false);
 
 	/* Get the page's frame address */
 	page_t *page = get_page(kernel_directory, address, false);
@@ -40,7 +40,7 @@ void *kmalloc_p(unsigned int size, unsigned int *phys)
 void *kmalloc_ap(unsigned int size, unsigned int *phys)
 {
 	/* Allocate the memory */
-	void *address = heap_alloc(kheap, size, true);
+	void *address = heap_malloc(kheap, size, true);
 
 	/* Get the page's frame address */
 	page_t *page = get_page(kernel_directory, address, false);
