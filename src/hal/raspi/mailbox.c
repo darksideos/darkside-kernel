@@ -3,7 +3,7 @@
  */
 #include <hal/raspi/mailbox.h>
 #include <hal/raspi/barrier.h>
-#include <hal/raspi/memory.h>
+#include <hal/raspi/vmm.h>
 
 /* Mailbox memory addresses */
 static volatile unsigned int *MAILBOX0READ = (unsigned int*) mem_p2v(0x2000b880);

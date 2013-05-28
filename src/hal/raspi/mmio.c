@@ -1,5 +1,5 @@
 #include <hal/raspi/mmio.h>
-#include <hal/raspi/memory.h>
+#include <hal/raspi/vmm.h>
 
 void outmeml(unsigned int address, unsigned int value)
 {

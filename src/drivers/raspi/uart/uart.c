@@ -1,5 +1,5 @@
 #include <drivers/raspi/uart/uart.h>
-#include <hal/raspi/memory.h>
+#include <hal/raspi/vmm.h>
 #include <hal/raspi/registers.h>
 #include <hal/raspi/mmio.h>
 
