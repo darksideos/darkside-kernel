@@ -175,7 +175,7 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 		new_size = PAGE_ALIGN(new_size);
 
 		/* Free pages from the heap */
-		for (i = heap->start_address + old_size; i > heap->start_address + new_size; i += 0x1000)
+		for (i = heap->start_address + old_size; i > heap->start_address + new_size; i -= 0x1000)
 		{
 			unmap_page(kernel_directory, i);
 		}
@@ -188,6 +188,11 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 	{
 		return;
 	}
+}
+
+/* Lookup a chunk */
+header_t *lookup_chunk(header_t *index, unsigned int size)
+{
 }
 
 /* Allocate memory on a heap */
@@ -245,25 +250,32 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 		/* See if we have enough space to our right, and if we do, use that */
 
 		/* Otherwise, we need to allocate a completely new memory block, and copy the data there */
-		void *new_address = heap_alloc(heap, size, align);
+		void *new_address = heap_malloc(heap, size, align);
 
 		/* Expand the memory block */
 		if (old_size < size)
 		{
 			memcpy(new_address, ptr, old_size);
+			heap_free(heap, ptr);
 		}
 		/* Shrink the memory block */
 		else if (old_size > size)
 		{
 			memcpy(new_address, ptr, size);
+			heap_free(heap_ptr);
 		}
 		/* Same size memory block */
 		else
 		{
-			memcpy(new_address, ptr, size);
+			return;
 		}
 
 		return new_address;
+	}
+	/* Null pointer */
+	else if (ptr == 0)
+	{
+		return heap_malloc(heap, size, align);
 	}
 
 	/* If the reallocation failed, return 0 */
