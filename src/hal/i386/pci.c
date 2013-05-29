@@ -1,8 +1,7 @@
 #include <lib/libgeneric.h>
 #include <hal/i386/ports.h>
 #include <kernel/mm/heap.h>
-#include <drivers/pci/pci.h>
-#include <kernel/device/device.h>
+#include <hal/i386/pci.h>
 
 #define CONFIG_ADDRESS 0xCF8
 #define CONFIG_DATA	   0xCFC
@@ -115,99 +114,6 @@ void pci_write_config_byte(unsigned short bus, unsigned short slot, unsigned sho
 	outportl(CONFIG_DATA, data);
 }
 
-/* Read the configuration data from a PCI device */
-pci_config_t *pci_read_config(unsigned short bus, unsigned short bus, unsigned short function)
-{
-	/* Create a device configuration structure and make sure it's 0 */
-	device_config_t *config = (device_config_t*) kmalloc(sizeof(device_config_t));
-	memset(config, 0, sizeof(device_config_t));
-
-	/* Read all the required data into the structure */
-	config->device_id = pci_read_config_word(bus, slot, function, 0);
-	config->vendor_id = pci_read_config_word(bus, slot, function, 2);
-
-	config->class_code = pci_read_config_byte(bus, slot, function, 8);
-	config->subclass = pci_read_config_byte(bus, slot, function, 9);
-	config->prog_if = pci_read_config_byte(bus, slot, function, 10);
-
-	/* Read the header type from the configuration space */
-	unsigned char header_type = pci_read_config_byte(bus, slot, function, 13);
-
-	/* Now read the Base Address Registers and IRQ, depending on the header type (with bit 7 masked) */
-	switch ((header_type & ~0x80))
-	{
-	case 0:	// General
-		unsigned int bar[6];
-
-		bar[0] = pci_read_config_dword(bus, slot, function, 16);
-		bar[1] = pci_read_config_dword(bus, slot, function, 20);
-		bar[2] = pci_read_config_dword(bus, slot, function, 24);
-		bar[3] = pci_read_config_dword(bus, slot, function, 28);
-		bar[4] = pci_read_config_dword(bus, slot, function, 32);
-		bar[5] = pci_read_config_dword(bus, slot, function, 36);
-
-		/* First, count the number of memory addresses and I/O addresses */
-		int i;
-		for (i = 0; i < 6; i++)
-		{
-			/* I/O address */
-			if (bar[i] & 0x01)
-			{
-				config->num_io++;
-			}
-			/* Memory address */
-			else
-			{
-				config->num_memory++;
-			}
-		}
-
-		/* Allocate the memory address and I/O address arrays */
-		config->memory = (unsigned long long*) kmalloc(sizeof(unsigned long long) * config->num_memory);
-		config->io = (unsigned int*) kmalloc(sizeof(unsigned int) * config->num_io);
-
-		/* Now actually add the values to the arrays */
-		int i;
-		int memory_index = 0;
-		int io_index = 0;
-		for (i = 0; i < 6; i++)
-		{
-			/* I/O address */
-			if (bar[i] & 0x01)
-			{
-				config->io[io_index] = bar[i] & 0xFFFFFFFC;
-				io_index++;
-			}
-			/* Memory address */
-			else
-			{
-				switch (bar[i] & 0x06)
-				{
-				/* 32 bit memory address */
-				case 0:
-					config->memory[memory_index] = bar[i] & 0xFFFFFFF0;
-					memory_index++;
-				/* 64 bit memory address */
-				case 2:
-					config->memory[memory_index] = (bar[i] & 0xFFFFFFF0) + ((bar[i + 1] & 0xFFFFFFFF) << 32);
-					memory_index++;
-				}
-			}
-		}
-
-		/* To do: check if we're using the 8259 PIC or I/O APIC */
-		config->irq = pci_read_config_byte(bus, slot, function, 63);
-		//config->pci_irq = pci_read_config_byte(bus, slot, function, 62);
-	/* Unsupported header type */
-	default:
-		/* Free the memory and return */
-		kfree(config);
-		return;
-	}
-
-	return config;
-}
-
 /* Check a function on the PCI bus */
 void check_function(unsigned short bus, unsigned short slot, unsigned short function)
 {
@@ -224,8 +130,6 @@ void check_function(unsigned short bus, unsigned short slot, unsigned short func
 		secondary_bus = pci_read_config_byte(bus, slot, function, 25);
 		check_bus((unsigned short)secondary_bus); */
 	}
-
-	/* Read the PCI configuration data and load its driver */
 }
 
 /* Check a device on the PCI bus */
