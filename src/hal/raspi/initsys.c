@@ -1,3 +1,5 @@
+ #include <hal/raspi/vmm.h>
+ 
  /* Virtual memory layout
  *
  * 0x00000000 - 0x7fffffff (0-2GB) = user process memory
@@ -74,7 +76,7 @@ __attribute__((naked)) void initsys(void)
 			/* Map physical memory to virtual
 			 * Read/write for priviledged modes, no execute
 			 */
-			initpagetable[x] = (x - 2048) << 20 | 0x0410 | 2;
+			initpagetable[x] = (x - 2048) << 20 | PAGE_MODE_PRW_UNA | PAGE_MODE_XN | 2;
 		}
 		else
 		{
@@ -89,7 +91,7 @@ __attribute__((naked)) void initsys(void)
 	 *
 	 * Read/write for privileged mode only
 	 */
-	initpagetable[0] = 0 << 20 | 0x0400 | 2;
+	initpagetable[0] = 0 << 20 | PAGE_MODE_PRW_UNA | 2;
 
 	/* Map 1MB at 0xf00000000-0xf00fffff to the kernel code in memory.
 	 * Typically, this is loaded at 0x9000, and appears in virtual memory
@@ -104,7 +106,7 @@ __attribute__((naked)) void initsys(void)
 	 * read-only and only available to the kernel, the potential for harm
 	 * is minimal
 	 */
-	initpagetable[3840] = 0 << 20 | 0x8400 | 2;
+	initpagetable[3840] = 0 << 20 | PAGE_MODE_PRO_UNA | 2;
 
 	/* 0xc0000000-0xc00fffff is mapped to physical memory by a course
 	 * page table
@@ -137,7 +139,7 @@ __attribute__((naked)) void initsys(void)
 		 * more than that and this code will need rewriting...)
 		 */
 		if(x <= ((unsigned int) &_physbssend >> 12))
-			kerneldatatable[x] = ((unsigned int) &_physdatastart + (x << 12)) | 0x0010 | 2;
+			kerneldatatable[x] = ((unsigned int) &_physdatastart + (x << 12)) | PAGE_MODE_XN | 2;
 		else
 			kerneldatatable[x] = 0;
 	}
