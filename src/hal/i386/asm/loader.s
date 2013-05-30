@@ -17,7 +17,7 @@ dd MULTIBOOT_CHECKSUM
 section .text
 
 ; This is the entry point of our kernel, it is referenced in the linker script
-KERNEL_VIRTUAL_BASE equ 0xBFF00000
+KERNEL_VIRTUAL_BASE equ 0x7FF00000
 
 global start
 start:
