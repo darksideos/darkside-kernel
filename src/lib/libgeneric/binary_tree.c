@@ -2,7 +2,7 @@
 #include <kernel/mm/heap.h>
 
 /* Create the root node of a binary tree */
-binary_tree_t create_binary_tree(lessthan_predicate_t less_than)
+binary_tree_t create_binary_tree()
 {
 	/* Create a binary tree root node and set it to 0 */
 	binary_tree_node_t *root = (binary_tree_node_t*) kmalloc(sizeof(binary_tree_node_t));
@@ -11,14 +11,13 @@ binary_tree_t create_binary_tree(lessthan_predicate_t less_than)
 	/* Next, create a binary tree structure and fill it out */
 	binary_tree_t tree;
 	tree.root = root;
-	tree.less_than = less_than;
 
 	/* Finally, return a pointer to the binary tree */
 	return tree;
 }
 
 /* Place the root node of a binary tree at a specificied address */
-binary_tree_t place_binary_tree(void *addr, lessthan_predicate_t less_than)
+binary_tree_t place_binary_tree(void *addr)
 {
 	/* Create a binary tree root node and set it to 0 */
 	binary_tree_node_t *root = (binary_tree_node_t*) addr;
@@ -27,7 +26,6 @@ binary_tree_t place_binary_tree(void *addr, lessthan_predicate_t less_than)
 	/* Next, create a binary tree structure and fill it out */
 	binary_tree_t tree;
 	tree.root = root;
-	tree.less_than = less_than;
 
 	/* Finally, return a pointer to the binary tree */
 	return tree;
@@ -38,7 +36,7 @@ void destroy_binary_tree(binary_tree_t tree)
 {
 	/* Get a pointer to the root node and destroy it */
 	binary_tree_node_t *root = tree.root;
-	destroy_binary_tree_node(root, true);
+	destroy_binary_tree_node(root);
 }
 
 /* Insert a value in a binary tree */
@@ -46,7 +44,7 @@ void insert_binary_tree(binary_tree_t tree, void *value)
 {
 	/* Get a pointer to the root node and insert the value there */
 	binary_tree_node_t *root = tree.root;
-	insert_binary_tree_node(&(*root), value, tree.less_than);
+	insert_binary_tree_node(&(*root), value);
 }
 
 /* Search for a value in a binary tree */
@@ -54,30 +52,25 @@ binary_tree_node_t *search_binary_tree(binary_tree_t tree, void *value)
 {
 	/* Get a pointer to the root node and search for the value */
 	binary_tree_node_t *root = tree.root;
-	return search_binary_tree_node(root, value, tree.less_than);
-}
-
-/* The standard lessthan predicate */
-bool standard_lessthan_predicate(void *a, void *b)
-{
-	return (a<b)?1:0;
+	return search_binary_tree_node(root, value);
 }
 
 /* Recursively destroy a binary tree node by freeing the parent and all of its children */
-void destroy_binary_tree_node(binary_tree_node_t *node, bool recursive)
+void destroy_binary_tree_node(binary_tree_node_t *node)
 {
 	if (node != 0)
-		if (recursive)
-		{
-			destroy_binary_tree_node(node->left);
-			destroy_binary_tree_node(node->right);
-		}
+	{
+		/* Recursively destroy the left and right nodes */
+		destroy_binary_tree_node(node->left);
+		destroy_binary_tree_node(node->right);
+
+		/* Free the node */
 		kfree(node);
 	}
 }
 
 /* Insert a value at a binary tree node */
-void insert_binary_tree_node(binary_tree_node_t **node, void *value, lessthan_predicate_t less_than)
+void insert_binary_tree_node(binary_tree_node_t **node, void *value)
 {
 	/* If the node is 0, create a new node and insert the value into it */
 	if (*node == 0)
@@ -89,19 +82,19 @@ void insert_binary_tree_node(binary_tree_node_t **node, void *value, lessthan_pr
 		(*node)->right = 0;
 	}
 	/* If the value is less than the value of the node, insert it at the left node */
-	else if (less_than(value, (*node)->value))
+	else if (value < (*node)->value)
 	{
-		insert_binary_tree_node(value, &(*node)->left, less_than);
+		insert_binary_tree_node(value, &(*node)->left);
 	}
 	/* If the value is greater than the value of the node, insert it at the right node */
-	else if (less_than((*node)->value, value))
+	else if ((*node)->value < value)
 	{
-		insert_binary_tree_node(value, &(*node)->right, less_than);
+		insert_binary_tree_node(value, &(*node)->right);
 	}
 }
 
 /* Search for a value at a binary tree node */
-binary_tree_node_t *search_binary_tree_node(binary_tree_node_t *node, void *value, lessthan_predicate_t less_than)
+binary_tree_node_t *search_binary_tree_node(binary_tree_node_t *node, void *value)
 {
 	if (node != 0)
 	{
@@ -111,14 +104,14 @@ binary_tree_node_t *search_binary_tree_node(binary_tree_node_t *node, void *valu
 			return node;
 		}
 		/* If the value is less than the value of the node, search at the left node */
-		if (less_than(node->value == value))
+		if (value < node->value)
 		{
-			return search_binary_tree_node(node->left, value, less_than);
+			return search_binary_tree_node(node->left, value);
 		}
 		/* Otherwise, search at the right node */
 		else
 		{
-			return search_binary_tree_node(node->right, value, less_than);
+			return search_binary_tree_node(node->right, value);
 		}
 	}
 }
