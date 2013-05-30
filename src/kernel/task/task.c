@@ -5,6 +5,7 @@
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>
 #include <kernel/ipc/semaphore.h>
+#include <hal/i386/vmm.h>
 
 /* Task switching modes
  * Bit 0: 0 - 32 bit protected mode, 1 - 64 bit long mode
