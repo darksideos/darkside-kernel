@@ -2,7 +2,7 @@ ENTRY (start)
 OUTPUT ("elf32-i386")
 
 SECTIONS {
-    . = 0x00100000;
+    . = 0x80000000;
 	.multi : {
 		*(.multi)
 	}
