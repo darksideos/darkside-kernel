@@ -5,6 +5,8 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/ipc/signal.h>
+#include <hal/i386/vmm.h>
+#include <hal/i386/isrs.h>
 
 /* Maximum number of processes that can be run */
 unsigned int max_processes = 4096;
