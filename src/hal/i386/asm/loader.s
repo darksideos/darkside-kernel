@@ -34,13 +34,16 @@ start:
 section .bss
 	resb 65536               ; This reserves 64KBytes of memory here
 stack:
+
+; Initial page structures
+
+global pd
+global pt_lower
+global pt_higher
+
 pd:
 	resb 4096
 pt_lower:
 	resb 4096
 pt_higher:
 	resb 4096
-	
-global pd
-global pt_lower
-global pt_higher
