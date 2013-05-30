@@ -57,5 +57,5 @@ _start:
 
 	/* Jump to memory map initialisation code */
 	/* b initsys */
-	bl main
+	bl raspi_main
 
