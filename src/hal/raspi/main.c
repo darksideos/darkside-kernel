@@ -35,15 +35,15 @@ extern unsigned int _kstart, _krodata, _kend;
 void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 {
 	/* No further need to access kernel code at 0x00000000 - 0x000fffff */
-	initpagetable[0] = 0;
+	//initpagetable[0] = 0;
 	/* Flush it out of the TLB */
-	asm volatile("mcr p15, 0, %[data], c8, c7, 1" : : [data] "r" (0x00000000));
+	//asm volatile("mcr p15, 0, %[data], c8, c7, 1" : : [data] "r" (0x00000000));
 	
 	/* Initialise stuff */
-	mem_init();
+	//mem_init();
 	uart_init();
-	interrupts_init();
-	init_text_mode(0xFFFF, 0x0000);
+	//interrupts_init();
+	//init_text_mode(0xFFFF, 0x0000);
 	
 	uart_puts("Hello UART World");
 	
