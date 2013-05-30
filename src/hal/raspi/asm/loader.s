@@ -56,6 +56,5 @@ _start:
 	mcr p15, #0, r4, c1, c0, #0
 
 	/* Jump to memory map initialisation code */
-	/* b initsys */
-	b raspi_main
+	b initsys
 

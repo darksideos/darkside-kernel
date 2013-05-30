@@ -32,9 +32,8 @@
  * r1 should be the machine type - 0x0c42 = Raspberry Pi
  * r2 should be the ATAGs structure address (probably 0x100)
  */
- 
- /* unsigned int r0, unsigned int machtype, unsigned int atagsaddr */
-__attribute__((naked)) void raspi_main()
+
+void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 {
 	/* No further need to access kernel code at 0x00000000 - 0x000fffff */
 	//initpagetable[0] = 0;
