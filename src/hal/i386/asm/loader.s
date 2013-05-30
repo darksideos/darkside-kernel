@@ -24,9 +24,22 @@ start:
     mov esp, stack     ; This points the stack to our new stack area
     
 	push ebx		   ; Push the GRUB multiboot information structure
-	extern kernel_main ; Tell NASM that our main function is in another file
-	call kernel_main   ; Call our C code
+	extern load_higherhalf ; Tell NASM that our main function is in another file
+	call load_higherhalf; Call our C code
 
 section .bss
-	resb 65536               ; This reserves 8KBytes of memory here
+	resb 65536               ; This reserves 64KBytes of memory here
 stack:
+
+section .paging
+pd:
+	resb 4096
+pt_lower0:
+	resb 4096
+pt_lower1:
+	resb 4096
+pt_higher0:
+	resb 4096
+pt_higher1:
+	resb 4096
+
