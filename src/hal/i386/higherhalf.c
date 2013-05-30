@@ -1,14 +1,39 @@
-#include <hal/i386/vmm.h>
 #include <kernel/init/main.h>
 #include <kernel/modules/multiboot.h>
 
-extern page_directory_t pd;
-extern page_table_t pt_lower0, pt_lower1, pt_higher0, pt_higher1;
+extern unsigned int pd[1024];
+extern unsigned int pt_lower[1024], pt_higher[1024];
 
 void load_higherhalf(struct multiboot *mboot_ptr)
 {
 	/* Map the multiboot, text, data, and BSS sections to their addresses */
+	unsigned int address;
 
-	/* Call the kernel's code */
+	/* Lower half */
+	for (address = 0; address < 0x400000; address += 0x1000)
+	{
+		pt_lower[address / 0x1000] = address | 0x07;
+	}
+
+	/* Higher half */
+	for (address = 0x100000; address < 0x400000; address += 0x1000)
+	{
+		pt_higher[(address - 0x1000) / 0x1000] = address | 0x07;
+	}
+
+	/* Add the page tables into the page directory */
+	pd[0] = &pt_lower;
+	pd[512] = &pt_higher;
+
+	/* Switch to the page directory */
+	asm volatile("mov %0, %%cr3" :: "r"(&pd));
+
+	/* Now enable paging! */
+	unsigned int cr0;
+    asm volatile("mov %%cr0, %0" : "=r"(cr0));
+    cr0 |= 0x80000000;
+    asm volatile("mov %0, %%cr0" :: "r"(cr0));
+
+	/* Call kernel main */
 	kernel_main(mboot_ptr);
 }
