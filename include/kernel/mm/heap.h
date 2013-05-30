@@ -1,6 +1,8 @@
 #ifndef __HEAP_H
 #define __HEAP_H
 
+#include <lib/libgeneric.h>
+
 #define KHEAP_START        0xE0000000
 #define KHEAP_INITIAL_SIZE 0x100000
 #define KHEAP_MIN_SIZE	   0x70000
