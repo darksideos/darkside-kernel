@@ -48,6 +48,6 @@ void kernel_main(struct multiboot *mboot_ptr)
 	/* Create the init process */
 
 	/* Finally, start multitasking by switching to the kernel process */
-	init_multitasking();
+	//init_multitasking();
 	while(1);
 }
