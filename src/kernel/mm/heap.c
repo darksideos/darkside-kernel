@@ -1,9 +1,12 @@
 #include <lib/libgeneric.h>
 #include <kernel/mm/heap.h>
+#include <hal/i386/vmm.h>
 
 /* The kernel and user heaps */
-heap_t *kheap = 0
+heap_t *kheap = 0;
 heap_t *uheap = 0;
+
+extern page_directory_t *kernel_directory;
 
 /* Allocate memory on the kernel heap */
 void *kmalloc(unsigned int size)
@@ -30,7 +33,7 @@ void *kmalloc_p(unsigned int size, unsigned int *phys)
 	void *address = heap_malloc(kheap, size, false);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false);
+	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -43,7 +46,7 @@ void *kmalloc_ap(unsigned int size, unsigned int *phys)
 	void *address = heap_malloc(kheap, size, true);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false);
+	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -81,7 +84,7 @@ void *krealloc_p(void *ptr, unsigned int size, unsigned int *phys)
 	void *address = heap_realloc(kheap, ptr, size, false);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false);
+	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -94,7 +97,7 @@ void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
 	void *address = heap_realloc(kheap, ptr, size, true);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false);
+	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -153,6 +156,8 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 		/* Make sure the new end address is page aligned */
 		new_size = PAGE_ALIGN(new_size);
 
+		int i;
+
 		/* Allocate new pages for the heap */
 		for (i = heap->start_address + old_size; i < heap->start_address + new_size; i += 0x1000)
 		{
@@ -173,6 +178,8 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 
 		/* Make sure the new end address is page aligned */
 		new_size = PAGE_ALIGN(new_size);
+
+		int i;
 
 		/* Free pages from the heap */
 		for (i = heap->start_address + old_size; i > heap->start_address + new_size; i -= 0x1000)
@@ -262,7 +269,7 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 		else if (old_size > size)
 		{
 			memcpy(new_address, ptr, size);
-			heap_free(heap_ptr);
+			heap_free(heap, ptr);
 		}
 		/* Same size memory block */
 		else
