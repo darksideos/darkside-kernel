@@ -23,7 +23,15 @@ global start
 start:
 	cli
 	
-    mov esp, stack     ; This points the stack to our new stack area
+    mov esp, (stack - KERNEL_VIRTUAL_BASE)     ; This points the stack to our new stack area
+    
+    mov eax, (pd - KERNEL_VIRTUAL_BASE)
+    mov ecx, (pt_lower - KERNEL_VIRTUAL_BASE)
+    mov edx, (pt_higher - KERNEL_VIRTUAL_BASE)
+    
+    push edx
+    push ecx
+    push eax
     
     push ebx	; Push the multiboot information pointer
     
