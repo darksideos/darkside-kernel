@@ -1,10 +1,7 @@
 #include <kernel/init/main.h>
 #include <kernel/modules/multiboot.h>
 
-extern unsigned int pd[1024];
-extern unsigned int pt_lower[1024], pt_higher[1024];
-
-void load_higherhalf(struct multiboot *mboot_ptr)
+void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int *pt_lower, unsigned int *pt_higher)
 {
 	/* Map the multiboot, text, data, and BSS sections to their addresses */
 	unsigned int address;
@@ -22,11 +19,11 @@ void load_higherhalf(struct multiboot *mboot_ptr)
 	}
 
 	/* Add the page tables into the page directory */
-	pd[0] = &pt_lower;
-	pd[512] = &pt_higher;
+	pd[0] = pt_lower;
+	pd[512] = pt_higher;
 
 	/* Switch to the page directory */
-	asm volatile("mov %0, %%cr3" :: "r"(&pd));
+	asm volatile("mov %0, %%cr3" :: "r"(pd));
 
 	/* Now enable paging! */
 	unsigned int cr0;
