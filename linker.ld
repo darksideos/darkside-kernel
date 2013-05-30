@@ -3,7 +3,8 @@ OUTPUT ("elf32-i386")
 
 SECTIONS {
     . = 0x80000000;
-	.multi : {
+	.multi :
+	{
 		*(.multi)
 	}
     .text ALIGN (0x1000) :
