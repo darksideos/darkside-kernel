@@ -1,31 +1,9 @@
-#include <kernel/init/hal.h>
-#include <kernel/mm/heap.h>
-#include <kernel/modules/initrd.h>
-#include <lib/libgeneric.h>
-#include <kernel/vfs/vfs.h>
-#include <drivers/graphics/vga.h>
-#include <kernel/debug/kprintf.h>
-#include <kernel/modules/elf.h>
-#include <hal/i386/vmm.h>
-#include <kernel/debug/bochs.h>
-#include <kernel/task/task.h>
-
-extern unsigned int placement_address;
-
-void kernel_main(struct multiboot *mboot_ptr)
-{
-	/* Start the VGA text mode driver */
-	init_text_mode(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-
 	/* Multiboot information */
 //	initrd_header_t *initrd = mboot_ptr->mods_addr->mod_start;
 //	unsigned int initrd_size = mboot_ptr->mods_addr->mod_end - mboot_ptr->mods_addr->mod_start;
 	
 	/* Prevent placement allocation from trampling over the initrd */
 //	placement_address = mboot_ptr->mods_addr->mod_end;
-	
-	/* Call the HAL main function to initialize the CPU */
-	hal_main(mboot_ptr);
 
 //	unsigned char *new_initrd = kmalloc(initrd_size);
 //	memcpy(new_initrd, initrd, initrd_size);
@@ -49,8 +27,3 @@ void kernel_main(struct multiboot *mboot_ptr)
 
 	/* Finally, start multitasking by switching to the kernel process */
 	//init_multitasking();
-
-	kprintf("%08x\n", &kernel_main);
-
-	while(1);
-}

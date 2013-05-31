@@ -244,7 +244,7 @@ void kprintf(const char *fmt, ...)
 
 	buf[i] = '\0';
 
-	bochs_puts(buf);
+	puts(buf);
 }
 
 void error_kprintf(const char *fmt, ...)
