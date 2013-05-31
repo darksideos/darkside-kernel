@@ -1,297 +1,498 @@
 #include <lib/libgeneric.h>
-#include <kernel/mm/heap.h>
+#include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
+#include <kernel/mm/heap.h>
 
-/* The kernel and user heaps */
-heap_t *kheap = 0;
-heap_t *uheap = 0;
+extern unsigned int end;
+unsigned int placement_address = (unsigned int)&end;
 
 extern page_directory_t *kernel_directory;
 
+heap_t *kheap = 0;
+
+/* Internal memory allocator */
+unsigned int kmalloc_int(unsigned int sz, int align, unsigned int *phys, bool placement)
+{
+	/* If the kernel heap exists and we don't want to use placement address allocation, allocate the memory on the kernel heap */
+    if (kheap != 0 && !placement)
+    {
+        void *addr = alloc(sz, (unsigned char)align, kheap);
+        if (phys != 0)
+        {
+            page_t *page = get_page(kernel_directory, (unsigned int)addr, false, 0);
+            *phys = page->frame * 0x1000 + (unsigned int)addr & 0xFFF;
+        }
+        return (unsigned int)addr;
+    }
+	/* Otherwise, use placement address allocation */
+    else
+    {
+        if (align == 1)
+        {
+            placement_address = PAGE_ALIGN(placement_address);
+        }
+        if (phys)
+        {
+            *phys = placement_address;
+        }
+        unsigned int tmp = placement_address;
+        placement_address += sz;
+        return tmp;
+    }
+}
+
+/* Allocate memory using placement address allocation */
+unsigned int placement_kmalloc_a(unsigned int sz)
+{
+    return kmalloc_int(sz, 1, 0, true);
+}
+
+unsigned int placement_kmalloc_p(unsigned int sz, unsigned int *phys)
+{
+    return kmalloc_int(sz, 0, phys, true);
+}
+
+unsigned int placement_kmalloc_ap(unsigned int sz, unsigned int *phys)
+{
+    return kmalloc_int(sz, 1, phys, true);
+}
+
+unsigned int placement_kmalloc(unsigned int sz)
+{
+    return kmalloc_int(sz, 0, 0, true);
+}
+
 /* Allocate memory on the kernel heap */
-void *kmalloc(unsigned int size)
+unsigned int kmalloc_a(unsigned int sz)
 {
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, false);
-
-	/* Return the address */
-	return address;
+    return kmalloc_int(sz, 1, 0, false);
 }
 
-void *kmalloc_a(unsigned int size)
+unsigned int kmalloc_p(unsigned int sz, unsigned int *phys)
 {
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, true);
-
-	/* Return the address */
-	return address;
+    return kmalloc_int(sz, 0, phys, false);
 }
 
-void *kmalloc_p(unsigned int size, unsigned int *phys)
+unsigned int kmalloc_ap(unsigned int sz, unsigned int *phys)
 {
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, false);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
+    return kmalloc_int(sz, 1, phys, false);
 }
 
-void *kmalloc_ap(unsigned int size, unsigned int *phys)
+unsigned int kmalloc(unsigned int sz)
 {
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, true);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
+    return kmalloc_int(sz, 0, 0, false);
 }
 
-/* Free memory on the kernel heap */
-void kfree(void *ptr)
+/* Resize a block of memory allocated on the kernel heap */
+unsigned int krealloc_int(unsigned int *ptr, unsigned int sz, int align, unsigned int *phys)
 {
-	heap_free(kheap, ptr);
-}
-
-/* Resize memory allocated on the kernel heap */
-void *krealloc(void *ptr, unsigned int size)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, false);
-
-	/* Return the address */
-	return address;
-}
-
-void *krealloc_a(void *ptr, unsigned int size)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, true);
-
-	/* Return the address */
-	return address;
-}
-
-void *krealloc_p(void *ptr, unsigned int size, unsigned int *phys)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, false);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
-}
-
-void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, true);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
-}
-
-/* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, unsigned int flags)
-{
-	/* First, create a heap structure, make sure it's 0, and fill in its data */
-	heap_t *heap = (heap_t*) kmalloc(sizeof(heap_t));
-	memset(heap, 0, sizeof(heap_t));
-
-	heap->start_address = start_address;
-	heap->end_address = end_address;
-	heap->min_address = min_address;
-	heap->max_address = max_address;
-
-	heap->flags = flags;
-
-	/* Second, create the root of the heap index, make sure it's 0, and fill in its data */
-	header_t *index = (header_t*) kmalloc(sizeof(header_t));
-	memset(index, 0, sizeof(header_t));
-
-	index->magic = HEAP_MAGIC;
-	index->type = 0;
-	index->size = end_address - start_address;
-
-	heap->index = index;
-
-	/* Finally, return the new heap */
-	return heap;
-}
-
-/* Expand or contract a heap */
-void resize_heap(heap_t *heap, unsigned int new_size)
-{
-	/* If the heap doesn't exist, just return */
-	if (!heap)
+	if (kheap != 0)
 	{
-		return;
-	}
-
-	/* Get the old and maximum size of the heap */
-	unsigned int old_size = heap->end_address - heap->start_address;
-
-	/* Expand the heap */
-	if (new_size > old_size)
-	{
-		/* If the new size is greater than the maximum heap size, just return */
-		if (heap->start_address + new_size > heap->max_address)
+		void *addr = alloc(sz, (unsigned char)align, kheap);
+		if (phys != 0)
 		{
-			return;
+			page_t *page = get_page(kernel_directory, (unsigned int)addr, false, 0);
+			*phys = page->frame * 0x1000 + (unsigned int)addr & 0xFFF;
 		}
 
-		/* Make sure the new end address is page aligned */
-		new_size = PAGE_ALIGN(new_size);
-
-		int i;
-
-		/* Allocate new pages for the heap */
-		for (i = heap->start_address + old_size; i < heap->start_address + new_size; i += 0x1000)
+		if (ptr != 0) // If ptr is not a NULL pointer
 		{
-			map_page(kernel_directory, i, pmm_alloc_page(), heap->flags);
+			unsigned int old_size = ksize(ptr);
+
+			if (old_size < sz) // We're expanding the memory block
+			{
+				memcpy(addr, ptr, old_size);
+			}
+			else if (old_size == sz) // Same size memory block
+			{
+				memcpy(addr, ptr, sz);
+			}
+			else // We're shrinking the memory block
+			{
+				memcpy(addr, ptr, sz);
+			}
+
+			kfree(ptr);
 		}
 
-		/* Finally, modify the heap's end address */
-		heap->end_address = heap->start_address + new_size;
-	}
-	/* Contract the heap */
-	else if (new_size < old_size)
-	{
-		/* If the new size is less than the minimum heap size, just return */
-		if (heap->start_address + new_size < heap->min_address)
-		{
-			return;
-		}
-
-		/* Make sure the new end address is page aligned */
-		new_size = PAGE_ALIGN(new_size);
-
-		int i;
-
-		/* Free pages from the heap */
-		for (i = heap->start_address + old_size; i > heap->start_address + new_size; i -= 0x1000)
-		{
-			unmap_page(kernel_directory, i);
-		}
-
-		/* Finally, modify the heap's end address */
-		heap->end_address = heap->start_address + new_size;
-	}
-	/* The two sizes are equal */
-	else
-	{
-		return;
+		return (unsigned int)addr;
 	}
 }
 
-/* Lookup a chunk */
-header_t *lookup_chunk(header_t *index, unsigned int size)
+unsigned int krealloc_a(unsigned int *ptr, unsigned int sz)
 {
+	return krealloc_int(ptr, sz, 1, 0);
 }
 
-/* Allocate memory on a heap */
-void *heap_malloc(heap_t *heap, unsigned int size, bool align)
+unsigned int krealloc_p(unsigned int *ptr, unsigned int sz, unsigned int *phys)
 {
-	/* If the heap doesn't exist, return 0 */
-	if (!heap)
-	{
-		return 0;
-	}
+	return krealloc_int(ptr, sz, 0, phys);
+}
 
-	/* Get the new size of the chunk */
-	unsigned int chunk_size = sizeof(header_t) + size + sizeof(footer_t);
+unsigned int krealloc_ap(unsigned int *ptr, unsigned int sz, unsigned int *phys)
+{
+	return krealloc_int(ptr, sz, 1, phys);
+}
 
-	/* Find a chunk that can fit our size */
-	header_t *chunk = lookup_chunk(heap->index, chunk_size);
+unsigned int krealloc(unsigned int *ptr, unsigned int sz)
+{
+	return krealloc_int(ptr, sz, 0, 0);
+}
 
-	/* If we found a chunk, return the address of the memory we found */
-	if (chunk != 0)
+/* Free a block of memory allocated on the kernel heap */
+void kfree(void *p)
+{
+	if (kheap != 0)
 	{
-		return (void*) ((unsigned int)chunk + chunk->size);
-	}
-	/* Otherwise, if we somehow reached here, return 0 */
-	else
-	{
-		return 0;
+		free(p, kheap);
 	}
 }
 
-/* Free memory on a heap */
-void heap_free(heap_t *heap, void *ptr)
+/* Return the size of a block of memory allocated on the heap */
+unsigned int ksize(unsigned int *ptr)
 {
+	/* Get the address of the header */
+	header_t *header = ptr - sizeof(header_t);
+
+	return header->size - (sizeof(header_t) + sizeof(footer_t));
 }
 
-/* Resize memory allocated on a heap */
-void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
+static void expand(unsigned int new_size, heap_t *heap)
 {
-	/* If the heap doesn't exist, return 0 */
-	if (!heap)
+    ASSERT(new_size > heap->end_address - heap->start_address);
+
+    /* Page align the new size */
+    new_size = PAGE_ALIGN(new_size);
+
+    /* Make sure we are not going past the heap's maximum address */
+    ASSERT(heap->start_address + new_size <= heap->max_address);
+
+    /* Map some pages in the kernel heap */
+    unsigned int old_size = heap->end_address - heap->start_address;
+	
+	unsigned int i;
+	for (i = old_size; i < new_size; i += 0x1000)
 	{
-		return 0;
+		map_page(kernel_directory, heap->start_address + i, pmm_alloc_page(), 0x07);
 	}
 
-	/* Make sure the pointer and size aren't 0 */
-	if (ptr != 0 && size != 0)
+    heap->end_address = heap->start_address + new_size;
+}
+
+static unsigned int contract(unsigned int new_size, heap_t *heap)
+{
+    ASSERT(new_size < heap->end_address-heap->start_address);
+
+    /* Page align the new size */
+    new_size = PAGE_ALIGN(new_size);
+
+    /* Make sure we are not going past the heap's maximum address */
+    if (new_size < HEAP_MIN_SIZE)
 	{
-		/* Find the header and footer of the memory and get its old size, not counting the size of the header or footer */
-		header_t *header = (header_t*) (ptr - sizeof(header_t));
-		footer_t *footer = (footer_t*) (header + header->size);
+        new_size = HEAP_MIN_SIZE;
+	}
 
-		unsigned int old_size = header->size - sizeof(header_t) - sizeof(header_t);
+	/* Free some pages in the kernel heap */
+    unsigned int old_size = heap->end_address - heap->start_address;
 
-		/* See if we have enough space to our left, and if we do, use that */
+	unsigned int i;
+	for (i = old_size; i > new_size; i -= 0x1000)
+	{
+		unmap_page(kernel_directory, heap->start_address + i);
+	}
 
-		/* See if we have enough space to our right, and if we do, use that */
+    heap->end_address = heap->start_address + new_size;
+    return new_size;
+}
 
-		/* Otherwise, we need to allocate a completely new memory block, and copy the data there */
-		void *new_address = heap_malloc(heap, size, align);
-
-		/* Expand the memory block */
-		if (old_size < size)
+static int find_smallest_hole(unsigned int size, unsigned char page_align, heap_t *heap)
+{
+    unsigned int iterator = 0;
+    while (iterator < heap->index.size)
+    {
+        header_t *header = (header_t *)lookup_ordered_array(iterator, &heap->index);
+        if (page_align)
+        {
+            unsigned int location = (unsigned int)header;
+            int offset = 0;
+            if ((location+sizeof(header_t)) & 0xFFFFF000 != 0)
+			{
+                offset = 0x1000 - (location + sizeof(header_t)) % 0x1000;
+			}
+            int hole_size = (int)header->size - offset;
+            if (hole_size >= (int)size)
+			{
+                break;
+			}
+        }
+        else if (header->size >= size)
 		{
-			memcpy(new_address, ptr, old_size);
-			heap_free(heap, ptr);
+            break;
 		}
-		/* Shrink the memory block */
-		else if (old_size > size)
-		{
-			memcpy(new_address, ptr, size);
-			heap_free(heap, ptr);
-		}
-		/* Same size memory block */
-		else
-		{
-			return;
-		}
+        iterator++;
+    }
 
-		return new_address;
-	}
-	/* Null pointer */
-	else if (ptr == 0)
+    if (iterator == heap->index.size)
 	{
-		return heap_malloc(heap, size, align);
+        return -1;
 	}
-
-	/* If the reallocation failed, return 0 */
-	return 0;
+    else
+	{
+        return iterator;
+	}
 }
 
-/* Initialize the kernel and user heaps */
-void init_heap()
+static char header_t_less_than(void*a, void *b)
 {
-	/* Create the kernel and user heaps */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, 0x07);
+    return (((header_t*)a)->size < ((header_t*)b)->size)?1:0;
+}
+
+heap_t *create_heap(unsigned int start, unsigned int end_addr, unsigned int max, unsigned char supervisor, unsigned char readonly)
+{
+    heap_t *heap = (heap_t*) kmalloc(sizeof(heap_t));
+
+    // All our assumptions are made on startAddress and endAddress being page-aligned.
+    ASSERT(start % 0x1000 == 0);
+    ASSERT(end_addr % 0x1000 == 0);
+    
+    // Initialise the index.
+    heap->index = place_ordered_array((void*)start, HEAP_INDEX_SIZE, &header_t_less_than);
+    
+    // Shift the start address forward to resemble where we can start putting data.
+    start += sizeof(type_t)*HEAP_INDEX_SIZE;
+
+    // Make sure the start address is page-aligned.
+    start = PAGE_ALIGN(start);
+
+    // Write the start, end and max addresses into the heap structure.
+    heap->start_address = start;
+    heap->end_address = end_addr;
+    heap->max_address = max;
+    heap->supervisor = supervisor;
+    heap->readonly = readonly;
+
+    // We start off with one large hole in the index.
+    header_t *hole = (header_t *) start;
+    hole->size = end_addr - start;
+    hole->magic = HEAP_MAGIC;
+    hole->is_hole = 1;
+    insert_ordered_array((void*)hole, &heap->index);     
+
+    return heap;
+}
+
+void *alloc(unsigned int size, unsigned char page_align, heap_t *heap)
+{
+
+    // Make sure we take the size of header/footer into account.
+    unsigned int new_size = size + sizeof(header_t) + sizeof(footer_t);
+    // Find the smallest hole that will fit.
+    int iterator = find_smallest_hole(new_size, page_align, heap);
+
+    if (iterator == -1) // If we didn't find a suitable hole
+    {
+        // Save some previous data.
+        unsigned int old_length = heap->end_address - heap->start_address;
+        unsigned int old_end_address = heap->end_address;
+
+        // We need to allocate some more space.
+        expand(old_length+new_size, heap);
+        unsigned int new_length = heap->end_address-heap->start_address;
+
+        // Find the endmost header. (Not endmost in size, but in location).
+        iterator = 0;
+        // Vars to hold the index of, and value of, the endmost header found so far.
+        unsigned int idx = -1; unsigned int value = 0x0;
+        while (iterator < heap->index.size)
+        {
+            unsigned int tmp = (unsigned int)lookup_ordered_array(iterator, &heap->index);
+            if (tmp > value)
+            {
+                value = tmp;
+                idx = iterator;
+            }
+            iterator++;
+        }
+
+        // If we didn't find ANY headers, we need to add one.
+        if (idx == -1)
+        {
+            header_t *header = (header_t *)old_end_address;
+            header->magic = HEAP_MAGIC;
+            header->size = new_length - old_length;
+            header->is_hole = 1;
+            footer_t *footer = (footer_t *) (old_end_address + header->size - sizeof(footer_t));
+            footer->magic = HEAP_MAGIC;
+            footer->header = header;
+            insert_ordered_array((void*)header, &heap->index);
+        }
+        else
+        {
+            // The last header needs adjusting.
+            header_t *header = lookup_ordered_array(idx, &heap->index);
+            header->size += new_length - old_length;
+            // Rewrite the footer.
+            footer_t *footer = (footer_t *) ( (unsigned int)header + header->size - sizeof(footer_t) );
+            footer->header = header;
+            footer->magic = HEAP_MAGIC;
+        }
+        // We now have enough space. Recurse, and call the function again.
+        return alloc(size, page_align, heap);
+    }
+
+    header_t *orig_hole_header = (header_t *)lookup_ordered_array(iterator, &heap->index);
+    unsigned int orig_hole_pos = (unsigned int)orig_hole_header;
+    unsigned int orig_hole_size = orig_hole_header->size;
+    // Here we work out if we should split the hole we found into two parts.
+    // Is the original hole size - requested hole size less than the overhead for adding a new hole?
+    if (orig_hole_size-new_size < sizeof(header_t)+sizeof(footer_t))
+    {
+        // Then just increase the requested size to the size of the hole we found.
+        size += orig_hole_size - new_size;
+        new_size = orig_hole_size;
+    }
+
+    // If we need to page-align the data, do it now and make a new hole in front of our block.
+    if (page_align && orig_hole_pos&0xFFFFF000)
+    {
+        unsigned int new_location   = orig_hole_pos + 0x1000 /* page size */ - (orig_hole_pos&0xFFF) - sizeof(header_t);
+        header_t *hole_header = (header_t *)orig_hole_pos;
+        hole_header->size     = 0x1000 /* page size */ - (orig_hole_pos&0xFFF) - sizeof(header_t);
+        hole_header->magic    = HEAP_MAGIC;
+        hole_header->is_hole  = 1;
+        footer_t *hole_footer = (footer_t *) ( (unsigned int)new_location - sizeof(footer_t) );
+        hole_footer->magic    = HEAP_MAGIC;
+        hole_footer->header   = hole_header;
+        orig_hole_pos         = new_location;
+        orig_hole_size        = orig_hole_size - hole_header->size;
+    }
+    else
+    {
+        // Else we don't need this hole any more, delete it from the index.
+        remove_ordered_array(iterator, &heap->index);
+    }
+
+    // Overwrite the original header...
+    header_t *block_header  = (header_t *)orig_hole_pos;
+    block_header->magic     = HEAP_MAGIC;
+    block_header->is_hole   = 0;
+    block_header->size      = new_size;
+    // ...And the footer
+    footer_t *block_footer  = (footer_t *) (orig_hole_pos + sizeof(header_t) + size);
+    block_footer->magic     = HEAP_MAGIC;
+    block_footer->header    = block_header;
+
+    // We may need to write a new hole after the allocated block.
+    // We do this only if the new hole would have positive size...
+    if (orig_hole_size - new_size > 0)
+    {
+        header_t *hole_header = (header_t *) (orig_hole_pos + sizeof(header_t) + size + sizeof(footer_t));
+        hole_header->magic    = HEAP_MAGIC;
+        hole_header->is_hole  = 1;
+        hole_header->size     = orig_hole_size - new_size;
+        footer_t *hole_footer = (footer_t *) ( (unsigned int)hole_header + orig_hole_size - new_size - sizeof(footer_t) );
+        if ((unsigned int)hole_footer < heap->end_address)
+        {
+            hole_footer->magic = HEAP_MAGIC;
+            hole_footer->header = hole_header;
+        }
+        // Put the new hole in the index;
+        insert_ordered_array((void*)hole_header, &heap->index);
+    }
+    
+    // ...And we're done!
+    return (void *) ( (unsigned int)block_header+sizeof(header_t) );
+}
+
+void free(void *p, heap_t *heap)
+{
+    // Exit gracefully for null pointers.
+    if (p == 0)
+	{
+        return;
+	}
+
+    // Get the header and footer associated with this pointer.
+    header_t *header = (header_t*) ((unsigned int)p - sizeof(header_t));
+    footer_t *footer = (footer_t*) ((unsigned int)header + header->size - sizeof(footer_t));
+
+    // Sanity checks.
+    ASSERT(header->magic == HEAP_MAGIC);
+    ASSERT(footer->magic == HEAP_MAGIC);
+
+    // Make us a hole.
+    header->is_hole = 1;
+
+    // Do we want to add this header into the 'free holes' index?
+    char do_add = 1;
+
+    // Unify left
+    // If the thing immediately to the left of us is a footer...
+    footer_t *test_footer = (footer_t*) ((unsigned int)header - sizeof(footer_t));
+    if (test_footer->magic == HEAP_MAGIC && test_footer->header->is_hole == 1)
+    {
+        unsigned int cache_size = header->size; // Cache our current size.
+        header = test_footer->header;     // Rewrite our header with the new one.
+        footer->header = header;          // Rewrite our footer to point to the new header.
+        header->size += cache_size;       // Change the size.
+        do_add = 0;                       // Since this header is already in the index, we don't want to add it again.
+    }
+
+    // Unify right
+    // If the thing immediately to the right of us is a header...
+    header_t *test_header = (header_t*) ( (unsigned int)footer + sizeof(footer_t) );
+    if (test_header->magic == HEAP_MAGIC && test_header->is_hole)
+    {
+        header->size += test_header->size; // Increase our size.
+        test_footer = (footer_t*) ( (unsigned int)test_header + // Rewrite it's footer to point to our header.
+                                    test_header->size - sizeof(footer_t) );
+        footer = test_footer;
+        // Find and remove this header from the index.
+        unsigned int iterator = 0;
+        while ( (iterator < heap->index.size) &&
+                (lookup_ordered_array(iterator, &heap->index) != (void*)test_header) )
+            iterator++;
+
+        // Make sure we actually found the item.
+        ASSERT(iterator < heap->index.size);
+
+        // Remove it.
+        remove_ordered_array(iterator, &heap->index);
+    }
+
+    // If the footer location is the end address, we can contract.
+    if ((unsigned int)footer + sizeof(footer_t) == heap->end_address)
+    {
+        unsigned int old_length = heap->end_address-heap->start_address;
+        unsigned int new_length = contract( (unsigned int)header - heap->start_address, heap);
+        // Check how big we will be after resizing.
+        if (header->size - (old_length-new_length) > 0)
+        {
+            // We will still exist, so resize us.
+            header->size -= old_length-new_length;
+            footer = (footer_t*) ( (unsigned int)header + header->size - sizeof(footer_t) );
+            footer->magic = HEAP_MAGIC;
+            footer->header = header;
+        }
+        else
+        {
+            // We will no longer exist :(. Remove us from the index.
+            unsigned int iterator = 0;
+            while ((iterator < heap->index.size) && (lookup_ordered_array(iterator, &heap->index) != (void*)test_header))
+			{
+                iterator++;
+			}
+            // If we didn't find ourselves, we have nothing to remove.
+            if (iterator < heap->index.size)
+			{
+                remove_ordered_array(iterator, &heap->index);
+			}
+        }
+    }
+
+    // If required, add us to the index.
+    if (do_add == 1)
+	{
+        insert_ordered_array((void*)header, &heap->index);
+	}
 }
