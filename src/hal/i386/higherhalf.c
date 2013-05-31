@@ -19,8 +19,8 @@ void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int
 	}
 
 	/* Add the page tables into the page directory */
-	pd[0] = pt_lower;
-	pd[512] = pt_higher;
+	pd[0] = (unsigned int)pt_lower | 0x07;
+	pd[512] = (unsigned int)pt_higher | 0x07;
 
 	/* Switch to the page directory */
 	asm volatile("mov %0, %%cr3" :: "r"(pd));
