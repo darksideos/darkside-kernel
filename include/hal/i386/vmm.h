@@ -5,8 +5,8 @@
 #define PAGE_ALIGN(addr) ((addr & 0xFFF) ? ((addr & 0xFFFFF000) + 0x1000) : addr)
 
 /* Convert physical and higher half addresses */
-#define PHYSICAL_TO_HIGHER(addr) (addr + 0xBFF00000)
-#define HIGHER_TO_PHYSICAL(addr) (addr - 0xBFF00000)
+#define PHYSICAL_TO_HIGHER(addr) (addr + 0x7FF00000)
+#define HIGHER_TO_PHYSICAL(addr) (addr - 0x7FF00000)
 
 typedef struct page
 {
