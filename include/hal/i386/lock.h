@@ -10,7 +10,4 @@ int delete_lock(spinlock_t *lock);
 int wait_lock(spinlock_t *lock, unsigned short timeout);
 int release_lock(spinlock_t *lock);
 
-/* Initialize spinlocks */
-void init_locking();
-
 #endif
