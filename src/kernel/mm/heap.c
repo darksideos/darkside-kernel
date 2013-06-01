@@ -25,7 +25,7 @@ unsigned int kmalloc_int(unsigned int sz, int align, unsigned int *phys, bool pl
         return (unsigned int)addr;
     }
 	/* Otherwise, use placement address allocation */
-    else
+    else if (kheap != 0)
     {
         if (align == 1)
         {
@@ -33,7 +33,7 @@ unsigned int kmalloc_int(unsigned int sz, int align, unsigned int *phys, bool pl
         }
         if (phys)
         {
-            *phys = placement_address;
+            *phys = HIGHER_TO_PHYSICAL(placement_address);
         }
         unsigned int tmp = placement_address;
         placement_address += sz;
