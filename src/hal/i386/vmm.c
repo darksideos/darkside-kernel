@@ -85,7 +85,10 @@ void map_kernel(page_directory_t *dir)
 		/* We need to higher half map our kernel */
 		for (i = 0x100000; i < 0x400000; i += 0x1000)
 		{
-			map_page(dir, PHYSICAL_TO_HIGHER(i), pmm_alloc_page(), 0x07);
+			unsigned int addr = pmm_alloc_page();
+
+			map_page(dir, i, addr, 0x07);
+			map_page(dir, PHYSICAL_TO_HIGHER(i), addr, 0x07);
 		}
 
 		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
