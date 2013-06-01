@@ -2,7 +2,7 @@
 #define __LOCK_H
 
 /* Define spinlock_t */
-typedef unsigned char spinlock_t;
+typedef unsigned int spinlock_t;
 
 /* Create, delete, wait, and release a spinlock */
 spinlock_t *create_lock();
