@@ -82,10 +82,13 @@ void map_kernel(page_directory_t *dir)
 	/* If this is the kernel directory, we're initializing paging and need to allocate some pages from the physical memory manager */
 	if (dir == kernel_directory)
 	{
-		/* We need to identity map our kernel */
+		/* We need to higher half map our kernel */
 		for (i = 0x100000; i < 0x400000; i += 0x1000)
 		{
-			map_page(dir, i, pmm_alloc_page(), 0x07);
+			unsigned int addr = pmm_alloc_page();
+
+			map_page(dir, i, addr, 0x07);
+			map_page(dir, PHYSICAL_TO_HIGHER(i), addr, 0x07);
 		}
 
 		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
@@ -100,7 +103,7 @@ void map_kernel(page_directory_t *dir)
 		/* We need to identity map our kernel */
 		for (i = 0x100000; i < 0x400000; i += 0x1000)
 		{
-			map_page(dir, i, i, 0x07);
+			map_page(dir, PHYSICAL_TO_HIGHER(i), i, 0x07);
 		}
 
 		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
@@ -204,7 +207,7 @@ void init_vmm()
 {
 	/* Create the kernel directory */
 	kernel_directory = create_page_directory();
-	kernel_directory->physicalAddr = (unsigned int) kernel_directory->tablesPhysical;
+	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((unsigned int) kernel_directory->tablesPhysical);
 
 	unsigned int i;
 	
