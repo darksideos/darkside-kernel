@@ -14,12 +14,12 @@
 
 
 /* Location of the initial page table in RAM */
-static unsigned int *initpagetable = (unsigned int *) mem_p2v(0x4000);
+//static unsigned int *initpagetable = (unsigned int *) mem_p2v(0x4000);
 
 /* Data/bss locations in physical RAM */
-extern unsigned int _physdatastart, _physbssstart, _physbssend;
-extern unsigned int _datastart, _bssstart, _bssend;
-extern unsigned int _kstart, _krodata, _kend;
+//extern unsigned int _physdatastart, _physbssstart, _physbssend;
+//extern unsigned int _datastart, _bssstart, _bssend;
+//extern unsigned int _kstart, _krodata, _kend;
 
 /* Main high memory kernel routine - called directly from initsys.c
  * Begins by completing the memory management work of initsys; removing the
@@ -32,6 +32,7 @@ extern unsigned int _kstart, _krodata, _kend;
  * r1 should be the machine type - 0x0c42 = Raspberry Pi
  * r2 should be the ATAGs structure address (probably 0x100)
  */
+
 void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 {
 	/* No further need to access kernel code at 0x00000000 - 0x000fffff */
