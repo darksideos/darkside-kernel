@@ -10,6 +10,8 @@
 #include <kernel/debug/bochs.h>
 #include <kernel/task/task.h>
 
+extern unsigned int end;
+
 void kernel_main(struct multiboot *mboot_ptr)
 {
 	/* Start the VGA text mode driver */

@@ -2,9 +2,10 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/mm/heap.h>
+#include <kernel/debug/kprintf.h>
 
 extern unsigned int end;
-unsigned int placement_address = (unsigned int)&end;
+unsigned int placement_address = &end;
 
 extern page_directory_t *kernel_directory;
 
@@ -25,7 +26,7 @@ unsigned int kmalloc_int(unsigned int sz, int align, unsigned int *phys, bool pl
         return (unsigned int)addr;
     }
 	/* Otherwise, use placement address allocation */
-    else if (kheap != 0)
+    else
     {
         if (align == 1)
         {
