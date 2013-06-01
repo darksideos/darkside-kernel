@@ -204,7 +204,7 @@ void init_vmm()
 {
 	/* Create the kernel directory */
 	kernel_directory = create_page_directory();
-	kernel_directory->physicalAddr = (unsigned int) HIGHER_TO_PHYSICAL(kernel_directory->tablesPhysical);
+	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((unsigned int) kernel_directory->tablesPhysical);
 
 	unsigned int i;
 	
