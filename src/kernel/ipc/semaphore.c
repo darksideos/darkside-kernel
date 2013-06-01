@@ -1,6 +1,7 @@
 #include <lib/libgeneric.h>
 #include <kernel/mm/heap.h>
 #include <kernel/task/thread.h>
+#include <hal/i386/lock.h>
 #include <kernel/ipc/semaphore.h>
 
 /* List of semaphores and mutexes */
@@ -9,6 +10,9 @@ unsigned int num_semaphores;
 
 mutex_t **mutexes;
 unsigned int num_mutexes;
+
+/* Spinlocks for modifying the semaphore and mutex lists */
+spinlock_t *semaphores_lock, *mutexes_lock;
 
 /* Create a semaphore */
 int create_semaphore(unsigned char *name, unsigned int initial_count, unsigned int max_count)
@@ -28,6 +32,9 @@ int create_semaphore(unsigned char *name, unsigned int initial_count, unsigned i
 	new_semaphore->owners[0] = current_thread;
 	new_semaphore->num_owners = 1;
 
+	/* Acquire the lock on the semaphore list */
+	wait_lock(semaphores_lock, 0);
+
 	/* Add it to the semaphore list and return the semaphore */
 	semaphores = (semaphore_t*) krealloc(semaphores, sizeof(semaphore_t) * (num_semaphores + 1));
 	semaphores[num_semaphores] = 0;
@@ -39,6 +46,7 @@ int create_semaphore(unsigned char *name, unsigned int initial_count, unsigned i
 		if (semaphores[i] == 0)
 		{
 			semaphores[i] = new_semaphore;
+			release_lock(semaphores_lock);
 			return i;
 		}
 	}
@@ -58,6 +66,9 @@ int delete_semaphore(int descriptor)
 	{
 		return -1;
 	}
+
+	/* Acquire the lock on the semaphore list */
+	wait_lock(semaphores_lock, 0);
 
 	/* Get a pointer to the semaphore */
 	semaphore_t *semaphore_ptr = semaphores[descriptor];
@@ -91,6 +102,9 @@ int delete_semaphore(int descriptor)
 	semaphores[descriptor] = 0;
 	num_semaphores--;
 
+	/* Release the lock on the semaphore list */
+	release_lock(semaphores_lock);
+
 	return 0;
 }
 
@@ -105,6 +119,9 @@ int wait_semaphore(int descriptor, unsigned short timeout)
 	{
 		return -1;
 	}
+
+	/* Acquire the lock on the semaphore list */
+	wait_lock(semaphores_lock, 0);
 
 	/* Get a pointer to the semaphore */
 	semaphore_t *semaphore_ptr = semaphores[descriptor];
@@ -144,6 +161,9 @@ int wait_semaphore(int descriptor, unsigned short timeout)
 		}
 	}
 
+	/* Release the lock on the semaphore list */
+	release_lock(semaphores_lock);
+
 	return 0;
 }
 
@@ -158,6 +178,9 @@ int release_semaphore(int descriptor)
 	{
 		return -1;
 	}
+
+	/* Acquire the lock on the semaphore list */
+	wait_lock(semaphores_lock, 0);
 
 	/* Get a pointer to the semaphore */
 	semaphore_t *semaphore_ptr = semaphores[descriptor];
@@ -191,6 +214,9 @@ int release_semaphore(int descriptor)
 	semaphore_ptr->owners[i] = 0;
 	semaphore_ptr->num_owners--;
 
+	/* Release the lock on the semaphore list */
+	release_lock(semaphores_lock);
+
 	return 0;
 }
 
@@ -209,6 +235,9 @@ int create_mutex(unsigned char *name)
 	new_mutex->locked = true;
 	new_mutex->owner = current_thread;
 
+	/* Acquire the lock on the mutex list */
+	wait_lock(mutexes_lock, 0);
+
 	/* Add it to the mutex list and return the mutex */
 	mutexes = (mutex_t*) krealloc(mutexes, sizeof(mutex_t) * (num_mutexes + 1));
 	mutexes[num_mutexes] = 0;
@@ -220,6 +249,7 @@ int create_mutex(unsigned char *name)
 		if (mutexes[i] == 0)
 		{
 			mutexes[i] = new_mutex;
+			release_lock(mutexes_lock);
 			return i;
 		}
 	}
@@ -239,6 +269,9 @@ int delete_mutex(int descriptor)
 	{
 		return -1;
 	}
+
+	/* Acquire the lock on the mutex list */
+	wait_lock(mutexes_lock, 0);
 
 	/* Get a pointer to the mutex */
 	mutex_t *mutex_ptr = mutexes[descriptor];
@@ -262,6 +295,9 @@ int delete_mutex(int descriptor)
 	mutexes[descriptor] = 0;
 	num_mutexes--;
 
+	/* Release the lock on the mutex list */
+	release_lock(mutexes_lock);
+
 	return 0;
 }
 
@@ -276,6 +312,9 @@ int wait_mutex(int descriptor, unsigned short timeout)
 	{
 		return -1;
 	}
+
+	/* Acquire the lock on the mutex list */
+	wait_lock(mutexes_lock, 0);
 
 	/* Get a pointer to the mutex */
 	mutex_t *mutex_ptr = mutexes[descriptor];
@@ -299,6 +338,9 @@ int wait_mutex(int descriptor, unsigned short timeout)
 	mutex_ptr->locked = true;
 	mutex_ptr->owner = current_thread;
 
+	/* Release the lock on the mutex list */
+	release_lock(mutexes_lock);
+
 	return 0;
 }
 
@@ -313,6 +355,9 @@ int release_mutex(int descriptor)
 	{
 		return -1;
 	}
+
+	/* Acquire the lock on the mutex list */
+	wait_lock(mutexes_lock, 0);
 
 	/* Get a pointer to the mutex */
 	mutex_t *mutex_ptr = mutexes[descriptor];
@@ -333,6 +378,9 @@ int release_mutex(int descriptor)
 	mutex_ptr->locked = false;
 	mutex_ptr->owner = 0;
 
+	/* Release the lock on the mutex list */
+	release_lock(mutexes_lock);
+
 	return 0;
 }
 
@@ -345,4 +393,10 @@ void init_semaphores()
 
 	mutexes = (mutex_t*) kmalloc(sizeof(mutex_t));
 	num_mutexes = 0;
+
+	/* Initialize the spinlocks for the semaphore and mutex lists */
+	semaphores_lock = create_lock();
+	mutexes_lock = create_lock();
+
+	*semaphores_lock = *mutexes_lock = 0;
 }
