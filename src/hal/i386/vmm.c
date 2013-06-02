@@ -250,4 +250,9 @@ void switch_page_directory(page_directory_t *dir)
 {
     current_directory = dir;
     asm volatile("mov %0, %%cr3" :: "r"(dir->physicalAddr));
+    
+    unsigned int esp;
+    asm volatile("mov %%esp, %0" : "=r"(esp));
+    esp = PHYSICAL_TO_HIGHER(esp);
+    asm volatile("mov %0, %%esp" :: "r"(esp));
 }
