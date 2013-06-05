@@ -46,6 +46,7 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 	init_text_mode(0xFFFF, 0x0000);
 	
 	uart_puts("Hello UART World");
+	puts("Hello, World");
 	
 /*
 	gpio_mode(18, OUTPUT);
