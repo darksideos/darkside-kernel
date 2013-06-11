@@ -1,3 +1,4 @@
+#include <hal/i386/vmm.h>
 #include <kernel/init/main.h>
 #include <kernel/modules/multiboot.h>
 
