@@ -122,7 +122,7 @@ void elf_load_section(elf_header_t *header, unsigned int num, unsigned char *mem
 		int i;
 		for (i = 0; i < length; i += 0x1000)
 		{
-			map_page(current_directory, mem_address + i, pmm_alloc_page(), 0x07);
+			map_page(current_directory, mem_address + i, pmm_alloc_page(), true, true, true);
 		}
 
 		memcpy(mem_address, data_offset, length);

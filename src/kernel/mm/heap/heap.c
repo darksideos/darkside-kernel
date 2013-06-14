@@ -1,6 +1,7 @@
 #include <lib/libgeneric.h>
 #include <kernel/mm/heap/heap.h>
 #include <hal/i386/vmm.h>
+#include <lib/libgcc/stdbool.h>
 
 /* The kernel heap */
 heap_t *kheap = 0;
@@ -32,7 +33,7 @@ void *kmalloc_p(unsigned int size, unsigned int *phys)
 	void *address = heap_malloc(kheap, size, false);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
+	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -45,7 +46,7 @@ void *kmalloc_ap(unsigned int size, unsigned int *phys)
 	void *address = heap_malloc(kheap, size, true);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
+	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -83,7 +84,7 @@ void *krealloc_p(void *ptr, unsigned int size, unsigned int *phys)
 	void *address = heap_realloc(kheap, ptr, size, false);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
+	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -96,7 +97,7 @@ void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
 	void *address = heap_realloc(kheap, ptr, size, true);
 
 	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, kheap->flags);
+	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
 	*phys = page->frame * 0x1000;
 
 	/* Return the address */
@@ -118,33 +119,33 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 	heap->user = user;
 
 	/* Second, create the root of the heap index, make sure it's 0, and fill in its data */
-	if (index_type == 0)
+	if (index_type == HEAP_TYPE_ORDERED_ARRAY)
 	{
 		/* Create an ordered array */
-		ordered_array_t *index = (ordered_array_t*) kmalloc(sizeof(ordered_array_t));
-		memset(index, 0, sizeof(ordered_array_t));
+		//ordered_array_t *index = (ordered_array_t*) kmalloc(sizeof(ordered_array_t));
+		//memset(index, 0, sizeof(ordered_array_t));
 
 		/* Add a large hole to the index
 		index->magic = HEAP_MAGIC;
 		index->type = 0;
 		index->size = end_address - start_address; */
 	}
-	else if (index_type == 1)
+	else if (index_type == HEAP_TYPE_LINKED_LIST)
 	{
 		/* Create a linked list */
-		linked_list_t *index = (linked_list_t*) kmalloc(sizeof(linked_list_t));
-		memset(index, 0, sizeof(linked_list_t));
+		//linked_list_t *index = (linked_list_t*) kmalloc(sizeof(linked_list_t));
+		//memset(index, 0, sizeof(linked_list_t));
 
 		/* Add a large hole to the index
 		index->magic = HEAP_MAGIC;
 		index->type = 0;
 		index->size = end_address - start_address; */
 	}
-	else if (index_type == 2)
+	else if (index_type == HEAP_TYPE_BINARY_TREE)
 	{
-		/* Create an ordered array */
-		binary_tree_t *index = (binary_tree_t*) kmalloc(sizeof(binary_tree_t));
-		memset(index, 0, sizeof(binary_tree_t));
+		/* Create an binary tree */
+		//binary_tree_t *index = (binary_tree_t*) kmalloc(sizeof(binary_tree_t));
+		//memset(index, 0, sizeof(binary_tree_t));
 
 		/* Add a large hole to the index
 		index->magic = HEAP_MAGIC;
@@ -152,7 +153,7 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 		index->size = end_address - start_address; */
 	}
 
-	heap->index = (void*) index;
+	//heap->index = (void*) index;
 
 	/* Finally, return the new heap */
 	return heap;
@@ -315,5 +316,5 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, false);
+	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, HEAP_TYPE_ORDERED_ARRAY, false);
 }

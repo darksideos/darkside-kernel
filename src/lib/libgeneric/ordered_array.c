@@ -1,5 +1,5 @@
 #include <lib/libgeneric.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 
 char standard_lessthan_predicate(type_t a, type_t b)
 {

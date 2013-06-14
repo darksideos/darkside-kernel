@@ -10,6 +10,10 @@
 
 #define HEAP_MAGIC		   0x123890AB
 
+#define HEAP_TYPE_ORDERED_ARRAY			0
+#define HEAP_TYPE_LINKED_LIST			1
+#define HEAP_TYPE_BINARY_TREE			2
+
 /* Heaader, footer, and heap structures */
 typedef struct header
 {
@@ -53,10 +57,10 @@ void *krealloc_p(void *ptr, unsigned int size, unsigned int *phys);
 void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys);
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user);
+heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, unsigned char index_type, bool user);
 
 /* Allocate, free memory, and resize memory allocated on a heap */
-void *heap_malloc(heap_t *heap_ptr, unsigned int size, unsigned char align);
+void *heap_malloc(heap_t *heap, unsigned int size, bool align);
 void heap_free(heap_t *heap_ptr, void *ptr);
 void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align);
 
