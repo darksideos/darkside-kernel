@@ -1,5 +1,5 @@
 #include <lib/libgeneric.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <drivers/fs/fat.h>
 

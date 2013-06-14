@@ -1,5 +1,5 @@
 #include <lib/libgeneric.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <hal/i386/vmm.h>
 
 /* The kernel heap */
@@ -236,7 +236,8 @@ void *heap_malloc(heap_t *heap, unsigned int size, bool align)
 	unsigned int chunk_size = sizeof(header_t) + size + sizeof(footer_t);
 
 	/* Find a chunk that can fit our size */
-	header_t *chunk = lookup_chunk(heap->index, chunk_size);
+	//header_t *chunk = lookup_chunk(heap->index, chunk_size);
+	header_t *chunk = 0;
 
 	/* If we found a chunk, return the address of the memory we found */
 	if (chunk != 0)

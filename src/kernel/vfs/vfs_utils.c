@@ -1,5 +1,5 @@
 #include <kernel/debug/kprintf.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/vfs_utils.h>
 

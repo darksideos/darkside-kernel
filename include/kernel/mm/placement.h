@@ -9,6 +9,6 @@ void *placement_kmalloc_ap(unsigned int size, unsigned int *phys);
 
 /* Get and set the placement address */
 unsigned int get_placement_address();
-unsigned int set_placement_address(unsigned int address);
+void set_placement_address(unsigned int address);
 
 #endif

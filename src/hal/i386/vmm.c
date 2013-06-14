@@ -4,7 +4,7 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/mm/placement.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 
 /* Kernel and current page directory */
 page_directory_t *kernel_directory = 0;
@@ -64,6 +64,24 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 /* Map a virtual address to a physical address */
 void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user)
 {
+	/* Construct the page flags */
+	unsigned int flags = 0;
+
+	if (present)
+	{
+		flags |= 0x01;
+	}
+
+	if (rw)
+	{
+		flags |= 0x02;
+	}
+
+	if (user)
+	{
+		flags |= 0x04;
+	}
+
 	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
 	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
 
@@ -78,7 +96,7 @@ void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int 
 void unmap_page(page_directory_t *dir, unsigned int virtual_address)
 {
 	/* Return the page that corresponds to the virtual address */
-	page_t *page = get_page(dir, virtual_address, false, 0);
+	page_t *page = get_page(dir, virtual_address, false, false, false, false);
 
 	/* If the page already does not exist, return */
 	if (!page)
@@ -105,13 +123,13 @@ void map_kernel(page_directory_t *dir)
 		/* We need to higher half map our kernel */
 		for (i = 0x100000; i < 0x400000; i += 0x1000)
 		{
-			map_page(dir, PHYSICAL_TO_HIGHER(i), pmm_alloc_page(), 0x07);
+			map_page(dir, PHYSICAL_TO_HIGHER(i), pmm_alloc_page(), true, true, false);
 		}
 
 		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
 		for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
 		{
-			map_page(dir, i, pmm_alloc_page(), 0x07);
+			map_page(dir, i, pmm_alloc_page(), true, true, false);
 		}
 	}
 	/* Otherwise, map the pages without allocating them */
@@ -120,13 +138,13 @@ void map_kernel(page_directory_t *dir)
 		/* We need to identity map our kernel */
 		for (i = 0x100000; i < 0x400000; i += 0x1000)
 		{
-			map_page(dir, PHYSICAL_TO_HIGHER(i), i, 0x07);
+			map_page(dir, PHYSICAL_TO_HIGHER(i), i, true, true, false);
 		}
 
 		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
 		for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
 		{
-			map_page(dir, i, i, 0x07);
+			map_page(dir, i, i, true, true, false);
 		}
 	}
 }
@@ -238,7 +256,14 @@ void switch_page_directory(page_directory_t *dir)
 /* Page align an address */
 unsigned int page_align(unsigned int address)
 {
-	return (addr & (page_size - 1)) ? (((addr & ~(page_size - 1) + 0x1000)) : addr);
+	if (address & (page_size - 1))
+	{
+		return (address & ~(page_size - 1)) + 0x1000;
+	}
+	else
+	{
+		return address;
+	}
 }
 
 /* Initialize paging */
@@ -254,7 +279,7 @@ void init_vmm()
 	/* Identity map the first 1 MB of the address space, so that the VGA framebuffer and VM86 tasks will work */
 	for (i = 0; i < 0x100000; i += 0x1000)
 	{
-		map_page(kernel_directory, i, pmm_alloc_page(), 0x07);
+		map_page(kernel_directory, i, pmm_alloc_page(), true, true, false);
 	}
 
 	/* Map our kernel into the kernel directory */

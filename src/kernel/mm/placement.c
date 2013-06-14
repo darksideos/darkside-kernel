@@ -39,7 +39,7 @@ void *placement_kmalloc_p(unsigned int size, unsigned int *phys)
 	return placement_address - size;
 }
 
-void *placement_kmalloc_ap(unsigned int size)
+void *placement_kmalloc_ap(unsigned int size, unsigned int *phys)
 {
 	/* Page align the placement address */
 	placement_address = (void*) page_align((unsigned int) placement_address);

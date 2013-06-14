@@ -1,6 +1,6 @@
 #include <lib/libgeneric.h>
 #include <kernel/init/hal.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
