@@ -1,6 +1,8 @@
 #ifndef __VMM_H
 #define __VMM_H
 
+#include <lib/libgcc/stdbool.h>
+
 /* The page size and a function to page align an address */
 #define PAGE_ALIGN(addr) ((addr & 0xFFF) ? ((addr & 0xFFFFF000) + 0x1000) : addr)
 
@@ -38,7 +40,7 @@ typedef struct page_directory
 } page_directory_t;
 
 /* Get a page */
-page_t *get_page(page_directory_t *dir, unsigned int virtual_address, unsigned char make, unsigned int flags);
+page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, unsigned int flags);
 
 /* Map a virtual address to a physical address */
 void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, unsigned int flags);
