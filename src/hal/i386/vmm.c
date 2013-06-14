@@ -2,18 +2,37 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
+#include <kernel/mm/placement.h>
 #include <kernel/mm/heap.h>
 
 /* Kernel and current page directory */
 page_directory_t *kernel_directory = 0;
 page_directory_t *current_directory = 0;
 
-/* Defined in heap.c */
-extern heap_t *kheap;
+/* Page size */
+unsigned int page_size = 0x1000;
 
 /* Get a page */
-page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, unsigned int flags)
+page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user)
 {
+	/* Construct the page flags */
+	unsigned int flags = 0;
+
+	if (present)
+	{
+		flags |= 0x01;
+	}
+
+	if (rw)
+	{
+		flags |= 0x02;
+	}
+
+	if (user)
+	{
+		flags |= 0x04;
+	}
+
 	/* Find out which page the virtual address in in */
 	unsigned int page = virtual_address >> 12;
 
@@ -42,10 +61,10 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 }
 
 /* Map a virtual address to a physical address */
-void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, unsigned int flags)
+void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user)
 {
 	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
-	page_t *page = get_page(dir, virtual_address, true, flags);
+	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
 
 	/* Map the page in the table to the physical address */
 	*((unsigned int*)page) = physical_address | flags | 0x01;
@@ -199,11 +218,34 @@ page_directory_t *clone_directory(page_directory_t *src)
 	return dir;
 }
 
-/* Initialize paging and the kernel heap */
+/* Create a new blank page directory */
+page_directory_t *create_page_directory()
+{
+	page_directory_t *dir = (page_directory_t*) kmalloc_a(sizeof(page_directory_t));
+	memset(dir, 0, sizeof(page_directory_t));
+
+	return dir;
+}
+
+/* Switch the current page directory to a new one */
+void switch_page_directory(page_directory_t *dir)
+{
+    current_directory = dir;
+    asm volatile("mov %0, %%cr3" :: "r"(dir->physicalAddr));
+}
+
+/* Page align an address */
+unsigned int page_align(unsigned int address)
+{
+	return (addr & (page_size - 1)) ? (((addr & ~(page_size - 1) + 0x1000)) : addr);
+}
+
+/* Initialize paging */
 void init_vmm()
 {
 	/* Create the kernel directory */
-	kernel_directory = create_page_directory();
+	kernel_directory = placement_kmalloc_a(sizeof(page_directory_t));
+	memset(kernel_directory, 0, sizeof(page_directory_t));
 	kernel_directory->physicalAddr = (unsigned int) kernel_directory->tablesPhysical;
 
 	unsigned int i;
@@ -225,26 +267,4 @@ void init_vmm()
     asm volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= 0x80000000;
     asm volatile("mov %0, %%cr0" :: "r"(cr0));
-	
-    /* Initialize the kernel heap */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, 0xEFFFF000, 0, 0);
-
-	/* Clone the kernel directory and switch to its clone */
-	// switch_page_directory(clone_directory(kernel_directory));
-}
-
-/* Create a new blank page directory */
-page_directory_t *create_page_directory()
-{
-	page_directory_t *dir = (page_directory_t*) kmalloc_a(sizeof(page_directory_t));
-	memset(dir, 0, sizeof(page_directory_t));
-
-	return dir;
-}
-
-/* Switch the current page directory to a new one */
-void switch_page_directory(page_directory_t *dir)
-{
-    current_directory = dir;
-    asm volatile("mov %0, %%cr3" :: "r"(dir->physicalAddr));
 }
