@@ -1,5 +1,5 @@
 #include <lib/libgeneric.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/task/thread.h>
 #include <hal/i386/lock.h>
 #include <kernel/ipc/semaphore.h>

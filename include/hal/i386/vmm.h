@@ -40,7 +40,7 @@ typedef struct page_directory
 page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user);
 
 /* Map a virtual address to a physical address */
-void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, unsigned int flags);
+void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user);
 
 /* Unmap a virtual address */
 void unmap_page(page_directory_t *dir, unsigned int virtual_address);

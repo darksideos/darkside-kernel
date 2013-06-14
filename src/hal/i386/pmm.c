@@ -1,6 +1,6 @@
 #include <lib/libgeneric.h>
 #include <hal/i386/pmm.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/debug/kprintf.h>
 
 /* A bitmap of used and free pages */

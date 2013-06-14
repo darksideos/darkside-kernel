@@ -1,7 +1,7 @@
 #include <lib/libgeneric.h>
 #include <drivers/graphics/vga.h>
 #include <drivers/ps2/keyboard.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/modules/initrd.h>
 

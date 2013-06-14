@@ -3,7 +3,7 @@
 #include <hal/i386/irq.h>
 #include <drivers/ps2/keyboard.h>
 #include <drivers/graphics/vga.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 
 unsigned char kbdus[128] = 
