@@ -1,10 +1,10 @@
 #ifndef __PROCESS_H
 #define __PROCESS_H
 
-#include <lib/libgeneric.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/task/thread.h>
 #include <kernel/ipc/signal.h>
+#include <lib/libgcc/stdbool.h>
 
 /* Process states */
 #define PROCESS_READY     0x00

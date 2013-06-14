@@ -13,20 +13,45 @@ dd MULTIBOOT_HEADER_MAGIC
 dd MULTIBOOT_HEADER_FLAGS
 dd MULTIBOOT_CHECKSUM
 
-; Here is the main code
+; Here is the code
 section .text
 
 ; This is the entry point of our kernel, it is referenced in the linker script
+KERNEL_VIRTUAL_BASE equ 0x7FF00000
+
 global start
 start:
 	cli
 	
-    mov esp, stack     ; This points the stack to our new stack area
+    mov esp, (stack - KERNEL_VIRTUAL_BASE)     ; This points the stack to our new stack area
     
-	push ebx		   ; Push the GRUB multiboot information structure
-	extern kernel_main ; Tell NASM that our main function is in another file
-	call kernel_main   ; Call our C code
+    mov eax, (pd - KERNEL_VIRTUAL_BASE)
+    mov ecx, (pt_lower - KERNEL_VIRTUAL_BASE)
+    mov edx, (pt_higher - KERNEL_VIRTUAL_BASE)
+    
+    push edx
+    push ecx
+    push eax
+    
+    push ebx	; Push the multiboot information pointer
+    
+	extern load_higherhalf ; Tell NASM that our higher half function is in another file
+	mov ecx, (load_higherhalf - KERNEL_VIRTUAL_BASE)	; Convert to physical address
+	call ecx   ; Call our main function
 
 section .bss
-	resb 65536               ; This reserves 8KBytes of memory here
+	resb 65536               ; This reserves 64KBytes of memory here
 stack:
+
+; Initial page structures
+
+global pd
+global pt_lower
+global pt_higher
+
+pd:
+	resb 4096
+pt_lower:
+	resb 4096
+pt_higher:
+	resb 4096

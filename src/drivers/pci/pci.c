@@ -1,7 +1,7 @@
 #include <lib/libgeneric.h>
 #include <hal/i386/ports.h>
 #include <kernel/mm/heap.h>
-#include <hal/i386/pci.h>
+#include <drivers/pci/pci.h>
 
 #define CONFIG_ADDRESS 0xCF8
 #define CONFIG_DATA	   0xCFC
