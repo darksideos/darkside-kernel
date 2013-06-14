@@ -1,8 +1,8 @@
 #ifndef __ASSERT_H
 #define __ASSERT_H
 
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdbool.h>
 
-void ASSERT(unsigned char a);
+void ASSERT(bool a);
 
 #endif

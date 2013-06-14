@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdarg.h>
 #include <drivers/graphics/text.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
