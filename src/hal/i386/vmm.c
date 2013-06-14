@@ -1,3 +1,4 @@
+#include <lib/libgcc/stdbool.h>
 #include <lib/libgeneric.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/pmm.h>
