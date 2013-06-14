@@ -5,7 +5,7 @@
 
 #ifdef __arm__
 
-void *kmalloc(unsigned int size)
+unsigned int kmalloc(unsigned int sz)
 {
 	return 0;
 }
