@@ -1,5 +1,5 @@
 #include <kernel/init/hal.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/modules/initrd.h>
 #include <lib/libgeneric.h>
 #include <kernel/vfs/vfs.h>

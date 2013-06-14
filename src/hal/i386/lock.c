@@ -1,5 +1,5 @@
 #include <hal/i386/lock.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 
 /* Create a spinlock */
 spinlock_t *create_lock()
