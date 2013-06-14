@@ -6,7 +6,8 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 
-void load_hal() {
+void load_hal()
+{
 	hal_t *hal = kmalloc(sizeof(hal_t));
 	
 	hal->hal_main = &hal_main;
@@ -18,9 +19,7 @@ void load_hal() {
 	hal->hal_sti = &hal_sti;
 	
 	hal->sleep = &sleep;
-	hal->timer_install = &timer_install;
 	
-	hal->pmm_install = &pmm_install;
 	hal->pmm_alloc_page = &pmm_alloc_page;
 	hal->pmm_free_page = &pmm_free_page;
 	

@@ -19,7 +19,7 @@ unsigned int pmm_alloc_page()
 			/* If the bit is 0, set it to 1 and return the address */
 			if (!bit_test(pmm_pages[i], j))
 			{
-				pmm_pages[i] = bit_set(pmm_pages[i], j);
+				pmm_pages[i] = pmm_pages[i] | (1 << j);
 				return (i << 17) + (j << 12);
 			}
 		}
@@ -30,7 +30,7 @@ unsigned int pmm_alloc_page()
 void pmm_free_page(unsigned int address)
 {
 	/* Find the bit that corresponds to the address and set it to 0 */
-	pmm_pages[address >> 5] = bit_clear(pmm_pages[address >> 5], address % 32);
+	pmm_pages[address >> 5] = pmm_pages[address >> 5] & ~(1 << (address % 32));
 }
 
 /* Initialize the physical memory manager */
