@@ -49,7 +49,7 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 	else if (make)
 	{
 		unsigned int phys;
-		dir->tables[table_index] = (page_table_t*) kmalloc_ap(sizeof(page_table_t), &phys);
+		dir->tables[table_index] = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), &phys);
 		memset(dir->tables[table_index], 0, 0x1000);
 		dir->tablesPhysical[table_index] = phys | flags | 0x01;
 		return &dir->tables[table_index]->pages[page % 1024];
@@ -152,7 +152,7 @@ void map_kernel(page_directory_t *dir)
 static page_table_t *clone_table(page_table_t *src, unsigned int physAddr)
 {
 	/* Create a new page table and make sure it's blank */
-	page_table_t *table = (page_table_t*) kmalloc_ap(sizeof(page_table_t), physAddr);
+	page_table_t *table = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), physAddr);
 	memset(table, 0, sizeof(page_directory_t));
 
 	/* Go through each page in the page table, copy the page into the new page table, and then physically copy the data */
@@ -203,7 +203,7 @@ page_directory_t *clone_directory(page_directory_t *src)
 {
 	/* Create a new page directory and make sure it's blank */
 	unsigned int phys;
-	page_directory_t *dir = (page_directory_t*) kmalloc_ap(sizeof(page_directory_t), &phys);
+	page_directory_t *dir = (page_directory_t*) placement_kmalloc_ap(sizeof(page_directory_t), &phys);
 	memset(dir, 0, sizeof(page_directory_t));
 	dir->physicalAddr = phys + ((unsigned int)dir->tablesPhysical - (unsigned int)dir);
 
@@ -240,7 +240,7 @@ page_directory_t *clone_directory(page_directory_t *src)
 /* Create a new blank page directory */
 page_directory_t *create_page_directory()
 {
-	page_directory_t *dir = (page_directory_t*) kmalloc_a(sizeof(page_directory_t));
+	page_directory_t *dir = (page_directory_t*) placement_kmalloc_a(sizeof(page_directory_t));
 	memset(dir, 0, sizeof(page_directory_t));
 
 	return dir;
