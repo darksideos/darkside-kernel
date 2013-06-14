@@ -105,7 +105,7 @@ void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
 }
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, unsigned int flags)
+heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user)
 {
 	/* First, create a heap structure, make sure it's 0, and fill in its data */
 	heap_t *heap = (heap_t*) kmalloc(sizeof(heap_t));
@@ -116,7 +116,7 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 	heap->min_address = min_address;
 	heap->max_address = max_address;
 
-	heap->flags = flags;
+	heap->user = user;
 
 	/* Second, create the root of the heap index, make sure it's 0, and fill in its data */
 	header_t *index = (header_t*) kmalloc(sizeof(header_t));
@@ -154,14 +154,14 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 		}
 
 		/* Make sure the new end address is page aligned */
-		new_size = PAGE_ALIGN(new_size);
+		new_size = page_align(new_size);
 
 		int i;
 
 		/* Allocate new pages for the heap */
 		for (i = heap->start_address + old_size; i < heap->start_address + new_size; i += 0x1000)
 		{
-			map_page(kernel_directory, i, pmm_alloc_page(), heap->flags);
+			map_page(kernel_directory, i, pmm_alloc_page(), true, true, heap->user);
 		}
 
 		/* Finally, modify the heap's end address */
@@ -177,7 +177,7 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 		}
 
 		/* Make sure the new end address is page aligned */
-		new_size = PAGE_ALIGN(new_size);
+		new_size = page_align(new_size);
 
 		int i;
 
@@ -195,11 +195,6 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 	{
 		return;
 	}
-}
-
-/* Lookup a chunk */
-header_t *lookup_chunk(header_t *index, unsigned int size)
-{
 }
 
 /* Allocate memory on a heap */
@@ -293,5 +288,5 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 void init_heap()
 {
 	/* Create the kernel and user heaps */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, 0x07);
+	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, 0x03);
 }

@@ -1,8 +1,7 @@
 #ifndef __VMM_H
 #define __VMM_H
 
-/* The page size and a function to page align an address */
-#define PAGE_ALIGN(addr) ((addr & 0xFFF) ? ((addr & 0xFFFFF000) + 0x1000) : addr)
+#include <lib/libgeneric.h>
 
 /* Convert physical and higher half addresses */
 #define PHYSICAL_TO_HIGHER(addr) (addr + 0xBFF00000)
@@ -38,7 +37,7 @@ typedef struct page_directory
 } page_directory_t;
 
 /* Get a page */
-page_t *get_page(page_directory_t *dir, unsigned int virtual_address, unsigned char make, unsigned int flags);
+page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user);
 
 /* Map a virtual address to a physical address */
 void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, unsigned int flags);
@@ -52,13 +51,16 @@ void map_kernel(page_directory_t *dir);
 /* Clone a page directory */
 page_directory_t *clone_directory(page_directory_t *src);
 
-/* Initialize paging and the kernel heap */
-void init_vmm();
-
 /* Create a new blank page directory */
 page_directory_t *create_page_directory();
 
 /* Switch the current page directory to a new one */
 void switch_page_directory(page_directory_t *dir);
+
+/* Page align an address */
+unsigned int page_align(unsigned int address);
+
+/* Initialize paging */
+void init_vmm();
 
 #endif
