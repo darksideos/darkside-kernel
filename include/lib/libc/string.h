@@ -1,6 +1,8 @@
 #ifndef __STRING_H
 #define __STRING_H
 
+#include <lib/libgcc/stdbool.h>
+
 unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count);
 unsigned char *memset(unsigned char *dest, unsigned char val, int count);
 unsigned short *memsetw(unsigned short *dest, unsigned short val, int count);

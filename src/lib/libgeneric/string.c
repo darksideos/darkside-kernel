@@ -5,7 +5,8 @@
 
 #ifdef __arm__
 
-unsigned int kmalloc(unsigned int sz) {
+unsigned int kmalloc(unsigned int sz)
+{
 	return 0;
 }
 
