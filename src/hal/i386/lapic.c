@@ -29,10 +29,10 @@ bool lapic_detect()
 void lapic_set_base(unsigned int *lapic)
 {
 	unsigned int edx = 0;
-	unsigned int eax = PAGE_ALIGN((unsigned int)lapic) | MSR_IA32_APIC_BASE_ENABLE;
+	unsigned int eax = page_align((unsigned int)lapic) | MSR_IA32_APIC_BASE_ENABLE;
 
 	wrmsr(MSR_IA32_APIC_BASE, eax, edx);
-	lapic_base = PAGE_ALIGN((unsigned int)lapic);
+	lapic_base = page_align((unsigned int)lapic);
 }
 
 /* Get the physical base address of the Local APIC registers */
@@ -41,7 +41,7 @@ unsigned int *lapic_get_base()
 	unsigned int eax, edx;
 	rdmsr(MSR_IA32_APIC_BASE, &eax, &edx);
 
-	return PAGE_ALIGN(eax);
+	return page_align(eax);
 }
 
 /* Read a Local APIC register */
