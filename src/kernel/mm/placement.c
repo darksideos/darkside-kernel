@@ -3,7 +3,7 @@
 
 /* Placement address */
 extern unsigned int end;
-void *placement_address = (void*) end;
+void *placement_address = (void*) &end;
 
 /* Allocate memory using placement address */
 void *placement_kmalloc(unsigned int size)

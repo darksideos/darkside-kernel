@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-OBJFILES = bit.o math.o ordered_array.o string.o assert.o
+OBJFILES = math.o ordered_array.o string.o
 
 .c.o:
 	$(CCBASE)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/lib/libgeneric/$@ -c $<
