@@ -26,7 +26,8 @@ typedef struct footer
 
 typedef struct heap
 {
-	header_t *index;			// Root of the heap index
+	void *index;				// Root of the heap index
+	unsigned char index_type;	// 0 - Ordered Array, 1 - Linked List, 2 - Binary Tree
 
 	unsigned int start_address; // The start address of the heap
 	unsigned int end_address;   // The end address of the heap
@@ -59,7 +60,7 @@ void *heap_malloc(heap_t *heap_ptr, unsigned int size, unsigned char align);
 void heap_free(heap_t *heap_ptr, void *ptr);
 void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align);
 
-/* Initialize the kernel and user heaps */
-void init_heap();
+/* Initialize the kernel heap */
+void init_kheap();
 
 #endif
