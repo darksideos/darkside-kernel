@@ -1,5 +1,5 @@
 #include <lib/libgeneric.h>
-#include <kernel/mm/heap.h>
+#include <kernel/mm/heap/heap.h>
 
 /* THIS IS A RASPI TEMPORARY FIX */
 
