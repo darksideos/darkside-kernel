@@ -13,6 +13,9 @@ page_directory_t *current_directory = 0;
 /* Page size */
 unsigned int page_size = 0x1000;
 
+/* Is paging active? */
+bool paging_active = false;
+
 /* Get a page */
 page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user)
 {
@@ -45,13 +48,27 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 	{
 		return &dir->tables[table_index]->pages[page % 1024];
 	}
-	/* If the table does not already exist and we want to make the page, create it */
+	/* If the table does not already exist and we want to make the page, create and return it */
 	else if (make)
 	{
 		unsigned int phys;
-		dir->tables[table_index] = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), &phys);
+
+		/* Create a new page table */
+		if (paging_active)
+		{
+			dir->tables[table_index] = (page_table_t*) kmalloc_ap(sizeof(page_table_t), &phys);
+		}
+		else
+		{
+			dir->tables[table_index] = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), &phys);
+		}
+
 		memset(dir->tables[table_index], 0, 0x1000);
+
+		/* Fill out its physical address */
 		dir->tablesPhysical[table_index] = phys | flags | 0x01;
+
+		/* Return the page */
 		return &dir->tables[table_index]->pages[page % 1024];
 	}
 	/* Otherwise, return 0 */
@@ -149,10 +166,20 @@ void map_kernel(page_directory_t *dir)
 	}
 }
 
-static page_table_t *clone_table(page_table_t *src, unsigned int physAddr)
+static page_table_t *clone_table(page_table_t *src, unsigned int *physAddr)
 {
 	/* Create a new page table and make sure it's blank */
-	page_table_t *table = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), physAddr);
+	page_table_t *table;
+
+	if (paging_active)
+	{
+		table = (page_table_t*) kmalloc_ap(sizeof(page_table_t), physAddr);
+	}
+	else
+	{
+		table = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), physAddr);
+	}
+
 	memset(table, 0, sizeof(page_directory_t));
 
 	/* Go through each page in the page table, copy the page into the new page table, and then physically copy the data */
@@ -202,9 +229,21 @@ static page_table_t *clone_table(page_table_t *src, unsigned int physAddr)
 page_directory_t *clone_directory(page_directory_t *src)
 {
 	/* Create a new page directory and make sure it's blank */
+	page_directory_t *dir;
 	unsigned int phys;
-	page_directory_t *dir = (page_directory_t*) placement_kmalloc_ap(sizeof(page_directory_t), &phys);
+
+	if (paging_active)
+	{
+		dir = (page_directory_t*) kmalloc_ap(sizeof(page_directory_t), &phys);
+	}
+	else
+	{
+		dir = (page_directory_t*) placement_kmalloc_ap(sizeof(page_directory_t), &phys);
+	}
+
 	memset(dir, 0, sizeof(page_directory_t));
+
+	/* Set the page directory's physical address */
 	dir->physicalAddr = phys + ((unsigned int)dir->tablesPhysical - (unsigned int)dir);
 
 	/* Go through each page table and either link or copy it */
@@ -240,7 +279,7 @@ page_directory_t *clone_directory(page_directory_t *src)
 /* Create a new blank page directory */
 page_directory_t *create_page_directory()
 {
-	page_directory_t *dir = (page_directory_t*) placement_kmalloc_a(sizeof(page_directory_t));
+	page_directory_t *dir = (page_directory_t*) kmalloc_a(sizeof(page_directory_t));
 	memset(dir, 0, sizeof(page_directory_t));
 
 	return dir;
@@ -293,4 +332,7 @@ void init_vmm()
     asm volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= 0x80000000;
     asm volatile("mov %0, %%cr0" :: "r"(cr0));
+
+	/* Finally, tell the VMM that paging is active */
+	paging_active = true;
 }
