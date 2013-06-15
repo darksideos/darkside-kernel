@@ -1,3 +1,4 @@
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/pic.h>
@@ -39,22 +40,22 @@ void irq_install()
 	pic_install();
 
 	/* Add the IRQs to the IDT */
-    idt_set_gate(32, (unsigned) irq0, 3);
-    idt_set_gate(33, (unsigned) irq1, 3);
-    idt_set_gate(34, (unsigned) irq2, 3);
-    idt_set_gate(35, (unsigned) irq3, 3);
-    idt_set_gate(36, (unsigned) irq4, 3);
-    idt_set_gate(37, (unsigned) irq5, 3);
-    idt_set_gate(38, (unsigned) irq6, 3);
-    idt_set_gate(39, (unsigned) irq7, 3);
-    idt_set_gate(40, (unsigned) irq8, 3);
-    idt_set_gate(41, (unsigned) irq9, 3);
-    idt_set_gate(42, (unsigned) irq10, 3);
-    idt_set_gate(43, (unsigned) irq11, 3);
-    idt_set_gate(44, (unsigned) irq12, 3);
-    idt_set_gate(45, (unsigned) irq13, 3);
-    idt_set_gate(46, (unsigned) irq14, 3);
-    idt_set_gate(47, (unsigned) irq15, 3);
+    idt_set_gate(32, (unsigned) irq0, true);
+    idt_set_gate(33, (unsigned) irq1, true);
+    idt_set_gate(34, (unsigned) irq2, true);
+    idt_set_gate(35, (unsigned) irq3, true);
+    idt_set_gate(36, (unsigned) irq4, true);
+    idt_set_gate(37, (unsigned) irq5, true);
+    idt_set_gate(38, (unsigned) irq6, true);
+    idt_set_gate(39, (unsigned) irq7, true);
+    idt_set_gate(40, (unsigned) irq8, true);
+    idt_set_gate(41, (unsigned) irq9, true);
+    idt_set_gate(42, (unsigned) irq10, true);
+    idt_set_gate(43, (unsigned) irq11, true);
+    idt_set_gate(44, (unsigned) irq12, true);
+    idt_set_gate(45, (unsigned) irq13, true);
+    idt_set_gate(46, (unsigned) irq14, true);
+    idt_set_gate(47, (unsigned) irq15, true);
 }
 
 /* Install an IRQ handler */
