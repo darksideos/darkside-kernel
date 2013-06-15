@@ -1,4 +1,3 @@
-#include <lib/libgcc/stdbool.h>
 #include <lib/libgeneric.h>
 #include <hal/i386/idt.h>
 
@@ -26,7 +25,7 @@ struct idt_ptr idtp;
 extern void idt_load();
 
 /* Set an entry in the IDT */
-void idt_set_gate(unsigned char num, unsigned long base, bool user)
+void idt_set_gate(unsigned char num, unsigned long base)
 {
     /* The interrupt routine's base address */
     idt[num].base_lo = (base & 0xFFFF);
@@ -35,7 +34,7 @@ void idt_set_gate(unsigned char num, unsigned long base, bool user)
     /* The segment or 'selector' that this IDT entry will use is set here, along with any access flags */
     idt[num].sel = 0x08;
     idt[num].always0 = 0;
-	idt[num].flags = (user) ? 0xEE : 0x8E;
+	idt[num].flags = 0xEE;
 }
 
 /* Install the IDT */
