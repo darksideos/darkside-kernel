@@ -1,3 +1,4 @@
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
@@ -87,38 +88,38 @@ unsigned char *exceptions[] =
 void isrs_install()
 {
 	/* Add the ISRs to the IDT */
-    idt_set_gate(0, (unsigned) isr0, 3);
-    idt_set_gate(1, (unsigned) isr1, 3);
-    idt_set_gate(2, (unsigned) isr2, 3);
-    idt_set_gate(3, (unsigned) isr3, 3);
-    idt_set_gate(4, (unsigned) isr4, 3);
-    idt_set_gate(5, (unsigned) isr5, 3);
-    idt_set_gate(6, (unsigned) isr6, 3);
-    idt_set_gate(7, (unsigned) isr7, 3);
-    idt_set_gate(8, (unsigned) isr8, 3);
-    idt_set_gate(9, (unsigned) isr9, 3);
-    idt_set_gate(10, (unsigned) isr10, 3);
-    idt_set_gate(11, (unsigned) isr11, 3);
-    idt_set_gate(12, (unsigned) isr12, 3);
-    idt_set_gate(13, (unsigned) isr13, 3);
-    idt_set_gate(14, (unsigned) isr14, 3);
-    idt_set_gate(15, (unsigned) isr15, 3);
-    idt_set_gate(16, (unsigned) isr16, 3);
-    idt_set_gate(17, (unsigned) isr17, 3);
-    idt_set_gate(18, (unsigned) isr18, 3);
-    idt_set_gate(19, (unsigned) isr19, 3);
-    idt_set_gate(20, (unsigned) isr20, 3);
-    idt_set_gate(21, (unsigned) isr21, 3);
-    idt_set_gate(22, (unsigned) isr22, 3);
-    idt_set_gate(23, (unsigned) isr23, 3);
-    idt_set_gate(24, (unsigned) isr24, 3);
-    idt_set_gate(25, (unsigned) isr25, 3);
-    idt_set_gate(26, (unsigned) isr26, 3);
-    idt_set_gate(27, (unsigned) isr27, 3);
-    idt_set_gate(28, (unsigned) isr28, 3);
-    idt_set_gate(29, (unsigned) isr29, 3);
-    idt_set_gate(30, (unsigned) isr30, 3);
-    idt_set_gate(31, (unsigned) isr31, 3);
+    idt_set_gate(0, (unsigned) isr0, true);
+    idt_set_gate(1, (unsigned) isr1, true);
+    idt_set_gate(2, (unsigned) isr2, true);
+    idt_set_gate(3, (unsigned) isr3, true);
+    idt_set_gate(4, (unsigned) isr4, true);
+    idt_set_gate(5, (unsigned) isr5, true);
+    idt_set_gate(6, (unsigned) isr6, true);
+    idt_set_gate(7, (unsigned) isr7, true);
+    idt_set_gate(8, (unsigned) isr8, true);
+    idt_set_gate(9, (unsigned) isr9, true);
+    idt_set_gate(10, (unsigned) isr10, true);
+    idt_set_gate(11, (unsigned) isr11, true);
+    idt_set_gate(12, (unsigned) isr12, true);
+    idt_set_gate(13, (unsigned) isr13, true);
+    idt_set_gate(14, (unsigned) isr14, true);
+    idt_set_gate(15, (unsigned) isr15, true);
+    idt_set_gate(16, (unsigned) isr16, true);
+    idt_set_gate(17, (unsigned) isr17, true);
+    idt_set_gate(18, (unsigned) isr18, true);
+    idt_set_gate(19, (unsigned) isr19, true);
+    idt_set_gate(20, (unsigned) isr20, true);
+    idt_set_gate(21, (unsigned) isr21, true);
+    idt_set_gate(22, (unsigned) isr22, true);
+    idt_set_gate(23, (unsigned) isr23, true);
+    idt_set_gate(24, (unsigned) isr24, true);
+    idt_set_gate(25, (unsigned) isr25, true);
+    idt_set_gate(26, (unsigned) isr26, true);
+    idt_set_gate(27, (unsigned) isr27, true);
+    idt_set_gate(28, (unsigned) isr28, true);
+    idt_set_gate(29, (unsigned) isr29, true);
+    idt_set_gate(30, (unsigned) isr30, true);
+    idt_set_gate(31, (unsigned) isr31, true);
 
 	/* Install some ISR handlers */
 	isr_install_handler(13, gpf_handler);
