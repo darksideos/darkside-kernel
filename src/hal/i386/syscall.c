@@ -1,13 +1,10 @@
-#include <lib/libgcc/stdbool.h>
 #include <hal/i386/gdt.h>
-#include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/syscall.h>
 #include <hal/i386/msr.h>
 #include <kernel/task/thread.h>
 
-/* The software interrupt and SYSENTER entry for syscalls */
-extern void int128();
+/* The SYSENTER entry for syscalls */
 extern void kernel_sysenter_entry();
 
 /* The kernel syscalls */
@@ -17,9 +14,6 @@ unsigned int num_syscalls = 200;
 /* Initialize syscalls in the HAL */
 void hal_init_syscalls()
 {
-	/* Add the syscall handler to the IDT */
-	idt_set_gate(128, (unsigned) int128, true);
-
 	/* Set up the values of the SYSENTER MSRs */
 	wrmsr(MSR_IA32_SYSENTER_CS, 0x08, 0);
 	wrmsr(MSR_IA32_SYSENTER_ESP, getthread()->kernel_stack, 0);
