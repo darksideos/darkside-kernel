@@ -1,3 +1,4 @@
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/gdt.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
@@ -17,7 +18,7 @@ unsigned int num_syscalls = 200;
 void hal_init_syscalls()
 {
 	/* Add the syscall handler to the IDT */
-	idt_set_gate(128, (unsigned) int128, 3);
+	idt_set_gate(128, (unsigned) int128, true);
 
 	/* Set up the values of the SYSENTER MSRs */
 	wrmsr(MSR_IA32_SYSENTER_CS, 0x08, 0);
