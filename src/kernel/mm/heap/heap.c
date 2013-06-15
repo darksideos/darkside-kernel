@@ -1,7 +1,6 @@
-#include <lib/libgeneric.h>
-#include <kernel/mm/heap/heap.h>
-#include <hal/i386/vmm.h>
 #include <lib/libgcc/stdbool.h>
+#include <hal/i386/vmm.h>
+#include <kernel/mm/heap/heap.h>
 
 /* The kernel heap */
 heap_t *kheap = 0;
