@@ -40,17 +40,12 @@ Kernel
 The kernel’s memory manager is responsible for creating address spaces for processes. It also provides a kernel heap for data structures to be allocated on.
 
 This is the layout of every process’s address space in i386:
-	•	0x00000000 – 0x000FFFFF	Real mode area
-	•	0x00100000 – 0x3FFFFFFF	Application code and data
-	•	0x40000000 – 0x5FFFFFFF	Libraries
-	•	0x60000000			Heap (grows upwards)
-	•	0xC0000000			Stack (grows downwards)
-	•	0xC0000000 – 0xCFFFFFFF	Kernel code and data
-	•	0xD0000000 – 0xDFFFFFFF	Kernel heap
-	•	0xE0000000 – 0xEFFFFFFF	Loaded modules
-	•	0xF0000000 – 0xF0000FFF	Current page directory
-	•	0xF0001000 – 0xF0400FFF	Current page tables
-	•	0xF0401000 – 0xFFFFFFFF	Memory mapped devices
+	•	0x80000000 – 0x8FFFFFFF	Kernel code and data
+	•	0x90000000				Kernel heap (grows upwards)
+	•	0xB0000000				Kernel stack (grows downwards)
+	•	0xB0000000 – 0xEFFFFFFF	Loaded modules
+	•	0xF0000000 – 0xF1000FFF	Page directory and page tables
+	•	0xF1001000 – 0xFFFFFFFF	Memory mapped devices
 	•	VFS
 The kernel’s VFS provides a filesystem abstraction. It uses a node tree with currently opened files cached in memory, but a mountpoint list is also used.
 
@@ -82,7 +77,7 @@ A variation of priority-based round robin uses timeslices as well as priority. P
 	•	IPC
 The kernel provides a few methods of IPC. These are messages, shared memory, signals, semaphores, mutexes, and spinlocks. Most of them are implemented in the kernel, but spinlocks are implemented in the HAL. Spinlocks are required for all other methods to be implemented.
 	•	Syscalls
-The kernel exposes the user mode API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The user API contains functions that directly call kernel functions.
+The kernel exposes the user mode API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The user mode API contains functions that directly call kernel functions.
 
 These are the function categories for syscalls:
 	•	File syscalls
@@ -117,8 +112,8 @@ User mode is the part of the OS that users interface with. It runs on top of the
 	•	Applications
 User mode is responsible for running user mode applications. It uses the kernel to create a process and execute the application in it. User mode also provides several APIs that wrap the kernel’s native API and a window manager for applications.
 	•	API
-	•	Native API
-The native API is a library of kernel functions. The functions in the native API directly call kernel functions through syscalls. The OS API provides applications with a set of kernel functions that allow applications to use all of its services as well as GUI functions that wrap the Window Manager.
+	•	OS API
+The OS API is a library of kernel functions. The functions in the OS API directly call kernel functions through syscalls. The OS API provides applications with a set of kernel functions that allow applications to use all of its services as well as GUI functions that wrap the Window Manager.
 	•	POSIX API
 There is also a POSIX API that wraps the kernel functions. It provides standard POSIX functions to applications, as well as the pthreads API. The POSIX API allows applications on Unix systems to be ported.
 	•	Windows API
