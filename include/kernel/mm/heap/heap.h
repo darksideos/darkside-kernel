@@ -14,6 +14,19 @@
 #define HEAP_TYPE_LINKED_LIST			1
 #define HEAP_TYPE_BINARY_TREE			2
 
+typedef struct heap
+{
+	void *index;				// Root of the heap index
+	unsigned char index_type;	// 0 - Ordered Array, 1 - Linked List, 2 - Binary Tree
+
+	unsigned int start_address; // The start address of the heap
+	unsigned int end_address;   // The end address of the heap
+	unsigned int min_address;	// The minimum address of the heap
+	unsigned int max_address;   // The maximum address of the heap
+
+	bool user;					// Accessible in user mode?
+} heap_t;
+
 /* Heaader, footer, and heap structures */
 typedef struct header
 {
@@ -27,19 +40,6 @@ typedef struct footer
 	unsigned int magic;			// Magic number
 	header_t *header;			// Pointer to the header
 } footer_t;
-
-typedef struct heap
-{
-	void *index;				// Root of the heap index
-	unsigned char index_type;	// 0 - Ordered Array, 1 - Linked List, 2 - Binary Tree
-
-	unsigned int start_address; // The start address of the heap
-	unsigned int end_address;   // The end address of the heap
-	unsigned int min_address;	// The minimum address of the heap
-	unsigned int max_address;   // The maximum address of the heap
-
-	bool user;					// Accessible in user mode?
-} heap_t;
 
 /* Allocate memory on the kernel heap */
 void *kmalloc(unsigned int size);

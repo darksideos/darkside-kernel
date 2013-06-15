@@ -1,16 +1,13 @@
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/modules/initrd.h>
-#include <lib/libgeneric.h>
 #include <kernel/vfs/vfs.h>
-#include <drivers/graphics/vga.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/modules/elf.h>
-#include <hal/i386/vmm.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/task.h>
-
-extern unsigned int end;
+#include <drivers/graphics/vga.h>
+#include <lib/libgeneric.h>
 
 void kernel_main(struct multiboot *mboot_ptr)
 {

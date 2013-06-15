@@ -3,11 +3,14 @@
 
 #include <lib/libgcc/stdbool.h>
 
+/* Memory functions */
 unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count);
 unsigned char *memset(unsigned char *dest, unsigned char val, int count);
 unsigned short *memsetw(unsigned short *dest, unsigned short val, int count);
 bool memequal(unsigned char *ptr1, unsigned char *ptr2, unsigned int count);
 void memclr(void *address, unsigned int length);
+
+/* String functions */
 int strlen(const char *str);
 unsigned char *strcpy(unsigned char *dest, const unsigned char *src);
 unsigned char *strncpy(unsigned char *dest, const unsigned char *src, unsigned int size);

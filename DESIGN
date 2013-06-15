@@ -82,7 +82,7 @@ A variation of priority-based round robin uses timeslices as well as priority. P
 	•	IPC
 The kernel provides a few methods of IPC. These are messages, shared memory, signals, semaphores, mutexes, and spinlocks. Most of them are implemented in the kernel, but spinlocks are implemented in the HAL. Spinlocks are required for all other methods to be implemented.
 	•	Syscalls
-The kernel exposes the native API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The native API contains functions that directly call kernel functions.
+The kernel exposes the user mode API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The user API contains functions that directly call kernel functions.
 
 These are the function categories for syscalls:
 	•	File syscalls
@@ -90,8 +90,7 @@ These are the function categories for syscalls:
 	•	IPC syscalls
 	•	Memory syscalls
 	•	Time and date syscalls
-
-Using the native API directly is not recommended, because most of the functions are very low level. Instead, the user mode APIs, which are implemented in user mode, should be used, because they provide a wrapper for the native API.
+It can be used through the dynamic libraries provided by the operating system.
 
 
 
@@ -119,13 +118,11 @@ User mode is the part of the OS that users interface with. It runs on top of the
 User mode is responsible for running user mode applications. It uses the kernel to create a process and execute the application in it. User mode also provides several APIs that wrap the kernel’s native API and a window manager for applications.
 	•	API
 	•	Native API
-The native API is a library of kernel functions. The functions in the native API directly call kernel functions through syscalls. Using the native API is not recommended, because the functions are very low level. Instead, several other APIs are provided that wrap the native API.
-	•	OS API
-The OS provides an API that wraps the native API. The OS API provides applications with a set of kernel functions that allow applications to use all of its services as well as GUI functions that wrap the Window Manager.
+The native API is a library of kernel functions. The functions in the native API directly call kernel functions through syscalls. The OS API provides applications with a set of kernel functions that allow applications to use all of its services as well as GUI functions that wrap the Window Manager.
 	•	POSIX API
-There is also a POSIX API that wraps the native API. It provides standard POSIX functions to applications, as well as the pthreads API. The POSIX API allows applications on Unix systems to be ported.
+There is also a POSIX API that wraps the kernel functions. It provides standard POSIX functions to applications, as well as the pthreads API. The POSIX API allows applications on Unix systems to be ported.
 	•	Windows API
-A Windows API is provided as a wrapper of the native API to run Windows applications on the OS. The Windows API emulates the Windows API using native API functions, and emulates its GUI functions using the OS GUI API. There is also a .NET library that runs on top of the native and OS GUI APIs.
+A Windows API is provided as a wrapper of the kernel functions to run Windows applications on the OS. The Windows API emulates the Windows API using kernel functions, and emulates its GUI functions using the window manager. There is also a .NET library that runs on top of the kernel functions and window manager.
 	•	Window Manager
 The Window Manager provides GUI functions. It allows applications to use windows, and provides widgets for them to place on the windows. The Window Manager calls graphical functions that are implemented in the kernel in order to display the windows. The functions in the Window Manager are part of the OS API.
 
@@ -133,7 +130,7 @@ The Window Manager provides GUI functions. It allows applications to use windows
 
 	•	Shell
 The OS shell allows for file management and program execution. It is written as an application that uses the OS APIs. The OS can use a command line or graphical shell.
-	•	Command Line Shell – Pistachio
+	•	Command Line Shell – Fish
 	•	Graphical Shell
 	•	Users
 User mode in the OS provides users and groups. It also uses them to implement security. Users and groups have specific permissions that control what they are allowed to do. User passwords are implemented by the security manager as well.
