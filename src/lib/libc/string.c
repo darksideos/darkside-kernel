@@ -1,4 +1,5 @@
 #include <lib/libc/string.h>
+#include <lib/libc/ctype.h>
 #include <kernel/mm/heap/heap.h>
 
 /* THIS IS A RASPI TEMPORARY FIX */
