@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/ioapic.h>
 
 /* The I/O APIC base address */

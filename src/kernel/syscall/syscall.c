@@ -9,9 +9,6 @@
 /* Initialize syscalls */
 void init_syscalls()
 {
-	/* Initialize syscalls in the HAL */
-	hal_init_syscalls();
-
 	/* File syscalls - 16 */
 	syscall_install_handler(0, &create);
 	syscall_install_handler(1, &open);
@@ -46,7 +43,7 @@ void init_syscalls()
 	syscall_install_handler(26, &raise);
 	syscall_install_handler(27, &signal);
 
-	/* Synchronization syscalls - 8 */
+	/* Semaphore syscalls - 8 */
 	syscall_install_handler(28, &create_semaphore);
 	syscall_install_handler(29, &delete_semaphore);
 	syscall_install_handler(30, &wait_semaphore);

@@ -1,6 +1,8 @@
 #ifndef __ISRS_H
 #define __ISRS_H
 
+#include <lib/libgcc/stdbool.h>
+
 /* The structure of the stack after an interrupt */
 struct i386_regs
 {
@@ -21,13 +23,10 @@ void isr_install_handler(int isr, void (*handler)(struct i386_regs *r));
 void isr_uninstall_handler(int isr);
 
 /* Create and copy a CPU register context */
-struct i386_regs *create_registers(void (*function)(), unsigned char ring);
+struct i386_regs *create_registers(void (*function)(), bool user);
 void copy_registers(void *dest, void *src);
 
 /* Dump the CPU registers */
 void dump_registers(struct i386_regs *r);
-
-/* Print a stack trace */
-void stack_trace(unsigned int esp, unsigned int stack_base);
 
 #endif

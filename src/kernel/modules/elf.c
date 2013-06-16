@@ -1,13 +1,8 @@
-#include <hal/i386/pmm.h>
-#include <hal/i386/vmm.h>
+#include <lib/libc/string.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/modules/elf.h>
 #include <kernel/modules/elf_types.h>
-#include <lib/libgeneric.h>
-
-/* Current page directory */
-extern page_directory_t *current_directory;
 
 /* Check the ELF file's magic header: it should be the byte 0x7F followed by the characters 'E', 'L', and 'F' */
 bool elf_check_magic(elf_header_t *header)
@@ -122,7 +117,7 @@ void elf_load_section(elf_header_t *header, unsigned int num, unsigned char *mem
 		int i;
 		for (i = 0; i < length; i += 0x1000)
 		{
-			map_page(current_directory, mem_address + i, pmm_alloc_page(), true, true, true);
+			//map_page(current_directory, mem_address + i, pmm_alloc_page(), true, true, true);
 		}
 
 		memcpy(mem_address, data_offset, length);

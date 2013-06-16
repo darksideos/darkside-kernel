@@ -1,3 +1,4 @@
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
@@ -163,7 +164,7 @@ void fault_handler(struct i386_regs *r)
 }
 
 /* Create a CPU register context */
-struct i386_regs *create_registers(void (*function)(), unsigned char ring)
+struct i386_regs *create_registers(void (*function)(), bool user)
 {
 	/* Create and fill out the register context */
 	struct i386_regs *context = (struct i386_regs*) kmalloc(sizeof(struct i386_regs));
@@ -174,9 +175,7 @@ struct i386_regs *create_registers(void (*function)(), unsigned char ring)
 
 	context->edi = context->esi = context->ebp = context->esp = context->ebx = context->edx = context->ecx = context->eax = 0;	// GPRs
 
-	context->ds = context->es = context->fs = context->gs = 0x10;	// Kernel mode data segment
-
-	if (ring == 3)
+	if (user)
 	{
 		context->ss = 0x23;		// User mode stack segment
 		context->useresp = 0;	// User mode stack pointer
@@ -184,10 +183,18 @@ struct i386_regs *create_registers(void (*function)(), unsigned char ring)
 		context->cs = 0x1B;		// User mode code segment
 		context->ds = context->es = context->fs = context->gs = 0x23;	// User mode data segment
 	}
+	else
+	{
+		context->ss = 0;		// User mode stack segment
+		context->useresp = 0;	// User mode stack pointer
+
+		context->ds = context->es = context->fs = context->gs = 0x10;	// Kernel mode data segment
+	}
 
 	return context;
 }
 
+/* Copy a CPU register context */
 void copy_registers(void *dest, void *src)
 {
 	memcpy(dest, src, sizeof(struct i386_regs));
@@ -210,15 +217,4 @@ void dump_registers(struct i386_regs *r)
 	asm volatile("mov %%cr4, %0" : "=r" (cr4));
 
 	kprintf("CR0: %08x CR2: %08x CR3: %08x CR4: %08x\n", cr0, cr2, cr3, cr4);
-}
-
-/* Print a stack trace */
-void stack_trace(unsigned int esp, unsigned int stack_base)
-{
-	/* Print out the stack */
-	unsigned int i;
-	for (i = esp; i < stack_base; i += 4)
-	{
-		kprintf("%08x ", *((unsigned int*)i));
-	}
 }
