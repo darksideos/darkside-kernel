@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdbool.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
@@ -8,13 +8,13 @@
 #include <hal/i386/vmm.h>
 
 /* Task switching modes
- * Bit 0: 0 - 32 bit protected mode, 1 - 64 bit long mode
+ * Bit 0: 0 - Kernel mode, 1 - User mode
  * Bit 1: 0 - Task switching is disabled, 1 - Task switching is enabled
  */
 unsigned char mode_flags = 0x00;
 
-/* The ring level that the CPU is currently running at */
-unsigned char ring = 0;
+/* Is the CPU in user mode? */
+bool user_mode = false;
 
 /* Current page directory */
 extern page_directory_t *current_directory;
@@ -61,9 +61,8 @@ void init_multitasking()
 {
 	hal_cli();
 
-	/* Initialize processes and threads */
+	/* Initialize processes */
 	init_processes();
-	init_threads();
 
     /* Create the kernel process */
     process_t *kernel_process = create_process("Kernel Process", &kernel_process_run, 0, 1024);
@@ -114,7 +113,7 @@ void switch_tasks_roundrobin(void *current_context)
 	}
 
 	/* If task switching has been disabled, return */
-	if(!(mode_flags & 0x02))
+	if(!(mode_flags & 0x01))
 	{
 		return;
 	}
@@ -149,16 +148,22 @@ void switch_tasks_roundrobin(void *current_context)
 /* Enable and disable task switching */
 void enable_task_switching()
 {
-	mode_flags |= 0x02;
+	mode_flags |= MODE_FLAGS_TASKING;
 }
 
 void disable_task_switching()
 {
-	mode_flags &= ~0x02;
+	mode_flags &= ~MODE_FLAGS_TASKING;
 }
 
-/* Get the current CPU ring */
-unsigned char getring()
+/* Initialize user mode */
+void init_user_mode()
 {
-	return ring;
+	mode_flags |= MODE_FLAGS_USER;
+}
+
+/* Get the task switching mode flags */
+unsigned char get_mode_flags()
+{
+	return mode_flags;
 }

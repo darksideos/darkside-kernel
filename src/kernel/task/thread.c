@@ -1,49 +1,12 @@
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdbool.h>
+#include <lib/libc/string.h>
 #include <kernel/init/hal.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>
 
-/* Maximum number of threads that can be run */
-unsigned int max_threads = 65536;
-
-/* The thread list, which is an array of pointers to threads */
-volatile thread_t **threads;
-
 /* Current thread ID and the number of running threads */
 volatile unsigned int current_tid = 0;
-volatile unsigned int num_threads = 0;
-
-/* Initialize threads */
-void init_threads()
-{
-	/* Initialize the threads list */
-	threads = (thread_t*) kmalloc(sizeof(thread_t) * max_threads);
-	memset(threads, 0, sizeof(thread_t) * max_threads);
-}
-
-/* Find the first availible TID in the threads list */
-unsigned int find_first_tid()
-{
-	/* Find the first availible TID */
-	unsigned int tid;
-	for (tid = 0; tid < max_threads; tid++)
-	{
-		if (threads[tid] == 0)
-		{
-			break;
-		}
-	}
-
-	/* If we didn't find an availible TID, return an error code */
-	if (tid == max_threads)
-	{
-		return -1;
-	}
-
-	/* Return the TID that was found */
-	return tid;
-}
 
 /* Create a new blank thread */
 thread_t *create_thread(process_t *parent_process, void (*function)(), char **argv, unsigned int user_stack_size)
@@ -69,7 +32,7 @@ thread_t *create_thread(process_t *parent_process, void (*function)(), char **ar
 	new_thread->tid = tid;
     
 	/* Create and fill out the thread context */
-	new_thread->context = create_registers(function, getring());
+	new_thread->context = create_registers(function, (bool) get_mode_flags() & MODE_FLAGS_USER);
 	
 	/* Create the thread's user and kernel stacks */
 	new_thread->kernel_stack = kmalloc_a(DEFAULT_KERNEL_STACK_SIZE) + DEFAULT_KERNEL_STACK_SIZE;

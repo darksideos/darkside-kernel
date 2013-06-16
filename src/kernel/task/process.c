@@ -1,12 +1,12 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
+#include <hal/i386/vmm.h>
+#include <hal/i386/isrs.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/ipc/signal.h>
-#include <hal/i386/vmm.h>
-#include <hal/i386/isrs.h>
 
 /* Maximum number of processes that can be run */
 unsigned int max_processes = 4096;
@@ -162,6 +162,7 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 	/* Create the first thread in the process */
 	create_thread(new_process, function, argv, user_stack_size);
 	kprintf("Process: %08X, threads: %08X, thread: %08X.\n", new_process, new_process->threads, new_process->threads[0]);
+
 	/* Give the process its own blank page directory and map the kernel into it */
     new_process->page_directory = create_page_directory();
 	map_kernel(new_process->page_directory);

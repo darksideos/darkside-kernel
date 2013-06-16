@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/task/thread.h>
 #include <hal/i386/lock.h>

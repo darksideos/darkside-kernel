@@ -11,8 +11,8 @@ extern void kernel_sysenter_entry();
 static void *syscalls[200];
 unsigned int num_syscalls = 200;
 
-/* Initialize syscalls in the HAL */
-void hal_init_syscalls()
+/* Install syscalls */
+void syscalls_install()
 {
 	/* Set up the values of the SYSENTER MSRs */
 	wrmsr(MSR_IA32_SYSENTER_CS, 0x08, 0);

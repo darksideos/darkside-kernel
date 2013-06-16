@@ -32,11 +32,11 @@ header_t *lookup_chunk(header_t *chunk, unsigned int size, bool align)
 		/* Find out which one is a hole or hole/block */
 		if (chunk_left->type == 0 || chunk_left->type == 2)
 		{
-			return lookup_chunk(chunk_left, size);
+			return lookup_chunk(chunk_left, size, align);
 		}
 		else if (chunk_right->type == 0 || chunk_right->type == 2)
 		{
-			return lookup_chunk(chunk_right, size);
+			return lookup_chunk(chunk_right, size, align);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdbool.h>
 #include <kernel/task/thread.h>
 
 /* Semaphore and mutex structures */

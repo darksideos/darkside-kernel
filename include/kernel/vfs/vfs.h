@@ -1,7 +1,6 @@
 #ifndef __VFS_H
 #define __VFS_H
 
-#include <lib/libgeneric.h>
 #include <lib/libgcc/stdbool.h>
 
 /* Node flags */

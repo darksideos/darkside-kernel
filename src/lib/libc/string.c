@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <kernel/mm/heap/heap.h>
 
 /* THIS IS A RASPI TEMPORARY FIX */

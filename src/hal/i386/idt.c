@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <hal/i386/idt.h>
 
 /* Defines an IDT entry */

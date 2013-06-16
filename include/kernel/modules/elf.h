@@ -1,8 +1,6 @@
 #ifndef __ELF_H
 #define __ELF_H
 
-#include <lib/libgeneric.h>
-
 /* ELF program header and section header entry structure */
 typedef struct elf_program_header_segment
 {
