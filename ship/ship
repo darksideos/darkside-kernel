@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+import urllib.request
+import argparse
+
+dsosurl = 'http://darksideos.hopto.org/packages/'
+
+def readFile(file):
+	handle = urllib.request.urlopen(file)
+	data = handle.read()
+	return data.decode('utf-8')
+
 def show_help(args):
     global parsers
     command = args.command
@@ -9,7 +19,16 @@ def show_help(args):
     parsers[command].print_help()
 
 def install(args):
-    print(args.packages)
+	ships = []
+	for package in args.packages:
+		try:
+			html = readFile(dsosurl + package + ".ship")
+			ships.append(html)
+			print(html)
+		except urllib.error.HTTPError as er:
+			if str(er) == "HTTP Error 404: Not Found":
+				print("Package not found: '%s'.  Aborting..." % package)
+				exit(1)
 
 def config(args):
     print(args.move)
@@ -17,7 +36,6 @@ def config(args):
 def search(args):
 	print(args.packages)
     
-import argparse
 
 parsers = {}
 parsers[""] = argparse.ArgumentParser(prog='ship', description='ship is the default package manager for DarkSide OS.  It can be used to install both binary (bin) and source (src) distributions of packages.  It is written in python.')
@@ -40,7 +58,8 @@ parsers["help"].add_argument('command', nargs='?', help='command to retrieve hel
 parsers["help"].set_defaults(func=show_help)
 
 args = parsers[""].parse_args()
-try:
+if "func" in args:
 	args.func(args)
-except:
-	print("Error: no command specified.  Try 'ship <command>' for help.")
+else:
+	print("Error: no command specified.  Try 'ship help <command>' for help.")
+	exit(1)
