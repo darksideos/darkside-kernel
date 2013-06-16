@@ -104,7 +104,7 @@ void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
 }
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, unsigned int index_size, bool user)
+heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user)
 {
 	/* First, place a heap structure, make sure it's 0, and fill in its data */
 	heap_t *heap = (heap_t*) start_address;
@@ -117,28 +117,22 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 
 	heap->user = user;
 
-	/* Second, create the root of the heap index and fill in its data */
-	binary_tree_t index;
-	index.root = (binary_tree_t*) start_address + sizeof(heap_t);
-
-	heap->index = index;
-
-	/* Create a large hole */
-	header_t *header = (header_t*) start_address + sizeof(heap_t) + index_size;
+	/* Second, create the heap index */
+	header_t *header = (header_t*) start_address + sizeof(heap_t);
 
 	header->magic = HEAP_MAGIC;
 	header->type = 0;
-	header->size = (end_address - start_address) - sizeof(heap_t) - index_size;
+	header->size = (end_address - start_address) - sizeof(heap_t);
 
-	footer_t *footer = (footer_t*) (header + header->size) - 8;
+	header->left = 0;
+	header->right = 0;
+
+	footer_t *footer = (footer_t*) (start_address + sizeof(heap_t) + header->size) - 8;
 
 	footer->magic = HEAP_MAGIC;
 	footer->header = header;
 
-	/* Add it to the index */
-	heap->index.value = (void*) header;
-	heap->index.left = 0;
-	heap->index.right = 0
+	heap->index = header;
 
 	/* Finally, return the new heap */
 	return heap;
@@ -301,5 +295,5 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, KHEAP_INDEX_SIZE, false);
+	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, false);
 }
