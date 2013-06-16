@@ -17,7 +17,7 @@ unsigned int pmm_alloc_page()
 		for (j = 0; j < 32; j++)
 		{
 			/* If the bit is 0, set it to 1 and return the address */
-			if (!bit_test(pmm_pages[i], j))
+			if(!(pmm_pages[i] & (1 << j)))
 			{
 				pmm_pages[i] = pmm_pages[i] | (1 << j);
 				return (i << 17) + (j << 12);
