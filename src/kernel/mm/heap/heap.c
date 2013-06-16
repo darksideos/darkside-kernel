@@ -104,10 +104,10 @@ void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
 }
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, unsigned char index_type, bool user)
+heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, unsigned int index_size, bool user)
 {
-	/* First, create a heap structure, make sure it's 0, and fill in its data */
-	heap_t *heap = (heap_t*) kmalloc(sizeof(heap_t));
+	/* First, place a heap structure, make sure it's 0, and fill in its data */
+	heap_t *heap = (heap_t*) start_address;
 	memset(heap, 0, sizeof(heap_t));
 
 	heap->start_address = start_address;
@@ -117,42 +117,28 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 
 	heap->user = user;
 
-	/* Second, create the root of the heap index, make sure it's 0, and fill in its data */
-	if (index_type == HEAP_TYPE_ORDERED_ARRAY)
-	{
-		/* Create an ordered array */
-		//ordered_array_t *index = (ordered_array_t*) kmalloc(sizeof(ordered_array_t));
-		//memset(index, 0, sizeof(ordered_array_t));
+	/* Second, create the root of the heap index and fill in its data */
+	binary_tree_t index;
+	index.root = (binary_tree_t*) start_address + sizeof(heap_t);
 
-		/* Add a large hole to the index
-		index->magic = HEAP_MAGIC;
-		index->type = 0;
-		index->size = end_address - start_address; */
-	}
-	else if (index_type == HEAP_TYPE_LINKED_LIST)
-	{
-		/* Create a linked list */
-		//linked_list_t *index = (linked_list_t*) kmalloc(sizeof(linked_list_t));
-		//memset(index, 0, sizeof(linked_list_t));
+	heap->index = index;
 
-		/* Add a large hole to the index
-		index->magic = HEAP_MAGIC;
-		index->type = 0;
-		index->size = end_address - start_address; */
-	}
-	else if (index_type == HEAP_TYPE_BINARY_TREE)
-	{
-		/* Create an binary tree */
-		//binary_tree_t *index = (binary_tree_t*) kmalloc(sizeof(binary_tree_t));
-		//memset(index, 0, sizeof(binary_tree_t));
+	/* Create a large hole */
+	header_t *header = (header_t*) start_address + sizeof(heap_t) + index_size;
 
-		/* Add a large hole to the index
-		index->magic = HEAP_MAGIC;
-		index->type = 0;
-		index->size = end_address - start_address; */
-	}
+	header->magic = HEAP_MAGIC;
+	header->type = 0;
+	header->size = (end_address - start_address) - sizeof(heap_t) - index_size;
 
-	//heap->index = (void*) index;
+	footer_t *footer = (footer_t*) (header + header->size) - 8;
+
+	footer->magic = HEAP_MAGIC;
+	footer->header = header;
+
+	/* Add it to the index */
+	heap->index.value = (void*) header;
+	heap->index.left = 0;
+	heap->index.right = 0
 
 	/* Finally, return the new heap */
 	return heap;
@@ -315,5 +301,5 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, HEAP_TYPE_ORDERED_ARRAY, false);
+	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, KHEAP_INDEX_SIZE, false);
 }
