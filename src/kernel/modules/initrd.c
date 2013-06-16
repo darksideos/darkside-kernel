@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/modules/initrd.h>
 

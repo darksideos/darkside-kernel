@@ -18,10 +18,7 @@ typedef struct thread
 	struct process *parent_process;		// Parent process
 } thread_t;
 
-/* Initialize threads */
-void init_threads();
-
-/* Create a new blank thread without cloning the registers, address space, and files of the current one */
+/* Create a new blank thread */
 thread_t *create_thread(struct process *parent_process, void (*function)(), char **argv, unsigned int user_stack_size);
 
 /* Return the current TID and a pointer to the current thread */

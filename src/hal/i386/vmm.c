@@ -1,5 +1,5 @@
 #include <lib/libgcc/stdbool.h>
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>

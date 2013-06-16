@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/math.h>
 
 int pow(int num, int exp)
 {

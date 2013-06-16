@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
 #include <kernel/task/process.h>

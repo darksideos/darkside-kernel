@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <hal/i386/ports.h>
 #include <drivers/graphics/vga.h>
 #include <kernel/vfs/vfs.h>
