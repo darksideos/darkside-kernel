@@ -1,10 +1,12 @@
 #ifndef __ADDRESS_SPACE_H
 #define __ADDRESS_SPACE_H
 
+extern unsigned int end;
+
 /* Kernel memory */
 #define KERNEL_PHYSICAL_START		0x100000
 #define KERNEL_VIRTUAL_START		0x80000000
-#define KERNEL_PHYSICAL_SIZE		0x300000
+#define KERNEL_PHYSICAL_SIZE		((unsigned int) &end) - KERNEL_VIRTUAL_START
 #define KERNEL_VIRTUAL_SIZE			0x10000000
 
 #define KHEAP_PHYSICAL_START		0x400000
