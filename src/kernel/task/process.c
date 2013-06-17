@@ -2,6 +2,7 @@
 #include <hal/i386/vmm.h>
 #include <hal/i386/isrs.h>
 #include <kernel/init/hal.h>
+#include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/task/process.h>
@@ -59,7 +60,7 @@ int fork()
     process_t *parent_process = processes[current_pid];
 
     /* Clone the address space */
-    page_directory_t *directory = clone_directory(current_directory);
+    page_directory_t *directory = /*clone_directory(current_directory)*/ 0;
 
     /* Create a new process */
     process_t *new_process = (process_t*) kmalloc(sizeof(process_t));
