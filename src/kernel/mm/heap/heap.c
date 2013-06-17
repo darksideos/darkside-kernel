@@ -1,5 +1,6 @@
 #include <lib/libgcc/stdbool.h>
 #include <hal/i386/vmm.h>
+#include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 
 /* The kernel heap */
@@ -222,7 +223,7 @@ void *heap_malloc(heap_t *heap, unsigned int size, bool align)
 	/* If we found a chunk, return the address of the memory we found */
 	if (chunk != 0)
 	{
-		return (void*) ((unsigned int)chunk + chunk->size);
+		return (void*) ((unsigned int)chunk + sizeof(header_t));
 	}
 	/* Otherwise, if we somehow reached here, return 0 */
 	else
@@ -295,5 +296,5 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_START + KHEAP_MIN_SIZE, KHEAP_START + KHEAP_MAX_SIZE, false);
+	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, false);
 }
