@@ -2,7 +2,7 @@
 #include <kernel/init/main.h>
 #include <kernel/modules/multiboot.h>
 
-void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int *pt_lower, unsigned int *pt_higher)
+void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int *pt_lower, unsigned int *pt_higher, unsigned int *pt_paging1, unsigned int *pt_paging2)
 {
 	/* Map the multiboot, text, data, and BSS sections to their addresses */
 	unsigned int address;
@@ -10,18 +10,26 @@ void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int
 	/* Lower half */
 	for (address = 0; address < 0x400000; address += 0x1000)
 	{
-		pt_lower[address / 0x1000] = address | 0x07;
+		pt_lower[address / 0x1000] = address | 0x03;
 	}
 
 	/* Higher half */
 	for (address = 0x100000; address < 0x400000; address += 0x1000)
 	{
-		pt_higher[(address - 0x100000) / 0x1000] = address | 0x07;
+		pt_higher[(address - 0x100000) / 0x1000] = address | 0x03;
 	}
 
+	/* Page directory */
+	pt_paging1[0] = (unsigned int) pd | 0x03;
+	pt_paging1[1] = (unsigned int) pt_lower | 0x03;
+
+	pt_paging2[1] = (unsigned int) pt_higher | 0x03;
+
 	/* Add the page tables into the page directory */
-	pd[0] = (unsigned int)pt_lower | 0x07;
-	pd[512] = (unsigned int)pt_higher | 0x07;
+	pd[0] = (unsigned int) pt_lower | 0x03;
+	pd[512] = (unsigned int) pt_higher | 0x03;
+	pd[960] = (unsigned int) pt_paging1 | 0x03;
+	pd[962] = (unsigned int) pt_paging2 | 0x03;
 
 	/* Switch to the page directory */
 	asm volatile("mov %0, %%cr3" :: "r"(pd));
