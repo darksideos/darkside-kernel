@@ -3,11 +3,6 @@
 
 #include <lib/libgcc/stdbool.h>
 
-#define KHEAP_START        0xE0000000
-#define KHEAP_INITIAL_SIZE 0x100000
-#define KHEAP_MIN_SIZE	   0x70000
-#define KHEAP_MAX_SIZE	   0xFFFF000
-
 #define HEAP_MAGIC		   0x123890AB
 
 /* Heaader, footer, and heap structures */

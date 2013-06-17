@@ -3,6 +3,7 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
+#include <kernel/mm/address_space.h>
 #include <kernel/mm/placement.h>
 #include <kernel/mm/heap/heap.h>
 
@@ -129,153 +130,6 @@ void unmap_page(page_directory_t *dir, unsigned int virtual_address)
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
-/* Map the kernel into a page directory */
-void map_kernel(page_directory_t *dir)
-{
-	unsigned int i, j;
-
-	/* If this is the kernel directory, we're initializing paging and need to allocate some pages from the physical memory manager */
-	if (dir == kernel_directory)
-	{
-		/* We need to higher half map our kernel */
-		for (i = 0x100000; i < 0x400000; i += 0x1000)
-		{
-			map_page(dir, PHYSICAL_TO_HIGHER(i), pmm_alloc_page(), true, true, false);
-		}
-
-		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
-		for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
-		{
-			map_page(dir, i, pmm_alloc_page(), true, true, false);
-		}
-	}
-	/* Otherwise, map the pages without allocating them */
-	else
-	{
-		/* We need to identity map our kernel */
-		for (i = 0x100000; i < 0x400000; i += 0x1000)
-		{
-			map_page(dir, PHYSICAL_TO_HIGHER(i), i, true, true, false);
-		}
-
-		/* Map the kernel heap to its virtual address. In physical memory, it will start at the 4 MB mark, which is the end of the kernel */
-		for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
-		{
-			map_page(dir, i, i, true, true, false);
-		}
-	}
-}
-
-static page_table_t *clone_table(page_table_t *src, unsigned int *physAddr)
-{
-	/* Create a new page table and make sure it's blank */
-	page_table_t *table;
-
-	if (paging_active)
-	{
-		table = (page_table_t*) kmalloc_ap(sizeof(page_table_t), physAddr);
-	}
-	else
-	{
-		table = (page_table_t*) placement_kmalloc_ap(sizeof(page_table_t), physAddr);
-	}
-
-	memset(table, 0, sizeof(page_directory_t));
-
-	/* Go through each page in the page table, copy the page into the new page table, and then physically copy the data */
-	int i;
-	for (i = 0; i < 1024; i++)
-	{
-		/* If the page isn't mapped, don't copy it */
-		if (!src->pages[i].frame)
-		{
-			continue;
-		}
-
-		/* Allocate a new physical page and map the new page to the new physical address */
-		table->pages[i].frame = pmm_alloc_page() / 0x1000;
-
-		/* Copy its flags */
-		if (src->pages[i].present)
-		{
-			table->pages[i].present = 1;
-		}
-		if (src->pages[i].rw)
-		{
-			table->pages[i].rw = 1;
-		}
-		if (src->pages[i].user)
-		{
-			table->pages[i].user = 1;
-		}
-		if (src->pages[i].accessed)
-		{
-			table->pages[i].accessed = 1;
-		}
-		if (src->pages[i].dirty)
-		{
-			table->pages[i].dirty = 1;
-		}
-
-		/* Finally, physically copy the data from one page to another */
-
-	}
-
-	/* Return the new page table */
-	return table;
-}
-
-/* Clone a page directory */
-page_directory_t *clone_directory(page_directory_t *src)
-{
-	/* Create a new page directory and make sure it's blank */
-	page_directory_t *dir;
-	unsigned int phys;
-
-	if (paging_active)
-	{
-		dir = (page_directory_t*) kmalloc_ap(sizeof(page_directory_t), &phys);
-	}
-	else
-	{
-		dir = (page_directory_t*) placement_kmalloc_ap(sizeof(page_directory_t), &phys);
-	}
-
-	memset(dir, 0, sizeof(page_directory_t));
-
-	/* Set the page directory's physical address */
-	dir->physicalAddr = phys + ((unsigned int)dir->tablesPhysical - (unsigned int)dir);
-
-	/* Go through each page table and either link or copy it */
-	int i;
-	for (i = 0; i < 1024; i++)
-	{
-		/* If the page table is blank, don't copy or link it */
-		if (!src->tables[i])
-		{
-			continue;
-		}
-
-		/* Now we have to decide whether to copy or link the page table. We determine this with a simple algorithm.
-		 * If the page table is in the kernel directory (first 1 MB of memory, kernel code and data, kernel heap), then link it.
-		 * Otherwise, the data is not part of the kernel and needs to be copied */
-		if (src->tables[i] == kernel_directory->tables[i])
-		{
-			dir->tables[i] = src->tables[i];
-			dir->tablesPhysical[i] = src->tablesPhysical[i];
-		}
-		else
-		{
-			unsigned int phys;
-			dir->tables[i] = clone_table(src->tables[i], &phys);
-			dir->tablesPhysical[i] = phys | 0x07;
-		}
-	}
-
-	/* Return the new page directory */
-	return dir;
-}
-
 /* Create a new blank page directory */
 page_directory_t *create_page_directory()
 {
@@ -311,7 +165,7 @@ void init_vmm()
 	/* Create the kernel directory */
 	kernel_directory = placement_kmalloc_a(sizeof(page_directory_t));
 	memset(kernel_directory, 0, sizeof(page_directory_t));
-	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((unsigned int) kernel_directory->tablesPhysical);
+	kernel_directory->physicalAddr = (unsigned int) kernel_directory->tablesPhysical;
 
 	unsigned int i;
 	
@@ -322,7 +176,10 @@ void init_vmm()
 	}
 
 	/* Map our kernel into the kernel directory */
-	map_kernel(kernel_directory);
+	for (i = 0; i < KERNEL_PHYSICAL_SIZE; i += 0x1000)
+	{
+		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, pmm_alloc_page(), true, true, false);
+	}
 
 	/* Switch to the the kernel directory */
 	switch_page_directory(kernel_directory);
