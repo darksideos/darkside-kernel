@@ -1,5 +1,6 @@
 #include <lib/libc/string.h>
 #include <hal/i386/pmm.h>
+#include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/debug/kprintf.h>
 
@@ -19,7 +20,7 @@ unsigned int pmm_alloc_page()
 			/* If the bit is 0, set it to 1 and return the address */
 			if(!(pmm_pages[i] & (1 << j)))
 			{
-				pmm_pages[i] = pmm_pages[i] | (1 << j);
+				pmm_pages[i] |= (1 << j);
 				return (i << 17) + (j << 12);
 			}
 		}
@@ -30,7 +31,7 @@ unsigned int pmm_alloc_page()
 void pmm_free_page(unsigned int address)
 {
 	/* Find the bit that corresponds to the address and set it to 0 */
-	pmm_pages[address >> 5] = pmm_pages[address >> 5] & ~(1 << (address % 32));
+	pmm_pages[address >> 5] &= ~(1 << (address % 32));
 }
 
 /* Initialize the physical memory manager */
@@ -41,4 +42,11 @@ void init_pmm(unsigned int size)
 
 	pmm_pages = (unsigned int*) kmalloc(num_pmm_pages >> 5);
 	memset(pmm_pages, 0, num_pmm_pages >> 5);
+
+	/* Allocate pages in the first 1 MB of the address space and in the kernel */
+	unsigned int i;
+	for (i = 0; i < 0x100000 + KERNEL_PHYSICAL_SIZE; i += 0x1000)
+	{
+		pmm_alloc_page();
+	}
 }

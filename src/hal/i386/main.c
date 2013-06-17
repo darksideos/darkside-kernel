@@ -5,8 +5,9 @@
 #include <hal/i386/timer.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
-#include <kernel/modules/multiboot.h>
 #include <kernel/debug/kprintf.h>
+#include <kernel/mm/address_space.h>
+#include <kernel/modules/multiboot.h>
 
 /* Initialize the HAL */
 void hal_main(struct multiboot *mboot_ptr)
