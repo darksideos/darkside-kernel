@@ -29,9 +29,11 @@ start:
     mov eax, (pd - KERNEL_VIRTUAL_BASE)
     mov ecx, (pt_lower - KERNEL_VIRTUAL_BASE)
     mov edx, (pt_higher - KERNEL_VIRTUAL_BASE)
-    mov esi, (pt_paging1 - KERNEL_VIRTUAL_BASE)
-    mov edi, (pt_paging2 - KERNEL_VIRTUAL_BASE)
+    mov esi, (pt_bitmap - KERNEL_VIRTUAL_BASE)
+    mov edi, (pt_paging1 - KERNEL_VIRTUAL_BASE)
+    mov ebp, (pt_paging2 - KERNEL_VIRTUAL_BASE)
     
+    push ebp
     push edi
     push esi
     push edx
@@ -61,6 +63,8 @@ pd:
 pt_lower:
 	resb 4096
 pt_higher:
+	resb 4096
+pt_bitmap:
 	resb 4096
 pt_paging1:
 	resb 4096
