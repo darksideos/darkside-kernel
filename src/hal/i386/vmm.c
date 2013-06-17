@@ -163,9 +163,9 @@ unsigned int page_align(unsigned int address)
 void init_vmm()
 {
 	/* Create the kernel directory */
-	kernel_directory = placement_kmalloc_a(sizeof(page_directory_t));
+	kernel_directory = (page_directory_t*) placement_kmalloc_a(sizeof(page_directory_t));
 	memset(kernel_directory, 0, sizeof(page_directory_t));
-	kernel_directory->physicalAddr = (unsigned int) kernel_directory->tablesPhysical;
+	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((unsigned int) kernel_directory->tablesPhysical);
 
 	unsigned int i;
 	
