@@ -2,7 +2,7 @@
 #include <kernel/init/main.h>
 #include <kernel/modules/multiboot.h>
 
-void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int *pt_lower, unsigned int *pt_higher, unsigned int *pt_paging1, unsigned int *pt_paging2)
+void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int *pt_lower, unsigned int *pt_higher, unsigned int *pt_bitmap, unsigned int *pt_paging1, unsigned int *pt_paging2)
 {
 	/* Map the multiboot, text, data, and BSS sections to their addresses */
 	unsigned int address;
@@ -19,15 +19,17 @@ void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int
 		pt_higher[(address - 0x100000) / 0x1000] = address | 0x03;
 	}
 
-	/* Page directory */
+	/* Paging structures */
 	pt_paging1[0] = (unsigned int) pd | 0x03;
 	pt_paging1[1] = (unsigned int) pt_lower | 0x03;
+	pt_paging1[576] = (unsigned int) pt_bitmap | 0x03;
 
 	pt_paging2[1] = (unsigned int) pt_higher | 0x03;
 
 	/* Add the page tables into the page directory */
 	pd[0] = (unsigned int) pt_lower | 0x03;
 	pd[512] = (unsigned int) pt_higher | 0x03;
+	pd[575] = (unsigned int) pt_bitmap | 0x03;
 	pd[960] = (unsigned int) pt_paging1 | 0x03;
 	pd[962] = (unsigned int) pt_paging2 | 0x03;
 
