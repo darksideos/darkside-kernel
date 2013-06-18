@@ -47,6 +47,28 @@ void pmm_free_page(unsigned int address)
 extern unsigned int end;
 unsigned int *kernel_end = &end;
 
+unsigned int num_bitmap_pages;
+
+void map_pmm_bitmap(page_directory_t *directory)
+{
+	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
+	unsigned int mapped = 0;
+	
+	while(mapped < num_bitmap_pages)
+	{
+		if(mem_map_page_ok(bitmap_page))
+		{
+			map_page(directory, /* Address goes here of virtual page, George! */, bitmap_page, true, true, false);
+			
+			/* Invalidate the TLB entry */
+			asm volatile ("invlpg (%0)" :: "a" (bitmap_page));
+			
+			mapped++;
+		}
+		bitmap_page += 0x1000;
+	}
+}
+
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size)
 {
@@ -54,12 +76,10 @@ void init_pmm(unsigned int size)
 	num_pmm_pages = ceil(size, 0x1000);
 	
 	/* The number of pages of virtual memory the PMM bitmap will occupy */
-	unsigned int num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
+	num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
 	
 	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
 	unsigned int mapped = 0;
-	
-	unsigned int first_page = 0;
 	
 	while(mapped < num_bitmap_pages)
 	{
