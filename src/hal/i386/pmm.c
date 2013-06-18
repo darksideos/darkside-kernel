@@ -94,9 +94,9 @@ void init_pmm(unsigned int size)
 	pmm_pages = page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
 	memset(pmm_pages, 0, num_bitmap_pages * 0x1000);
 
-	/* Allocate pages in the first 1 MB of the address space and in the kernel */
+	/* Claim pages in the first 1 MB of the address space and in the kernel */
 	unsigned int i;
-	for (i = 0; i < 0x100000 + KERNEL_PHYSICAL_SIZE; i += 0x1000)
+	for (i = 0; i < bitmap_page; i += 0x1000)
 	{
 		pmm_claim_page(i);
 	}
