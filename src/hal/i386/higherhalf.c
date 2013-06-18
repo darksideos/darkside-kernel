@@ -22,7 +22,7 @@ void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int
 	/* Paging structures */
 	pt_paging[0] = (unsigned int) pd | 0x03;
 	pt_paging[1] = (unsigned int) pt_lower | 0x03;
-	pt_paging[512] = (unsigned int) pt_higher | 0x03;
+	pt_paging[513] = (unsigned int) pt_higher | 0x03;
 	pt_paging[576] = (unsigned int) pt_bitmap | 0x03;
 	pt_paging[961] = (unsigned int) pt_paging | 0x03;
 
