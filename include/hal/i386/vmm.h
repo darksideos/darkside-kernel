@@ -18,8 +18,8 @@ typedef struct page
 	unsigned int dirty			: 1;   // Has the page been written to since last refresh?
 	unsigned int size			: 1;   // Page size (0 - 4 KB pages, 1 - 4 MB pages)
 	unsigned int global			: 1;   // Is this page global?
+	unsigned int swapped		: 1;   // Is this page currently swapped out to disk?
 	unsigned int copy_on_write	: 1;   // Is this page marked as copy-on-write?
-	unsigned int disk			: 1;   // Is this page currently paged out to disk?
 	unsigned int unused			: 1;   // Unused
 	unsigned int frame			: 20;  // Frame address (shifted right 12 bits)
 } page_t;
