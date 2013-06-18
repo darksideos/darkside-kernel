@@ -1,5 +1,6 @@
 #include <lib/libc/string.h>
 #include <lib/libgcc/stdbool.h>
+#include <hal/i386/bios.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/mm/address_space.h>
@@ -10,6 +11,9 @@
 /* A bitmap of used and free pages */
 unsigned int *pmm_pages;
 unsigned int num_pmm_pages;
+
+/* Number of pages used by the bitmap */
+unsigned int num_bitmap_pages;
 
 /* Allocate a physical memory page */
 unsigned int pmm_alloc_page()
@@ -44,11 +48,6 @@ void pmm_free_page(unsigned int address)
 	pmm_pages[address >> 17] &= ~(1 << ((address >> 12) % 32));
 }
 
-extern unsigned int end;
-unsigned int *kernel_end = &end;
-
-unsigned int num_bitmap_pages;
-
 void map_pmm_bitmap(page_directory_t *directory)
 {
 	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
@@ -58,10 +57,7 @@ void map_pmm_bitmap(page_directory_t *directory)
 	{
 		if(mem_map_page_ok(bitmap_page))
 		{
-			map_page(directory, /* Address goes here of virtual page, George! */, bitmap_page, true, true, false);
-			
-			/* Invalidate the TLB entry */
-			asm volatile ("invlpg (%0)" :: "a" (bitmap_page));
+			map_page(directory, 0/* Address goes here of virtual page, George! */, bitmap_page, true, true, false);
 			
 			mapped++;
 		}
@@ -96,7 +92,7 @@ void init_pmm(unsigned int size)
 	}
 	
 	pmm_pages = page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
-	memset(pmm_pages, 0, num_bitmap_pages * 4096);
+	memset(pmm_pages, 0, num_bitmap_pages * 0x1000);
 
 	/* Allocate pages in the first 1 MB of the address space and in the kernel */
 	unsigned int i;
