@@ -1,4 +1,4 @@
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/mm/heap/chunk.h>
 

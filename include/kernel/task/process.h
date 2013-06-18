@@ -1,10 +1,10 @@
 #ifndef __PROCESS_H
 #define __PROCESS_H
 
-#include <kernel/vfs/vfs.h>
+#include <lib/libc/stdbool.h>
 #include <kernel/task/thread.h>
+#include <kernel/vfs/vfs.h>
 #include <kernel/ipc/signal.h>
-#include <lib/libgcc/stdbool.h>
 
 /* Process states */
 #define PROCESS_READY     0x00
@@ -18,12 +18,17 @@ typedef struct process
 {
     unsigned int pid;					// Process ID
 	unsigned char *name;				// Name of the task
+
 	struct thread **threads;			// Threads
 	unsigned int num_threads;			// Number of threads
+
 	void *page_directory;				// Page directory
+
 	fs_node_t **files;					// Files opened by the task
 	unsigned int num_files;				// Number of files opened by the task
+
 	int state;							// Process state (ready, sleeping, stopped, I/O blocked)
+
 	unsigned int signals;				// The currently triggered signals in the process
 	sighandler_t signal_handlers[16];	// Signal handlers
 

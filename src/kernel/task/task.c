@@ -1,11 +1,10 @@
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
+#include <hal/i386/vmm.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>
-#include <kernel/ipc/semaphore.h>
-#include <hal/i386/vmm.h>
 
 /* Task switching modes
  * Bit 0: 0 - Kernel mode, 1 - User mode
@@ -86,9 +85,6 @@ void init_multitasking()
 
 	/* Enable task switching */
 	enable_task_switching();
-
-	/* Initialize the syncronization primitives */
-	init_semaphores();
 	
 	/* Start multitasking by switching to the first thread in the kernel process */
     switchpid(0, 0);

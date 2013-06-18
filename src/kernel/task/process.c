@@ -1,7 +1,6 @@
 #include <lib/libc/string.h>
 #include <hal/i386/vmm.h>
 #include <hal/i386/isrs.h>
-#include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>

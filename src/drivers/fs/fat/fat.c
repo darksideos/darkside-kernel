@@ -1,4 +1,4 @@
-#include <lib/libgeneric.h>
+#include <lib/libc/string.h>
 #include <kernel/mm/heap/heap.h>
 #include <drivers/ata/ata.h>
 #include <drivers/fs/fat.h>

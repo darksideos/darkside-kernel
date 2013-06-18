@@ -1,4 +1,4 @@
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>

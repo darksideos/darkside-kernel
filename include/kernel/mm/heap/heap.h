@@ -1,7 +1,7 @@
 #ifndef __HEAP_H
 #define __HEAP_H
 
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 
 #define HEAP_MAGIC		   0x123890AB
 

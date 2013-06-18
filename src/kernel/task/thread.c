@@ -1,4 +1,4 @@
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
 #include <kernel/init/hal.h>
 #include <kernel/task/process.h>

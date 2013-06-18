@@ -11,10 +11,10 @@ unsigned int pmm_alloc_page();
 /* Free a physical memory page */
 void pmm_free_page(unsigned int address);
 
+/* Map the PMM bitmap into a page directory */
+void map_pmm_bitmap(page_directory_t *directory);
+
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size);
-
-/* Map the PMM bitmap into virtual memory */
-void map_pmm_bitmap(page_directory_t *directory);
 
 #endif

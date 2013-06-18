@@ -1,12 +1,12 @@
+#include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/math.h>
 #include <hal/i386/bios.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/debug/kprintf.h>
-#include <lib/libc/math.h>
 
 /* A bitmap of used and free pages */
 unsigned int *pmm_pages;
@@ -48,6 +48,7 @@ void pmm_free_page(unsigned int address)
 	pmm_pages[address >> 17] &= ~(1 << ((address >> 12) % 32));
 }
 
+/* Map the PMM bitmap into a page directory */
 void map_pmm_bitmap(page_directory_t *directory)
 {
 	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
