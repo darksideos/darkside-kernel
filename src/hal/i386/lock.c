@@ -21,8 +21,8 @@ int delete_lock(spinlock_t *lock)
 	return 0;
 }
 
-/* Wait for a spinlock to be availible */
-int wait_lock(spinlock_t *lock, unsigned short timeout)
+/* Acquire a spinlock, blocking until availible */
+int acquire_lock(spinlock_t *lock, unsigned short timeout)
 {
 	/* Test the spinlock */
 	register spinlock_t value = 1;

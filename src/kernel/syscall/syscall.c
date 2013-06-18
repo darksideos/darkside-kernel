@@ -1,10 +1,9 @@
-#include <kernel/vfs/vfs.h>
+#include <kernel/syscall/syscall.h>
+#include <kernel/syscall/file.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/ipc/signal.h>
 #include <kernel/ipc/semaphore.h>
-#include <kernel/syscall/syscall.h>
-#include <kernel/syscall/file.h>
 
 /* Initialize syscalls */
 void init_syscalls()
@@ -50,6 +49,6 @@ void init_syscalls()
 	syscall_install_handler(31, &release_semaphore);
 	syscall_install_handler(32, &create_mutex);
 	syscall_install_handler(33, &delete_mutex);
-	syscall_install_handler(34, &wait_mutex);
+	syscall_install_handler(34, &acquire_mutex);
 	syscall_install_handler(35, &release_mutex);
 }
