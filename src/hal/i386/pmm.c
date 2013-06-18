@@ -56,13 +56,16 @@ unsigned int *kernel_end = &end;
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size)
 {
-	/* Create the bitmap of used and free pages */
+	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
 	
+	/* The number of pages of virtual memory the PMM bitmap will occupy */
 	unsigned int num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
 	
 	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
 	unsigned int mapped = 0;
+	
+	unsigned int first_page = 0;
 	
 	while(mapped < num_bitmap_pages)
 	{
@@ -77,8 +80,9 @@ void init_pmm(unsigned int size)
 		}
 		bitmap_page += 0x1000;
 	}
-
+	
 	pmm_pages = page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
+	memset(pmm_pages, 0, num_bitmap_pages * 4096);
 
 	/* Allocate pages in the first 1 MB of the address space and in the kernel */
 	unsigned int i;
