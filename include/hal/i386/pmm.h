@@ -12,4 +12,7 @@ void pmm_free_page(unsigned int address);
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size);
 
+/* Map the PMM bitmap into virtual memory */
+void map_pmm_bitmap(page_directory_t *directory);
+
 #endif
