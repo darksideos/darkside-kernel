@@ -1,8 +1,8 @@
-#include <lib/libgeneric.h>
-#include <drivers/acpi/rsdp.h>
+#include <lib/libc/string.h>
+#include <hal/i386/acpi.h>
 
 /* Find the RSDP */
-unsigned int find_rsdp()
+unsigned int acpi_find_rsdp()
 {
 	/* Addresses of the EBDA and the BIOS */
 	unsigned char *ebda = (unsigned char*)((*((unsigned short*) 0x40E)) << 4);
