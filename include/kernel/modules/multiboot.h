@@ -1,6 +1,7 @@
 #ifndef __MULTIBOOT_H
 #define __MULTIBOOT_H
 
+/* Multiboot module structure */
 struct multiboot_mod
 {
 	unsigned char *mod_start;
@@ -9,6 +10,7 @@ struct multiboot_mod
 	unsigned char reserved;
 } __attribute__((packed));
 
+/* Multiboot information structure */
 struct multiboot
 {
     unsigned int flags;
@@ -36,9 +38,5 @@ struct multiboot
     unsigned int vbe_interface_off;
     unsigned int vbe_interface_len;
 } __attribute__((packed));
-
-void init_multiboot(struct multiboot *mboot);
-unsigned int get_memory_size();
-void print_multiboot();
 
 #endif

@@ -2,11 +2,12 @@
 #include <hal/i386/gdt.h>
 #include <hal/i386/msr.h>
 
-/* Our GDT, with 6 entries, and finally our special GDT pointer */
+/* Our GDT, with 6 entries, and our GDT pointer */
 struct gdt_entry gdt[6];
 struct gdt_ptr gp;
 
-struct tss_entry_struct tss_entry;
+/* Our TSS */
+struct tss_entry tss;
 
 /* These are in loader.s. We use them to properly reload the new segment registers and load the TSS */
 extern void gdt_flush();
@@ -32,24 +33,24 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 /* Create a TSS in the GDT */
 void write_tss(int num, unsigned short ss0, unsigned short esp0)
 {
-	unsigned int base = (unsigned int)&tss_entry;
-	unsigned int limit = base + sizeof(tss_entry);
+	unsigned int base = (unsigned int) &tss;
+	unsigned int limit = base + sizeof(struct tss_entry);
 
 	gdt_set_gate(num, base, limit, 0xE9, 0x00);
 
-	memset(&tss_entry, 0, sizeof(tss_entry));
+	memset(&tss, 0, sizeof(struct tss_entry));
 
-	tss_entry.ss0 = ss0;
-	tss_entry.esp0 = esp0;
+	tss.ss0 = ss0;
+	tss.esp0 = esp0;
 
-	tss_entry.cs = 0x0b;
-	tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = 0x13;
+	tss.cs = KERNEL_CODE_SEG | 3;
+	tss.ss = tss.ds = tss.es = tss.fs = tss.gs = KERNEL_DATA_SEG | 3;
 }
 
 /* Set the kernel stack in the TSS and the kernel stack MSR */
 void set_kernel_stack(unsigned int stack)
 {
-	tss_entry.esp0 = stack;
+	tss.esp0 = stack;
 	wrmsr(MSR_IA32_SYSENTER_ESP, stack, 0);
 }
 
@@ -66,7 +67,7 @@ void gdt_install()
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);	// Kernel mode data segment
 	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);	// User mode code segment
     gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);	// User mode data segment
-	write_tss(5, 0x10, 0x10);
+	write_tss(5, KERNEL_DATA_SEG, 0);
 
     /* Flush out the old GDT and TSS and install the new changes! */
     gdt_flush();

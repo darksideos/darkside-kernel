@@ -1,7 +1,7 @@
 #include <lib/libc/string.h>
 #include <hal/i386/ports.h>
-#include <drivers/graphics/vga.h>
 #include <kernel/vfs/vfs.h>
+#include <drivers/graphics/vga.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 unsigned short *textmemptr;
