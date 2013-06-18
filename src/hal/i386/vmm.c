@@ -104,7 +104,7 @@ void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int 
 	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
 
 	/* Map the page in the table to the physical address */
-	*((unsigned int*)page) = physical_address | flags | 0x01;
+	*((unsigned int*) page) = physical_address | flags | 0x01;
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
