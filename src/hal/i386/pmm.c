@@ -21,16 +21,16 @@ bool mem_map_page_ok(unsigned int address)
 unsigned int pmm_alloc_page()
 {
 	/* Find the first free page in physical memory */
-	unsigned int i, j;
-	for (i = 0; i < num_pmm_pages >> 5; i++)
+	unsigned int page, bit;
+	for (page = 0; page < num_pmm_pages >> 5; page++)
 	{
-		for (j = 0; j < 32; j++)
+		for (bit = 0; bit < 32; bit++)
 		{
 			/* If the bit is 0, set it to 1 and return the address */
-			if(!(pmm_pages[i] & (1 << j)))
+			if(!(pmm_pages[page] & (1 << bit)))
 			{
-				pmm_pages[i] |= (1 << j);
-				return (i << 17) + (j << 12);
+				pmm_pages[page] |= (1 << bit);
+				return (page << 17) + (bit << 12);
 			}
 		}
 	}
@@ -40,14 +40,14 @@ unsigned int pmm_alloc_page()
 void pmm_claim_page(unsigned int address)
 {
 	/* Find the bit that corresponds to the address and set it to 1 */
-	pmm_pages[address >> 5] |= 1 << (address % 32);
+	pmm_pages[address >> 17] |= 1 << ((address >> 12) % 32);
 }
 
 /* Free a physical memory page */
 void pmm_free_page(unsigned int address)
 {
 	/* Find the bit that corresponds to the address and set it to 0 */
-	pmm_pages[address >> 5] &= ~(1 << (address % 32));
+	pmm_pages[address >> 17] &= ~(1 << ((address >> 12) % 32));
 }
 
 extern unsigned int end;
@@ -55,13 +55,13 @@ unsigned int *kernel_end = &end;
 
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size)
-{	
+{
 	/* Create the bitmap of used and free pages */
 	num_pmm_pages = ceil(size, 0x1000);
 	
 	unsigned int num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
 	
-	unsigned int bitmap_page = KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE;
+	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
 	unsigned int mapped = 0;
 	
 	while(mapped < num_bitmap_pages)
@@ -78,7 +78,7 @@ void init_pmm(unsigned int size)
 		bitmap_page += 0x1000;
 	}
 
-	pmm_pages = KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE;
+	pmm_pages = page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
 
 	/* Allocate pages in the first 1 MB of the address space and in the kernel */
 	unsigned int i;
