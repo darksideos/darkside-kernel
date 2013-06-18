@@ -19,5 +19,10 @@ void hal_main(struct multiboot *mboot_ptr)
 	timer_install(100);
 
  	init_pmm(0x100000 + (mboot_ptr->mem_upper * 1024));
- 	init_vmm();
+ 	
+	kprintf("%08X", pmm_alloc_page());
+	kprintf("%08X", pmm_alloc_page());
+	kprintf("%08X", pmm_alloc_page());
+	kprintf("%08X", pmm_alloc_page());
+ 	//init_vmm();
 }

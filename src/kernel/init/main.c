@@ -15,6 +15,8 @@ void kernel_main(struct multiboot *mboot_ptr)
 	
 	/* Call the HAL main function to initialize the CPU */
 	hal_main(mboot_ptr);
+	
+	kprintf("hi");
 
 	while(1);
 }
