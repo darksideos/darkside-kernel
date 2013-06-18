@@ -1,4 +1,3 @@
-#include <lib/libgeneric.h>
 #include <hal/i386/ports.h>
 #include <drivers/pci/pci.h>
 

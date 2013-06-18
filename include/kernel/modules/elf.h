@@ -76,7 +76,7 @@ unsigned char *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *sym);
 /* ELF end-user functions */
 elf_symbol_t *elf_lookup_symbol(elf_header_t *header, unsigned char *name);
 unsigned char *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *symbol);
-void elf_load_section(elf_header_t *header, unsigned int num, unsigned char *new_address);
+void elf_load_section(elf_header_t *header, unsigned int num, unsigned char *address);
 void elf_relocate(elf_header_t *header, unsigned char *new_address);
 
 /* ELF reader functions */

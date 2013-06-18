@@ -1,7 +1,7 @@
 #ifndef __VMM_H
 #define __VMM_H
 
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 
 /* Convert physical and higher half addresses */
 #define PHYSICAL_TO_HIGHER(addr) (addr + 0x7FF00000)

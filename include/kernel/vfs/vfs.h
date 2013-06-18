@@ -1,7 +1,7 @@
 #ifndef __VFS_H
 #define __VFS_H
 
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 
 /* Node flags */
 #define FS_FILE		   0x00

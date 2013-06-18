@@ -1,7 +1,6 @@
-#include <lib/libgcc/stdarg.h>
-#include <drivers/graphics/text.h>
+#include <lib/libc/stdarg.h>
 #include <kernel/debug/kprintf.h>
-#include <kernel/debug/bochs.h>
+#include <drivers/graphics/text.h>
 
 #define is_digit(c)     ((c) >= '0' && (c) <= '9')
 

@@ -1,7 +1,7 @@
 #ifndef __STRING_H
 #define __STRING_H
 
-#include <lib/libgcc/stdbool.h>
+#include <lib/libc/stdbool.h>
 
 /* Memory functions */
 unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count);

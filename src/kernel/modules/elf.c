@@ -65,7 +65,7 @@ void elf_dump_symtab(elf_header_t *header)
 
 elf_section_header_t *elf_get_section(elf_header_t *header, unsigned int num)
 {
-	unsigned char *entry = (unsigned char*) header;
+	unsigned char *entry = (elf_section_header_t*) header;
 	entry += header->section_header_offset;
 	entry += num * header->section_header_entry_size;
 	return entry;
@@ -73,7 +73,7 @@ elf_section_header_t *elf_get_section(elf_header_t *header, unsigned int num)
 
 elf_section_header_t *elf_get_section_by_type(elf_header_t *header, unsigned int type)
 {
-	unsigned char *entry = (unsigned char*) header;
+	elf_section_header_t *entry = (elf_section_header_t*) header;
 	entry += header->section_header_offset;
 	while(((elf_section_header_t*) entry)->type != type)
 	{
@@ -84,9 +84,9 @@ elf_section_header_t *elf_get_section_by_type(elf_header_t *header, unsigned int
 
 elf_section_header_t *elf_get_section_by_name(elf_header_t *header, unsigned char* name)
 {
-	unsigned char *entry = (unsigned char*) header;
+	elf_section_header_t *entry = (elf_section_header_t*) header;
 	entry += header->section_header_offset;
-	while(!strequal(elf_get_section_string(header, ((elf_section_header_t*) entry)->name), name))
+	while(!strequal(elf_get_section_string(header, entry->name), name))
 	{
 		entry += header->section_header_entry_size;
 	}
@@ -102,26 +102,6 @@ unsigned char *elf_get_string(elf_header_t *header, unsigned int num)
 {
 	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
 	return ((unsigned char*) header) + strtab->offset + num;
-}
-
-void elf_load_section(elf_header_t *header, unsigned int num, unsigned char *mem_address)
-{
-	/* Get the section and calculate its offset, memory address, and length */
-	elf_section_header_t *section = elf_get_section(header, num);
-	unsigned char *data_offset = ((unsigned char*) header) + section->offset;
-	unsigned int length = section->size;
-
-	/* If the section type is PROGBITS, map the pages and copy the data to its location in memory */
-	if (section->type == ELF_SECTION_TYPE_PROGBITS)
-	{
-		int i;
-		for (i = 0; i < length; i += 0x1000)
-		{
-			//map_page(current_directory, mem_address + i, pmm_alloc_page(), true, true, true);
-		}
-
-		memcpy(mem_address, data_offset, length);
-	}
 }
 
 unsigned char *elf_get_section_data(elf_header_t *header, elf_section_header_t *section)
@@ -140,7 +120,7 @@ elf_symbol_t *elf_lookup_symbol(elf_header_t *header, unsigned char *name)
 {
 	elf_section_header_t *symtab = elf_get_section_by_type(header, ELF_SECTION_TYPE_SYMTAB);
 	unsigned int size = symtab->size/sizeof(elf_symbol_t);
-	elf_symbol_t *entry = ((unsigned char*) header) + symtab->offset;
+	elf_symbol_t *entry = ((elf_section_header_t*) header) + symtab->offset;
 	
 	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
 	int index;
@@ -157,7 +137,7 @@ elf_symbol_t *elf_lookup_symbol(elf_header_t *header, unsigned char *name)
 
 void elf_relocate(elf_header_t *header, unsigned char *new_address)
 {
-	elf_section_header_t *section = ((unsigned char*) header) + header->section_header_offset;
+	elf_section_header_t *section = ((elf_section_header_t*) header) + header->section_header_offset;
 	
 	int section_num;
 	

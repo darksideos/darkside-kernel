@@ -12,9 +12,12 @@ struct process;
 typedef struct thread
 {
 	unsigned int tid;					// Thread ID
-	void *context;						// Context of the task
+
+	void *context;						// Context of the thread
+
 	unsigned int user_stack;			// User stack
 	unsigned int kernel_stack;			// Kernel stack
+
 	struct process *parent_process;		// Parent process
 } thread_t;
 
