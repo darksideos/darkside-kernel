@@ -1,6 +1,8 @@
 #ifndef __PMM_H
 #define __PMM_H
 
+#define HIGHER_HALF_PMM_BITMAP_START		0xF0242000
+
 /* Allocate a physical memory page */
 unsigned int pmm_alloc_page();
 

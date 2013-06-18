@@ -1,12 +1,21 @@
 #include <lib/libc/string.h>
+#include <lib/libgcc/stdbool.h>
 #include <hal/i386/pmm.h>
+#include <hal/i386/vmm.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/debug/kprintf.h>
+#include <lib/libc/math.h>
 
 /* A bitmap of used and free pages */
 unsigned int *pmm_pages;
 unsigned int num_pmm_pages;
+
+bool mem_map_page_ok(unsigned int address)
+{
+	/* Temporary! */
+	return true;
+}
 
 /* Allocate a physical memory page */
 unsigned int pmm_alloc_page()
@@ -27,6 +36,13 @@ unsigned int pmm_alloc_page()
 	}
 }
 
+/* "Claim" a page */
+void pmm_claim_page(unsigned int address)
+{
+	/* Find the bit that corresponds to the address and set it to 1 */
+	pmm_pages[address >> 5] |= 1 << (address % 32);
+}
+
 /* Free a physical memory page */
 void pmm_free_page(unsigned int address)
 {
@@ -34,19 +50,40 @@ void pmm_free_page(unsigned int address)
 	pmm_pages[address >> 5] &= ~(1 << (address % 32));
 }
 
+extern unsigned int end;
+unsigned int *kernel_end = &end;
+
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size)
-{
+{	
 	/* Create the bitmap of used and free pages */
-	num_pmm_pages = size / 0x1000;
+	num_pmm_pages = ceil(size, 0x1000);
+	
+	unsigned int num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
+	
+	unsigned int bitmap_page = KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE;
+	unsigned int mapped = 0;
+	
+	while(mapped < num_bitmap_pages)
+	{
+		if(mem_map_page_ok(bitmap_page))
+		{
+			((unsigned int*) HIGHER_HALF_PMM_BITMAP_START)[512 + mapped] = bitmap_page | 0x03;
+			
+			/* Invalidate the TLB entry */
+			asm volatile ("invlpg (%0)" :: "a" (bitmap_page));
+			
+			mapped++;
+		}
+		bitmap_page += 0x1000;
+	}
 
-	pmm_pages = (unsigned int*) kmalloc(num_pmm_pages >> 5);
-	memset(pmm_pages, 0, num_pmm_pages >> 5);
+	pmm_pages = KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE;
 
 	/* Allocate pages in the first 1 MB of the address space and in the kernel */
 	unsigned int i;
 	for (i = 0; i < 0x100000 + KERNEL_PHYSICAL_SIZE; i += 0x1000)
 	{
-		pmm_alloc_page();
+		pmm_claim_page(i);
 	}
 }
