@@ -1,6 +1,8 @@
 #ifndef __PMM_H
 #define __PMM_H
 
+#include <hal/i386/vmm.h>
+
 #define HIGHER_HALF_PMM_BITMAP_START		0xF0240000
 
 /* Allocate a physical memory page */
