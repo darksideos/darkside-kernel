@@ -11,12 +11,6 @@
 unsigned int *pmm_pages;
 unsigned int num_pmm_pages;
 
-bool mem_map_page_ok(unsigned int address)
-{
-	/* Temporary! */
-	return true;
-}
-
 /* Allocate a physical memory page */
 unsigned int pmm_alloc_page()
 {
