@@ -59,7 +59,7 @@ void gdt_install()
 {
     /* Setup the GDT pointer and limit */
     gp.limit = (sizeof(struct gdt_entry) * 6) - 1;
-    gp.base = &gdt;
+    gp.base = (unsigned int) &gdt;
 
 	/* Define the GDT segments */
     gdt_set_gate(0, 0, 0, 0, 0);				// Null segment

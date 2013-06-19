@@ -32,7 +32,7 @@ void lapic_set_base(unsigned int *lapic)
 	unsigned int eax = page_align((unsigned int)lapic) | MSR_IA32_APIC_BASE_ENABLE;
 
 	wrmsr(MSR_IA32_APIC_BASE, eax, edx);
-	lapic_base = page_align((unsigned int)lapic);
+	lapic_base = (unsigned int*) page_align((unsigned int)lapic);
 }
 
 /* Get the physical base address of the Local APIC registers */
@@ -41,7 +41,7 @@ unsigned int *lapic_get_base()
 	unsigned int eax, edx;
 	rdmsr(MSR_IA32_APIC_BASE, &eax, &edx);
 
-	return page_align(eax);
+	return (unsigned int*) page_align(eax);
 }
 
 /* Read a Local APIC register */
@@ -131,7 +131,7 @@ void lapic_install()
 	}
 
 	/* If the Local APIC isn't enabled, hardware enable it */
-	lapic_set_base(0xFE000000);
+	lapic_set_base((unsigned int*) 0xFE000000);
 
 	/* Start recieving interrupts */
 	lapic_write_register(0xF0, lapic_read_register(0xF0) | 0x100);
