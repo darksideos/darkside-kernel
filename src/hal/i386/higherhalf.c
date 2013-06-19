@@ -42,5 +42,5 @@ void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int
 
 	/* Call kernel main */
 	asm volatile("push %0" :: "r"(mboot_ptr));
-	asm volatile("jmp %0" :: "r"(&kernel_main));
+	asm volatile("jmp *%0" :: "r"(&kernel_main));
 }
