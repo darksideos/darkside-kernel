@@ -16,7 +16,7 @@ unsigned int pmm_alloc_page();
 void pmm_free_page(unsigned int address);
 
 /* Map the PMM bitmap into a page directory */
-void map_pmm_bitmap(page_directory_t *directory);
+void map_pmm_bitmap(unsigned int directory);
 
 /* Initialize the physical memory manager */
 void init_pmm(unsigned int size);

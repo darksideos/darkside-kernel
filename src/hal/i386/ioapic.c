@@ -43,7 +43,7 @@ void ioapic_configure_irq(unsigned char irq, unsigned char vector, unsigned char
 void ioapic_install()
 {
 	/* Set the I/O APIC base address */
-	ioapic_base = 0xFEC00000;
+	ioapic_base = (unsigned int*) 0xFEC00000;
 
 	/* Configure the first 16 IRQs on the I/O APIC by mapping them to the ISA interrupts */
 	int i;
