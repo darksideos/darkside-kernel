@@ -31,9 +31,7 @@ typedef struct page_table
 
 typedef struct page_directory
 {
-	page_table_t *tables[1024];
-	unsigned int tablesPhysical[1024];
-	unsigned int physicalAddr;
+	unsigned int tables[1024];
 } page_directory_t;
 
 /* Get a page */
