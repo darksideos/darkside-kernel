@@ -169,24 +169,24 @@ struct i386_regs *create_registers(void (*function)(), bool user)
 	/* Create and fill out the register context */
 	struct i386_regs *context = (struct i386_regs*) kmalloc(sizeof(struct i386_regs));
 	
-	context->eflags = 0x202;	// Interrupts enabled
-	context->cs = 0x08;			// Kernel mode code segment
-	context->eip = function;	// Instruction pointer
+	context->eflags = 0x202;				// Interrupts enabled
+	context->cs = 0x08;						// Kernel mode code segment
+	context->eip = (unsigned int) function;	// Instruction pointer
 
 	context->edi = context->esi = context->ebp = context->esp = context->ebx = context->edx = context->ecx = context->eax = 0;	// GPRs
 
 	if (user)
 	{
-		context->ss = 0x23;		// User mode stack segment
-		context->useresp = 0;	// User mode stack pointer
+		context->ss = 0x23;					// User mode stack segment
+		context->useresp = 0;				// User mode stack pointer
 
-		context->cs = 0x1B;		// User mode code segment
+		context->cs = 0x1B;					// User mode code segment
 		context->ds = context->es = context->fs = context->gs = 0x23;	// User mode data segment
 	}
 	else
 	{
-		context->ss = 0;		// User mode stack segment
-		context->useresp = 0;	// User mode stack pointer
+		context->ss = 0;					// User mode stack segment
+		context->useresp = 0;				// User mode stack pointer
 
 		context->ds = context->es = context->fs = context->gs = 0x10;	// Kernel mode data segment
 	}
