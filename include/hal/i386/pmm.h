@@ -2,8 +2,9 @@
 #define __PMM_H
 
 #include <hal/i386/vmm.h>
+#include <kernel/mm/address_space.h>
 
-#define HIGHER_HALF_PMM_BITMAP_START		0xF0240000
+#define PAGE_TABLE_PMM_BITMAP_START		PAGE_STRUCTURES_START + (575 * 0x1000)
 
 /* Allocate a physical memory page */
 unsigned int pmm_alloc_page();

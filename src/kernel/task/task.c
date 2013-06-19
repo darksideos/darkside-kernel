@@ -67,21 +67,22 @@ void init_multitasking()
     process_t *kernel_process = create_process("Kernel Process", &kernel_process_run, 0, 1024);
 
 	/* Give the kernel process its own page directory */
-    kernel_process->page_directory = current_directory;
+    kernel_process->address_space = current_directory;
     
     process_t *test_process = create_process("Test Process", &test_process_run, 0, 1024);
 
-	/* Give the kernel process its own page directory */
-    test_process->page_directory = current_directory;
+	/* Give the test process its own page directory */
+    test_process->address_space = current_directory;
     
     process_t *test2_process = create_process("Test Process 2", &test2_process_run, 0, 1024);
 
-	/* Give the kernel process its own page directory */
-    test2_process->page_directory = current_directory;
+	/* Give the test 2 process its own page directory */
+    test2_process->address_space = current_directory;
+
  	process_t *test3_process = create_process("Test Process 3", &test3_process_run, 0, 1024);
 
-	/* Give the kernel process its own page directory */
-    test3_process->page_directory = current_directory;
+	/* Give the test 3 process its own page directory */
+    test3_process->address_space = current_directory;
 
 	/* Enable task switching */
 	enable_task_switching();

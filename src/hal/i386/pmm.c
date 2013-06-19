@@ -82,7 +82,7 @@ void init_pmm(unsigned int size)
 	{
 		if(mem_map_page_ok(bitmap_page))
 		{
-			((unsigned int*) HIGHER_HALF_PMM_BITMAP_START)[512 + mapped] = bitmap_page | 0x03;
+			((unsigned int*) PAGE_TABLE_PMM_BITMAP_START)[512 + mapped] = bitmap_page | 0x03;
 			
 			/* Invalidate the TLB entry */
 			asm volatile ("invlpg (%0)" :: "a" (bitmap_page));
