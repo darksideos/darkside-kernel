@@ -18,7 +18,7 @@ semaphore_t *create_semaphore(unsigned char *name, unsigned int initial_count, u
 	semaphore->name = name;
 	semaphore->count = initial_count;
 	semaphore->max_count = max_count;
-	semaphore->owners = (thread_t*) kmalloc(sizeof(thread_t));
+	semaphore->owners = (thread_t**) kmalloc(sizeof(thread_t*));
 	semaphore->owners[0] = current_thread;
 	semaphore->num_owners = 1;
 
@@ -89,7 +89,7 @@ int wait_semaphore(semaphore_t *semaphore, unsigned short timeout)
 	semaphore->count++;
 
 	/* Add us to the owners list */
-	semaphore->owners = (thread_t*) krealloc(semaphore->owners, sizeof(thread_t) * (semaphore->num_owners + 1));
+	semaphore->owners = (thread_t**) krealloc(semaphore->owners, sizeof(thread_t*) * (semaphore->num_owners + 1));
 	semaphore->owners[semaphore->num_owners] = 0;
 	semaphore->num_owners++;
 

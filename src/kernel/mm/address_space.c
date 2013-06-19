@@ -2,7 +2,7 @@
 #include <kernel/mm/address_space.h>
 
 /* Map the kernel into a page directory */
-void map_kernel(page_directory_t *dir)
+void map_kernel(unsigned int dir)
 {
 	unsigned int i;
 

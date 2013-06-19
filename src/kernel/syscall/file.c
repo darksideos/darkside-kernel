@@ -10,7 +10,7 @@ int create(const char *name, int mode)
 	process_t *current_process = getprocess();
 
  	/* Resize the files list in the current process and find the first availible one */
- 	current_process->files = (fs_node_t*) krealloc(current_process->files, sizeof(fs_node_t) * current_process->num_files + 1);
+ 	current_process->files = (fs_node_t**) krealloc(current_process->files, sizeof(fs_node_t*) * current_process->num_files + 1);
 	current_process->files[current_process->num_files] = 0;
 	current_process->num_files++;
 
@@ -24,7 +24,7 @@ int create(const char *name, int mode)
 	}
 
  	/* Open the file and add it to the current process's files */
- 	current_process->files[fd] = create_fs(name, mode);
+ 	current_process->files[fd] = create_fs((unsigned char*) name, mode);
  
  	/* Finally, return the file descriptor of the newly created file */
  	return fd;
@@ -36,7 +36,7 @@ int open(const char *name, int flags, int mode)
 	process_t *current_process = getprocess();
 
  	/* Resize the files list in the current process and find the first availible one */
- 	current_process->files = (fs_node_t*) krealloc(current_process->files, sizeof(fs_node_t) * current_process->num_files + 1);
+ 	current_process->files = (fs_node_t**) krealloc(current_process->files, sizeof(fs_node_t*) * current_process->num_files + 1);
 	current_process->files[current_process->num_files] = 0;
 	current_process->num_files++;
 
@@ -50,7 +50,7 @@ int open(const char *name, int flags, int mode)
 	}
 
  	/* Open the file and add it to the current process's files */
- 	current_process->files[fd] = open_fs(name, flags, mode);
+ 	current_process->files[fd] = open_fs((unsigned char*) name, flags, mode);
  
  	/* Finally, return the file descriptor of the newly opened file */
  	return fd;
