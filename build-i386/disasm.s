@@ -7961,23 +7961,23 @@ Disassembly of section .text:
 800068d5:	57                   	push   %edi
 800068d6:	56                   	push   %esi
 800068d7:	53                   	push   %ebx
-800068d8:	8b 7c 24 10          	mov    0x10(%esp),%edi
-800068dc:	8b 74 24 14          	mov    0x14(%esp),%esi
-800068e0:	8b 5c 24 18          	mov    0x18(%esp),%ebx
+800068d8:	8b 7c 24 18          	mov    0x18(%esp),%edi
+800068dc:	8b 74 24 10          	mov    0x10(%esp),%esi
+800068e0:	8b 5c 24 14          	mov    0x14(%esp),%ebx
 800068e4:	b0 01                	mov    $0x1,%al
 800068e6:	ba 00 00 00 00       	mov    $0x0,%edx
-800068eb:	39 da                	cmp    %ebx,%edx
+800068eb:	39 fa                	cmp    %edi,%edx
 800068ed:	73 17                	jae    80006906 <memequal+0x31>
 800068ef:	b1 00                	mov    $0x0,%cl
 800068f1:	84 c0                	test   %al,%al
 800068f3:	74 0a                	je     800068ff <memequal+0x2a>
-800068f5:	8a 04 17             	mov    (%edi,%edx,1),%al
-800068f8:	3a 04 16             	cmp    (%esi,%edx,1),%al
+800068f5:	8a 04 16             	mov    (%esi,%edx,1),%al
+800068f8:	3a 04 13             	cmp    (%ebx,%edx,1),%al
 800068fb:	75 02                	jne    800068ff <memequal+0x2a>
 800068fd:	b1 01                	mov    $0x1,%cl
 800068ff:	88 c8                	mov    %cl,%al
 80006901:	42                   	inc    %edx
-80006902:	39 da                	cmp    %ebx,%edx
+80006902:	39 fa                	cmp    %edi,%edx
 80006904:	72 e9                	jb     800068ef <memequal+0x1a>
 80006906:	25 ff 00 00 00       	and    $0xff,%eax
 8000690b:	5b                   	pop    %ebx
