@@ -25,8 +25,8 @@ extern page_directory_t *current_directory;
 void init_processes()
 {
 	/* Initialize the processes list */
-	processes = (process_t*) kmalloc(sizeof(process_t) * max_processes);
-	memset(processes, 0, sizeof(process_t) * max_processes);
+	processes = (volatile process_t**) kmalloc(sizeof(process_t*) * max_processes);
+	memset(processes, 0, sizeof(process_t*) * max_processes);
 }
 
 /* Find the first availible PID in the process list */
@@ -56,7 +56,7 @@ unsigned int find_first_pid()
 int fork()
 {
 	/* Get the current process from the tasks list */
-    process_t *parent_process = processes[current_pid];
+    process_t *parent_process = (process_t*) processes[current_pid];
 
     /* Clone the address space */
     unsigned int address_space = /*clone_directory(current_directory)*/ 0;
@@ -66,7 +66,7 @@ int fork()
 	memset(new_process, 0, sizeof(process_t));
 
 	/* Copy the threads from the parent process to the child */
-	new_process->threads = (thread_t*) kmalloc(sizeof(thread_t) * parent_process->num_threads);
+	new_process->threads = (thread_t**) kmalloc(sizeof(thread_t*) * parent_process->num_threads);
 	new_process->num_threads = parent_process->num_threads;
 
 	unsigned int i;
@@ -91,8 +91,8 @@ int fork()
 	memcpy(new_process->signal_handlers, parent_process->signal_handlers, sizeof(sighandler_t) * 16);
 
 	/* Copy the open files from the parent task */
-	fs_node_t **files = (fs_node_t*) kmalloc(sizeof(fs_node_t) * parent_process->num_files);
-	memcpy(files, parent_process->files, sizeof(fs_node_t) * parent_process->num_files);
+	fs_node_t **files = (fs_node_t**) kmalloc(sizeof(fs_node_t*) * parent_process->num_files);
+	memcpy(files, parent_process->files, sizeof(fs_node_t*) * parent_process->num_files);
 
 	new_process->files = files;
 	new_process->num_files = parent_process->num_files;
@@ -108,7 +108,7 @@ int fork()
 	}
 	else
 	{
-		parent_process->child_processes = (process_t*) krealloc(parent_process->child_processes, sizeof(process_t) * (parent_process->num_child_processes + 1));
+		parent_process->child_processes = (process_t**) krealloc(parent_process->child_processes, sizeof(process_t*) * (parent_process->num_child_processes + 1));
 		parent_process->child_processes[parent_process->num_child_processes] = new_process;
 	}
 
@@ -200,10 +200,10 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 	/* Find the first availible PID */
 	unsigned int pid = find_first_pid();
 
-	/* If we've gone past the maximum number of processes, return an error code */
+	/* If we've gone past the maximum number of processes, return 0 */
 	if (pid == -1)
 	{
-		return -1;
+		return 0;
 	}
 
 	/* Add the process to the process list */
@@ -245,7 +245,7 @@ unsigned int getpid()
 /* Return a pointer to the current process */
 process_t *getprocess()
 {
-	return processes[current_pid];
+	return (process_t*) processes[current_pid];
 }
 
 void setpid(unsigned int pid)

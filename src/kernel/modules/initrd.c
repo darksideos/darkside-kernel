@@ -96,7 +96,7 @@ unsigned char *get_driver_name(unsigned char class_id, unsigned char device_id) 
 fs_node_t *initrd_get_root()
 {
 	/* Create a new fs_node_t */
-	fs_node_t *initrd_fs = (fs_node_t**) kmalloc(sizeof(fs_node_t));
+	fs_node_t *initrd_fs = (fs_node_t*) kmalloc(sizeof(fs_node_t));
 	memset(initrd_fs, 0, sizeof(fs_node_t));
 	initrd_fs->type = FS_DIRECTORY;
 	initrd_fs->filesystem = INITRD_FS;

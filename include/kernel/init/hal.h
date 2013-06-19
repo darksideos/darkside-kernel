@@ -1,6 +1,8 @@
 #ifndef __HAL_H
 #define __HAL_H
 
+#include <kernel/modules/multiboot.h>
+
 typedef struct
 {
 	/* HAL main functions */
