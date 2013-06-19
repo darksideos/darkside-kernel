@@ -18,41 +18,6 @@ void *kmalloc(unsigned int size)
 	return address;
 }
 
-void *kmalloc_a(unsigned int size)
-{
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, true);
-
-	/* Return the address */
-	return address;
-}
-
-void *kmalloc_p(unsigned int size, unsigned int *phys)
-{
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, false);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
-}
-
-void *kmalloc_ap(unsigned int size, unsigned int *phys)
-{
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, true);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
-}
-
 /* Free memory on the kernel heap */
 void kfree(void *ptr)
 {
@@ -64,41 +29,6 @@ void *krealloc(void *ptr, unsigned int size)
 {
 	/* Resize the memory */
 	void *address = heap_realloc(kheap, ptr, size, false);
-
-	/* Return the address */
-	return address;
-}
-
-void *krealloc_a(void *ptr, unsigned int size)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, true);
-
-	/* Return the address */
-	return address;
-}
-
-void *krealloc_p(void *ptr, unsigned int size, unsigned int *phys)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, false);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
-	*phys = page->frame * 0x1000;
-
-	/* Return the address */
-	return address;
-}
-
-void *krealloc_ap(void *ptr, unsigned int size, unsigned int *phys)
-{
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, true);
-
-	/* Get the page's frame address */
-	page_t *page = get_page(kernel_directory, address, false, true, true, kheap->user);
-	*phys = page->frame * 0x1000;
 
 	/* Return the address */
 	return address;

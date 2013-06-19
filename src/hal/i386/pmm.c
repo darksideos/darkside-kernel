@@ -51,18 +51,20 @@ void pmm_free_page(unsigned int address)
 /* Map the PMM bitmap into a page directory */
 void map_pmm_bitmap(page_directory_t *directory)
 {
-	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
+	unsigned int phys_bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
+	unsigned int virt_bitmap_page = PMM_BITMAP_VIRTUAL_START;
+
 	unsigned int mapped = 0;
 	
 	while(mapped < num_bitmap_pages)
 	{
-		if(mem_map_page_ok(bitmap_page))
+		if(mem_map_page_ok(phys_bitmap_page))
 		{
-			map_page(directory, 0/* Address goes here of virtual page, George! */, bitmap_page, true, true, false);
+			map_page(directory, virt_bitmap_page + (mapped * 0x1000), phys_bitmap_page, true, true, false);
 			
 			mapped++;
 		}
-		bitmap_page += 0x1000;
+		phys_bitmap_page += 0x1000;
 	}
 }
 
@@ -75,7 +77,7 @@ void init_pmm(unsigned int size)
 	/* The number of pages of virtual memory the PMM bitmap will occupy */
 	num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
 	
-	unsigned int bitmap_page = page_align(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE);
+	unsigned int bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
 	unsigned int mapped = 0;
 	
 	while(mapped < num_bitmap_pages)
