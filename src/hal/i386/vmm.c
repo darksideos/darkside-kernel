@@ -4,7 +4,6 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/mm/address_space.h>
-#include <kernel/mm/placement.h>
 #include <kernel/mm/heap/heap.h>
 
 /* Kernel and current page directory */
@@ -15,7 +14,7 @@ unsigned int current_directory = 0;
 unsigned int page_size = 0x1000;
 
 /* Get a page */
-page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user)
+page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user)
 {
 	/* Construct the page flags */
 	unsigned int flags = 0;
@@ -42,27 +41,27 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 	unsigned int table_index = page >> 10;
 
 	/* Get the address of the recursive page directory and recursive page table */
-	page_directory_t *directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1023];
-	page_table_t *table = ((page_table_t*) PAGE_STRUCTURES_START)[table_index];
+	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
+	page_table_t *table = &((page_table_t*) PAGE_STRUCTURES_START)[table_index];
 
 	/* The page directory is mapped as the recursive page directory */
-	if (directory[1023] == dir | 0x03;)
+	if (directory->tables[1023] == dir | 0x03)
 	{
 	}
 	/* The page directory is mapped as the secondary recursive page directory */
-	else if (directory[1022] == dir | 0x03;)
+	else if (directory->tables[1022] == dir | 0x03)
 	{
 		/* Choose the secondary recursive page directory */
-		directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1022];
+		directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
 	}
 	/* The page directory is not mapped in */
 	else
 	{
 		/* Map it in as the secondary recursive page directory */
-		directory[1022] = dir | 0x03;
+		directory->tables[1022] = dir | 0x03;
 
 		/* Choose the secondary recursive page directory */
-		directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1022];
+		directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
 
 		/* Invalidate the TLB entries */
 		asm volatile ("invlpg (%0)" :: "a" (directory));
@@ -124,7 +123,7 @@ void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physi
 }
 
 /* Unmap a virtual address */
-void unmap_page(page_directory_t *dir, unsigned int virtual_address)
+void unmap_page(unsigned int dir, unsigned int virtual_address)
 {
 	/* Return the page that corresponds to the virtual address */
 	page_t *page = get_page(dir, virtual_address, false, false, false, false);
@@ -144,23 +143,22 @@ void unmap_page(page_directory_t *dir, unsigned int virtual_address)
 }
 
 /* Create a new blank page directory */
-page_directory_t *create_page_directory()
+unsigned int create_page_directory()
 {
 	/* Allocate a page directory */
 	unsigned int dir = pmm_alloc_page();
 
 	/* Get the address of the recursive page directory */
-	page_directory_t *directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1023];
+	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
 	
 	/* Map the page directory in as the secondary recursive page directory */
-	directory[1022] = dir | 0x03;
+	directory->tables[1022] = dir | 0x03;
 
 	/* Choose the secondary recursive page directory */
-	directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1022];
+	directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
 
 	/* Invalidate the TLB entries */
 	asm volatile ("invlpg (%0)" :: "a" (directory));
-	asm volatile ("invlpg (%0)" :: "a" (table));
 
 	/* Clear the page directory */
 	memset(directory, 0, sizeof(page_directory_t));
@@ -193,9 +191,9 @@ unsigned int page_align(unsigned int address)
 void init_vmm()
 {
 	/* Create the kernel directory */
-	kernel_directory = pmm_alloc_page();
-	memset(kernel_directory, 0, sizeof(page_directory_t));
-	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((unsigned int) kernel_directory->tablesPhysical);
+	kernel_directory = create_page_directory();
+	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
+	directory[1022] = directory[1023];
 
 	unsigned int i;
 	
@@ -219,7 +217,4 @@ void init_vmm()
     asm volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= 0x80000000;
     asm volatile("mov %0, %%cr0" :: "r"(cr0));
-
-	/* Finally, tell the VMM that paging is active */
-	paging_active = true;
 }

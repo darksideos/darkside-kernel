@@ -35,19 +35,19 @@ typedef struct page_directory
 } page_directory_t;
 
 /* Get a page */
-page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user);
+page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user);
 
 /* Map a virtual address to a physical address */
-void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user);
+void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user);
 
 /* Unmap a virtual address */
-void unmap_page(page_directory_t *dir, unsigned int virtual_address);
+void unmap_page(unsigned int dir, unsigned int virtual_address);
 
 /* Create a new blank page directory */
-page_directory_t *create_page_directory();
+unsigned int create_page_directory();
 
 /* Switch the current page directory to a new one */
-void switch_page_directory(page_directory_t *dir);
+void switch_page_directory(unsigned int dir);
 
 /* Page align an address */
 unsigned int page_align(unsigned int address);

@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-OBJFILES = address_space.o placement.o
+OBJFILES = address_space.o
  
 .c.o:
 	$(CCBASE)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/kernel/$@ -c $<
