@@ -23,6 +23,7 @@ void load_higherhalf(struct multiboot *mboot_ptr, unsigned int *pd, unsigned int
 	pd[0] = (unsigned int) pt_lower | 0x03;
 	pd[512] = (unsigned int) pt_higher | 0x03;
 	pd[575] = (unsigned int) pt_bitmap | 0x03;
+	pd[1022] = 0;
 	pd[1023] = (unsigned int) pd | 0x03;
 
 	/* Switch to the page directory */
