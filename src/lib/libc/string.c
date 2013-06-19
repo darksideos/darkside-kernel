@@ -13,7 +13,7 @@ unsigned int kmalloc(unsigned int sz)
 
 #endif
 
-unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count)
+unsigned char *memcpy(void *dest, void *src, int count)
 {
     const char *sp = (const char*) src;
     char *dp = (char*) dest;
@@ -21,27 +21,31 @@ unsigned char *memcpy(unsigned char *dest, unsigned char *src, int count)
     return dest;
 }
 
-unsigned char *memset(unsigned char *dest, unsigned char val, int count)
+unsigned char *memset(void *dest, unsigned char val, int count)
 {
-    char *temp = (char *)dest;
-    for( ; count != 0; count--) *temp++ = val;
+    char *temp = (char*) dest;
+    for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
 unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
 {
-    unsigned short *temp = (unsigned short *)dest;
-    for( ; count != 0; count--) *temp++ = val;
+    unsigned short *temp = (unsigned short*) dest;
+    for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-bool memequal(unsigned char *ptr1, unsigned char *ptr2, unsigned int count)
+bool memequal(void *ptr1, void *ptr2, unsigned int count)
 {
-	int i;
+	unsigned char *temp1 = (unsigned char*) ptr1;
+	unsigned char *temp2 = (unsigned char*) ptr2;
+
 	bool ret = true;
+
+	int i;
 	for (i = 0; i < count; i++)
 	{
-		ret = !ret ? false : (ptr1[i]==ptr2[i]);
+		ret = !ret ? false : (temp1[i] == temp2[i]);
 	}
 	return ret;
 }
@@ -79,12 +83,12 @@ int strlen(const char *str)
 
 unsigned char *strcpy(unsigned char *dest, const unsigned char *src)
 {
-	return (unsigned char*) memcpy(dest, src, strlen(src) + 1);
+	return (unsigned char*) memcpy(dest, (void*) src, strlen(src) + 1);
 }
 
 unsigned char *strncpy(unsigned char *dest, const unsigned char *src, unsigned int size)
 {
-	return (unsigned char*) memcpy(dest, src, size + 1);
+	return (unsigned char*) memcpy(dest, (void*) src, size + 1);
 }
 
 bool strequal(unsigned char *s1, unsigned char *s2)
@@ -171,7 +175,7 @@ unsigned char *strtok(unsigned char *str, const char *delimeter, unsigned char *
 	}
 		
 	unsigned int skipped = 0;
-	while (!strnequal(*saveptr, delimeter, strlen(delimeter)))
+	while (!strnequal(*saveptr, (unsigned char*) delimeter, strlen(delimeter)))
 	{
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')
