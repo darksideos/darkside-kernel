@@ -81,6 +81,8 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 		asm volatile ("invlpg (%0)" :: "a" (table));
 		memset(table, 0, 0x1000);
 
+		kprintf("0x%08X\n", directory->tables[table_index]);
+
 		/* Return the page */
 		return &table->pages[page % 1024];
 	}
@@ -193,7 +195,7 @@ void init_vmm()
 	/* Create the kernel directory */
 	kernel_directory = create_page_directory();
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
-	directory[1022] = directory[1023];
+	directory[1023] = directory[1022];
 
 	unsigned int i;
 	
@@ -208,6 +210,9 @@ void init_vmm()
 	{
 		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, false);
 	}
+
+	unsigned int *pd = (unsigned int*) (PAGE_STRUCTURES_START + (0x1000 * 1023));
+	kprintf("0x%08X, 0x%08X\n", pd, *pd);
 
 	/* Switch to the the kernel directory */
 	switch_page_directory(kernel_directory);
