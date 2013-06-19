@@ -97,7 +97,7 @@ void init_pmm(unsigned int size)
 
 	/* Claim pages in the first 1 MB of the address space and in the kernel */
 	unsigned int i;
-	for (i = 0; i < bitmap_page; i += 0x1000)
+	for (i = 0; i < bitmap_page + 0x1000; i += 0x1000)
 	{
 		pmm_claim_page(i);
 	}
