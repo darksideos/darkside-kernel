@@ -6,7 +6,7 @@
 /* The kernel heap */
 heap_t *kheap = 0;
 
-extern page_directory_t *kernel_directory;
+extern unsigned int kernel_directory;
 
 /* Allocate memory on the kernel heap */
 void *kmalloc(unsigned int size)

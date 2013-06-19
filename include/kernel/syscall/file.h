@@ -1,6 +1,8 @@
 #ifndef __FILE_H
 #define __FILE_H
 
+#include <kernel/vfs/vfs.h>
+
 /* Kernel mode file syscall implementations */
 int create(const char *name, int mode);
 int open(const char *name, int flags, int mode);
@@ -16,7 +18,7 @@ int rmdir(char *name);
 int rfrm(char *name);
 int chown(char *name, int owner, int group);
 int fstat(int file, struct stat *st);
-int stat(char *name, struct stat *str);
+int stat(char *name, struct stat *st);
 int isatty(int file);
 
 #endif
