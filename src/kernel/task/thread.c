@@ -35,7 +35,7 @@ thread_t *create_thread(process_t *parent_process, void (*function)(), char **ar
 	new_thread->context = create_registers(function, (bool) get_mode_flags() & MODE_FLAGS_USER);
 	
 	/* Create the thread's user and kernel stacks */
-	new_thread->kernel_stack = kmalloc_a(DEFAULT_KERNEL_STACK_SIZE) + DEFAULT_KERNEL_STACK_SIZE;
+	new_thread->kernel_stack = /*kmalloc_a(DEFAULT_KERNEL_STACK_SIZE) + DEFAULT_KERNEL_STACK_SIZE*/ 0;
 
 	/* Set the thread's parent process to the new process */
 	new_thread->parent_process = parent_process;

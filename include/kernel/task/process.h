@@ -17,15 +17,15 @@ struct thread;
 typedef struct process
 {
     unsigned int pid;					// Process ID
-	unsigned char *name;				// Name of the task
+	unsigned char *name;				// Name of the process
 
 	struct thread **threads;			// Threads
 	unsigned int num_threads;			// Number of threads
 
-	void *page_directory;				// Page directory
+	unsigned int address_space;			// Address space
 
-	fs_node_t **files;					// Files opened by the task
-	unsigned int num_files;				// Number of files opened by the task
+	fs_node_t **files;					// Files opened by the process
+	unsigned int num_files;				// Number of files opened by the process
 
 	int state;							// Process state (ready, sleeping, stopped, I/O blocked)
 

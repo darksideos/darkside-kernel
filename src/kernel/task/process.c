@@ -59,7 +59,7 @@ int fork()
     process_t *parent_process = processes[current_pid];
 
     /* Clone the address space */
-    page_directory_t *directory = /*clone_directory(current_directory)*/ 0;
+    unsigned int address_space = /*clone_directory(current_directory)*/ 0;
 
     /* Create a new process */
     process_t *new_process = (process_t*) kmalloc(sizeof(process_t));
@@ -81,11 +81,11 @@ int fork()
 		new_process->threads[i]->context = context;
 
 		/* Finally, create the task's kernel stack */
-		new_process->threads[i]->kernel_stack = kmalloc_a(DEFAULT_KERNEL_STACK_SIZE) + DEFAULT_KERNEL_STACK_SIZE;
+		new_process->threads[i]->kernel_stack = /*kmalloc_a(DEFAULT_KERNEL_STACK_SIZE) + DEFAULT_KERNEL_STACK_SIZE*/ 0;
 	}
 
 	/* Give the new task its own page directory */
-	new_process->page_directory = directory;
+	new_process->address_space = address_space;
 
 	/* Copy the parent task's signal handlers */
 	memcpy(new_process->signal_handlers, parent_process->signal_handlers, sizeof(sighandler_t) * 16);
@@ -161,11 +161,10 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 
 	/* Create the first thread in the process */
 	create_thread(new_process, function, argv, user_stack_size);
-	kprintf("Process: %08X, threads: %08X, thread: %08X.\n", new_process, new_process->threads, new_process->threads[0]);
 
 	/* Give the process its own blank page directory and map the kernel into it */
-    new_process->page_directory = create_page_directory();
-	map_kernel(new_process->page_directory);
+    new_process->address_space = create_page_directory();
+	//map_kernel(new_process->address_space);
 
 	/* Add the 3 standard streams to the process. We call a function in the VFS to give them to us */
 	/* fs_node_t **files = (fs_node_t*) kmalloc(sizeof(fs_node_t) * 3);
@@ -226,12 +225,9 @@ void switchpid(unsigned int pid, unsigned int tid)
 	
 	/* Get the new thread's context */
 	struct i386_regs *new_context = processes[pid]->threads[tid]->context;
-	
-    /* Get the page directory of the new task */
-    current_directory = processes[pid]->page_directory;
 
 	/* Switch to the new task's page directory */
-	switch_page_directory(current_directory);
+	switch_page_directory(processes[pid]->address_space);
 
 	/* Set the kernel stack in the TSS to the one in the new thread */
 	set_kernel_stack(processes[pid]->threads[tid]->kernel_stack);

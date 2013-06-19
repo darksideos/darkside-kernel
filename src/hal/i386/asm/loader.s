@@ -30,9 +30,7 @@ start:
     mov ecx, (pt_lower - KERNEL_VIRTUAL_BASE)
     mov edx, (pt_higher - KERNEL_VIRTUAL_BASE)
     mov esi, (pt_bitmap - KERNEL_VIRTUAL_BASE)
-    mov edi, (pt_paging - KERNEL_VIRTUAL_BASE)
     
-    push edi
     push esi
     push edx
     push ecx
@@ -53,8 +51,7 @@ stack:
 global pd
 global pt_lower
 global pt_higher
-global pt_paging1
-global pt_paging2
+global pt_bitmap
 
 pd:
 	resb 4096
@@ -63,6 +60,4 @@ pt_lower:
 pt_higher:
 	resb 4096
 pt_bitmap:
-	resb 4096
-pt_paging:
 	resb 4096
