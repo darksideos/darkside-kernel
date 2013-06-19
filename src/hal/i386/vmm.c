@@ -113,122 +113,59 @@ void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physi
 		flags |= 0x04;
 	}
 
-	/* Find out which page the virtual address in in */
-	unsigned int page_index = virtual_address >> 12;
+	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
+	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
 
-	/* Now use that page index to find out the index of the page table */
-	unsigned int table_index = page >> 10;
+	/* Map the page in the table to the physical address */
+	*((unsigned int*) page) = physical_address | flags | 0x01;
 
-	/* Get the address of the recursive page directory and recursive page tables */
-	page_directory_t *recursive_dir = ((page_directory_t*) PAGE_STRUCTURES_START)[1023];
-	page_table_t *recursive_table = ((page_table_t*) PAGE_STRUCTURES_START)[table_index];
-
-	/* The page directory we want to edit is already mapped in */
-	if (recursive_dir->tables[1023] == dir | 0x03)
-	{
-		/* Get the page that corresponds to the virtual address */
-		page_t *page = recursive_table->pages[page_index];
-
-		/* Map the page in the table to the physical address */
-		*((unsigned int*) page) = physical_address | flags | 0x01;
-
-		/* Invalidate the TLB entry */
-		asm volatile ("invlpg (%0)" :: "a" (virtual_address));
-	}
-	/* The page directory we want to edit is not mapped in */
-	else
-	{
-		/* Map the new page directory into the alternate recursive page directory */
-		recursive_dir->tables[1022] = dir | 0x03;
-
-		/* Set up a pointer to the new recursive directory and recursive table */
-		recursive_dir = ((page_directory_t*) PAGE_STRUCTURES_START)[1022];
-		recursive_table = ((page_table_t*) PAGE_STRUCTURES_START)[table_index];
-
-		/* Invalidate the TLB entries */
-		asm volatile ("invlpg (%0)" :: "a" (recursive_dir));
-		asm volatile ("invlpg (%0)" :: "a" (recursive_table));
-
-		/* Get the page that corresponds to the virtual address */
-		page_t *page = recursive_table->pages[page_index];
-
-		/* Map the page in the table to the physical address */
-		*((unsigned int*) page) = physical_address | flags | 0x01;
-	}
+	/* Invalidate the TLB entry */
+	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Unmap a virtual address */
 void unmap_page(page_directory_t *dir, unsigned int virtual_address)
 {
-	/* Find out which page the virtual address in in */
-	unsigned int page_index = virtual_address >> 12;
+	/* Return the page that corresponds to the virtual address */
+	page_t *page = get_page(dir, virtual_address, false, false, false, false);
 
-	/* Now use that page index to find out the index of the page table */
-	unsigned int table_index = page >> 10;
-
-	/* Get the address of the recursive page directory and recursive page tables */
-	page_directory_t *recursive_dir = ((page_directory_t*) PAGE_STRUCTURES_START)[1023];
-	page_table_t *recursive_tables = ((page_table_t*) PAGE_STRUCTURES_START)[table_index];
-
-	/* The page directory we want to edit is already mapped in */
-	if (recursive_dir->tables[1023] == dir | 0x03)
+	/* If the page already does not exist, return */
+	if (!page)
 	{
-		/* Get the page that corresponds to the virtual address */
-		page_t *page = recursive_tables->pages[page_index];
-
-		/* If the page already doesn't exist, return */
-		if (!page)
-		{
-			return;
-		}
-
-		/* Unmap the page */
-		*((unsigned int*) page) = 0;
-
-		/* Invalidate the TLB entry */
-		asm volatile ("invlpg (%0)" :: "a" (virtual_address));
+		return;
 	}
-	/* The page directory we want to edit is not mapped in */
-	else
-	{
-		/* Save the old page directory's physical address */
-		unsigned int old_dir = recursive_dir->tables[1023];
 
-		/* Map the new page directory into the recursive page directory */
-		recursive_dir->tables[1023] = dir | 0x03;
+	/* Free the physical page and set the page to not present */
+	pmm_free_page(page->frame * 0x1000);
+	*((unsigned int*)page) = 0;
 
-		/* Invalidate the TLB entry */
-		asm volatile ("invlpg (%0)" :: "a" (recursive_dir));
-
-		/* Get the page that corresponds to the virtual address */
-		page_t *page = recursive_tables->pages[page_index];
-
-		/* If the page already doesn't exist, return */
-		if (!page)
-		{
-			return;
-		}
-
-		/* Unmap the page */
-		*((unsigned int*) page) = 0;
-
-		/* Invalidate the TLB entry */
-		asm volatile ("invlpg (%0)" :: "a" (virtual_address));
-
-		/* Restore the old page directory's physical address */
-		recursive_dir->tables[1023] = dir | 0x03;
-
-		/* Invalidate the TLB entry */
-		asm volatile ("invlpg (%0)" :: "a" (recursive_dir));
-	}
+	/* Invalidate the TLB entry */
+	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Create a new blank page directory */
 page_directory_t *create_page_directory()
 {
+	/* Allocate a page directory */
 	unsigned int dir = pmm_alloc_page();
-	//memset(dir, 0, sizeof(page_directory_t));
 
+	/* Get the address of the recursive page directory */
+	page_directory_t *directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1023];
+	
+	/* Map the page directory in as the secondary recursive page directory */
+	directory[1022] = dir | 0x03;
+
+	/* Choose the secondary recursive page directory */
+	directory = ((page_directory_t*) PAGE_STRUCTURES_START)[1022];
+
+	/* Invalidate the TLB entries */
+	asm volatile ("invlpg (%0)" :: "a" (directory));
+	asm volatile ("invlpg (%0)" :: "a" (table));
+
+	/* Clear the page directory */
+	memset(directory, 0, sizeof(page_directory_t));
+
+	/* Return the physical address of the page directory */
 	return dir;
 }
 
