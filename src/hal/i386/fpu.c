@@ -17,7 +17,7 @@ void init_fpu()
 	unsigned int eax, edx;
 	cpuid(1, &eax, &edx);
 
-	if (edx & CPU_FEAT_EDX_SSE)
+	if (edx & CPUID_FEAT_EDX_SSE)
 	{
 		fpu_flags |= FPU_CR4_SSE_ENABLE | FPU_CR4_XF_ENABLE | FPU_CR4_FXSAVE_ENABLE;
 	}
