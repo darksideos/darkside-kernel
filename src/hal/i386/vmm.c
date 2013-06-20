@@ -161,7 +161,7 @@ unsigned int create_page_directory()
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
 	
 	/* Map the page directory in as the secondary recursive page directory */
-	directory->tables[1022] = dir | 0x03;
+	directory->tables[1022] = dir | PAGE_KERNEL;
 
 	/* Flush the entire TLB */
 	flush_tlb();
