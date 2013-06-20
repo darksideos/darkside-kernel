@@ -31,7 +31,7 @@ fs_node_t *get_dev()
 }
 
 /* VFS functions */
-fs_node_t *create_fs(uint8_t *name, int mode)
+fs_node_t *create_fs(uint8_t *name, int32_t mode)
 {
 	/* Create a VFS node and make sure it's 0 */
 	fs_node_t *file = (fs_node_t*) kmalloc(sizeof(fs_node_t));
@@ -41,7 +41,7 @@ fs_node_t *create_fs(uint8_t *name, int mode)
 	return file;
 }
 	
-fs_node_t *open_fs(uint8_t *name, int flags, int mode)
+fs_node_t *open_fs(uint8_t *name, int32_t flags, int32_t mode)
 {
 	/* Create a VFS node  */
 	fs_node_t *file = (fs_node_t*) kmalloc(sizeof(fs_node_t));
@@ -70,7 +70,7 @@ fs_node_t *open_fs(uint8_t *name, int flags, int mode)
 	return file;
 }
 
-int close_fs(fs_node_t *file)
+int32_t close_fs(fs_node_t *file)
 {
 	/* If the VFS node has a close function, call it */
 	if (file->close)
@@ -81,7 +81,7 @@ int close_fs(fs_node_t *file)
 	return -1;
 }
 
-int read_fs(fs_node_t *file, uint8_t *buffer, uint32_t size)
+int32_t read_fs(fs_node_t *file, uint8_t *buffer, uint32_t size)
 {
 	/* If this file is a symlink or hardlink, follow it */
 	if ((file->type == FS_SYMLINK) || (file->type == FS_HARDLINK) && file->ptr)
@@ -98,7 +98,7 @@ int read_fs(fs_node_t *file, uint8_t *buffer, uint32_t size)
 	return -1;
 }
 
-int write_fs(fs_node_t *file, uint8_t *data, uint32_t size)
+int32_t write_fs(fs_node_t *file, uint8_t *data, uint32_t size)
 {
 	/* If this file is a symlink or hardlink, follow it */
 	if ((file->type == FS_SYMLINK) || (file->type == FS_HARDLINK) && file->ptr)
@@ -115,7 +115,7 @@ int write_fs(fs_node_t *file, uint8_t *data, uint32_t size)
 	return -1;
 }
 
-int seek_fs(fs_node_t *file, int where, int whence)
+int32_t seek_fs(fs_node_t *file, int32_t where, int32_t whence)
 {
 	/* If this file is a symlink or hardlink, follow it */
 	if ((file->type == FS_SYMLINK) || (file->type == FS_HARDLINK) && file->ptr)
@@ -179,7 +179,7 @@ fs_node_t *finddir_fs(fs_node_t *file, uint8_t *name)
 	/* If the file is a mountpoint, follow it */
 	//file = resolve_mount(file);
 
-	int i;
+	int32_t i;
 	for (i = 0; i < file->num_child_nodes; i++)
 	{
 		/* If the name of the child node is equal to the name, return the node */
@@ -192,7 +192,7 @@ fs_node_t *finddir_fs(fs_node_t *file, uint8_t *name)
 	return 0;
 }
 
-int symlink_fs(uint8_t *old, uint8_t *new)
+int32_t symlink_fs(uint8_t *old, uint8_t *new)
 {
 	/* Open the old and new files in the VFS */
 	fs_node_t *old_file = open_fs(old, 0, 0);
@@ -211,7 +211,7 @@ int symlink_fs(uint8_t *old, uint8_t *new)
 	return -1;
 }
 
-int hardlink_fs(uint8_t *old, uint8_t *new)
+int32_t hardlink_fs(uint8_t *old, uint8_t *new)
 {
 	/* Open the old and new files in the VFS */
 	fs_node_t *old_file = open_fs(old, 0, 0);
@@ -230,14 +230,14 @@ int hardlink_fs(uint8_t *old, uint8_t *new)
 	return -1;
 }
 
-int unlink_fs(uint8_t *name)
+int32_t unlink_fs(uint8_t *name)
 {
 	/* To do: implement this! */
 }
 
-int delete_fs(fs_node_t *file, bool recursive)
+int32_t delete_fs(fs_node_t *file, bool recursive)
 {
-	int i;
+	int32_t i;
 	/*
 	/* Get pointers to the parent and child nodes and the number of child nodes, which we will need later */
 	/*
@@ -279,7 +279,7 @@ int delete_fs(fs_node_t *file, bool recursive)
 	return -1;
 */}
 
-int rm_fs(fs_node_t *file)
+int32_t rm_fs(fs_node_t *file)
 {
 	/* If the node is a file, delete it */
 	if ((file->type & 0x07) == FS_FILE)
@@ -288,7 +288,7 @@ int rm_fs(fs_node_t *file)
 	}
 }
 
-int rmdir_fs(fs_node_t *file)
+int32_t rmdir_fs(fs_node_t *file)
 {
 	/* If the node is an empty directory, delete it */
 	if ((file->type & 0x07) == FS_DIRECTORY && file->num_child_nodes == 0)
@@ -297,13 +297,13 @@ int rmdir_fs(fs_node_t *file)
 	}
 }
 
-int rfrm_fs(fs_node_t *file)
+int32_t rfrm_fs(fs_node_t *file)
 {
 	/* Recursively delete the file or directory */
 	return delete_fs(file, true);
 }
 
-int chown_fs(fs_node_t *file, uint32_t owner, uint32_t group)
+int32_t chown_fs(fs_node_t *file, uint32_t owner, uint32_t group)
 {
 	/* If this file is a symlink or hardlink, follow it */
 	if ((file->type == FS_SYMLINK) || (file->type == FS_HARDLINK) && file->ptr)
@@ -324,7 +324,7 @@ int chown_fs(fs_node_t *file, uint32_t owner, uint32_t group)
 	return 0;
 }
 
-int stat_fs(fs_node_t *file, struct stat *st)
+int32_t stat_fs(fs_node_t *file, struct stat *st)
 {
 	/* If this file is a symlink or hardlink, follow it */
 	if ((file->type == FS_SYMLINK) || (file->type == FS_HARDLINK) && file->ptr)
@@ -349,7 +349,7 @@ int stat_fs(fs_node_t *file, struct stat *st)
 	return 0;
 }
 
-int mount_fs(uint8_t *mountpoint, fs_node_t *to_mount)
+int32_t mount_fs(uint8_t *mountpoint, fs_node_t *to_mount)
 {
 	struct mount_pair *pair = first_mount_pair;
 	while(pair->next)
@@ -364,7 +364,7 @@ int mount_fs(uint8_t *mountpoint, fs_node_t *to_mount)
 	return 0;
 }
 
-int umount_fs(uint8_t *mountpoint)
+int32_t umount_fs(uint8_t *mountpoint)
 {	
 	struct mount_pair *pair = first_mount_pair;
 	/* pair->next is the file! */

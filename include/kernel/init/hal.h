@@ -2,10 +2,10 @@
 #define __HAL_H
 
 #include <lib/libc/stdint.h>
-#include <kernel/modules/multiboot.h>
 #include <lib/libc/stdbool.h>
+#include <kernel/modules/multiboot.h>
 
-/* HAL main functions */
+/* HAL main */
 void hal_main(struct multiboot *mboot_ptr);
 
 /* Port I/O */
@@ -25,13 +25,13 @@ uint8_t inmem(uint32_t address);
 void outmeml(uint32_t address, unsigned long data);
 
 /* Interrupts */
-void irq_install_handler(int irq, void *handler);
-void irq_uninstall_handler(int irq);
+void irq_install_handler(int32_t irq, void *handler);
+void irq_uninstall_handler(int32_t irq);
 void hal_cli();
 void hal_sti();
 
 /* Timer */
-void sleep(int sec);
+void sleep(int32_t sec);
 uint32_t get_time();
 
 /* Physical memory manager */
@@ -42,14 +42,14 @@ void pmm_free_page(uint32_t address);
 void map_page(uint32_t, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user, bool global);
 void unmap_page(uint32_t dir, uint32_t virtual_address);
 void map_kernel(uint32_t dir);
-unsigned int create_address_space();
+uint32_t create_address_space();
 void switch_address_space(uint32_t dir);
 
 /* Multitasking */
 void task_switch_stub(void *context);
 
 /* Syscalls */
-void hal_init_syscalls();
-void syscall_install_handler(int syscall, void *handler);
+void syscalls_install();
+void syscall_install_handler(int32_t syscall, void *handler);
 
 #endif

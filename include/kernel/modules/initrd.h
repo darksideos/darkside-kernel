@@ -42,6 +42,6 @@ initrd_table_entry_t *find_initrd_entry(uint32_t class_id, uint32_t device_id);
 uint32_t get_initrd_entry_number(initrd_table_entry_t *header);
 uint8_t *get_initrd_driver(initrd_table_entry_t *entry);
 void init_initrd(initrd_header_t *initrd);
-int initrd_read(fs_node_t *file, uint8_t *buffer, uint32_t len);
+int32_t initrd_read(fs_node_t *file, uint8_t *buffer, uint32_t len);
 
 #endif

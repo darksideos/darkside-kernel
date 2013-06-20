@@ -15,11 +15,11 @@ fs_node_t *fat_open(uint8_t drive, uint8_t partition, uint8_t *path)
 	uint8_t **path_parts = strsplit(path, "/");
 
 	/* Get the number of parts of the path using ksize */
-	uint32_t num_path_parts = ksize(path) / sizeof(int);
+	uint32_t num_path_parts = ksize(path) / sizeof(int32_t);
 
 	/* Loop through the path parts, getting the cluster number of a file or directory each time */
 	unsigned long cluster = get_root_cluster();	// Need to modify this to get the root cluster of a specific partition
-	int i;
+	int32_t i;
 	for (i = 0; i < num_path_parts; i++)
 	{
 		cluster = fat_get_cluster(path_parts[i], cluster);	// Need to modify this to get the file or directory cluster on a specific partition

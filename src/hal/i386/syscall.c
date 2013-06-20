@@ -22,7 +22,7 @@ void syscalls_install()
 }
 
 /* Install a syscall handler */
-void syscall_install_handler(int syscall, void *handler)
+void syscall_install_handler(int32_t syscall, void *handler)
 {
 	/* If the syscall number is not greater than the maximum number of syscalls, install the syscall handler */
 	if (syscall < num_syscalls)
@@ -44,7 +44,7 @@ void syscall_handler(struct i386_regs *r)
  	void *syscall = syscalls[r->eax];
  
  	/* Push the arguments onto the stack and call the syscall, then store the return the value in EAX */
- 	int ret;
+ 	int32_t ret;
  	asm volatile (" \
  				  push %1; \
  				  push %2; \

@@ -17,20 +17,20 @@
 struct thread;
 typedef struct process
 {
-    uint32_t pid;					// Process ID
-	uint8_t *name;				// Name of the process
+    uint32_t pid;						// Process ID
+	uint8_t *name;						// Name of the process
 
 	struct thread **threads;			// Threads
-	uint32_t num_threads;			// Number of threads
+	uint32_t num_threads;				// Number of threads
 
-	uint32_t address_space;			// Address space
+	uint32_t address_space;				// Address space
 
 	fs_node_t **files;					// Files opened by the process
-	uint32_t num_files;				// Number of files opened by the process
+	uint32_t num_files;					// Number of files opened by the process
 
-	int state;							// Process state (ready, sleeping, stopped, I/O blocked)
+	int32_t state;						// Process state (ready, sleeping, stopped, I/O blocked)
 
-	uint32_t signals;				// The currently triggered signals in the process
+	uint32_t signals;					// The currently triggered signals in the process
 	sighandler_t signal_handlers[16];	// Signal handlers
 
 	bool vm86_process;					// Is this a VM86 process?
@@ -38,15 +38,15 @@ typedef struct process
 
 	struct process *parent_process;		// Parent process
 	struct process **child_processes;	// Child processes
-	uint32_t num_child_processes;	// Number of child processes
+	uint32_t num_child_processes;		// Number of child processes
 } process_t;
 
 /* Initialize processes */
 void init_processes();
 
 /* These 2 functions are used to create new processes using POSIX syscalls */ 
-int fork();
-int execve(int8_t *name, int8_t **argv, int8_t **env);
+int32_t fork();
+int32_t execve(int8_t *name, int8_t **argv, int8_t **env);
 
 /* Create a new blank process without cloning the registers, address space, and files of the current one */
 process_t *create_process(uint8_t *name, void (*function)(), int8_t **argv, uint32_t user_stack_size);
@@ -60,11 +60,11 @@ process_t *getprocess();
 uint32_t getnumpids();
 
 /* Both of these functions wait for a child process's status to change */
-int waitpid(int pid, int *status, int options);
-int wait(int *status);
+int32_t waitpid(int32_t pid, int32_t *status, int32_t options);
+int32_t wait(int32_t *status);
 
 /* Exit and stop the current process */
-void exit(int status);
+void exit(int32_t status);
 void stop();
 
 #endif

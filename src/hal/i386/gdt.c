@@ -15,7 +15,7 @@ extern void gdt_flush();
 extern void tss_flush();
 
 /* Setup a descriptor in the Global Descriptor Table */
-void gdt_set_gate(int num, unsigned long base, unsigned long limit, uint8_t access, uint8_t gran)
+void gdt_set_gate(int32_t num, unsigned long base, unsigned long limit, uint8_t access, uint8_t gran)
 {
     /* Setup the descriptor base address */
     gdt[num].base_low = (base & 0xFFFF);
@@ -32,7 +32,7 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, uint8_t acce
 }
 
 /* Create a TSS in the GDT */
-void write_tss(int num, uint16_t ss0, uint16_t esp0)
+void write_tss(int32_t num, uint16_t ss0, uint16_t esp0)
 {
 	uint32_t base = (uint32_t) &tss;
 	uint32_t limit = base + sizeof(struct tss_entry);

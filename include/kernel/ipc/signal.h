@@ -21,15 +21,15 @@
 #define SIGTERM	0x0F
 
 /* The structure of a signal handler */
-typedef void (*sighandler_t)(int);
+typedef void (*sighandler_t)(int32_t);
 
 /* Send a signal to a process */
-int kill(uint32_t pid, int signal);
+int32_t kill(uint32_t pid, int32_t signal);
 
 /* Raise a signal in the current process or thread */
-int raise(int signum);
+int32_t raise(int32_t signum);
 
 /* Register a signal handler in the current process */
-sighandler_t signal(int signum, sighandler_t handler);
+sighandler_t signal(int32_t signum, sighandler_t handler);
 
 #endif

@@ -5,21 +5,21 @@
 #include <kernel/vfs/vfs.h>
 
 /* Kernel mode file syscall implementations */
-int create(const int8_t *name, int mode);
-int open(const int8_t *name, int flags, int mode);
-int close(int file);
-int read(int file, int8_t *ptr, int len);
-int write(int file, int8_t *ptr, int len);
-int lseek(int file, int ptr, int dir);
-int symlink(int8_t *old, int8_t *new);
-int hardlink(int8_t *old, int8_t *new);
-int unlink(int8_t *name);
-int rm(int8_t *name);
-int rmdir(int8_t *name);
-int rfrm(int8_t *name);
-int chown(int8_t *name, int owner, int group);
-int fstat(int file, struct stat *st);
-int stat(int8_t *name, struct stat *st);
-int isatty(int file);
+int32_t create(const int8_t *name, int32_t mode);
+int32_t open(const int8_t *name, int32_t flags, int32_t mode);
+int32_t close(int32_t file);
+int32_t read(int32_t file, int8_t *ptr, int32_t len);
+int32_t write(int32_t file, int8_t *ptr, int32_t len);
+int32_t lseek(int32_t file, int32_t ptr, int32_t dir);
+int32_t symlink(int8_t *old, int8_t *new);
+int32_t hardlink(int8_t *old, int8_t *new);
+int32_t unlink(int8_t *name);
+int32_t rm(int8_t *name);
+int32_t rmdir(int8_t *name);
+int32_t rfrm(int8_t *name);
+int32_t chown(int8_t *name, int32_t owner, int32_t group);
+int32_t fstat(int32_t file, struct stat *st);
+int32_t stat(int8_t *name, struct stat *st);
+int32_t isatty(int32_t file);
 
 #endif

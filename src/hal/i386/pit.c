@@ -6,8 +6,8 @@
 #include <kernel/debug/kprintf.h>
 
 /* The number of PIT ticks and frequency */
-volatile int pit_ticks = 0;
-int pit_frequency;
+volatile int32_t pit_ticks = 0;
+int32_t pit_frequency;
 
 /* Handle the PIT interrupt */
 void pit_handler(struct i386_regs *r)
@@ -22,7 +22,7 @@ uint32_t pit_get_time()
 }
 
 /* Wait for a specified amount of PIT ticks */
-void pit_wait(int ticks)
+void pit_wait(int32_t ticks)
 {
     unsigned long eticks;
 
@@ -31,13 +31,13 @@ void pit_wait(int ticks)
 }
 
 /* Sleep for a specified amount of seconds using the PIT */
-void pit_sleep(int sec)
+void pit_sleep(int32_t sec)
 {
 	pit_wait(sec * pit_frequency);
 }
 
 /* Install Channel 0 of the PIT using a specific frequency */
-void pit_channel0_install(int hz)
+void pit_channel0_install(int32_t hz)
 {
 	/* Install the PIT IRQ handler */
 	irq_install_handler(0, pit_handler);
@@ -53,7 +53,7 @@ void pit_channel0_install(int hz)
 }
 
 /* Install Channel 2 of the PIT using a specific frequency */
-void pit_channel2_install(int hz)
+void pit_channel2_install(int32_t hz)
 {
 	uint8_t tmp;
 
@@ -73,7 +73,7 @@ void pit_channel2_install(int hz)
 }
 
 /* Install the PIT on a specified channel */
-void pit_install(int channel, int hz)
+void pit_install(int32_t channel, int32_t hz)
 {
 	/* If we want to install Channel 0 of the PIT, install the timer */
 	if (channel == 0)
