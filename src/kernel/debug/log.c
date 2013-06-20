@@ -1,12 +1,12 @@
 #include <kernel/debug/log.h>
-#include <hal/i386/timer.h>
+#include <kernel/init/hal.h>
 #include <lib/libc/stdarg.h>
 #include <kernel/debug/kprintf.h>
 #include <drivers/graphics/text.h>
 
 void log(const char *fmt, ...)
 {
-	kprintf("[ %d ] ", get_time());
+	kprintf("[ %d ] ", get_ticks() * get_frequency());
 	
 	char buf[1024];
 

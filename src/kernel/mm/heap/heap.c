@@ -1,5 +1,5 @@
+#include <kernel/init/hal.h>
 #include <lib/libc/stdbool.h>
-#include <hal/i386/vmm.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 
