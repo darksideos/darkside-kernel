@@ -7,6 +7,7 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/ipc/signal.h>
+#include <kernel/debug/kprintf.h>
 
 /* Maximum number of processes that can be run */
 uint32_t max_processes = 4096;
@@ -20,6 +21,8 @@ volatile uint32_t num_processes = 0;
 
 /* Current page directory */
 extern uint32_t *current_directory;
+
+extern "C" void task_switch_stub(struct i386_regs*);
 
 /* Initialize processes */
 void init_processes()

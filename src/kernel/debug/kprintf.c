@@ -2,6 +2,7 @@
 #include <lib/libc/stdarg.h>
 #include <kernel/debug/kprintf.h>
 #include <drivers/graphics/text.h>
+#include <lib/libc/string.h>
 
 #define is_digit(c)     ((c) >= '0' && (c) <= '9')
 
@@ -249,7 +250,7 @@ void kprintf(const int8_t *fmt, ...)
 
 void error_kprintf(const int8_t *fmt, ...)
 {
-	static int8_t buf[1024];
+	int8_t buf[1024];
 
 	va_list args;
 	int32_t i;

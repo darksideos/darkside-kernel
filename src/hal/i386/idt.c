@@ -7,7 +7,7 @@ struct idt_entry idt[256];
 struct idt_ptr idtp;
 
 /* This exists in loader.s, and is used to load our IDT */
-extern void idt_load();
+extern "C" void idt_load();
 
 /* Set an entry in the IDT */
 void idt_set_gate(uint8_t num, unsigned long base)

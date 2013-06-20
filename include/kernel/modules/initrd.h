@@ -43,5 +43,6 @@ uint32_t get_initrd_entry_number(initrd_table_entry_t *header);
 uint8_t *get_initrd_driver(initrd_table_entry_t *entry);
 void init_initrd(initrd_header_t *initrd);
 int32_t initrd_read(fs_node_t *file, uint8_t *buffer, uint32_t len);
+void initrd_open(fs_node_t *file);
 
 #endif

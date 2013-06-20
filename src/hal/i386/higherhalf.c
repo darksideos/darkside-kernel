@@ -3,7 +3,7 @@
 #include <kernel/init/main.h>
 #include <kernel/modules/multiboot.h>
 
-void load_higherhalf(struct multiboot *mboot_ptr, uint32_t *pd, uint32_t *pt_lower, uint32_t *pt_higher, uint32_t *pt_bitmap)
+extern "C" void load_higherhalf(struct multiboot *mboot_ptr, uint32_t *pd, uint32_t *pt_lower, uint32_t *pt_higher, uint32_t *pt_bitmap)
 {
 	/* Enable global pages */
 	uint32_t cr4;

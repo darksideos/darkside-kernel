@@ -5,6 +5,6 @@ CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-poin
 OBJFILES = cmos.o
  
 .c.o:
-	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build/drivers/cmos/$@ -c $<
+	$(CCBASE)-g++ $(CFLAGS) -o $(ROOT)/build/drivers/cmos/$@ -c $<
 	
 all: $(OBJFILES)

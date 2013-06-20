@@ -75,19 +75,19 @@ void memclr(void *address, uint32_t length)
 	}
 }
 
-int32_t strlen(const int8_t *str)
+int32_t strlen(uint8_t *str)
 {
     int32_t retval;
     for(retval = 0; *str != '\0'; str++) retval++;
     return retval;
 }
 
-uint8_t *strcpy(uint8_t *dest, const uint8_t *src)
+uint8_t *strcpy(uint8_t *dest, uint8_t *src)
 {
 	return (uint8_t*) memcpy(dest, (void*) src, strlen(src) + 1);
 }
 
-uint8_t *strncpy(uint8_t *dest, const uint8_t *src, uint32_t size)
+uint8_t *strncpy(uint8_t *dest, uint8_t *src, uint32_t size)
 {
 	return (uint8_t*) memcpy(dest, (void*) src, size + 1);
 }
@@ -162,7 +162,7 @@ uint8_t *strcat(uint8_t *s1, uint8_t *s2)
 	return str;
 }
 
-uint8_t *strtok(uint8_t *str, const int8_t *delimeter, uint8_t **saveptr)
+uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 {
 	/* First call */
 	if (str)
@@ -181,7 +181,7 @@ uint8_t *strtok(uint8_t *str, const int8_t *delimeter, uint8_t **saveptr)
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')
 		{
-			uint8_t *found_str = kmalloc(skipped + 1);
+			uint8_t *found_str = (uint8_t*) kmalloc(skipped + 1);
 			memcpy(found_str, *saveptr - skipped, skipped + 1);
 			
 			*saveptr = 0;
@@ -193,7 +193,7 @@ uint8_t *strtok(uint8_t *str, const int8_t *delimeter, uint8_t **saveptr)
 	}
 	
 	/* We've found it! */
-	uint8_t *found_str = kmalloc(skipped + 1);
+	uint8_t *found_str = (uint8_t*) kmalloc(skipped + 1);
 	memcpy(found_str, *saveptr - skipped, skipped);
 	found_str[skipped] = '\0';
 	
