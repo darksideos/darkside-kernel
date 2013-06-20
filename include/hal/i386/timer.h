@@ -7,4 +7,6 @@ void sleep(int sec);
 /* Install the timer */
 void timer_install(int hz);
 
+unsigned int get_time();
+
 #endif
