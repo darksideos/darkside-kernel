@@ -1,20 +1,22 @@
 #ifndef __PCI_H
 #define __PCI_H
 
+#include <lib/libc/stdint.h>
+
 /* Read data from the PCI configuration space */
-unsigned char pci_read_config_byte(unsigned short bus, unsigned short slot, unsigned short function, unsigned short offset);
-unsigned short pci_read_config_word(unsigned short bus, unsigned short slot, unsigned short function, unsigned short offset);
-unsigned long pci_read_config_dword(unsigned short bus, unsigned short slot, unsigned short function, unsigned short offset);
+uint8_t pci_read_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset);
+uint16_t pci_read_config_word(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset);
+unsigned long pci_read_config_dword(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset);
 
 /* Write data to the PCI configuration space */
-void pci_write_config_byte(unsigned short bus, unsigned short slot, unsigned short function, unsigned short offset, unsigned char data);
-void pci_write_config_word(unsigned short bus, unsigned short slot, unsigned short function, unsigned short offset, unsigned short data);
-void pci_write_config_dword(unsigned short bus, unsigned short slot, unsigned short function, unsigned short offset, unsigned long data);
+void pci_write_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset, uint8_t data);
+void pci_write_config_word(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset, uint16_t data);
+void pci_write_config_dword(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset, unsigned long data);
 
 /* Check the PCI buses */
-void check_function(unsigned short bus, unsigned short slot, unsigned short function);
-void check_device(unsigned short bus, unsigned short slot);
-void check_bus(unsigned short bus);
+void check_function(uint16_t bus, uint16_t slot, uint16_t function);
+void check_device(uint16_t bus, uint16_t slot);
+void check_bus(uint16_t bus);
 void check_all_buses();
 
 /* Initialize the PCI bus */

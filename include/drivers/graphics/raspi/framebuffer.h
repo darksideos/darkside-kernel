@@ -1,6 +1,8 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
+#include <lib/libc/stdint.h>
+
 #define RGB16(r,g,b) ((r >> 3) << 11) + ((g >> 2) << 5) + (b >> 3)
 /* Mailbox call to get screen resolution failed */
 #define FB_FAIL_GET_RESOLUTION						1
@@ -21,9 +23,9 @@
 
 void fb_init();
 
-unsigned char *get_graphics_pointer();
-unsigned int get_width();
-unsigned int get_height();
-unsigned int get_pitch();
+uint8_t *get_graphics_pointer();
+uint32_t get_width();
+uint32_t get_height();
+uint32_t get_pitch();
 
 #endif	/* FRAMEBUFFER_H */

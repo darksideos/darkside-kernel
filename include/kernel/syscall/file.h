@@ -1,24 +1,25 @@
 #ifndef __FILE_H
 #define __FILE_H
 
+#include <lib/libc/stdint.h>
 #include <kernel/vfs/vfs.h>
 
 /* Kernel mode file syscall implementations */
-int create(const char *name, int mode);
-int open(const char *name, int flags, int mode);
+int create(const int8_t *name, int mode);
+int open(const int8_t *name, int flags, int mode);
 int close(int file);
-int read(int file, char *ptr, int len);
-int write(int file, char *ptr, int len);
+int read(int file, int8_t *ptr, int len);
+int write(int file, int8_t *ptr, int len);
 int lseek(int file, int ptr, int dir);
-int symlink(char *old, char *new);
-int hardlink(char *old, char *new);
-int unlink(char *name);
-int rm(char *name);
-int rmdir(char *name);
-int rfrm(char *name);
-int chown(char *name, int owner, int group);
+int symlink(int8_t *old, int8_t *new);
+int hardlink(int8_t *old, int8_t *new);
+int unlink(int8_t *name);
+int rm(int8_t *name);
+int rmdir(int8_t *name);
+int rfrm(int8_t *name);
+int chown(int8_t *name, int owner, int group);
 int fstat(int file, struct stat *st);
-int stat(char *name, struct stat *st);
+int stat(int8_t *name, struct stat *st);
 int isatty(int file);
 
 #endif

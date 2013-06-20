@@ -1,10 +1,12 @@
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
-void uart_init();
-void uart_putch(unsigned char data);
-void uart_puts(const char *str);
+#include <lib/libc/stdint.h>
 
-unsigned char uart_getch();
+void uart_init();
+void uart_putch(uint8_t data);
+void uart_puts(const int8_t *str);
+
+uint8_t uart_getch();
 
 #endif

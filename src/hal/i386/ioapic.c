@@ -1,11 +1,12 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <hal/i386/ioapic.h>
 
 /* The I/O APIC base address */
-unsigned int *ioapic_base;
+uint32_t *ioapic_base;
 
 /* Read from an I/O APIC register */
-unsigned int ioapic_read_register(unsigned char reg)
+uint32_t ioapic_read_register(uint8_t reg)
 {
 	/* Send IOREGSEL the offset we want to read from */
 	ioapic_base[0] = reg;
@@ -15,7 +16,7 @@ unsigned int ioapic_read_register(unsigned char reg)
 }
 
 /* Write to an I/O APIC register */
-void ioapic_write_register(unsigned char reg, unsigned int val)
+void ioapic_write_register(uint8_t reg, uint32_t val)
 {
 	/* Send IOREGSEL the offset we want to write to */
 	ioapic_base[0] = reg;
@@ -25,14 +26,14 @@ void ioapic_write_register(unsigned char reg, unsigned int val)
 }
 
 /* Configure an IRQ in the I/O APIC */
-void ioapic_configure_irq(unsigned char irq, unsigned char vector, unsigned char delivery_mode, unsigned char destination_mode, bool mask, unsigned char destination)
+void ioapic_configure_irq(uint8_t irq, uint8_t vector, uint8_t delivery_mode, uint8_t destination_mode, bool mask, uint8_t destination)
 {
 	/* Find the register base for the IRQ */
-	unsigned char reg_base = 0x10 + (irq * 2);
+	uint8_t reg_base = 0x10 + (irq * 2);
 
 	/* Create the data that will sent out to each register */
-	unsigned int reg1_value = (unsigned int)(vector | (delivery_mode << 8) | (destination_mode << 11));
-	unsigned int reg2_value = (unsigned int)(mask | (destination << 50));
+	uint32_t reg1_value = (uint32_t)(vector | (delivery_mode << 8) | (destination_mode << 11));
+	uint32_t reg2_value = (uint32_t)(mask | (destination << 50));
 
 	/* Now output the values into the registers */
 	ioapic_write_register(reg_base, reg1_value);
@@ -43,7 +44,7 @@ void ioapic_configure_irq(unsigned char irq, unsigned char vector, unsigned char
 void ioapic_install()
 {
 	/* Set the I/O APIC base address */
-	ioapic_base = (unsigned int*) 0xFEC00000;
+	ioapic_base = (uint32_t*) 0xFEC00000;
 
 	/* Configure the first 16 IRQs on the I/O APIC by mapping them to the ISA interrupts */
 	int i;

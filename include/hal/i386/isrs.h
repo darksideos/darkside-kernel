@@ -1,16 +1,17 @@
 #ifndef __ISRS_H
 #define __ISRS_H
 
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 
 /* The structure of the stack after an interrupt */
 struct i386_regs
 {
-    unsigned int gs, fs, es, ds;      /* pushed the segs last */
-    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
-    unsigned int int_no, err_code;    /* our 'push byte #' and ecodes do this */
-    unsigned int eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
-	unsigned int ves, vds, vfs, vgs;	/* VM86 segment registers */
+    uint32_t gs, fs, es, ds;      /* pushed the segs last */
+    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
+    uint32_t int_no, err_code;    /* our 'push byte #' and ecodes do this */
+    uint32_t eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
+	uint32_t ves, vds, vfs, vgs;	/* VM86 segment registers */
 };
 
 /* Install the exception ISRs */

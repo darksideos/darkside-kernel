@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
 #include <hal/i386/isrs.h>
@@ -12,16 +13,16 @@ page_directory_t *kernel_directory = 0;
 page_directory_t *current_directory = 0;
 
 /* Page size */
-unsigned int page_size = 0x1000;
+uint32_t page_size = 0x1000;
 
 /* Is paging active? */
 bool paging_active = false;
 
 /* Get a page */
-page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user)
+page_t *get_page(page_directory_t *dir, uint32_t virtual_address, bool make, bool present, bool rw, bool user)
 {
 	/* Construct the page flags */
-	unsigned int flags = 0;
+	uint32_t flags = 0;
 
 	if (present)
 	{
@@ -39,10 +40,10 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 	}
 
 	/* Find out which page the virtual address in in */
-	unsigned int page = virtual_address >> 12;
+	uint32_t page = virtual_address >> 12;
 
 	/* Now use that page index to find out the index of the page table */
-	unsigned int table_index = page >> 10;
+	uint32_t table_index = page >> 10;
 
 	/* If the page table already exists, return the page */
 	if (dir->tables[table_index])
@@ -52,7 +53,7 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 	/* If the table does not already exist and we want to make the page, create and return it */
 	else if (make)
 	{
-		unsigned int phys;
+		uint32_t phys;
 
 		/* Create a new page table */
 		if (paging_active)
@@ -80,10 +81,10 @@ page_t *get_page(page_directory_t *dir, unsigned int virtual_address, bool make,
 }
 
 /* Map a virtual address to a physical address */
-void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user)
+void map_page(page_directory_t *dir, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user)
 {
 	/* Construct the page flags */
-	unsigned int flags = 0;
+	uint32_t flags = 0;
 
 	if (present)
 	{
@@ -104,14 +105,14 @@ void map_page(page_directory_t *dir, unsigned int virtual_address, unsigned int 
 	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
 
 	/* Map the page in the table to the physical address */
-	*((unsigned int*) page) = physical_address | flags | 0x01;
+	*((uint32_t*) page) = physical_address | flags | 0x01;
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Unmap a virtual address */
-void unmap_page(page_directory_t *dir, unsigned int virtual_address)
+void unmap_page(page_directory_t *dir, uint32_t virtual_address)
 {
 	/* Return the page that corresponds to the virtual address */
 	page_t *page = get_page(dir, virtual_address, false, false, false, false);
@@ -124,7 +125,7 @@ void unmap_page(page_directory_t *dir, unsigned int virtual_address)
 
 	/* Free the physical page and set the page to not present */
 	pmm_free_page(page->frame * 0x1000);
-	*((unsigned int*)page) = 0;
+	*((uint32_t*)page) = 0;
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
@@ -147,7 +148,7 @@ void switch_page_directory(page_directory_t *dir)
 }
 
 /* Page align an address */
-unsigned int page_align(unsigned int address)
+uint32_t page_align(uint32_t address)
 {
 	if (address & (page_size - 1))
 	{
@@ -165,9 +166,9 @@ void init_vmm()
 	/* Create the kernel directory */
 	kernel_directory = (page_directory_t*) placement_kmalloc_a(sizeof(page_directory_t));
 	memset(kernel_directory, 0, sizeof(page_directory_t));
-	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((unsigned int) kernel_directory->tablesPhysical);
+	kernel_directory->physicalAddr = HIGHER_TO_PHYSICAL((uint32_t) kernel_directory->tablesPhysical);
 
-	unsigned int i;
+	uint32_t i;
 	
 	/* Identity map the first 1 MB of the address space, so that the VGA framebuffer and VM86 tasks will work */
 	for (i = 0; i < 0x100000; i += 0x1000)
@@ -185,7 +186,7 @@ void init_vmm()
 	switch_page_directory(kernel_directory);
 	
 	/* Now, enable paging! */
-	unsigned int cr0;
+	uint32_t cr0;
     asm volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= 0x80000000;
     asm volatile("mov %0, %%cr0" :: "r"(cr0));

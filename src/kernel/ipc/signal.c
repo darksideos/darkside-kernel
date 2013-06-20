@@ -1,8 +1,9 @@
+#include <lib/libc/stdint.h>
 #include <kernel/task/process.h>
 #include <kernel/ipc/signal.h>
 
 /* Send a signal to a process */
-int kill(unsigned int pid, int signal)
+int kill(uint32_t pid, int signal)
 {
 	/* To do: implement this! */
 }

@@ -1,10 +1,11 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/ports.h>
 #include <kernel/vfs/vfs.h>
 #include <drivers/graphics/vga.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
-unsigned short *textmemptr;
+uint16_t *textmemptr;
 int attrib = 0x0F;
 int csr_x = 0, csr_y = 0;
 
@@ -23,13 +24,13 @@ void scroll()
         temp = csr_y - 25 + 1;
         memcpy(textmemptr, textmemptr + temp * 80, (25 - temp) * 80 * 2);
 
-        /* Finally, we set the chunk of memory that occupies the last line of text to our 'blank' character */
+        /* Finally, we set the chunk of memory that occupies the last line of text to our 'blank' int8_tacter */
         memsetw(textmemptr + (25 - temp) * 80, blank, 80);
         csr_y = 25 - 1;
     }
 }
 
-/* Updates the hardware cursor: the little blinking line on the screen under the last character pressed! */
+/* Updates the hardware cursor: the little blinking line on the screen under the last int8_tacter pressed! */
 void move_csr()
 {
     unsigned temp;
@@ -51,7 +52,7 @@ void clear()
     unsigned blank;
     int i;
 
-    /* Again, we need the 'short' that will be used to represent a space with color */
+    /* Again, we need the 'int16_t' that will be used to represent a space with color */
     blank = 0x20 | (attrib << 8);
 
     /* Sets the entire screen to spaces in our current color */
@@ -66,10 +67,10 @@ void clear()
     move_csr();
 }
 
-/* Puts a single character on the screen */
-void putch(unsigned char c)
+/* Puts a single int8_tacter on the screen */
+void putch(uint8_t c)
 {
-    unsigned short *where;
+    uint16_t *where;
     unsigned att = attrib << 8;
 
     /* Handle a backspace, by moving the cursor back one space */
@@ -99,7 +100,7 @@ void putch(unsigned char c)
         csr_x = 0;
         csr_y++;
     }
-    /* Any character greater than and including a space, is a printable character */
+    /* Any int8_tacter greater than and including a space, is a printable int8_tacter */
     else if(c >= ' ')
     {
         where = textmemptr + (csr_y * 80 + csr_x);
@@ -120,7 +121,7 @@ void putch(unsigned char c)
 }
 
 /* Uses the above routine to output a string */
-void puts(unsigned char *text)
+void puts(uint8_t *text)
 {
 	int i;
     for (i = 0; i < strlen(text); i++)
@@ -130,15 +131,15 @@ void puts(unsigned char *text)
 }
 
 /* Outputs an error message using puts() */
-void error_puts(unsigned char *text)
+void error_puts(uint8_t *text)
 {
-	unsigned char old_attrib = attrib;
+	uint8_t old_attrib = attrib;
 	settextcolor(VGA_COLOR_RED, VGA_COLOR_BLACK);
 	puts(text);
 	attrib = old_attrib;
 }
 
-void screen_write(fs_node_t *file, unsigned char *text, unsigned int size)
+void screen_write(fs_node_t *file, uint8_t *text, uint32_t size)
 {
 	int i;
 	for (i = 0; i < size; i++)
@@ -147,23 +148,23 @@ void screen_write(fs_node_t *file, unsigned char *text, unsigned int size)
 	}
 }
 
-void error_screen_write(fs_node_t *file, unsigned char *text, unsigned int size)
+void error_screen_write(fs_node_t *file, uint8_t *text, uint32_t size)
 {
-	unsigned char old_attrib = attrib;
+	uint8_t old_attrib = attrib;
 	settextcolor(VGA_COLOR_RED, VGA_COLOR_BLACK);
 	screen_write(file, text, size);
 	attrib = old_attrib;
 }
 
-void settextcolor(unsigned char forecolor, unsigned char backcolor)
+void settextcolor(uint8_t forecolor, uint8_t backcolor)
 {
     attrib = (backcolor << 4) | (forecolor & 0x0F);
 }
 
-void init_text_mode(unsigned char forecolor, unsigned char backcolor)
+void init_text_mode(uint8_t forecolor, uint8_t backcolor)
 {
 	/* Set the address of our VGA framebuffer */
-    textmemptr = (unsigned short*) 0xB8000;
+    textmemptr = (uint16_t*) 0xB8000;
 
 	/* Set the text color and clear the screen */
 	settextcolor(forecolor, backcolor);

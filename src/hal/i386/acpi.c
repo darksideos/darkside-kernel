@@ -1,21 +1,22 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/acpi.h>
 
 /* Find the RSDP */
-unsigned int acpi_find_rsdp()
+uint32_t acpi_find_rsdp()
 {
 	/* Addresses of the EBDA and the BIOS */
-	unsigned char *ebda = (unsigned char*)((*((unsigned short*) 0x40E)) << 4);
-	unsigned char *bios = 0xE0000;
+	uint8_t *ebda = (uint8_t*)((*((uint16_t*) 0x40E)) << 4);
+	uint8_t *bios = 0xE0000;
 
-	unsigned char *address;
+	uint8_t *address;
 
 	/* First, search the EBDA */
 	for (address = ebda; address < ebda + 1024; address++)
 	{
 		if (strnequal(address, "RSD PTR ", 8))
 		{
-			return (unsigned int) address;
+			return (uint32_t) address;
 		}
 	}
 
@@ -24,7 +25,7 @@ unsigned int acpi_find_rsdp()
 	{
 		if (strnequal(address, "RSD PTR ", 8))
 		{
-			return (unsigned int) address;
+			return (uint32_t) address;
 		}
 	}
 

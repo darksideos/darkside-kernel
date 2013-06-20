@@ -1,8 +1,10 @@
 #ifndef __PIC_H
 #define __PIC_H
 
+#include <lib/libc/stdint.h>
+
 /* Remap the PIC */
-void pic_remap(unsigned char master_vector, unsigned char slave_vector);
+void pic_remap(uint8_t master_vector, uint8_t slave_vector);
 
 /* Send an EOI to the PIC */
 void pic_eoi(int irq);

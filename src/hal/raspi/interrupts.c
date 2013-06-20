@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/raspi/interrupts.h>
 #include <hal/raspi/mmio.h>
 #include <drivers/raspi/gpio/gpio.h>
@@ -30,8 +31,8 @@ __attribute__ ((naked)) void bad_exception(void)
 
 __attribute__ ((interrupt ("SWI"))) void interrupt_swi(void)
 {
-	register unsigned int addr;
-	register unsigned int swi_no;
+	register uint32_t addr;
+	register uint32_t swi_no;
 	/* Read link register into addr - contains the address of the
 	 * instruction after the SWI
 	 */
@@ -39,7 +40,7 @@ __attribute__ ((interrupt ("SWI"))) void interrupt_swi(void)
 
 	addr -= 4;
 	/* Bottom 24 bits of the SWI instruction are the SWI number */
-	swi_no = *((unsigned int*) addr) & 0x00ffffff;
+	swi_no = *((uint32_t*) addr) & 0x00ffffff;
 
 	puts("SWI call. Address: 0x");
 	puts(tohex(addr, 4));
@@ -57,7 +58,7 @@ __attribute__ ((interrupt ("IRQ"))) void interrupt_irq(void)
 
 __attribute__ ((interrupt ("ABORT"))) void interrupt_data_abort(void)
 {
-	register unsigned int addr, far;
+	register uint32_t addr, far;
 	asm volatile("mov %[addr], lr" : [addr] "=r" (addr) );
 	/* Read fault address register */
 	asm volatile("mrc p15, 0, %[addr], c6, c0, 0": [addr] "=r" (far) );
@@ -83,7 +84,7 @@ __attribute__ ((interrupt ("ABORT"))) void interrupt_data_abort(void)
 
 __attribute__ ((interrupt ("ABORT"))) void interrupt_prefetch_abort(void)
 {
-	register unsigned int addr;
+	register uint32_t addr;
 	asm volatile("mov %[addr], lr" : [addr] "=r" (addr) );
 
 	puts("Prefetch abort!\n");

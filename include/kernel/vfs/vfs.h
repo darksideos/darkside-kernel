@@ -1,6 +1,7 @@
 #ifndef __VFS_H
 #define __VFS_H
 
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 
 /* Node flags */
@@ -40,12 +41,12 @@
 typedef struct fs_node
 {
 	/* VFS node flags */
-	unsigned char *name;			// The filename
-	unsigned char *parent_path;		// Path to the file, but not including the file
-	unsigned int uid;				// User ID
-	unsigned int gid;				// Group ID
-	unsigned char type;				// Node type
-	unsigned char attributes;		// File attributes
+	uint8_t *name;			// The filename
+	uint8_t *parent_path;		// Path to the file, but not including the file
+	uint32_t uid;				// User ID
+	uint32_t gid;				// Group ID
+	uint8_t type;				// Node type
+	uint8_t attributes;		// File attributes
 	int mode;						// File mode
 	bool isatty;					// Is this node connected to a terminal?
 
@@ -55,36 +56,36 @@ typedef struct fs_node
 	unsigned long date_status;		// Date of status change
 
 	/* Disk and filesystem flags */
-	unsigned char drive;			// Drive (0 - 3 are ATA, 4 - 7 are SATA, the rest are external drives)
-	unsigned char partition;		// Partition (0 - 3 are primary, the rest are logical partitions)
-	unsigned char filesystem;		// Type of filesystem
+	uint8_t drive;			// Drive (0 - 3 are ATA, 4 - 7 are SATA, the rest are external drives)
+	uint8_t partition;		// Partition (0 - 3 are primary, the rest are logical partitions)
+	uint8_t filesystem;		// Type of filesystem
 	unsigned long inode;			// Inode number
-	unsigned int length;			// Size of the file in bytes
-	unsigned int blocksize;			// Block size
+	uint32_t length;			// Size of the file in bytes
+	uint32_t blocksize;			// Block size
 	unsigned long pos;				// Current position of the file
 
 	/* VFS functions */
 	int (*close)(struct fs_node *file);
-	int (*read)(struct fs_node *file, unsigned char *buffer, unsigned int size);
-	int (*write)(struct fs_node *file, unsigned char *data, unsigned int size);
+	int (*read)(struct fs_node *file, uint8_t *buffer, uint32_t size);
+	int (*write)(struct fs_node *file, uint8_t *data, uint32_t size);
 	int (*seek)(struct fs_node *file, int where, int whence);
-	int (*symlink)(struct fs_node *file, unsigned char *old, unsigned char *new);
-	int (*hardlink)(struct fs_node *file, unsigned char *old, unsigned char *new);
-	int (*unlink)(unsigned char *name);
+	int (*symlink)(struct fs_node *file, uint8_t *old, uint8_t *new);
+	int (*hardlink)(struct fs_node *file, uint8_t *old, uint8_t *new);
+	int (*unlink)(uint8_t *name);
 	int (*delete)(struct fs_node *file);
-	int (*chown)(struct fs_node *file, unsigned int owner, unsigned int group);
+	int (*chown)(struct fs_node *file, uint32_t owner, uint32_t group);
 
 	/* VFS node pointers */
 	struct fs_node **child_nodes;	// Pointer to child nodes
-	unsigned int num_child_nodes;	// Number of child nodes
+	uint32_t num_child_nodes;	// Number of child nodes
 	struct fs_node *ptr;
 } fs_node_t;
 
 /* Directory entry */
 struct dirent
 {
-	unsigned char *name;
-	unsigned int inode; // Inode number
+	uint8_t *name;
+	uint32_t inode; // Inode number
 };
 
 /* File status structure */
@@ -107,7 +108,7 @@ struct stat
 
 struct mount_pair
 {
-	unsigned char *mountpoint;
+	uint8_t *mountpoint;
 	fs_node_t *mount_device;
 	struct mount_pair *next;
 };
@@ -117,30 +118,30 @@ fs_node_t *get_root();
 fs_node_t *get_dev();
 
 /* VFS functions */
-fs_node_t *create_fs(unsigned char *name, int mode);
-fs_node_t *open_fs(unsigned char *name, int flags, int mode);
+fs_node_t *create_fs(uint8_t *name, int mode);
+fs_node_t *open_fs(uint8_t *name, int flags, int mode);
 int close_fs(fs_node_t *file);
-int read_fs(fs_node_t *file, unsigned char *buffer, unsigned int size);
-int write_fs(fs_node_t *file, unsigned char *data, unsigned int size);
+int read_fs(fs_node_t *file, uint8_t *buffer, uint32_t size);
+int write_fs(fs_node_t *file, uint8_t *data, uint32_t size);
 int seek_fs(fs_node_t *file, int where, int whence);
-struct dirent *readdir_fs(fs_node_t *file, unsigned int index);
-fs_node_t *finddir_fs(fs_node_t *file, unsigned char *name);
-int symlink_fs(unsigned char *old, unsigned char *new);
-int hardlink_fs(unsigned char *old, unsigned char *new);
-int unlink_fs(unsigned char *name);
+struct dirent *readdir_fs(fs_node_t *file, uint32_t index);
+fs_node_t *finddir_fs(fs_node_t *file, uint8_t *name);
+int symlink_fs(uint8_t *old, uint8_t *new);
+int hardlink_fs(uint8_t *old, uint8_t *new);
+int unlink_fs(uint8_t *name);
 int rm_fs(fs_node_t *file);
 int rmdir_fs(fs_node_t *file);
 int rfrm_fs(fs_node_t *file);
-int chown_fs(fs_node_t *file, unsigned int owner, unsigned int group);
+int chown_fs(fs_node_t *file, uint32_t owner, uint32_t group);
 int stat_fs(fs_node_t *file, struct stat *st);
 
 /* Mounting */
-int mount_fs(unsigned char *mountpoint, fs_node_t *to_mount);
-int umount_fs(unsigned char *mountpoint);
-bool check_mounted(unsigned char *mountpoint);
+int mount_fs(uint8_t *mountpoint, fs_node_t *to_mount);
+int umount_fs(uint8_t *mountpoint);
+bool check_mounted(uint8_t *mountpoint);
 
 /* Get the path name of a node */
-unsigned char *get_full_name(fs_node_t *file);
+uint8_t *get_full_name(fs_node_t *file);
 
 /* Open an fs node */
 void open_file_fs(fs_node_t *file, fs_node_t *parent);

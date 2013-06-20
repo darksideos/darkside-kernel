@@ -1,10 +1,11 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdarg.h>
 #include <kernel/debug/kprintf.h>
 #include <drivers/graphics/text.h>
 
 #define is_digit(c)     ((c) >= '0' && (c) <= '9')
 
-static int skip_atoi(const char **s)
+static int skip_atoi(const int8_t **s)
 {
         int i=0;
 
@@ -33,10 +34,10 @@ n = ((unsigned long) n) / (unsigned) base; \
 __res; })
  
  
-static char *number(char* str, int num, int base, int size, int precision, int type)
+static int8_t *number(int8_t* str, int num, int base, int size, int precision, int type)
 {
-        char c, sign, tmp[36];
-        const char *digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        int8_t c, sign, tmp[36];
+        const int8_t *digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int i;
 
         if (type&SMALL) digits="0123456789abcdefghijklmnopqrstuvwxyz";
@@ -84,19 +85,19 @@ static char *number(char* str, int num, int base, int size, int precision, int t
         return str;
 }
 
-int vsprintf(char *buf, const char *fmt, va_list args)
+int vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
 {
         int len;
         int i;
-        char * str;
-        char *s;
+        int8_t * str;
+        int8_t *s;
         int *ip;
 
         int flags;              /* flags to number() */
 
         int field_width;        /* width of output field */
         int precision;          /* min. # of digits for integers; max
-                                   number of chars for from string */
+                                   number of int8_ts for from string */
         int qualifier;          /* 'h', 'l', or 'L' for integer fields */
 
         for (str=buf ; *fmt ; ++fmt) {
@@ -156,13 +157,13 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                         if (!(flags & LEFT))
                                 while (--field_width > 0)
                                         *str++ = ' ';
-                        *str++ = (unsigned char) va_arg(args, int);
+                        *str++ = (uint8_t) va_arg(args, int);
                         while (--field_width > 0)
                                 *str++ = ' ';
                         break;
 
                 case 's':
-                        s = va_arg(args, char *);
+                        s = va_arg(args, int8_t *);
                         len = strlen(s);
                         if (precision < 0)
                                 precision = len;
@@ -231,9 +232,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
         return str-buf;
 }
 
-void kprintf(const char *fmt, ...)
+void kprintf(const int8_t *fmt, ...)
 {
-	char buf[1024];
+	int8_t buf[1024];
 
 	va_list args;
 	int i;
@@ -246,9 +247,9 @@ void kprintf(const char *fmt, ...)
 	puts(buf);
 }
 
-void error_kprintf(const char *fmt, ...)
+void error_kprintf(const int8_t *fmt, ...)
 {
-	static char buf[1024];
+	static int8_t buf[1024];
 
 	va_list args;
 	int i;

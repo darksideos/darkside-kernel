@@ -1,6 +1,8 @@
 #ifndef __SIGNAL_H
 #define __SIGNAL_H
 
+#include <lib/libc/stdint.h>
+
 /* POSIX signals */
 #define SIGHUP	0x01
 #define SIGINT  0x02
@@ -22,7 +24,7 @@
 typedef void (*sighandler_t)(int);
 
 /* Send a signal to a process */
-int kill(unsigned int pid, int signal);
+int kill(uint32_t pid, int signal);
 
 /* Raise a signal in the current process or thread */
 int raise(int signum);

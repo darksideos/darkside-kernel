@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <kernel/init/hal.h>
 #include <lib/libc/stdbool.h>
 #include <kernel/mm/address_space.h>
@@ -6,10 +7,10 @@
 /* The kernel heap */
 heap_t *kheap = 0;
 
-extern unsigned int kernel_directory;
+extern uint32_t kernel_directory;
 
 /* Allocate memory on the kernel heap */
-void *kmalloc(unsigned int size)
+void *kmalloc(uint32_t size)
 {
 	/* Allocate the memory */
 	void *address = heap_malloc(kheap, size, false);
@@ -25,7 +26,7 @@ void kfree(void *ptr)
 }
 
 /* Resize memory allocated on the kernel heap */
-void *krealloc(void *ptr, unsigned int size)
+void *krealloc(void *ptr, uint32_t size)
 {
 	/* Resize the memory */
 	void *address = heap_realloc(kheap, ptr, size, false);
@@ -35,7 +36,7 @@ void *krealloc(void *ptr, unsigned int size)
 }
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user, bool global)
+heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_address, uint32_t max_address, bool user, bool global)
 {
 	/* First, place a heap structure, make sure it's 0, and fill in its data */
 	heap_t *heap = (heap_t*) start_address;
@@ -71,7 +72,7 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 }
 
 /* Expand or contract a heap */
-void resize_heap(heap_t *heap, unsigned int new_size)
+void resize_heap(heap_t *heap, uint32_t new_size)
 {
 	/* If the heap doesn't exist, just return */
 	if (!heap)
@@ -80,7 +81,7 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 	}
 
 	/* Get the old and maximum size of the heap */
-	unsigned int old_size = heap->end_address - heap->start_address;
+	uint32_t old_size = heap->end_address - heap->start_address;
 
 	/* Expand the heap */
 	if (new_size > old_size)
@@ -136,7 +137,7 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 }
 
 /* Allocate memory on a heap */
-void *heap_malloc(heap_t *heap, unsigned int size, bool align)
+void *heap_malloc(heap_t *heap, uint32_t size, bool align)
 {
 	/* If the heap doesn't exist, return 0 */
 	if (!heap)
@@ -145,7 +146,7 @@ void *heap_malloc(heap_t *heap, unsigned int size, bool align)
 	}
 
 	/* Get the new size of the chunk */
-	unsigned int chunk_size = sizeof(header_t) + size + sizeof(footer_t);
+	uint32_t chunk_size = sizeof(header_t) + size + sizeof(footer_t);
 
 	/* Find a chunk that can fit our size */
 	//header_t *chunk = lookup_chunk(heap->index, chunk_size);
@@ -154,7 +155,7 @@ void *heap_malloc(heap_t *heap, unsigned int size, bool align)
 	/* If we found a chunk, return the address of the memory we found */
 	if (chunk != 0)
 	{
-		return (void*) ((unsigned int)chunk + sizeof(header_t));
+		return (void*) ((uint32_t)chunk + sizeof(header_t));
 	}
 	/* Otherwise, if we somehow reached here, return 0 */
 	else
@@ -169,7 +170,7 @@ void heap_free(heap_t *heap, void *ptr)
 }
 
 /* Resize memory allocated on a heap */
-void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
+void *heap_realloc(heap_t *heap, void *ptr, uint32_t size, bool align)
 {
 	/* If the heap doesn't exist, return 0 */
 	if (!heap)
@@ -184,7 +185,7 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 		header_t *header = (header_t*) (ptr - sizeof(header_t));
 		footer_t *footer = (footer_t*) (header + header->size);
 
-		unsigned int old_size = header->size - sizeof(header_t) - sizeof(header_t);
+		uint32_t old_size = header->size - sizeof(header_t) - sizeof(header_t);
 
 		/* See if we have enough space to our left, and if we do, use that */
 

@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/idt.h>
 
@@ -9,7 +10,7 @@ struct idt_ptr idtp;
 extern void idt_load();
 
 /* Set an entry in the IDT */
-void idt_set_gate(unsigned char num, unsigned long base)
+void idt_set_gate(uint8_t num, unsigned long base)
 {
     /* The interrupt routine's base address */
     idt[num].base_lo = (base & 0xFFFF);
@@ -26,7 +27,7 @@ void idt_install()
 {
     /* Sets the special IDT pointer up, just like in 'gdt.c' */
     idtp.limit = (sizeof(struct idt_entry) * 256) - 1;
-    idtp.base = (unsigned int) &idt;
+    idtp.base = (uint32_t) &idt;
 
     /* Clear out the entire IDT, initializing it to zeros */
     memset(&idt, 0, sizeof(struct idt_entry) * 256);

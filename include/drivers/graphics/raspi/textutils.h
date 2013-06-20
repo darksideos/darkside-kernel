@@ -1,8 +1,9 @@
+#include <lib/libc/stdint.h>
 
 #ifndef TEXTUTILS_H
 #define TEXTUTILS_H
 
-extern char *tohex(unsigned int value, unsigned int size);
-extern char *todec(unsigned int value, int leading);
+extern int8_t *tohex(uint32_t value, uint32_t size);
+extern int8_t *todec(uint32_t value, int leading);
 
 #endif	/* TEXTUTILS_H */

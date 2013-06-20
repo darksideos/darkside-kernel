@@ -1,26 +1,27 @@
+#include <lib/libc/stdint.h>
 #include <hal/raspi/mmio.h>
 #include <hal/raspi/vmm.h>
 
-void outmeml(unsigned int address, unsigned int value)
+void outmeml(uint32_t address, uint32_t value)
 {
-	unsigned int *data = (unsigned int*) mem_p2v(address);
+	uint32_t *data = (uint32_t*) mem_p2v(address);
 	*data = value;
 }
 
-unsigned int inmeml(unsigned int address)
+uint32_t inmeml(uint32_t address)
 {
-	unsigned int *data = (unsigned int*) mem_p2v(address);
+	uint32_t *data = (uint32_t*) mem_p2v(address);
 	return *data;
 }
 
-void outmemw(unsigned int address, unsigned short value)
+void outmemw(uint32_t address, uint16_t value)
 {
-	unsigned short *data = (unsigned short*) mem_p2v(address);
+	uint16_t *data = (uint16_t*) mem_p2v(address);
 	*data = value;
 }
 
-unsigned short inmemw(unsigned int address)
+uint16_t inmemw(uint32_t address)
 {
-	unsigned short *data = (unsigned short*) mem_p2v(address);
+	uint16_t *data = (uint16_t*) mem_p2v(address);
 	return *data;
 }

@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/pic.h>
@@ -30,7 +31,7 @@ void *irqs[20] =
 };
 
 /* The current PIC we're using */
-unsigned char current_pic = 0;
+uint8_t current_pic = 0;
 
 /* Install the IRQs */
 void irq_install()

@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/lock.h>
 #include <kernel/ipc/semaphore.h>
@@ -5,7 +6,7 @@
 #include <kernel/task/thread.h>
 
 /* Create a semaphore */
-semaphore_t *create_semaphore(unsigned char *name, unsigned int initial_count, unsigned int max_count)
+semaphore_t *create_semaphore(uint8_t *name, uint32_t initial_count, uint32_t max_count)
 {
 	/* Save the current thread */
 	thread_t *current_thread = getthread();
@@ -61,7 +62,7 @@ int delete_semaphore(semaphore_t *semaphore)
 }
 
 /* Wait for a semaphore to be availible */
-int wait_semaphore(semaphore_t *semaphore, unsigned short timeout)
+int wait_semaphore(semaphore_t *semaphore, uint16_t timeout)
 {
 	/* Save the current thread */
 	thread_t *current_thread = getthread();
@@ -143,7 +144,7 @@ int release_semaphore(semaphore_t *semaphore)
 }
 
 /* Create a mutex */
-mutex_t *create_mutex(unsigned char *name)
+mutex_t *create_mutex(uint8_t *name)
 {
 	/* Create a binary semaphore */
 	return create_semaphore(name, 1, 1);
@@ -157,7 +158,7 @@ int delete_mutex(mutex_t *mutex)
 }
 
 /* Acquire a mutex */
-int acquire_mutex(mutex_t *mutex, unsigned short timeout)
+int acquire_mutex(mutex_t *mutex, uint16_t timeout)
 {
 	/* Wait for the semaphore */
 	return wait_semaphore(mutex, timeout);

@@ -1,14 +1,15 @@
+#include <lib/libc/stdint.h>
 #include <drivers/graphics/raspi/textutils.h>
 
 /* Convert an unsigned value to hex (without the trailing "0x")
  * size = size in bytes (only 1, 2 or 4 permitted)
  */
-char *tohex(unsigned int value, unsigned int size)
+int8_t *tohex(uint32_t value, uint32_t size)
 {
-	static char buffer[9];
+	static int8_t buffer[9];
 
-	unsigned int offset;
-	unsigned char ch;
+	uint32_t offset;
+	uint8_t ch;
 
 	if(size!=1 && size!=2 && size!=4)
 		return "error";
@@ -35,23 +36,23 @@ char *tohex(unsigned int value, unsigned int size)
  * leading >0 - number of leading zeroes
  * leading <0 - number (when +ve) of leading spaces
  */
-char *todec(unsigned int value, int leading)
+int8_t *todec(uint32_t value, int leading)
 {
 	/* Biggest number is 4294967295 (10 digits) */
-	static char buffer[11];
-	static char leadchar;
+	static int8_t buffer[11];
+	static int8_t leadint8_t;
 
-	unsigned int offset = 10;
-	unsigned char ch;
+	uint32_t offset = 10;
+	uint8_t ch;
 
 	if(leading <0)
 	{
 		leading = -leading;
-		leadchar = ' ';
+		leadint8_t = ' ';
 	}
 	else
 	{
-		leadchar = '0';
+		leadint8_t = '0';
 	}
 
 	if(leading>10)
@@ -73,7 +74,7 @@ char *todec(unsigned int value, int leading)
 	{
 		offset--;
 		leading--;
-		buffer[offset] = leadchar;
+		buffer[offset] = leadint8_t;
 	}
 
 	return &buffer[offset];

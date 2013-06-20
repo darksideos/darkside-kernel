@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
@@ -7,7 +8,7 @@
 #include <kernel/task/thread.h>
 
 /* Create a new blank VM86 process */
-process_t *vm86_create_process(unsigned char *name, void (*function)(), struct i386_regs *r)
+process_t *vm86_create_process(uint8_t *name, void (*function)(), struct i386_regs *r)
 {
 	/* Create a new process */
 	process_t *vm86_process = create_process(name, function, 0, 1024);
@@ -19,20 +20,20 @@ process_t *vm86_create_process(unsigned char *name, void (*function)(), struct i
 	vm86_process->threads[0]->context->cs = FP_SEG(function);	   // Segment of the real mode function to execute
 	vm86_process->threads[0]->context->eip = FP_OFF(function);     // Offset of the real mode function to execute 
 
-	vm86_process->threads[0]->context->eax = (unsigned int)r->ax;
-	vm86_process->threads[0]->context->ebx = (unsigned int)r->bx;
-	vm86_process->threads[0]->context->ecx = (unsigned int)r->cx;
-	vm86_process->threads[0]->context->edx = (unsigned int)r->dx;
+	vm86_process->threads[0]->context->eax = (uint32_t)r->ax;
+	vm86_process->threads[0]->context->ebx = (uint32_t)r->bx;
+	vm86_process->threads[0]->context->ecx = (uint32_t)r->cx;
+	vm86_process->threads[0]->context->edx = (uint32_t)r->dx;
 
-	vm86_process->threads[0]->context->esi = (unsigned int)r->si;
-	vm86_process->threads[0]->context->edi = (unsigned int)r->di;
-	vm86_process->threads[0]->context->ebp = (unsigned int)r->bp;
-	vm86_process->threads[0]->context->esp = (unsigned int)r->sp;
+	vm86_process->threads[0]->context->esi = (uint32_t)r->si;
+	vm86_process->threads[0]->context->edi = (uint32_t)r->di;
+	vm86_process->threads[0]->context->ebp = (uint32_t)r->bp;
+	vm86_process->threads[0]->context->esp = (uint32_t)r->sp;
 
-	vm86_process->threads[0]->context->vds = (unsigned int)r->ds;
-	vm86_process->threads[0]->context->ves = (unsigned int)r->es;
-	vm86_process->threads[0]->context->vfs = (unsigned int)r->fs;
-	vm86_process->threads[0]->context->vgs = (unsigned int)r->gs;
+	vm86_process->threads[0]->context->vds = (uint32_t)r->ds;
+	vm86_process->threads[0]->context->ves = (uint32_t)r->es;
+	vm86_process->threads[0]->context->vfs = (uint32_t)r->fs;
+	vm86_process->threads[0]->context->vgs = (uint32_t)r->gs;
 
 	/* Map the first 1 MB of memory into the VM86 task */
 
@@ -47,15 +48,15 @@ process_t *vm86_create_process(unsigned char *name, void (*function)(), struct i
 /* Called by the ISR handler whenever a GPF happens in VM86 mode */
 bool vm86_gpf(struct i386_regs *r)
 {
-	unsigned char *ip;					// 16 bit instruction pointer
-	unsigned short *stack, *ivt;		// 16 bit stack and IVT
-	unsigned int *stack32;				// 32 bit stack
+	uint8_t *ip;					// 16 bit instruction pointer
+	uint16_t *stack, *ivt;		// 16 bit stack and IVT
+	uint32_t *stack32;				// 32 bit stack
 	bool is_operand32, is_address32;	// Are we using 32 bit operands or addresses?
 
 	ip = FP_TO_LINEAR(r->cs, r->eip);							// Address of the 16 bit instruction pointer
-	ivt = (unsigned short*) 0;									// Address of the IVT
-	stack = (unsigned short*) FP_TO_LINEAR(r->ss, r->useresp);	// Address of the 16 bit stack
-	stack32 = (unsigned int*) stack;							// Address of the 32 bit stack
+	ivt = (uint16_t*) 0;									// Address of the IVT
+	stack = (uint16_t*) FP_TO_LINEAR(r->ss, r->useresp);	// Address of the 16 bit stack
+	stack32 = (uint32_t*) stack;							// Address of the 32 bit stack
 
 	while (1)
 	{
@@ -94,7 +95,7 @@ bool vm86_gpf(struct i386_regs *r)
 				/* Grow the stack downwards and place EFLAGS on it */
 				r->useresp = ((r->useresp & 0xFFFF) - 2) & 0xFFFF;
 				stack--;
-				stack[0] = (unsigned short)r->eflags;
+				stack[0] = (uint16_t)r->eflags;
 
 				/* Check if interrupts are enabled for the VM86 task, and set EFLAGS accordingly */
 				if (getprocess()->vm86_if)
@@ -139,9 +140,9 @@ bool vm86_gpf(struct i386_regs *r)
 				r->esp = ((r->esp & 0xFFFF) - 6) & 0xFFFF;
 
 				/* Set up the stack like an interrupt */
-				stack[0] = (unsigned short)(r->eip + 2);
+				stack[0] = (uint16_t)(r->eip + 2);
 				stack[1] = r->cs;
-				stack[2] = (unsigned short)r->eflags;
+				stack[2] = (uint16_t)r->eflags;
 				
 				/* Check if interrupts are enabled for the VM86 task, and set EFLAGS accordingly */
 				if (getprocess()->vm86_if)

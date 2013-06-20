@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
@@ -17,7 +18,7 @@ void ls(fs_node_t *dir)
 
 void cat(fs_node_t *file)
 {
-	unsigned char *buffer = (unsigned char*) kmalloc(file->length);
+	uint8_t *buffer = (uint8_t*) kmalloc(file->length);
 	read_fs(file, buffer, file->length);
 	kprintf(buffer);
 	kfree(buffer);

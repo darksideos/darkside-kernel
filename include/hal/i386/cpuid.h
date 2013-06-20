@@ -1,6 +1,8 @@
 #ifndef __CPUID_H
 #define __CPUID_H
 
+#include <lib/libc/stdint.h>
+
 /* Intel CPUID features */
 enum {
     CPUID_FEAT_ECX_SSE3         = 1 << 0, 
@@ -62,7 +64,7 @@ enum {
 };
 
 /* Perform single and complete CPUID requests */
-void cpuid(unsigned int code, unsigned int *eax, unsigned int *edx);
-void cpuid_string(unsigned int code, unsigned int where[4]);
+void cpuid(uint32_t code, uint32_t *eax, uint32_t *edx);
+void cpuid_string(uint32_t code, uint32_t where[4]);
 
 #endif

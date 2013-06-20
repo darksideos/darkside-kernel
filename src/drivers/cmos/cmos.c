@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
@@ -14,14 +15,14 @@ time_t *time;
 #define SECONDS_PER_YEAR(days)	days * SECONDS_PER_DAY
 
 /* Read a CMOS register */
-unsigned char cmos_read_register(unsigned char reg)
+uint8_t cmos_read_register(uint8_t reg)
 {
 	outportb(0x70, reg);
 	return inportb(0x71);
 }
 
 /* Write a CMOS register */
-void cmos_write_register(unsigned char reg, unsigned char data)
+void cmos_write_register(uint8_t reg, uint8_t data)
 {
 	outportb(0x70, reg);
 	outportb(0x71, data);
@@ -56,7 +57,7 @@ void rtc_handler(struct i386_regs *r)
  	time->century = cmos_read_register(50);
 
 	/* If the RTC is using BCD time, convert the time values */
-	unsigned char regb = cmos_read_register(11);
+	uint8_t regb = cmos_read_register(11);
     if (!(regb & 0x04))
 	{
           time->sec = (time->sec & 0x0F) + ((time->sec / 16) * 10);

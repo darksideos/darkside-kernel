@@ -1,10 +1,11 @@
+#include <lib/libc/stdint.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/task/process.h>
 #include <kernel/syscall/syscall.h>
 #include <kernel/syscall/file.h>
 
 /* Kernel mode file syscall implementations */
-int create(const char *name, int mode)
+int create(const int8_t *name, int mode)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -14,7 +15,7 @@ int create(const char *name, int mode)
 	current_process->files[current_process->num_files] = 0;
 	current_process->num_files++;
 
-	unsigned int fd;
+	uint32_t fd;
 	for (fd = 0; fd < current_process->num_files; fd++)
 	{
 		if (current_process->files[fd] == 0)
@@ -24,13 +25,13 @@ int create(const char *name, int mode)
 	}
 
  	/* Open the file and add it to the current process's files */
- 	current_process->files[fd] = create_fs((unsigned char*) name, mode);
+ 	current_process->files[fd] = create_fs((uint8_t*) name, mode);
  
  	/* Finally, return the file descriptor of the newly created file */
  	return fd;
 }
 
-int open(const char *name, int flags, int mode)
+int open(const int8_t *name, int flags, int mode)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -40,7 +41,7 @@ int open(const char *name, int flags, int mode)
 	current_process->files[current_process->num_files] = 0;
 	current_process->num_files++;
 
-	unsigned int fd;
+	uint32_t fd;
 	for (fd = 0; fd < current_process->num_files; fd++)
 	{
 		if (current_process->files[fd] == 0)
@@ -50,7 +51,7 @@ int open(const char *name, int flags, int mode)
 	}
 
  	/* Open the file and add it to the current process's files */
- 	current_process->files[fd] = open_fs((unsigned char*) name, flags, mode);
+ 	current_process->files[fd] = open_fs((uint8_t*) name, flags, mode);
  
  	/* Finally, return the file descriptor of the newly opened file */
  	return fd;
@@ -68,7 +69,7 @@ int close(int file)
 	}
 }
 
-int read(int file, char *ptr, int len)
+int read(int file, int8_t *ptr, int len)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -80,7 +81,7 @@ int read(int file, char *ptr, int len)
 	}
 }
 
-int write(int file, char *ptr, int len)
+int write(int file, int8_t *ptr, int len)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -104,7 +105,7 @@ int lseek(int file, int ptr, int dir)
 	}
 }
 
-int symlink(char *old, char *new)
+int symlink(int8_t *old, int8_t *new)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -113,7 +114,7 @@ int symlink(char *old, char *new)
  	return symlink_fs(old, new);
 }
 
-int hardlink(char *old, char *new)
+int hardlink(int8_t *old, int8_t *new)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -122,7 +123,7 @@ int hardlink(char *old, char *new)
  	return hardlink_fs(old, new);
 }
 
-int unlink(char *name)
+int unlink(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -131,7 +132,7 @@ int unlink(char *name)
 	return unlink_fs(name);
 }
 
-int rm(char *name)
+int rm(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -141,7 +142,7 @@ int rm(char *name)
 	return rm_fs(file);
 }
 
-int rmdir(char *name)
+int rmdir(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -151,7 +152,7 @@ int rmdir(char *name)
 	return rmdir_fs(dir);
 }
 
-int rfrm(char *name)
+int rfrm(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -161,7 +162,7 @@ int rfrm(char *name)
 	return rfrm_fs(filedir);
 }
 
-int chown(char *name, int owner, int group)
+int chown(int8_t *name, int owner, int group)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -183,7 +184,7 @@ int fstat(int file, struct stat *st)
 	}
 }
 
-int stat(char *name, struct stat *st)
+int stat(int8_t *name, struct stat *st)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();

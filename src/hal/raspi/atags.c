@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/raspi/atags.h>
 #include <hal/raspi/memory.h>
 #include <drivers/graphics/raspi/text_mode.h>
@@ -117,11 +118,11 @@ static void print_atag_cmdline(struct atag_cmdline *data)
 	puts("\"\n");
 }
 
-void print_atags(unsigned int address)
+void print_atags(uint32_t address)
 {
 	/* Use virtual mapped physical memory to access the ATAGs */
 	struct atag_header *atags = (struct atag_header *) mem_p2v(address);
-	unsigned int tag;
+	uint32_t tag;
 
 	//puts(COLOUR_PUSH BG_GREEN BG_HALF "Reading ATAGs\n\n" COLOUR_POP);
 
@@ -129,7 +130,7 @@ void print_atags(unsigned int address)
 	{
 		tag = atags->tag;
 		puts("ATAG at address 0x");
-		puts(tohex((unsigned int) atags, 4));
+		puts(tohex((uint32_t) atags, 4));
 		puts(" is 0x");
 		puts(tohex(tag, 4));
 
@@ -178,6 +179,6 @@ void print_atags(unsigned int address)
 				return;
 		}
 
-		atags = (struct atag_header *)((unsigned int)atags + (atags->size * 4));
+		atags = (struct atag_header *)((uint32_t)atags + (atags->size * 4));
 	} while(tag);
 }

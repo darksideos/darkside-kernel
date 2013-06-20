@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
 #include <hal/i386/isrs.h>
@@ -7,17 +8,17 @@
 #include <kernel/mm/heap/heap.h>
 
 /* Kernel and current page directory */
-unsigned int kernel_directory = 0;
-unsigned int current_directory = 0;
+uint32_t kernel_directory = 0;
+uint32_t current_directory = 0;
 
 /* Page size */
-unsigned int page_size = 0x1000;
+uint32_t page_size = 0x1000;
 
 /* Get a page */
-page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user, bool global)
+page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present, bool rw, bool user, bool global)
 {
 	/* Construct the page flags */
-	unsigned int flags = 0;
+	uint32_t flags = 0;
 
 	if (present)
 	{
@@ -40,10 +41,10 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 	}
 
 	/* Find out which page the virtual address in in */
-	unsigned int page = virtual_address >> 12;
+	uint32_t page = virtual_address >> 12;
 
 	/* Now use that page index to find out the index of the page table */
-	unsigned int table_index = page >> 10;
+	uint32_t table_index = page >> 10;
 
 	/* Get the address of the recursive page directory and recursive page table */
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
@@ -96,10 +97,10 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 }
 
 /* Map a virtual address to a physical address */
-void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user, bool global)
+void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user, bool global)
 {
 	/* Construct the page flags */
-	unsigned int flags = 0;
+	uint32_t flags = 0;
 
 	if (present)
 	{
@@ -125,14 +126,14 @@ void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physi
 	page_t *page = get_page(dir, virtual_address, true, present, rw, user, global);
 
 	/* Map the page in the table to the physical address */
-	*((unsigned int*) page) = physical_address | flags;	// Page fault here
+	*((uint32_t*) page) = physical_address | flags;	// Page fault here
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Unmap a virtual address */
-void unmap_page(unsigned int dir, unsigned int virtual_address)
+void unmap_page(uint32_t dir, uint32_t virtual_address)
 {
 	/* Return the page that corresponds to the virtual address */
 	page_t *page = get_page(dir, virtual_address, false, false, false, false, false);
@@ -145,17 +146,17 @@ void unmap_page(unsigned int dir, unsigned int virtual_address)
 
 	/* Free the physical page and set the page to not present */
 	pmm_free_page(page->frame * 0x1000);
-	*((unsigned int*)page) = 0;
+	*((uint32_t*)page) = 0;
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Create a new blank page directory */
-unsigned int create_page_directory()
+uint32_t create_page_directory()
 {
 	/* Allocate a page directory */
-	unsigned int dir = pmm_alloc_page();
+	uint32_t dir = pmm_alloc_page();
 
 	/* Get the address of the recursive page directory */
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
@@ -177,7 +178,7 @@ unsigned int create_page_directory()
 }
 
 /* Switch the current page directory to a new one */
-void switch_page_directory(unsigned int dir)
+void switch_page_directory(uint32_t dir)
 {
     current_directory = dir;
     asm volatile("mov %0, %%cr3" :: "r"(dir));
@@ -190,7 +191,7 @@ void flush_tlb()
 }
 
 /* Page align an address */
-unsigned int page_align(unsigned int address)
+uint32_t page_align(uint32_t address)
 {
 	if (address & (page_size - 1))
 	{
@@ -216,7 +217,7 @@ void init_vmm()
 	/* Flush the entire TLB */
 	flush_tlb();
 
-	unsigned int i;
+	uint32_t i;
 	
 	/* Identity map the first 1 MB of the address space, so that the VGA framebuffer and VM86 tasks will work */
 	for (i = 0; i < 0x100000; i += 0x1000)
@@ -234,7 +235,7 @@ void init_vmm()
 	switch_page_directory(kernel_directory);
 	
 	/* Now, enable paging! */
-	unsigned int cr0;
+	uint32_t cr0;
     asm volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= 0x80000000;
     asm volatile("mov %0, %%cr0" :: "r"(cr0));
