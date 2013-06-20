@@ -31,3 +31,11 @@ void timer_install(int hz)
 	pit_install(0, hz);
 	current_timer = 0;
 }
+
+unsigned int get_time()
+{
+	if (current_timer == 0)
+	{
+		return pit_get_time();
+	}
+}
