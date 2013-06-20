@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/vmm.h>
 #include <hal/i386/isrs.h>
@@ -9,14 +10,14 @@
 #include <kernel/ipc/signal.h>
 
 /* Maximum number of processes that can be run */
-unsigned int max_processes = 4096;
+uint32_t max_processes = 4096;
 
 /* The process list, which is an array of pointers to processes */
 volatile process_t **processes;
 
 /* Current process ID and the number of running processes */
-volatile unsigned int current_pid = 0;
-volatile unsigned int num_processes = 0;
+volatile uint32_t current_pid = 0;
+volatile uint32_t num_processes = 0;
 
 /* Current page directory */
 extern page_directory_t *current_directory;
@@ -30,10 +31,10 @@ void init_processes()
 }
 
 /* Find the first availible PID in the process list */
-unsigned int find_first_pid()
+uint32_t find_first_pid()
 {
 	/* Find the first availible PID */
-	unsigned int pid;
+	uint32_t pid;
 	for (pid = 0; pid < max_processes; pid++)
 	{
 		if (processes[pid] == 0)
@@ -59,7 +60,7 @@ int fork()
     process_t *parent_process = (process_t*) processes[current_pid];
 
     /* Clone the address space */
-    unsigned int address_space = /*clone_directory(current_directory)*/ 0;
+    uint32_t address_space = /*clone_directory(current_directory)*/ 0;
 
     /* Create a new process */
     process_t *new_process = (process_t*) kmalloc(sizeof(process_t));
@@ -69,7 +70,7 @@ int fork()
 	new_process->threads = (thread_t**) kmalloc(sizeof(thread_t*) * parent_process->num_threads);
 	new_process->num_threads = parent_process->num_threads;
 
-	unsigned int i;
+	uint32_t i;
 	for (i = 0; i < parent_process->num_threads; i++)
 	{
 		/* Copy the thread from the parent process to the child */
@@ -115,7 +116,7 @@ int fork()
 	parent_process->num_child_processes++;
 
 	/* Find the first availible PID */
-	unsigned int pid = find_first_pid();
+	uint32_t pid = find_first_pid();
 
 	/* If we've gone past the maximum number of processes, return an error code */
 	if (pid == -1)
@@ -144,13 +145,13 @@ int fork()
 }
 
 /* This function replaces the image of the process with a new binary */
-int execve(char *name, char **argv, char **env)
+int execve(int8_t *name, int8_t **argv, int8_t **env)
 {
 	/* To do: implement this! */
 }
 
 /* Create a new blank process without cloning the registers, address space, and files of the current process */
-process_t *create_process(unsigned char *name, void (*function)(), char **argv, unsigned int user_stack_size)
+process_t *create_process(uint8_t *name, void (*function)(), int8_t **argv, uint32_t user_stack_size)
 {
     /* Create the process and its thread list */
     process_t *new_process = (process_t*) kmalloc(sizeof(process_t));
@@ -198,7 +199,7 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 	new_process->num_child_processes = 0;
 
 	/* Find the first availible PID */
-	unsigned int pid = find_first_pid();
+	uint32_t pid = find_first_pid();
 
 	/* If we've gone past the maximum number of processes, return 0 */
 	if (pid == -1)
@@ -217,7 +218,7 @@ process_t *create_process(unsigned char *name, void (*function)(), char **argv, 
 }
 
 /* Switch the current process and thread to a specified one */
-void switchpid(unsigned int pid, unsigned int tid)
+void switchpid(uint32_t pid, uint32_t tid)
 {
 	/* Change the current PID and TID to the new one */
 	current_pid = pid;
@@ -237,7 +238,7 @@ void switchpid(unsigned int pid, unsigned int tid)
 }
 
 /* Return the current PID */
-unsigned int getpid()
+uint32_t getpid()
 {
     return current_pid;
 }
@@ -248,13 +249,13 @@ process_t *getprocess()
 	return (process_t*) processes[current_pid];
 }
 
-void setpid(unsigned int pid)
+void setpid(uint32_t pid)
 {
 	current_pid = pid;
 }
 
 /* Return the number of running processes */
-unsigned int getnumpids()
+uint32_t getnumpids()
 {
 	return num_processes;
 }

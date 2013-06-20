@@ -1,12 +1,13 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
 #include <drivers/ps2/mouse.h>
 
-volatile unsigned char mouse_cycle = 0;
-volatile signed char mouse_byte[3];
-volatile signed char mouse_x = 0;
-volatile signed char mouse_y = 0;
+volatile uint8_t mouse_cycle = 0;
+volatile int8_t mouse_byte[3];
+volatile int8_t mouse_x = 0;
+volatile int8_t mouse_y = 0;
 
 /* Handle the mouse interrupt */
 void mouse_handler(struct i386_regs *r)
@@ -30,7 +31,7 @@ void mouse_handler(struct i386_regs *r)
 	}
 }
 
-void mouse_wait(unsigned char type)
+void mouse_wait(uint8_t type)
 {
 	if (type == 0) // Input
 	{
@@ -54,13 +55,13 @@ void mouse_wait(unsigned char type)
 	}
 }
 
-unsigned char mouse_read()
+uint8_t mouse_read()
 {
 	mouse_wait(0);
 	return inportb(0x60);
 }
 
-void mouse_write(unsigned char data)
+void mouse_write(uint8_t data)
 {
 	mouse_wait(1);
 	outportb(0x64, 0xD4); // Tell the mouse we are sending a command
@@ -71,7 +72,7 @@ void mouse_write(unsigned char data)
 /* Install the mouse IRQ */
 void mouse_install()
 {
-	unsigned char status;
+	uint8_t status;
 
 	/* Enable the auxillary mouse device */
 	mouse_wait(1);

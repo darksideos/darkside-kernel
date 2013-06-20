@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <drivers/raspi/uart/uart.h>
 #include <hal/raspi/vmm.h>
 #include <hal/raspi/registers.h>
@@ -45,19 +46,19 @@ void uart_init() {
 
 }
 
-void uart_putch(unsigned char data) {
+void uart_putch(uint8_t data) {
 	// wait for UART to become ready to transmit
 	while(inmeml(UART0_FR) & (1 << 5));
 	outmeml(UART0_DR, data);
 
 }
 
-void uart_puts(const char *str) {
+void uart_puts(const int8_t *str) {
 	while (*str) uart_putch(*str++);
 
 }
 
-unsigned char uart_getch()
+uint8_t uart_getch()
 {
 	while(inmeml(UART0_FR) & (1 << 4));
 	return inmeml(UART0_DR);

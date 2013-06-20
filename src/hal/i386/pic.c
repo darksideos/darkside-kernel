@@ -1,8 +1,9 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/pic.h>
 
 /* Remap the PIC */
-void pic_remap(unsigned char master_vector, unsigned char slave_vector)
+void pic_remap(uint8_t master_vector, uint8_t slave_vector)
 {
     outportb(0x20, 0x11);
     outportb(0xA0, 0x11);

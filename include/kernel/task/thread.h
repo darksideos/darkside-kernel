@@ -1,6 +1,7 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
+#include <lib/libc/stdint.h>
 #include <kernel/task/process.h>
 
 /* Default size of the user and kernel stack */
@@ -11,24 +12,24 @@
 struct process;
 typedef struct thread
 {
-	unsigned int tid;					// Thread ID
+	uint32_t tid;					// Thread ID
 
 	void *context;						// Context of the thread
 
-	unsigned int user_stack;			// User stack
-	unsigned int kernel_stack;			// Kernel stack
+	uint32_t user_stack;			// User stack
+	uint32_t kernel_stack;			// Kernel stack
 
 	struct process *parent_process;		// Parent process
 } thread_t;
 
 /* Create a new blank thread */
-thread_t *create_thread(struct process *parent_process, void (*function)(), char **argv, unsigned int user_stack_size);
+thread_t *create_thread(struct process *parent_process, void (*function)(), int8_t **argv, uint32_t user_stack_size);
 
 /* Return the current TID and a pointer to the current thread */
-unsigned int gettid();
+uint32_t gettid();
 thread_t *getthread();
 
 /* Set the current TID */
-void settid(unsigned int tid);
+void settid(uint32_t tid);
 
 #endif

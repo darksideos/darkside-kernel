@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
@@ -6,7 +7,7 @@
 #include <drivers/ps2/keyboard.h>
 #include <drivers/graphics/vga.h>
 
-unsigned char kbdus[128] = 
+uint8_t kbdus[128] = 
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
   '9', '0', '-', '=', '\b',	/* Backspace */
@@ -46,7 +47,7 @@ unsigned char kbdus[128] =
     0,	/* All other keys are undefined */
 };
 
-unsigned char kbdus_shift[128] = 
+uint8_t kbdus_shift[128] = 
 {
 	0,  27, '!', '@', '#', '$', '%', '^', '&', '*',	/* 9 */
   '(', ')', '_', '+', '\b',	/* Backspace */
@@ -95,13 +96,13 @@ volatile unsigned function = 0;
 volatile unsigned fn[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* The current key in the buffer */
-volatile unsigned char key_char;
+volatile uint8_t key_int8_t;
 
 /* Handle the keyboard interrupt */
 void keyboard_handler(struct i386_regs *r)
 {
 	/* Read the scancode from the keyboard */
-    unsigned char scancode = inportb(0x60);
+    uint8_t scancode = inportb(0x60);
 	
 	/* Check if a key has been released */
 	if (scancode & 0x80)
@@ -151,89 +152,89 @@ void keyboard_handler(struct i386_regs *r)
 			{
 				if (caps_lock)
 				{
-					key_char = kbdus[scancode];
+					key_int8_t = kbdus[scancode];
 				}
 				else
 				{
-					key_char = kbdus_shift[scancode];
+					key_int8_t = kbdus_shift[scancode];
 				}
 			}
 			else if (caps_lock)
 			{
-				key_char = kbdus_shift[scancode];
+				key_int8_t = kbdus_shift[scancode];
 			}
 			else
 			{
-				key_char = kbdus[scancode];
+				key_int8_t = kbdus[scancode];
 			}
 		}
 	}
 }
 
 /* Get a key from the keyboard */
-unsigned char getch()
+uint8_t getch()
 {
-	volatile unsigned char result = 0;
+	volatile uint8_t result = 0;
 
 	do {
-		result = key_char;
+		result = key_int8_t;
 		if (result != 0)
 		{
 			putch(result);
-			key_char = 0;
+			key_int8_t = 0;
 			return result;
 		}
 	} while(1);
 }
 
 /* Get a string from the keyboard */
-unsigned char *gets()
+uint8_t *gets()
 {
-	unsigned char *str = (unsigned char*) kmalloc(64);
-	unsigned int buffer_length = 64;
-	unsigned int num_characters = 0;
+	uint8_t *str = (uint8_t*) kmalloc(64);
+	uint32_t buffer_length = 64;
+	uint32_t num_int8_tacters = 0;
 
-	unsigned char character = getch();
-	while (character != '\n')
+	uint8_t int8_tacter = getch();
+	while (int8_tacter != '\n')
 	{
-		if (character != '\b')
+		if (int8_tacter != '\b')
 		{
-			*str = character;
+			*str = int8_tacter;
 			*str++;
-			num_characters++;
+			num_int8_tacters++;
 		}
-		else if(num_characters != 0)
+		else if(num_int8_tacters != 0)
 		{
 			*str--;
-			num_characters--;
+			num_int8_tacters--;
 		}
-		character = getch();
+		int8_tacter = getch();
 
 		/* If the buffer is out of space, give it more memory */
-		if (num_characters == buffer_length - 1)
+		if (num_int8_tacters == buffer_length - 1)
 		{
 			buffer_length += 16;
-			str = krealloc(str - num_characters, buffer_length);
+			str = krealloc(str - num_int8_tacters, buffer_length);
 		}
 	}
 	*str = '\0';
 	
-	str -= num_characters;
+	str -= num_int8_tacters;
 
-	/* Finally, resize the buffer to the amount of characters read and return it */
-	return (unsigned char*) krealloc(str, num_characters + 1);
+	/* Finally, resize the buffer to the amount of int8_tacters read and return it */
+	return (uint8_t*) krealloc(str, num_int8_tacters + 1);
 }
 
-/* Read a specified amount of characters from the keyboard */
-unsigned char *keyboard_read(fs_node_t *file, unsigned char *str, unsigned int size)
+/* Read a specified amount of int8_tacters from the keyboard */
+uint8_t *keyboard_read(fs_node_t *file, uint8_t *str, uint32_t size)
 {
-	unsigned char character = getch();
+	uint8_t int8_tacter = getch();
 	while (size > 0)
 	{
-		*str = character;
+		*str = int8_tacter;
 		*str++;
 		size--;
-		character = getch();
+		int8_tacter = getch();
 	}
 	*str = '\0';
 
@@ -241,7 +242,7 @@ unsigned char *keyboard_read(fs_node_t *file, unsigned char *str, unsigned int s
 }
 
 /* Set the keyboard LEDs */
-void set_leds(unsigned char state)
+void set_leds(uint8_t state)
 {	
 	while(inportb(0x64) & 0x2);
 

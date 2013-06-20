@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/lock.h>
 #include <kernel/mm/heap/heap.h>
 
@@ -22,7 +23,7 @@ int delete_lock(spinlock_t *lock)
 }
 
 /* Acquire a spinlock, blocking until availible */
-int acquire_lock(spinlock_t *lock, unsigned short timeout)
+int acquire_lock(spinlock_t *lock, uint16_t timeout)
 {
 	/* Test the spinlock */
 	register spinlock_t value = 1;

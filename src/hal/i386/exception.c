@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
@@ -37,7 +38,7 @@ void gpf_handler(struct i386_regs *r)
 void page_fault_handler(struct i386_regs *r)
 {
 	/* Get the faulting address */
-	unsigned int faulting_address;
+	uint32_t faulting_address;
 	asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
 
 	/* Print the exception information */

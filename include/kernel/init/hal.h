@@ -1,6 +1,7 @@
 #ifndef __HAL_H
 #define __HAL_H
 
+#include <lib/libc/stdint.h>
 #include <kernel/modules/multiboot.h>
 #include <lib/libc/stdbool.h>
 
@@ -8,20 +9,20 @@
 void hal_main(struct multiboot *mboot_ptr);
 
 /* Port I/O */
-unsigned char inportb(unsigned int port);
-void outportb(unsigned int port, unsigned char data);
-unsigned char inportw(unsigned int port);
-void outportw(unsigned int port, unsigned short data);
-unsigned char inportl(unsigned int port);
-void outportl(unsigned int port, unsigned long data);
+uint8_t inportb(uint32_t port);
+void outportb(uint32_t port, uint8_t data);
+uint8_t inportw(uint32_t port);
+void outportw(uint32_t port, uint16_t data);
+uint8_t inportl(uint32_t port);
+void outportl(uint32_t port, unsigned long data);
 
 /* MMIO */
-unsigned char inmemb(unsigned int address);
-void outmemb(unsigned int address, unsigned char data);
-unsigned char inmemw(unsigned int address);
-void outmemw(unsigned int address, unsigned short data);
-unsigned char inmem(unsigned int address);
-void outmeml(unsigned int address, unsigned long data);
+uint8_t inmemb(uint32_t address);
+void outmemb(uint32_t address, uint8_t data);
+uint8_t inmemw(uint32_t address);
+void outmemw(uint32_t address, uint16_t data);
+uint8_t inmem(uint32_t address);
+void outmeml(uint32_t address, unsigned long data);
 
 /* Interrupts */
 void irq_install_handler(int irq, void *handler);
@@ -31,20 +32,18 @@ void hal_sti();
 
 /* Timer */
 void sleep(int sec);
-unsigned int get_ticks();
-unsigned int get_frequency();
+uint32_t get_time();
 
 /* Physical memory manager */
-unsigned int pmm_alloc_page();
-void pmm_free_page(unsigned int address);
+uint32_t pmm_alloc_page();
+void pmm_free_page(uint32_t address);
 
 /* Virtual memory manager */
-void map_page(void *dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user, bool global);
-void unmap_page(void *dir, unsigned int virtual_address);
-void map_kernel(void *dir);
-void* clone_address_space(void *src);
-void* create_address_space();
-void switch_address_space(void *dir);
+void map_page(uint32_t, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user, bool global);
+void unmap_page(uint32_t dir, uint32_t virtual_address);
+void map_kernel(uint32_t dir);
+unsigned int create_address_space();
+void switch_address_space(uint32_t dir);
 
 /* Multitasking */
 void task_switch_stub(void *context);

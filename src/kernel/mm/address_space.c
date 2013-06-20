@@ -1,10 +1,11 @@
+#include <lib/libc/stdint.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 
 /* Map the kernel into a page directory */
-void map_kernel(unsigned int dir)
+void map_kernel(uint32_t dir)
 {
-	unsigned int i;
+	uint32_t i;
 
 	/* We need to higher half map our kernel */
 	for (i = 0; i < KERNEL_PHYSICAL_SIZE; i += 0x1000)

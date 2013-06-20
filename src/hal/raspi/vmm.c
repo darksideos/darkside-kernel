@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/raspi/vmm.h>
 
 /* Virtual memory layout
@@ -10,21 +11,21 @@
  */
 
 /* Need to access the page table, etc as physical memory */
-static unsigned int *pagetable = (unsigned int*) mem_p2v(0x4000); /* 16k */
+static uint32_t *pagetable = (uint32_t*) mem_p2v(0x4000); /* 16k */
 
 /* Last used location in physical RAM */
-extern unsigned int _physbssend;
+extern uint32_t _physbssend;
 /* Start of kernel in physical RAM */
-extern unsigned int _highkernelload;
+extern uint32_t _highkernelload;
 
 /* Convert a virtual address to a physical one by following the page tables
  * Returns physical address, or 0xffffffff if the virtual address does not map
  * See ARM1176-TZJS technical reference manual, page 6-39 (6.11.2)
  */
-unsigned int mem_v2p(unsigned int virtualaddr)
+uint32_t mem_v2p(uint32_t virtualaddr)
 {
-	unsigned int pt_data = pagetable[virtualaddr >> 20];
-	unsigned int cpt_data, physaddr;
+	uint32_t pt_data = pagetable[virtualaddr >> 20];
+	uint32_t cpt_data, physaddr;
 
 	if((pt_data & 3) == 0 || (pt_data & 3) == 3)
 	{
@@ -53,7 +54,7 @@ unsigned int mem_v2p(unsigned int virtualaddr)
 	}
 
 	/* Coarse page table */
-	cpt_data = ((unsigned int*) (0x80000000 + (pt_data & 0xfffffc00)))[(virtualaddr >> 12) & 0xff] ;
+	cpt_data = ((uint32_t*) (0x80000000 + (pt_data & 0xfffffc00)))[(virtualaddr >> 12) & 0xff] ;
 
 	if((cpt_data & 3) == 0)
 	{
@@ -79,7 +80,7 @@ unsigned int mem_v2p(unsigned int virtualaddr)
 /* Translation table 0 - covers the first 64 MB, for now
  * Needs to be aligned to its size (ie 64*4 bytes)
  */
-unsigned int pagetable0[64]	__attribute__ ((aligned (256)));
+uint32_t pagetable0[64]	__attribute__ ((aligned (256)));
 
 /* Initialise memory - actually, there's not much to do now, since initsys
  * covers most of it. It just sets up a pagetable for the first 64MB of RAM
@@ -87,8 +88,8 @@ unsigned int pagetable0[64]	__attribute__ ((aligned (256)));
  */
 void mem_init(void)
 {
-	unsigned int x;
-	unsigned int pt0_addr;
+	uint32_t x;
+	uint32_t pt0_addr;
 
 	/* Translation table 0 - covers the first 64 MB, for now
 	 * Currently nothing mapped in it.
@@ -99,7 +100,7 @@ void mem_init(void)
 	}
 
 	/* Get physical address of pagetable0 */
-	pt0_addr = mem_v2p((unsigned int) &pagetable0);
+	pt0_addr = mem_v2p((uint32_t) &pagetable0);
 
 	/* Use translation table 0 up to 64MB */
 	asm volatile("mcr p15, 0, %[n], c2, c0, 2" : : [n] "r" (6));

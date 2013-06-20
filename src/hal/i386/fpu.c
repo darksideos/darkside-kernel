@@ -1,8 +1,9 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/cpuid.h>
 #include <hal/i386/fpu.h>
 
 /* Set the FPU control word */
-void set_fpu_cw(const unsigned short cw)
+void set_fpu_cw(const uint16_t cw)
 {
 	asm volatile("fldcw %0" :: "m"(cw));
 }
@@ -11,10 +12,10 @@ void set_fpu_cw(const unsigned short cw)
 void init_fpu()
 {
 	/* Build the FPU flags */
-	unsigned int fpu_flags = FPU_CR0_TASK_ENABLE | FPU_CR0_387_ENABLE | FPU_CR0_NE_ENABLE;
+	uint32_t fpu_flags = FPU_CR0_TASK_ENABLE | FPU_CR0_387_ENABLE | FPU_CR0_NE_ENABLE;
 
 	/* Find out if SSE is available, and if it is, enable it as well */
-	unsigned int eax, edx;
+	uint32_t eax, edx;
 	cpuid(1, &eax, &edx);
 
 	if (edx & CPUID_FEAT_EDX_SSE)
@@ -23,7 +24,7 @@ void init_fpu()
 	}
 
 	/* Write the FPU flags */
-	unsigned int cr4;
+	uint32_t cr4;
 	asm volatile("mov %%cr4, %0" : "=r" (cr4));
 	cr4 |= fpu_flags;
 	asm volatile("mov %0, %%cr4" :: "r" (cr4));

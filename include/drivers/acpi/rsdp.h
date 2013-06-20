@@ -1,7 +1,9 @@
 #ifndef __RSDP_H
 #define __RSDP_H
 
+#include <lib/libc/stdint.h>
+
 /* Find the RSDP */
-unsigned int find_rsdp();
+uint32_t find_rsdp();
 
 #endif

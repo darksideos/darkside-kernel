@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 /*
  * Access system mailboxes
  */
@@ -6,9 +7,9 @@
 #include <hal/raspi/vmm.h>
 
 /* Mailbox memory addresses */
-static volatile unsigned int *MAILBOX0READ = (unsigned int*) mem_p2v(0x2000b880);
-static volatile unsigned int *MAILBOX0STATUS = (unsigned int*) mem_p2v(0x2000b898);
-static volatile unsigned int *MAILBOX0WRITE = (unsigned int*) mem_p2v(0x2000b8a0);
+static volatile uint32_t *MAILBOX0READ = (uint32_t*) mem_p2v(0x2000b880);
+static volatile uint32_t *MAILBOX0STATUS = (uint32_t*) mem_p2v(0x2000b898);
+static volatile uint32_t *MAILBOX0WRITE = (uint32_t*) mem_p2v(0x2000b8a0);
 
 /* Bit 31 set in status register if the write mailbox is full */
 #define MAILBOX_FULL					0x80000000
@@ -16,10 +17,10 @@ static volatile unsigned int *MAILBOX0WRITE = (unsigned int*) mem_p2v(0x2000b8a0
 /* Bit 30 set in status register if the read mailbox is empty */
 #define MAILBOX_EMPTY					0x40000000
 
-unsigned int read_mailbox(unsigned int channel)
+uint32_t read_mailbox(uint32_t channel)
 {
-	unsigned int count = 0;
-	unsigned int data;
+	uint32_t count = 0;
+	uint32_t data;
 
 	/* Loop until something is received from channel
 	 * If nothing recieved, it eventually give up and returns 0xffffffff
@@ -51,7 +52,7 @@ unsigned int read_mailbox(unsigned int channel)
 	}
 }
 
-void write_mailbox(unsigned int channel, unsigned int data)
+void write_mailbox(uint32_t channel, uint32_t data)
 {
 	/* Wait for mailbox to be not full */
 	while (*MAILBOX0STATUS & MAILBOX_FULL)

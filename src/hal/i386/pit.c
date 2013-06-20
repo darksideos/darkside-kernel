@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/timer.h>
@@ -15,7 +16,7 @@ void pit_handler(struct i386_regs *r)
 	switch_tasks_roundrobin(r);
 }
 
-unsigned int pit_get_time()
+uint32_t pit_get_time()
 {
 	return pit_ticks * pit_frequency;
 }
@@ -54,7 +55,7 @@ void pit_channel0_install(int hz)
 /* Install Channel 2 of the PIT using a specific frequency */
 void pit_channel2_install(int hz)
 {
-	unsigned char tmp;
+	uint8_t tmp;
 
 	/* Initialize the PC speaker */
 	outportb(0x61, (inportb(0x61) & 0xFD) | 1);
@@ -67,8 +68,8 @@ void pit_channel2_install(int hz)
 
 	/* Reset the one-shot counter */
 	tmp = inportb(0x61) & 0xFE;
-	outportb(0x61, (unsigned char) tmp);
-	outportb(0x61, (unsigned char) tmp | 1);
+	outportb(0x61, (uint8_t) tmp);
+	outportb(0x61, (uint8_t) tmp | 1);
 }
 
 /* Install the PIT on a specified channel */

@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
@@ -48,7 +49,7 @@ void *isrs[32] =
 };
 
 /* Default ISR messages */
-unsigned char *exceptions[] = 
+uint8_t *exceptions[] = 
 {
     "Division By Zero",
     "Debug",
@@ -171,7 +172,7 @@ struct i386_regs *create_registers(void (*function)(), bool user)
 	
 	context->eflags = 0x202;				// Interrupts enabled
 	context->cs = 0x08;						// Kernel mode code segment
-	context->eip = (unsigned int) function;	// Instruction pointer
+	context->eip = (uint32_t) function;	// Instruction pointer
 
 	context->edi = context->esi = context->ebp = context->esp = context->ebx = context->edx = context->ecx = context->eax = 0;	// GPRs
 
@@ -210,7 +211,7 @@ void dump_registers(struct i386_regs *r)
  	kprintf("FS:  %08x GS:  %08x SS:  %08x\n", r->fs, r->gs, r->ss);
 	kprintf("EIP: %08x EFLAGS: %08x\n", r->eip, r->eflags);
 
-	unsigned int cr0, cr2, cr3, cr4;
+	uint32_t cr0, cr2, cr3, cr4;
 	asm volatile("mov %%cr0, %0" : "=r" (cr0));
 	asm volatile("mov %%cr2, %0" : "=r" (cr2));
 	asm volatile("mov %%cr3, %0" : "=r" (cr3));

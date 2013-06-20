@@ -1,9 +1,10 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/mm/heap/chunk.h>
 
 /* Lookup a chunk */
-header_t *lookup_chunk(header_t *chunk, unsigned int size, bool align)
+header_t *lookup_chunk(header_t *chunk, uint32_t size, bool align)
 {
 	/* Is the chunk a hole? */
 	if (chunk->type == 0)

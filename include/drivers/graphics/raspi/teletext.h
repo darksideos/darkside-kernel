@@ -1,10 +1,12 @@
 #ifndef __TELETEXT_H
 #define __TELETEXT_H
 
+#include <lib/libc/stdint.h>
+
 // Character definitions from SAA5050 datasheet
-// Each character is a 5x9 bit matrix
+// Each int8_tacter is a 5x9 bit matrix
 // 9 rows of 5-bit numbers
-static unsigned char teletext[][9] = {
+static uint8_t teletext[][9] = {
 	{0, 0, 0, 0, 0, 0, 0, 0, 0},			// space
 	{4, 4, 4, 4, 4, 0, 4, 0, 0},			// !
 	{10, 10, 10, 0, 0, 0, 0, 0, 0},			// "

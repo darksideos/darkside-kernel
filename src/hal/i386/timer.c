@@ -1,9 +1,10 @@
+#include <lib/libc/stdint.h>
 #include <hal/i386/pit.h>
 #include <hal/i386/lapic.h>
 #include <hal/i386/timer.h>
 
 /* The timer we are using */
-unsigned char current_timer = 0;
+uint8_t current_timer = 0;
 
 /* Sleep for a sepecified amount of seconds */
 void sleep(int sec)
@@ -32,7 +33,7 @@ void timer_install(int hz)
 	current_timer = 0;
 }
 
-unsigned int get_time()
+uint32_t get_time()
 {
 	if (current_timer == 0)
 	{

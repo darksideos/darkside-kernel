@@ -1,6 +1,7 @@
 #ifndef __INITRD_H
 #define __INITRD_H
 
+#include <lib/libc/stdint.h>
 #include <kernel/modules/multiboot.h>
 #include <kernel/vfs/vfs.h>
 
@@ -26,21 +27,21 @@
 
 typedef struct initrd_table_entry
 {
-	unsigned char class_id;
-	unsigned char device_id;
-	unsigned int size;
+	uint8_t class_id;
+	uint8_t device_id;
+	uint32_t size;
 } __attribute__((packed)) initrd_table_entry_t;
 
 typedef struct initrd_header
 {
-	unsigned short num_entries;
+	uint16_t num_entries;
 } __attribute__((packed)) initrd_header_t;
 
-initrd_table_entry_t *get_initrd_entry(unsigned int number);
-initrd_table_entry_t *find_initrd_entry(unsigned int class_id, unsigned int device_id);
-unsigned int get_initrd_entry_number(initrd_table_entry_t *header);
-unsigned char *get_initrd_driver(initrd_table_entry_t *entry);
+initrd_table_entry_t *get_initrd_entry(uint32_t number);
+initrd_table_entry_t *find_initrd_entry(uint32_t class_id, uint32_t device_id);
+uint32_t get_initrd_entry_number(initrd_table_entry_t *header);
+uint8_t *get_initrd_driver(initrd_table_entry_t *entry);
 void init_initrd(initrd_header_t *initrd);
-int initrd_read(fs_node_t *file, unsigned char *buffer, unsigned int len);
+int initrd_read(fs_node_t *file, uint8_t *buffer, uint32_t len);
 
 #endif

@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap/heap.h>
 #include <drivers/ata/ata.h>
@@ -7,34 +8,34 @@ fat_BS_t *fat_boot;
 fat_extBS_16_t *extBS_other;
 fat_extBS_32_t *extBS_32;
 
-unsigned int root_dir_sectors;
-unsigned int data_sectors;
-unsigned int total_clusters;
-unsigned char fat_type;
-unsigned int root_cluster;
-unsigned int part;
-unsigned int cluster_begin_lba;
-unsigned char fat_drive;
-unsigned int sectors_per_fat;
+uint32_t root_dir_sectors;
+uint32_t data_sectors;
+uint32_t total_clusters;
+uint8_t fat_type;
+uint32_t root_cluster;
+uint32_t part;
+uint32_t cluster_begin_lba;
+uint8_t fat_drive;
+uint32_t sectors_per_fat;
 
-void fat_read_cluster(unsigned long cluster, unsigned char *buffer, unsigned int size) {
+void fat_read_cluster(unsigned long cluster, uint8_t *buffer, uint32_t size) {
 	unsigned long cluster_num = cluster;
-	unsigned int files_read = 0;
- 	unsigned int *fat1 = (unsigned int*) lba28_sector_read(fat_drive, part+fat_boot->reserved_sector_count+floor(cluster, 16), 1);
+	uint32_t files_read = 0;
+ 	uint32_t *fat1 = (uint32_t*) lba28_sector_read(fat_drive, part+fat_boot->reserved_sector_count+floor(cluster, 16), 1);
  	kprintf("%x\n", *(fat1+(cluster%32)));
 	while(files_read < 1) {
-		unsigned char *data = lba28_sector_read(fat_drive, get_lba(cluster_num), ceil(size, 512));
+		uint8_t *data = lba28_sector_read(fat_drive, get_lba(cluster_num), ceil(size, 512));
 		memcpy(buffer+fat_boot->sectors_per_cluster*files_read*512, data, size);
 		files_read++;
 	}
 }
 
-unsigned long fat_get_cluster(unsigned char *name, unsigned long cluster) {
+unsigned long fat_get_cluster(uint8_t *name, unsigned long cluster) {
 	int fat_index = 0;
 	unsigned long lba = get_lba(cluster);
-	unsigned char *data = lba28_sector_read(fat_drive, lba, fat_boot->sectors_per_cluster);
-	unsigned char *found_name = kmalloc(13);
-	unsigned char tries = 0;
+	uint8_t *data = lba28_sector_read(fat_drive, lba, fat_boot->sectors_per_cluster);
+	uint8_t *found_name = kmalloc(13);
+	uint8_t tries = 0;
 	while(fat_index < fat_boot->sectors_per_cluster*16) {
 		/* If the entry doesn't exist or is unused, skip it */
 		if(data[fat_index*32] == 0x00 || data[fat_index*32] == 0xE5) {
@@ -79,11 +80,11 @@ unsigned long fat_get_cluster(unsigned char *name, unsigned long cluster) {
 			tries = 0;
 		}
 		if(strequal(name, found_name)) {
-			unsigned short *addr_low_ptr = (unsigned short*) (data+fat_index*32+0x1A);
-			unsigned short addr_low = *addr_low_ptr;
-			unsigned short *addr_hi_ptr = (unsigned short*) (data+fat_index*32+0x14);
-			unsigned short addr_hi = *addr_hi_ptr;
-			unsigned int addr = addr_low + addr_hi * 0xF000;
+			uint16_t *addr_low_ptr = (uint16_t*) (data+fat_index*32+0x1A);
+			uint16_t addr_low = *addr_low_ptr;
+			uint16_t *addr_hi_ptr = (uint16_t*) (data+fat_index*32+0x14);
+			uint16_t addr_hi = *addr_hi_ptr;
+			uint32_t addr = addr_low + addr_hi * 0xF000;
 			return addr;
 		}
 		fat_index++;
@@ -94,14 +95,14 @@ unsigned long get_lba(unsigned long relative) {
 	return cluster_begin_lba + (relative-2) * fat_boot->sectors_per_cluster;
 }
 
-void fat_install(unsigned char drive) {
+void fat_install(uint8_t drive) {
 	fat_drive = drive;
-	unsigned char *part_table = lba28_sector_read(drive, 0, 1);
+	uint8_t *part_table = lba28_sector_read(drive, 0, 1);
 	int index = 0;
 	while(index < 4) {
-		unsigned char type = part_table[index*16+450];
+		uint8_t type = part_table[index*16+450];
 		if(type == 0x0B || type == 0x0C) {
-			unsigned int *part_ptr = (unsigned int*) (part_table+454+index*16);
+			uint32_t *part_ptr = (uint32_t*) (part_table+454+index*16);
 			part = *part_ptr;
 		}
 		index++;
@@ -126,6 +127,6 @@ void fat_install(unsigned char drive) {
 	cluster_begin_lba = part + fat_boot->reserved_sector_count + fat_boot->table_count * sectors_per_fat;
 }
 
-unsigned int get_root_cluster() {
+uint32_t get_root_cluster() {
 	return root_cluster;
 }

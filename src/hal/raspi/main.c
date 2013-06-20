@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <hal/raspi/atags.h>
 #include <hal/raspi/barrier.h>
 #include <hal/raspi/interrupts.h>
@@ -14,12 +15,12 @@
 
 
 /* Location of the initial page table in RAM */
-//static unsigned int *initpagetable = (unsigned int *) mem_p2v(0x4000);
+//static uint32_t *initpagetable = (uint32_t *) mem_p2v(0x4000);
 
 /* Data/bss locations in physical RAM */
-//extern unsigned int _physdatastart, _physbssstart, _physbssend;
-//extern unsigned int _datastart, _bssstart, _bssend;
-//extern unsigned int _kstart, _krodata, _kend;
+//extern uint32_t _physdatastart, _physbssstart, _physbssend;
+//extern uint32_t _datastart, _bssstart, _bssend;
+//extern uint32_t _kstart, _krodata, _kend;
 
 /* Main high memory kernel routine - called directly from initsys.c
  * Begins by completing the memory management work of initsys; removing the
@@ -33,7 +34,7 @@
  * r2 should be the ATAGs structure address (probably 0x100)
  */
 
-void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
+void raspi_main(uint32_t r0, uint32_t machtype, uint32_t atagsaddr)
 {
 	/* No further need to access kernel code at 0x00000000 - 0x000fffff */
 	//initpagetable[0] = 0;
@@ -53,7 +54,7 @@ void raspi_main(unsigned int r0, unsigned int machtype, unsigned int atagsaddr)
 	gpio_write(18, HIGH);
 	while(1) {
 		gpio_write(18, LOW);
- 		uart_puts(todec((unsigned int)micros(), 0));
+ 		uart_puts(todec((uint32_t)micros(), 0));
  		uart_putch('\n');
 		delay(1000);
 		gpio_write(18, HIGH);
