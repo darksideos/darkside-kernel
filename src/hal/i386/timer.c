@@ -7,7 +7,7 @@
 uint8_t current_timer = 0;
 
 /* Sleep for a sepecified amount of seconds */
-void sleep(int sec)
+void sleep(int32_t sec)
 {
 	/* If we are using the PIT, call its sleep function */
 	if (current_timer == 0)
@@ -26,7 +26,7 @@ void sleep(int sec)
 }
 
 /* Install the timer */
-void timer_install(int hz)
+void timer_install(int32_t hz)
 {
 	/* Install the PIT on Channel 0 */
 	pit_install(0, hz);

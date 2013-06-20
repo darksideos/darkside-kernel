@@ -3,19 +3,19 @@
 #include <kernel/ipc/signal.h>
 
 /* Send a signal to a process */
-int kill(uint32_t pid, int signal)
+int32_t kill(uint32_t pid, int32_t signal)
 {
 	/* To do: implement this! */
 }
 
 /* Raise a signal in the current process or thread */
-int raise(int signum)
+int32_t raise(int32_t signum)
 {
 	/* To do: implememt this! */
 }
 
 /* Register a signal handler in the current process */
-sighandler_t signal(int signum, sighandler_t handler)
+sighandler_t signal(int32_t signum, sighandler_t handler)
 {
 	/* Get a pointer to the current process */
 	process_t *current_process = getprocess();
@@ -34,7 +34,7 @@ sighandler_t signal(int signum, sighandler_t handler)
 }
 
 /* Default signal handler */
-void default_sighandler(int signum)
+void default_sighandler(int32_t signum)
 {
 	/* Find out which signal occured, and handle it */
 	switch (signum)

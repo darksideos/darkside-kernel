@@ -15,8 +15,8 @@
 uint32_t *lapic_base;
 
 /* The number of Local APIC timer ticks and frequency */
-volatile int lapic_timer_ticks;
-int lapic_timer_frequency;
+volatile int32_t lapic_timer_ticks;
+int32_t lapic_timer_frequency;
 
 /* Detect if the CPU has a Local APIC */
 bool lapic_detect()
@@ -71,7 +71,7 @@ void lapic_timer_handler(struct i386_regs *r)
 }
 
 /* Wait for a specified amount of Local APIC timer ticks */
-void lapic_timer_wait(int ticks)
+void lapic_timer_wait(int32_t ticks)
 {
 	unsigned long eticks;
 
@@ -80,13 +80,13 @@ void lapic_timer_wait(int ticks)
 }
 
 /* Sleep for a specified amount of seconds using the Local APIC timer */
-void lapic_timer_sleep(int sec)
+void lapic_timer_sleep(int32_t sec)
 {
 	lapic_timer_wait(sec * lapic_timer_frequency);
 }
 
 /* Install the Local APIC timer */
-void lapic_timer_install(int quantum)
+void lapic_timer_install(int32_t quantum)
 {
 	/* Install the Local APIC timer IRQ handler */
 	irq_install_handler(0, lapic_timer_handler);

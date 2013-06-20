@@ -1,12 +1,11 @@
 #ifndef __MATH_H
 #define __MATH_H
 
-int pow(int num, int exp);
+#include <lib/libc/stdint.h>
 
-int ceil(int num, int div);
-
-int floor(int num, int div);
-
-int abs(int num);
+int32_t pow(int32_t num, int32_t exp);
+int32_t ceil(int32_t num, int32_t div);
+int32_t floor(int32_t num, int32_t div);
+int32_t abs(int32_t num);
 
 #endif

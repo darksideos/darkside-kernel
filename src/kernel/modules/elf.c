@@ -34,7 +34,7 @@ void elf_dump_sections(elf_header_t *header)
 	kprintf("# sections:\t%d\n\n", header->num_section_header_entries, header);
 	kprintf("#\t\tName\t\tSize");
 
-	int index;
+	int32_t index;
 	for(index = 0; index < header->num_section_header_entries; index++)
 	{
 		elf_section_header_t *section = elf_get_section(header, index);
@@ -124,7 +124,7 @@ elf_symbol_t *elf_lookup_symbol(elf_header_t *header, uint8_t *name)
 	elf_symbol_t *entry = ((elf_symbol_t*) header) + symtab->offset;
 	
 	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
-	int index;
+	int32_t index;
 	for(index = 0; index < size; index++)
 	{
 		uint8_t *sym_name = ((uint8_t*) header) + strtab->offset + entry->name;
@@ -140,7 +140,7 @@ void elf_relocate(elf_header_t *header, uint8_t *new_address)
 {
 	elf_section_header_t *section = ((elf_section_header_t*) header) + header->section_header_offset;
 	
-	int section_num;
+	int32_t section_num;
 	
 	for(section_num = 0; section_num < header->num_section_header_entries; section_num++)
 	{

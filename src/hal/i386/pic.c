@@ -18,7 +18,7 @@ void pic_remap(uint8_t master_vector, uint8_t slave_vector)
 }
 
 /* Send an EOI to the PIC */
-void pic_eoi(int irq)
+void pic_eoi(int32_t irq)
 {
 	/* If the IRQ is greater than or equal to 8, we need to send one to the slave PIC and the master PIC.
 	 * Either way, we always send one to the master PIC. If you don't send an EOI, you won't raise any more IRQs. */
@@ -31,7 +31,7 @@ void pic_eoi(int irq)
 }
 
 /* Set and clear an IRQ mask on the PIC */
-void pic_set_irq_mask(int irq)
+void pic_set_irq_mask(int32_t irq)
 {
 	/* If the IRQ is less than 8, set the mask on the master PIC */
 	if (irq < 8)
@@ -45,7 +45,7 @@ void pic_set_irq_mask(int irq)
 	}
 }
 
-void pic_clear_irq_mask(int irq)
+void pic_clear_irq_mask(int32_t irq)
 {
 	/* If the IRQ is less than 8, clear the mask on the master PIC */
 	if (irq < 8)

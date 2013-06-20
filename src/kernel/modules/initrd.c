@@ -13,7 +13,7 @@ void init_initrd(initrd_header_t *i)
 initrd_table_entry_t *get_initrd_entry(uint32_t number)
 {
 	/* Start with first driver */
-	uint8_t *driver = (uint8_t*) initrd;
+	initrd_table_entry_t *driver = (initrd_table_entry_t*) initrd;
 	driver += sizeof(initrd_header_t) + number * sizeof(initrd_table_entry_t);
 	return (initrd_table_entry_t*) driver;
 }
@@ -21,7 +21,7 @@ initrd_table_entry_t *get_initrd_entry(uint32_t number)
 initrd_table_entry_t *find_initrd_entry(uint32_t class_id, uint32_t device_id)
 {
 	initrd_table_entry_t *entry = (initrd_table_entry_t*) (((uint8_t*) initrd) + sizeof(initrd_header_t));
-	int index;
+	int32_t index;
 	for(index = 0; index < initrd->num_entries; index++)
 	{
 		if(entry->class_id == class_id && entry->device_id == device_id)

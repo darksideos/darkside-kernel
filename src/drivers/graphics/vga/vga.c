@@ -6,8 +6,8 @@
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 uint16_t *textmemptr;
-int attrib = 0x0F;
-int csr_x = 0, csr_y = 0;
+int32_t attrib = 0x0F;
+int32_t csr_x = 0, csr_y = 0;
 
 /* Scrolls the screen */
 void scroll()
@@ -50,7 +50,7 @@ void move_csr()
 void clear()
 {
     unsigned blank;
-    int i;
+    int32_t i;
 
     /* Again, we need the 'int16_t' that will be used to represent a space with color */
     blank = 0x20 | (attrib << 8);
@@ -123,7 +123,7 @@ void putch(uint8_t c)
 /* Uses the above routine to output a string */
 void puts(uint8_t *text)
 {
-	int i;
+	int32_t i;
     for (i = 0; i < strlen(text); i++)
 	{
         putch(text[i]);
@@ -141,7 +141,7 @@ void error_puts(uint8_t *text)
 
 void screen_write(fs_node_t *file, uint8_t *text, uint32_t size)
 {
-	int i;
+	int32_t i;
 	for (i = 0; i < size; i++)
 	{
 		putch(text[i]);
