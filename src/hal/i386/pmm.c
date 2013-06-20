@@ -5,10 +5,9 @@
 #include <hal/i386/bios.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
+#include <kernel/debug/log.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
-#include <kernel/debug/kprintf.h>
-#include <kernel/debug/log.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;

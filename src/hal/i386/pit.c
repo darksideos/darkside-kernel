@@ -16,6 +16,7 @@ void pit_handler(struct i386_regs *r)
 	switch_tasks_roundrobin(r);
 }
 
+/* Get the number of elapsed seconds since boot on the PIT */
 uint32_t pit_get_time()
 {
 	return pit_ticks * pit_frequency;
