@@ -60,7 +60,7 @@ void map_pmm_bitmap(unsigned int directory)
 	{
 		if(mem_map_page_ok(phys_bitmap_page))
 		{
-			map_page(directory, virt_bitmap_page + (mapped * 0x1000), phys_bitmap_page, true, true, false);
+			map_page(directory, virt_bitmap_page + (mapped * 0x1000), phys_bitmap_page, true, true, false, true);
 			
 			mapped++;
 		}
