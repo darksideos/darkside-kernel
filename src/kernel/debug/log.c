@@ -23,3 +23,22 @@ void log(const int8_t *fmt, ...)
 	
 	kprintf("\n");
 }
+
+void panic(const int8_t *fmt, ...)
+{
+	error_kprintf("[ %d ] Error: ", get_time());
+	
+	int8_t buf[1024];
+
+	va_list args;
+	int i;
+
+	va_start(args, fmt);
+	i = vsprintf(buf, fmt, args);
+
+	buf[i] = '\0';
+
+	error_puts(buf);
+	
+	error_kprintf("\n");
+}
