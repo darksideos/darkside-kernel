@@ -2,7 +2,7 @@ ROOT = ../../..
 
 OBJFILES = math.o string.o
 
-.c.o:
+.cpp.o:
 	$(CCBASE)-g++ $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/lib/libc/$@ -c $<
 	
 all: $(OBJFILES)
