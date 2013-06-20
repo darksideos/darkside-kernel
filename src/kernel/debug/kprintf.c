@@ -34,11 +34,11 @@ n = ((unsigned long) n) / (unsigned) base; \
 __res; })
  
  
-static int8_t *number(int8_t* str, int num, int base, int size, int precision, int type)
+static int8_t *number(int8_t* str, int32_t num, int32_t base, int32_t size, int32_t precision, int32_t type)
 {
         int8_t c, sign, tmp[36];
         const int8_t *digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        int i;
+        int32_t i;
 
         if (type&SMALL) digits="0123456789abcdefghijklmnopqrstuvwxyz";
         if (type&LEFT) type &= ~ZEROPAD;
@@ -85,20 +85,20 @@ static int8_t *number(int8_t* str, int num, int base, int size, int precision, i
         return str;
 }
 
-int vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
+int32_t vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
 {
-        int len;
-        int i;
+        int32_t len;
+        int32_t i;
         int8_t * str;
         int8_t *s;
-        int *ip;
+        int32_t *ip;
 
-        int flags;              /* flags to number() */
+        int32_t flags;              /* flags to number() */
 
-        int field_width;        /* width of output field */
-        int precision;          /* min. # of digits for integers; max
-                                   number of int8_ts for from string */
-        int qualifier;          /* 'h', 'l', or 'L' for integer fields */
+        int32_t field_width;        /* width of output field */
+        int32_t precision;          /* min. # of digits for integers; max
+									   number of int8_ts for from string */
+        int32_t qualifier;          /* 'h', 'l', or 'L' for integer fields */
 
         for (str=buf ; *fmt ; ++fmt) {
                 if (*fmt != '%') {
@@ -124,7 +124,7 @@ int vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
                         field_width = skip_atoi(&fmt);
                 else if (*fmt == '*') {
                         /* it's the next argument */
-                        field_width = va_arg(args, int);
+                        field_width = va_arg(args, int32_t);
                         if (field_width < 0) {
                                 field_width = -field_width;
                                 flags |= LEFT;
@@ -139,7 +139,7 @@ int vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
                                 precision = skip_atoi(&fmt);
                         else if (*fmt == '*') {
                                 /* it's the next argument */
-                                precision = va_arg(args, int);
+                                precision = va_arg(args, int32_t);
                         }
                         if (precision < 0)
                                 precision = 0;
@@ -157,7 +157,7 @@ int vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
                         if (!(flags & LEFT))
                                 while (--field_width > 0)
                                         *str++ = ' ';
-                        *str++ = (uint8_t) va_arg(args, int);
+                        *str++ = (uint8_t) va_arg(args, int32_t);
                         while (--field_width > 0)
                                 *str++ = ' ';
                         break;
@@ -237,7 +237,7 @@ void kprintf(const int8_t *fmt, ...)
 	int8_t buf[1024];
 
 	va_list args;
-	int i;
+	int32_t i;
 
 	va_start(args, fmt);
 	i = vsprintf(buf, fmt, args);
@@ -252,7 +252,7 @@ void error_kprintf(const int8_t *fmt, ...)
 	static int8_t buf[1024];
 
 	va_list args;
-	int i;
+	int32_t i;
 
 	va_start(args, fmt);
 	i = vsprintf(buf, fmt, args);

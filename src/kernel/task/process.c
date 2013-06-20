@@ -54,7 +54,7 @@ uint32_t find_first_pid()
 }
 
 /* Create an exact copy of the current process, including registers, address space, and files */
-int fork()
+int32_t fork()
 {
 	/* Get the current process from the tasks list */
     process_t *parent_process = (process_t*) processes[current_pid];
@@ -145,7 +145,7 @@ int fork()
 }
 
 /* This function replaces the image of the process with a new binary */
-int execve(int8_t *name, int8_t **argv, int8_t **env)
+int32_t execve(int8_t *name, int8_t **argv, int8_t **env)
 {
 	/* To do: implement this! */
 }
@@ -261,19 +261,19 @@ uint32_t getnumpids()
 }
 
 /* Wait for a child process's status to change */
-int waitpid(int pid, int *status, int options)
+int32_t waitpid(int32_t pid, int32_t *status, int32_t options)
 {
 	/* To do: implement this! */
 }
 
 /* Wait for any child process's status to change */
-int wait(int *status)
+int32_t wait(int32_t *status)
 {
 	return waitpid(-1, status, 0);
 }
 
 /* Exit the current process */
-void exit(int status)
+void exit(int32_t status)
 {
 	/* To do: implement this! */
 }

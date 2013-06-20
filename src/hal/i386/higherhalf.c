@@ -34,7 +34,7 @@ void load_higherhalf(struct multiboot *mboot_ptr, uint32_t *pd, uint32_t *pt_low
 	pd[1023] = (uint32_t) pd | PAGE_KERNEL;
 
 	/* Switch to the page directory */
-	asm volatile("mov %0, %%cr3" :: "r" (pd));
+	asm volatile("mov %0, %%cr3" :: "r"(pd));
 
 	/* Now enable paging! */
 	uint32_t cr0;

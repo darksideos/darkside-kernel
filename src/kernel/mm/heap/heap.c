@@ -1,6 +1,6 @@
 #include <lib/libc/stdint.h>
-#include <kernel/init/hal.h>
 #include <lib/libc/stdbool.h>
+#include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 
@@ -95,7 +95,7 @@ void resize_heap(heap_t *heap, uint32_t new_size)
 		/* Make sure the new end address is page aligned */
 		new_size = page_align(new_size);
 
-		int i;
+		int32_t i;
 
 		/* Allocate new pages for the heap */
 		for (i = heap->start_address + old_size; i < heap->start_address + new_size; i += 0x1000)
@@ -118,7 +118,7 @@ void resize_heap(heap_t *heap, uint32_t new_size)
 		/* Make sure the new end address is page aligned */
 		new_size = page_align(new_size);
 
-		int i;
+		int32_t i;
 
 		/* Free pages from the heap */
 		for (i = heap->start_address + old_size; i > heap->start_address + new_size; i -= 0x1000)

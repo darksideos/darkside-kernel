@@ -18,13 +18,13 @@ struct i386_regs
 void isrs_install();
 
 /* Install an ISR handler */
-void isr_install_handler(int isr, void (*handler)(struct i386_regs *r));
+void isr_install_handler(int32_t isr, void (*handler)(struct i386_regs *r));
 
 /* Uninstall an ISR handler */
-void isr_uninstall_handler(int isr);
+void isr_uninstall_handler(int32_t isr);
 
 /* Create and copy a CPU register context */
-struct i386_regs *create_registers(void (*function)(), bool user);
+void *create_registers(void (*function)(), bool user);
 void copy_registers(void *dest, void *src);
 
 /* Dump the CPU registers */

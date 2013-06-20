@@ -20,14 +20,14 @@ typedef semaphore_t mutex_t;
 
 /* Create, delete, wait for, and release a semaphore */
 semaphore_t *create_semaphore(uint8_t *name, uint32_t initial_count, uint32_t max_count);
-int delete_semaphore(semaphore_t *semaphore);
-int wait_semaphore(semaphore_t *semaphore, uint16_t timeout);
-int release_semaphore(semaphore_t *semaphore);
+int32_t delete_semaphore(semaphore_t *semaphore);
+int32_t wait_semaphore(semaphore_t *semaphore, uint16_t timeout);
+int32_t release_semaphore(semaphore_t *semaphore);
 
 /* Create, delete, acquire, and release a mutex */
 mutex_t *create_mutex(uint8_t *name);
-int delete_mutex(mutex_t *mutex);
-int acquire_mutex(mutex_t *mutex, uint16_t timeout);
-int release_mutex(mutex_t *mutex);
+int32_t delete_mutex(mutex_t *mutex);
+int32_t acquire_mutex(mutex_t *mutex, uint16_t timeout);
+int32_t release_mutex(mutex_t *mutex);
 
 #endif

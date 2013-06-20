@@ -2,18 +2,17 @@
 #define __STRING_H
 
 #include <lib/libc/stdint.h>
-
 #include <lib/libc/stdbool.h>
 
 /* Memory functions */
-uint8_t *memcpy(void *dest, void *src, int count);
-uint8_t *memset(void *dest, uint8_t val, int count);
-uint16_t *memsetw(uint16_t *dest, uint16_t val, int count);
+uint8_t *memcpy(void *dest, void *src, int32_t count);
+uint8_t *memset(void *dest, uint8_t val, int32_t count);
+uint16_t *memsetw(uint16_t *dest, uint16_t val, int32_t count);
 bool memequal(void *ptr1, void *ptr2, uint32_t count);
 void memclr(void *address, uint32_t length);
 
 /* String functions */
-int strlen(const int8_t *str);
+int32_t strlen(const int8_t *str);
 uint8_t *strcpy(uint8_t *dest, const uint8_t *src);
 uint8_t *strncpy(uint8_t *dest, const uint8_t *src, uint32_t size);
 bool strequal(uint8_t *s1, uint8_t *s2);

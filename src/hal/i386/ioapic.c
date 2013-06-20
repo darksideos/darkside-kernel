@@ -47,7 +47,7 @@ void ioapic_install()
 	ioapic_base = (uint32_t*) 0xFEC00000;
 
 	/* Configure the first 16 IRQs on the I/O APIC by mapping them to the ISA interrupts */
-	int i;
+	int32_t i;
 	for (i = 0; i < 16; i++)
 	{
 

@@ -28,7 +28,7 @@ semaphore_t *create_semaphore(uint8_t *name, uint32_t initial_count, uint32_t ma
 }
 
 /* Delete a semaphore */
-int delete_semaphore(semaphore_t *semaphore)
+int32_t delete_semaphore(semaphore_t *semaphore)
 {
 	/* Save the current thread */
 	thread_t *current_thread = getthread();
@@ -40,7 +40,7 @@ int delete_semaphore(semaphore_t *semaphore)
 	}
 
 	/* Find out where we are in the owners list */
-	int i;
+	int32_t i;
 	for (i = 0; i < semaphore->num_owners; i++)
 	{
 		if (semaphore->owners[i] == current_thread)
@@ -62,7 +62,7 @@ int delete_semaphore(semaphore_t *semaphore)
 }
 
 /* Wait for a semaphore to be availible */
-int wait_semaphore(semaphore_t *semaphore, uint16_t timeout)
+int32_t wait_semaphore(semaphore_t *semaphore, uint16_t timeout)
 {
 	/* Save the current thread */
 	thread_t *current_thread = getthread();
@@ -74,7 +74,7 @@ int wait_semaphore(semaphore_t *semaphore, uint16_t timeout)
 	}
 
 	/* If we already own the semaphore, don't try to accquire it */
-	int i;
+	int32_t i;
 	for (i = 0; i < semaphore->num_owners; i++)
 	{
 		if (semaphore->owners[i] == current_thread)
@@ -106,7 +106,7 @@ int wait_semaphore(semaphore_t *semaphore, uint16_t timeout)
 }
 
 /* Release a semaphore */
-int release_semaphore(semaphore_t *semaphore)
+int32_t release_semaphore(semaphore_t *semaphore)
 {
 	/* Save the current thread */
 	thread_t *current_thread = getthread();
@@ -118,7 +118,7 @@ int release_semaphore(semaphore_t *semaphore)
 	}
 
 	/* Find out where we are in the owners list */
-	int i;
+	int32_t i;
 	for (i = 0; i < semaphore->num_owners; i++)
 	{
 		if (semaphore->owners[i] == current_thread)
@@ -151,21 +151,21 @@ mutex_t *create_mutex(uint8_t *name)
 }
 
 /* Delete a mutex */
-int delete_mutex(mutex_t *mutex)
+int32_t delete_mutex(mutex_t *mutex)
 {
 	/* Delete the semaphore */
 	return delete_semaphore(mutex);
 }
 
 /* Acquire a mutex */
-int acquire_mutex(mutex_t *mutex, uint16_t timeout)
+int32_t acquire_mutex(mutex_t *mutex, uint16_t timeout)
 {
 	/* Wait for the semaphore */
 	return wait_semaphore(mutex, timeout);
 }
 
 /* Release a mutex */
-int release_mutex(mutex_t *mutex)
+int32_t release_mutex(mutex_t *mutex)
 {
 	/* Release the semaphore */
 	return release_semaphore(mutex);

@@ -59,13 +59,13 @@ void irq_install()
 }
 
 /* Install an IRQ handler */
-void irq_install_handler(int irq, void (*handler)(struct i386_regs *r))
+void irq_install_handler(int32_t irq, void (*handler)(struct i386_regs *r))
 {
     irqs[irq] = handler;
 }
 
 /* Uninstall an IRQ handler */
-void irq_uninstall_handler(int irq)
+void irq_uninstall_handler(int32_t irq)
 {
     irqs[irq] = 0;
 }

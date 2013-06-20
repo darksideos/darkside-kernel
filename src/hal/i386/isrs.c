@@ -128,13 +128,13 @@ void isrs_install()
 }
 
 /* Install an ISR handler */
-void isr_install_handler(int isr, void (*handler)(struct i386_regs *r))
+void isr_install_handler(int32_t isr, void (*handler)(struct i386_regs *r))
 {
 	isrs[isr] = handler;
 }
 
 /* Uninstall an ISR handler */
-void isr_uninstall_handler(int isr)
+void isr_uninstall_handler(int32_t isr)
 {
 	isrs[isr] = 0;
 }
@@ -165,14 +165,14 @@ void fault_handler(struct i386_regs *r)
 }
 
 /* Create a CPU register context */
-struct i386_regs *create_registers(void (*function)(), bool user)
+void *create_registers(void (*function)(), bool user)
 {
 	/* Create and fill out the register context */
 	struct i386_regs *context = (struct i386_regs*) kmalloc(sizeof(struct i386_regs));
 	
 	context->eflags = 0x202;				// Interrupts enabled
 	context->cs = 0x08;						// Kernel mode code segment
-	context->eip = (uint32_t) function;	// Instruction pointer
+	context->eip = (uint32_t) function;		// Instruction pointer
 
 	context->edi = context->esi = context->ebp = context->esp = context->ebx = context->edx = context->ecx = context->eax = 0;	// GPRs
 

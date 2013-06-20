@@ -5,7 +5,7 @@
 #include <kernel/syscall/file.h>
 
 /* Kernel mode file syscall implementations */
-int create(const int8_t *name, int mode)
+int32_t create(const int8_t *name, int32_t mode)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -31,7 +31,7 @@ int create(const int8_t *name, int mode)
  	return fd;
 }
 
-int open(const int8_t *name, int flags, int mode)
+int32_t open(const int8_t *name, int32_t flags, int32_t mode)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -57,7 +57,7 @@ int open(const int8_t *name, int flags, int mode)
  	return fd;
 }
 
-int close(int file)
+int32_t close(int32_t file)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -69,7 +69,7 @@ int close(int file)
 	}
 }
 
-int read(int file, int8_t *ptr, int len)
+int32_t read(int32_t file, int8_t *ptr, int32_t len)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -81,7 +81,7 @@ int read(int file, int8_t *ptr, int len)
 	}
 }
 
-int write(int file, int8_t *ptr, int len)
+int32_t write(int32_t file, int8_t *ptr, int32_t len)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -93,7 +93,7 @@ int write(int file, int8_t *ptr, int len)
 	}
 }
 
-int lseek(int file, int ptr, int dir)
+int32_t lseek(int32_t file, int32_t ptr, int32_t dir)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -105,7 +105,7 @@ int lseek(int file, int ptr, int dir)
 	}
 }
 
-int symlink(int8_t *old, int8_t *new)
+int32_t symlink(int8_t *old, int8_t *new)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -114,7 +114,7 @@ int symlink(int8_t *old, int8_t *new)
  	return symlink_fs(old, new);
 }
 
-int hardlink(int8_t *old, int8_t *new)
+int32_t hardlink(int8_t *old, int8_t *new)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -123,7 +123,7 @@ int hardlink(int8_t *old, int8_t *new)
  	return hardlink_fs(old, new);
 }
 
-int unlink(int8_t *name)
+int32_t unlink(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -132,7 +132,7 @@ int unlink(int8_t *name)
 	return unlink_fs(name);
 }
 
-int rm(int8_t *name)
+int32_t rm(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -142,7 +142,7 @@ int rm(int8_t *name)
 	return rm_fs(file);
 }
 
-int rmdir(int8_t *name)
+int32_t rmdir(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -152,7 +152,7 @@ int rmdir(int8_t *name)
 	return rmdir_fs(dir);
 }
 
-int rfrm(int8_t *name)
+int32_t rfrm(int8_t *name)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -162,7 +162,7 @@ int rfrm(int8_t *name)
 	return rfrm_fs(filedir);
 }
 
-int chown(int8_t *name, int owner, int group)
+int32_t chown(int8_t *name, int32_t owner, int32_t group)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -172,7 +172,7 @@ int chown(int8_t *name, int owner, int group)
 	return chown_fs(file, owner, group);
 }
 
-int fstat(int file, struct stat *st)
+int32_t fstat(int32_t file, struct stat *st)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -184,7 +184,7 @@ int fstat(int file, struct stat *st)
 	}
 }
 
-int stat(int8_t *name, struct stat *st)
+int32_t stat(int8_t *name, struct stat *st)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
@@ -194,7 +194,7 @@ int stat(int8_t *name, struct stat *st)
 	return stat_fs(file, st);
 }
 
-int isatty(int file)
+int32_t isatty(int32_t file)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();

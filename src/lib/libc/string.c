@@ -1,6 +1,6 @@
 #include <lib/libc/stdint.h>
-#include <lib/libc/string.h>
 #include <lib/libc/ctype.h>
+#include <lib/libc/string.h>
 #include <kernel/mm/heap/heap.h>
 
 /* THIS IS A RASPI TEMPORARY FIX */
@@ -14,7 +14,7 @@ uint32_t kmalloc(uint32_t sz)
 
 #endif
 
-uint8_t *memcpy(void *dest, void *src, int count)
+uint8_t *memcpy(void *dest, void *src, int32_t count)
 {
     const int8_t *sp = (const int8_t*) src;
     int8_t *dp = (int8_t*) dest;
@@ -22,14 +22,14 @@ uint8_t *memcpy(void *dest, void *src, int count)
     return dest;
 }
 
-uint8_t *memset(void *dest, uint8_t val, int count)
+uint8_t *memset(void *dest, uint8_t val, int32_t count)
 {
     int8_t *temp = (int8_t*) dest;
     for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-uint16_t *memsetw(uint16_t *dest, uint16_t val, int count)
+uint16_t *memsetw(uint16_t *dest, uint16_t val, int32_t count)
 {
     uint16_t *temp = (uint16_t*) dest;
     for(; count != 0; count--) *temp++ = val;
@@ -43,7 +43,7 @@ bool memequal(void *ptr1, void *ptr2, uint32_t count)
 
 	bool ret = true;
 
-	int i;
+	int32_t i;
 	for (i = 0; i < count; i++)
 	{
 		ret = !ret ? false : (temp1[i] == temp2[i]);
@@ -75,9 +75,9 @@ void memclr(void *address, uint32_t length)
 	}
 }
 
-int strlen(const int8_t *str)
+int32_t strlen(const int8_t *str)
 {
-    int retval;
+    int32_t retval;
     for(retval = 0; *str != '\0'; str++) retval++;
     return retval;
 }
@@ -100,7 +100,7 @@ bool strequal(uint8_t *s1, uint8_t *s2)
 	}
 
 	bool ret = true;
-	int index = 0;
+	int32_t index = 0;
 	while (index < strlen(s1))
 	{
 		ret = !ret ? false : (s1[index]==s2[index]);
@@ -111,8 +111,8 @@ bool strequal(uint8_t *s1, uint8_t *s2)
 
 bool strnequal(uint8_t *s1, uint8_t *s2, uint32_t num)
 {
-	int ret = true;
-	int index = 0;
+	int32_t ret = true;
+	int32_t index = 0;
 	while (index < num)
 	{
 		ret = !ret ? false : (s1[index]==s2[index]);
@@ -123,7 +123,7 @@ bool strnequal(uint8_t *s1, uint8_t *s2, uint32_t num)
 
 uint8_t *strlower(uint8_t *str)
 {
-	int i;
+	int32_t i;
 	for (i = 0; i < strlen(str); i++)
 	{
 		str[i] = tolower(str[i]);
@@ -134,7 +134,7 @@ uint8_t *strlower(uint8_t *str)
 
 uint8_t *strupper(uint8_t *str)
 {
-	int i;
+	int32_t i;
 	for (i = 0; i < strlen(str); i++)
 	{
 		str[i] = toupper(str[i]);
@@ -147,7 +147,7 @@ uint8_t *strcat(uint8_t *s1, uint8_t *s2)
 {
 	uint8_t *str = (uint8_t*) kmalloc(strlen(s1) + strlen(s2) + 1);
 
-	int i;
+	int32_t i;
 	for (i = 0; i < strlen(s1); i++)
 	{
 		str[i] = s1[i];
