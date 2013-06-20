@@ -6,7 +6,7 @@
 #include <kernel/task/thread.h>
 
 /* The SYSENTER entry for syscalls */
-extern void kernel_sysenter_entry();
+extern "C" void kernel_sysenter_entry();
 
 /* The kernel syscalls */
 static void *syscalls[200];
@@ -32,7 +32,7 @@ void syscall_install_handler(int32_t syscall, void *handler)
 }
 
 /* Handle the syscall interrupt */
-void syscall_handler(struct i386_regs *r)
+extern "C" void syscall_handler(struct i386_regs *r)
 {
 	/* Make sure that the syscall number is valid */
 	if (r->eax >= num_syscalls)

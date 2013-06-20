@@ -6,6 +6,7 @@
 #include <kernel/modules/initrd.h>
 #include <drivers/graphics/vga.h>
 #include <drivers/ps2/keyboard.h>
+#include <lib/libc/math.h>
 
 /* Root and dev nodes of the filesystem */
 fs_node_t *fs_root;
@@ -192,11 +193,11 @@ fs_node_t *finddir_fs(fs_node_t *file, uint8_t *name)
 	return 0;
 }
 
-int32_t symlink_fs(uint8_t *old, uint8_t *new)
+int32_t symlink_fs(uint8_t *old, uint8_t *new_node)
 {
 	/* Open the old and new files in the VFS */
 	fs_node_t *old_file = open_fs(old, 0, 0);
-	fs_node_t *new_file = create_fs(new, 0);
+	fs_node_t *new_file = create_fs(new_node, 0);
 
 	/* Symlink it to the old file */
 	new_file->ptr = old_file;
@@ -205,17 +206,17 @@ int32_t symlink_fs(uint8_t *old, uint8_t *new)
 	/* If the VFS node has a symlink function, call it */
 	if (new_file->symlink)
 	{
-		return new_file->symlink(new_file, old, new);
+		return new_file->symlink(new_file, old, new_node);
 	}
 
 	return -1;
 }
 
-int32_t hardlink_fs(uint8_t *old, uint8_t *new)
+int32_t hardlink_fs(uint8_t *old, uint8_t *new_node)
 {
 	/* Open the old and new files in the VFS */
 	fs_node_t *old_file = open_fs(old, 0, 0);
-	fs_node_t *new_file = create_fs(new, 0);
+	fs_node_t *new_file = create_fs(new_node, 0);
 
 	/* Symlink it to the old file */
 	new_file->ptr = old_file;
@@ -224,7 +225,7 @@ int32_t hardlink_fs(uint8_t *old, uint8_t *new)
 	/* If the VFS node has a hard link function, call it */
 	if (new_file->hardlink)
 	{
-		return new_file->hardlink(new_file, old, new);
+		return new_file->hardlink(new_file, old, new_node);
 	}
 
 	return -1;
@@ -457,7 +458,7 @@ void open_file_fs(fs_node_t *file, fs_node_t *parent)
 void add_dev_node(fs_node_t *file)
 {
 	/* Resize the child nodes in the dev node and add the VFS node */
-	fs_dev->child_nodes = (fs_node_t*) krealloc(fs_dev->child_nodes, fs_dev->num_child_nodes + 1);
+	fs_dev->child_nodes = (fs_node_t**) krealloc(fs_dev->child_nodes, fs_dev->num_child_nodes + 1);
 	fs_dev->child_nodes[fs_dev->num_child_nodes] = file;
 	fs_dev->num_child_nodes++;
 }
@@ -507,7 +508,7 @@ void init_vfs()
 	stderr->filesystem = DEV_FS;
 	
 	/* Add them to dev */
-	fs_dev->child_nodes = (fs_node_t*) kmalloc(sizeof(fs_node_t) * 3);
+	fs_dev->child_nodes = (fs_node_t**) kmalloc(sizeof(fs_node_t) * 3);
 	fs_dev->child_nodes[0] = stdin;
 	fs_dev->child_nodes[1] = stdout;
 	fs_dev->child_nodes[2] = stderr;

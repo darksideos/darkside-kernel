@@ -5,22 +5,22 @@
 #include <hal/i386/lapic.h>
 #include <hal/i386/irq.h>
 
-extern void irq0();
-extern void irq1();
-extern void irq2();
-extern void irq3();
-extern void irq4();
-extern void irq5();
-extern void irq6();
-extern void irq7();
-extern void irq8();
-extern void irq9();
-extern void irq10();
-extern void irq11();
-extern void irq12();
-extern void irq13();
-extern void irq14();
-extern void irq15();
+extern "C" void irq0();
+extern "C" void irq1();
+extern "C" void irq2();
+extern "C" void irq3();
+extern "C" void irq4();
+extern "C" void irq5();
+extern "C" void irq6();
+extern "C" void irq7();
+extern "C" void irq8();
+extern "C" void irq9();
+extern "C" void irq10();
+extern "C" void irq11();
+extern "C" void irq12();
+extern "C" void irq13();
+extern "C" void irq14();
+extern "C" void irq15();
 
 /* IRQ handlers */
 void *irqs[20] =
@@ -61,7 +61,7 @@ void irq_install()
 /* Install an IRQ handler */
 void irq_install_handler(int32_t irq, void (*handler)(struct i386_regs *r))
 {
-    irqs[irq] = handler;
+    irqs[irq] = (void*) handler;
 }
 
 /* Uninstall an IRQ handler */
@@ -82,13 +82,13 @@ void sti()
 }
 
 /* Handle an IRQ */
-void irq_handler(struct i386_regs *r)
+extern "C" void irq_handler(struct i386_regs *r)
 {
 	/* Define an IRQ handler */
     void (*handler) (struct i386_regs *r);
 
 	/* Find the handler in our list of IRQ handlers, and if it exists, run it */
-    handler = irqs[r->int_no - 32];
+    handler = (void (*)(struct i386_regs*)) irqs[r->int_no - 32];
     if (handler)
 	{
         handler(r);

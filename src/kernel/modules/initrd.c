@@ -2,6 +2,7 @@
 #include <lib/libc/string.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/modules/initrd.h>
+#include <kernel/mm/heap/heap.h>
 
 initrd_header_t *initrd;
 

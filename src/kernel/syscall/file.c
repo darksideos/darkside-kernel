@@ -3,6 +3,7 @@
 #include <kernel/task/process.h>
 #include <kernel/syscall/syscall.h>
 #include <kernel/syscall/file.h>
+#include <kernel/mm/heap/heap.h>
 
 /* Kernel mode file syscall implementations */
 int32_t create(const int8_t *name, int32_t mode)
@@ -105,22 +106,22 @@ int32_t lseek(int32_t file, int32_t ptr, int32_t dir)
 	}
 }
 
-int32_t symlink(int8_t *old, int8_t *new)
+int32_t symlink(int8_t *old, int8_t *new_node)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
 
  	/* Symlink the new file to the old one */
- 	return symlink_fs(old, new);
+ 	return symlink_fs(old, new_node);
 }
 
-int32_t hardlink(int8_t *old, int8_t *new)
+int32_t hardlink(int8_t *old, int8_t *new_node)
 {
 	/* Get the current process */
 	process_t *current_process = getprocess();
 
  	/* Hard link the new file to the old one */
- 	return hardlink_fs(old, new);
+ 	return hardlink_fs(old, new_node);
 }
 
 int32_t unlink(int8_t *name)

@@ -7,6 +7,6 @@ LD	= i586-elf-ld
 OBJFILES = vga.o
 
 .c.o:
-	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build-i386/drivers/graphics/vga/$@ -c $<
+	$(CCBASE)-g++ $(CFLAGS) -o $(ROOT)/build-i386/drivers/graphics/vga/$@ -c $<
 	
 all: $(OBJFILES)

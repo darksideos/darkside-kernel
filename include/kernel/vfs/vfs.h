@@ -69,10 +69,10 @@ typedef struct fs_node
 	int32_t (*read)(struct fs_node *file, uint8_t *buffer, uint32_t size);
 	int32_t (*write)(struct fs_node *file, uint8_t *data, uint32_t size);
 	int32_t (*seek)(struct fs_node *file, int32_t where, int32_t whence);
-	int32_t (*symlink)(struct fs_node *file, uint8_t *old, uint8_t *new);
-	int32_t (*hardlink)(struct fs_node *file, uint8_t *old, uint8_t *new);
+	int32_t (*symlink)(struct fs_node *file, uint8_t *old, uint8_t *new_node);
+	int32_t (*hardlink)(struct fs_node *file, uint8_t *old, uint8_t *new_node);
 	int32_t (*unlink)(uint8_t *name);
-	int32_t (*delete)(struct fs_node *file);
+	int32_t (*delete_node)(struct fs_node *file);
 	int32_t (*chown)(struct fs_node *file, uint32_t owner, uint32_t group);
 
 	/* VFS node pointers */
@@ -126,8 +126,8 @@ int32_t write_fs(fs_node_t *file, uint8_t *data, uint32_t size);
 int32_t seek_fs(fs_node_t *file, int32_t where, int32_t whence);
 struct dirent *readdir_fs(fs_node_t *file, uint32_t index);
 fs_node_t *finddir_fs(fs_node_t *file, uint8_t *name);
-int32_t symlink_fs(uint8_t *old, uint8_t *new);
-int32_t hardlink_fs(uint8_t *old, uint8_t *new);
+int32_t symlink_fs(uint8_t *old, uint8_t *new_node);
+int32_t hardlink_fs(uint8_t *old, uint8_t *new_node);
 int32_t unlink_fs(uint8_t *name);
 int32_t rm_fs(fs_node_t *file);
 int32_t rmdir_fs(fs_node_t *file);

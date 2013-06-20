@@ -1,4 +1,5 @@
 #include <kernel/init/cppimpl/icxxabi.h>
+#include <kernel/init/cppimpl/lsvguard.h>
 
 #ifdef __cplusplus
 extern "C" {

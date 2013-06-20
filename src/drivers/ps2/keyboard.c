@@ -214,7 +214,7 @@ uint8_t *gets()
 		if (num_int8_tacters == buffer_length - 1)
 		{
 			buffer_length += 16;
-			str = krealloc(str - num_int8_tacters, buffer_length);
+			str = (uint8_t*) krealloc(str - num_int8_tacters, buffer_length);
 		}
 	}
 	*str = '\0';
