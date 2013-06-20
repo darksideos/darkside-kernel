@@ -1,5 +1,6 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
+#include <lib/libc/string.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>

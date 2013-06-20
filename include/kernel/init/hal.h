@@ -8,10 +8,6 @@
 /* Define spinlock_t */
 typedef uint32_t spinlock_t;
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 /* HAL main */
 void hal_main(struct multiboot *mboot_ptr);
 
@@ -70,8 +66,5 @@ spinlock_t *create_lock();
 int32_t delete_lock(spinlock_t *lock);
 int32_t acquire_lock(spinlock_t *lock, uint16_t timeout);
 int32_t release_lock(spinlock_t *lock);
-#ifdef __cplusplus
-}
-#endif
 
 #endif

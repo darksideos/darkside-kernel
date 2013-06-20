@@ -11,8 +11,8 @@ struct gdt_ptr gp;
 struct tss_entry tss;
 
 /* These are in loader.s. We use them to properly reload the new segment registers and load the TSS */
-extern void gdt_flush();
-extern void tss_flush();
+extern "C" void gdt_flush();
+extern "C" void tss_flush();
 
 /* Setup a descriptor in the Global Descriptor Table */
 void gdt_set_gate(int32_t num, unsigned long base, unsigned long limit, uint8_t access, uint8_t gran)
