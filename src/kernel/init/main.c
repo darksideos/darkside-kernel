@@ -6,7 +6,6 @@
 #include <kernel/modules/elf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/task.h>
-#include <drivers/graphics/vga.h>
 
 void kernel_main(struct multiboot *mboot_ptr)
 {

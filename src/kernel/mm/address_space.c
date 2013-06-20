@@ -1,4 +1,4 @@
-#include <hal/i386/vmm.h>
+#include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 
 /* Map the kernel into a page directory */
