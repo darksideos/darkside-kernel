@@ -6,6 +6,15 @@
 /* The timer we are using */
 uint8_t current_timer = 0;
 
+/* Get the number of elapsed seconds since boot */
+uint32_t get_time()
+{
+	if (current_timer == 0)
+	{
+		return pit_get_time();
+	}
+}
+
 /* Sleep for a sepecified amount of seconds */
 void sleep(int32_t sec)
 {
@@ -31,12 +40,4 @@ void timer_install(int32_t hz)
 	/* Install the PIT on Channel 0 */
 	pit_install(0, hz);
 	current_timer = 0;
-}
-
-uint32_t get_time()
-{
-	if (current_timer == 0)
-	{
-		return pit_get_time();
-	}
 }

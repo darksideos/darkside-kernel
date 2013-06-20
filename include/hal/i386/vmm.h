@@ -62,10 +62,10 @@ void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address,
 void unmap_page(uint32_t dir, uint32_t virtual_address);
 
 /* Create a new blank page directory */
-uint32_t create_page_directory();
+uint32_t create_address_space();
 
 /* Switch the current page directory to a new one */
-void switch_page_directory(uint32_t dir);
+void switch_address_space(uint32_t dir);
 
 /* Flush the entire TLB */
 void flush_tlb();

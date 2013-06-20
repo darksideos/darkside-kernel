@@ -153,7 +153,7 @@ void unmap_page(uint32_t dir, uint32_t virtual_address)
 }
 
 /* Create a new blank page directory */
-uint32_t create_page_directory()
+uint32_t create_address_space()
 {
 	/* Allocate a page directory */
 	uint32_t dir = pmm_alloc_page();
@@ -178,7 +178,7 @@ uint32_t create_page_directory()
 }
 
 /* Switch the current page directory to a new one */
-void switch_page_directory(uint32_t dir)
+void switch_address_space(uint32_t dir)
 {
     current_directory = dir;
     asm volatile("mov %0, %%cr3" :: "r"(dir));
@@ -210,7 +210,7 @@ void init_vmm()
 	asm volatile ("mov %%cr3, %0" : "=r"(current_directory));
 
 	/* Create the kernel directory */
-	kernel_directory = create_page_directory();
+	kernel_directory = create_address_space();
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
 	directory->tables[1023] = directory->tables[1022];
 
@@ -232,11 +232,5 @@ void init_vmm()
 	}
 
 	/* Switch to the the kernel directory */
-	switch_page_directory(kernel_directory);
-	
-	/* Now, enable paging! */
-	uint32_t cr0;
-    asm volatile("mov %%cr0, %0" : "=r"(cr0));
-    cr0 |= 0x80000000;
-    asm volatile("mov %0, %%cr0" :: "r"(cr0));
+	switch_address_space(kernel_directory);
 }

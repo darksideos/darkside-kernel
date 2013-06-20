@@ -1,3 +1,4 @@
+#include <kernel/init/hal.h>
 #include <kernel/syscall/syscall.h>
 #include <kernel/syscall/file.h>
 #include <kernel/task/process.h>
