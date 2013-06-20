@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
@@ -11,7 +12,7 @@
 #include <kernel/task/task.h>
 
 /* The Local APIC base address */
-unsigned int *lapic_base;
+uint32_t *lapic_base;
 
 /* The number of Local APIC timer ticks and frequency */
 volatile int lapic_timer_ticks;
@@ -20,38 +21,38 @@ int lapic_timer_frequency;
 /* Detect if the CPU has a Local APIC */
 bool lapic_detect()
 {
-	unsigned int eax, edx;
+	uint32_t eax, edx;
 	cpuid(1, &eax, &edx);
 	return edx & CPUID_FEAT_EDX_APIC;
 }
 
 /* Set the physical base address of the Local APIC registers */
-void lapic_set_base(unsigned int *lapic)
+void lapic_set_base(uint32_t *lapic)
 {
-	unsigned int edx = 0;
-	unsigned int eax = page_align((unsigned int)lapic) | MSR_IA32_APIC_BASE_ENABLE;
+	uint32_t edx = 0;
+	uint32_t eax = page_align((uint32_t)lapic) | MSR_IA32_APIC_BASE_ENABLE;
 
 	wrmsr(MSR_IA32_APIC_BASE, eax, edx);
-	lapic_base = (unsigned int*) page_align((unsigned int)lapic);
+	lapic_base = (uint32_t*) page_align((uint32_t)lapic);
 }
 
 /* Get the physical base address of the Local APIC registers */
-unsigned int *lapic_get_base()
+uint32_t *lapic_get_base()
 {
-	unsigned int eax, edx;
+	uint32_t eax, edx;
 	rdmsr(MSR_IA32_APIC_BASE, &eax, &edx);
 
-	return (unsigned int*) page_align(eax);
+	return (uint32_t*) page_align(eax);
 }
 
 /* Read a Local APIC register */
-unsigned int lapic_read_register(unsigned int reg)
+uint32_t lapic_read_register(uint32_t reg)
 {
 	return lapic_base[reg >> 4];
 }
 
 /* Write a Local APIC register */
-void lapic_write_register(unsigned int reg, unsigned int val)
+void lapic_write_register(uint32_t reg, uint32_t val)
 {
 	lapic_base[reg >> 4] = val;
 }
@@ -109,8 +110,8 @@ void lapic_timer_install(int quantum)
 	lapic_write_register(0x320, 0x10000);
 
 	/* Calculate the value to send to the Local APIC timer */
-	unsigned int cpubusfreq = ((0xFFFFFFFF - lapic_read_register(0x380)) + 1) * 1600;
-	unsigned int value = cpubusfreq / quantum / 16;
+	uint32_t cpubusfreq = ((0xFFFFFFFF - lapic_read_register(0x380)) + 1) * 1600;
+	uint32_t value = cpubusfreq / quantum / 16;
 
 	/* Send the data to the Local APIC */
 	lapic_write_register(0x380, (value < 16 ? 16:value));
@@ -131,7 +132,7 @@ void lapic_install()
 	}
 
 	/* If the Local APIC isn't enabled, hardware enable it */
-	lapic_set_base((unsigned int*) 0xFE000000);
+	lapic_set_base((uint32_t*) 0xFE000000);
 
 	/* Start recieving interrupts */
 	lapic_write_register(0xF0, lapic_read_register(0xF0) | 0x100);

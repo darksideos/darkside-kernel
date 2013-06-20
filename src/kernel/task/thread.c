@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
 #include <kernel/init/hal.h>
@@ -6,10 +7,10 @@
 #include <kernel/task/task.h>
 
 /* Current thread ID and the number of running threads */
-volatile unsigned int current_tid = 0;
+volatile uint32_t current_tid = 0;
 
 /* Create a new blank thread */
-thread_t *create_thread(process_t *parent_process, void (*function)(), char **argv, unsigned int user_stack_size)
+thread_t *create_thread(process_t *parent_process, void (*function)(), int8_t **argv, uint32_t user_stack_size)
 {
 	/* Create a new thread structure */
 	thread_t *new_thread = (thread_t*) kmalloc(sizeof(thread_t));
@@ -20,7 +21,7 @@ thread_t *create_thread(process_t *parent_process, void (*function)(), char **ar
 	parent_process->threads[parent_process->num_threads] = 0;
 	parent_process->num_threads++;
 
-	unsigned int tid;
+	uint32_t tid;
 	for (tid = 0; tid < parent_process->num_threads; tid++)
 	{
 		if (parent_process->threads[tid] == 0)
@@ -48,7 +49,7 @@ thread_t *create_thread(process_t *parent_process, void (*function)(), char **ar
 }
 
 /* Return the current TID */
-unsigned int gettid()
+uint32_t gettid()
 {
 	return current_tid;
 }
@@ -60,7 +61,7 @@ thread_t *getthread()
 }
 
 /* Set the current TID */
-void settid(unsigned int tid)
+void settid(uint32_t tid)
 {
 	current_tid = tid;
 }

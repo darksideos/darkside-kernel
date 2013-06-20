@@ -1,8 +1,9 @@
+#include <lib/libc/stdint.h>
 
 #ifndef MAILBOX_H
 #define MAILBOX_H
 
-extern unsigned int read_mailbox(unsigned int channel);
-extern void write_mailbox(unsigned int channel, unsigned int data);
+extern uint32_t read_mailbox(uint32_t channel);
+extern void write_mailbox(uint32_t channel, uint32_t data);
 
 #endif	/* MAILBOX_H */

@@ -1,24 +1,26 @@
 #ifndef __STRING_H
 #define __STRING_H
 
+#include <lib/libc/stdint.h>
+
 #include <lib/libc/stdbool.h>
 
 /* Memory functions */
-unsigned char *memcpy(void *dest, void *src, int count);
-unsigned char *memset(void *dest, unsigned char val, int count);
-unsigned short *memsetw(unsigned short *dest, unsigned short val, int count);
-bool memequal(void *ptr1, void *ptr2, unsigned int count);
-void memclr(void *address, unsigned int length);
+uint8_t *memcpy(void *dest, void *src, int count);
+uint8_t *memset(void *dest, uint8_t val, int count);
+uint16_t *memsetw(uint16_t *dest, uint16_t val, int count);
+bool memequal(void *ptr1, void *ptr2, uint32_t count);
+void memclr(void *address, uint32_t length);
 
 /* String functions */
-int strlen(const char *str);
-unsigned char *strcpy(unsigned char *dest, const unsigned char *src);
-unsigned char *strncpy(unsigned char *dest, const unsigned char *src, unsigned int size);
-bool strequal(unsigned char *s1, unsigned char *s2);
-bool strnequal(unsigned char *s1, unsigned char *s2, unsigned int num);
-unsigned char *strlower(unsigned char *str);
-unsigned char *strupper(unsigned char *str);
-unsigned char *strcat(unsigned char *s1, unsigned char *s2);
-unsigned char *strtok(unsigned char *str, const char *delimeter, unsigned char **saveptr);
+int strlen(const int8_t *str);
+uint8_t *strcpy(uint8_t *dest, const uint8_t *src);
+uint8_t *strncpy(uint8_t *dest, const uint8_t *src, uint32_t size);
+bool strequal(uint8_t *s1, uint8_t *s2);
+bool strnequal(uint8_t *s1, uint8_t *s2, uint32_t num);
+uint8_t *strlower(uint8_t *str);
+uint8_t *strupper(uint8_t *str);
+uint8_t *strcat(uint8_t *s1, uint8_t *s2);
+uint8_t *strtok(uint8_t *str, const int8_t *delimeter, uint8_t **saveptr);
 
 #endif

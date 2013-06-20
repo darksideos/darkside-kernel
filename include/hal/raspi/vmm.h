@@ -1,6 +1,8 @@
 #ifndef __VMM_H
 #define __VMM_H
 
+#include <lib/libc/stdint.h>
+
 /* P = Privileged, U = Unprivileged, RO = read-only, RW = read-write, NA = no access, XN = no execute */
 #define PAGE_MODE_PRO_URO					0x8C00
 #define PAGE_MODE_PRO_UNA					0x8400
@@ -11,7 +13,7 @@
 /* Convert a virtual address to a physical one by following the page tables
  * Returns physical address, or 0xffffffff if the virtual address does not map
  */
-extern unsigned int mem_v2p(unsigned int);
+extern uint32_t mem_v2p(uint32_t);
 
 /* Convert a physical address to a virtual one - essentially, just add
  * 0x80000000 to it

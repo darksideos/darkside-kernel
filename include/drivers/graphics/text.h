@@ -1,7 +1,9 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
-void puts(unsigned char *text);
-void putch(unsigned char data);
+#include <lib/libc/stdint.h>
+
+void puts(uint8_t *text);
+void putch(uint8_t data);
 
 #endif

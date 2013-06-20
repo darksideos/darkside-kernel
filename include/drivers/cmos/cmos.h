@@ -1,17 +1,19 @@
 #ifndef __CMOS_H
 #define __CMOS_H
 
+#include <lib/libc/stdint.h>
+
 /* Time structure */
 typedef struct time
 {
-	unsigned char sec;
-	unsigned char min;
-	unsigned char hour;
-	unsigned char weekday;
-	unsigned char day;
-	unsigned char month;
-	unsigned char year;
-	unsigned char century;
+	uint8_t sec;
+	uint8_t min;
+	uint8_t hour;
+	uint8_t weekday;
+	uint8_t day;
+	uint8_t month;
+	uint8_t year;
+	uint8_t century;
 } time_t;
 
 /* Get the Unix time using the RTC */

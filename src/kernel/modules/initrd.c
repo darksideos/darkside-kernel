@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/modules/initrd.h>
@@ -9,17 +10,17 @@ void init_initrd(initrd_header_t *i)
 	initrd = i;
 }
 
-initrd_table_entry_t *get_initrd_entry(unsigned int number)
+initrd_table_entry_t *get_initrd_entry(uint32_t number)
 {
 	/* Start with first driver */
-	unsigned char *driver = (unsigned char*) initrd;
+	uint8_t *driver = (uint8_t*) initrd;
 	driver += sizeof(initrd_header_t) + number * sizeof(initrd_table_entry_t);
 	return (initrd_table_entry_t*) driver;
 }
 
-initrd_table_entry_t *find_initrd_entry(unsigned int class_id, unsigned int device_id)
+initrd_table_entry_t *find_initrd_entry(uint32_t class_id, uint32_t device_id)
 {
-	initrd_table_entry_t *entry = (initrd_table_entry_t*) (((unsigned char*) initrd) + sizeof(initrd_header_t));
+	initrd_table_entry_t *entry = (initrd_table_entry_t*) (((uint8_t*) initrd) + sizeof(initrd_header_t));
 	int index;
 	for(index = 0; index < initrd->num_entries; index++)
 	{
@@ -32,15 +33,15 @@ initrd_table_entry_t *find_initrd_entry(unsigned int class_id, unsigned int devi
 	return 0;
 }
 
-unsigned int get_initrd_entry_number(initrd_table_entry_t *header)
+uint32_t get_initrd_entry_number(initrd_table_entry_t *header)
 {
-	return (((unsigned char*) header) - ((unsigned char*) initrd) - sizeof(initrd_header_t)) / sizeof(initrd_table_entry_t);
+	return (((uint8_t*) header) - ((uint8_t*) initrd) - sizeof(initrd_header_t)) / sizeof(initrd_table_entry_t);
 }
 
-unsigned char *get_initrd_driver(initrd_table_entry_t *entry)
+uint8_t *get_initrd_driver(initrd_table_entry_t *entry)
 {
-	initrd_table_entry_t *cur_entry = (initrd_table_entry_t*) (((unsigned char*) initrd) + sizeof(initrd_header_t));
-	unsigned int skip = 0;
+	initrd_table_entry_t *cur_entry = (initrd_table_entry_t*) (((uint8_t*) initrd) + sizeof(initrd_header_t));
+	uint32_t skip = 0;
 	int index;
 	for(index = 0; index < initrd->num_entries; index++)
 	{
@@ -50,13 +51,13 @@ unsigned char *get_initrd_driver(initrd_table_entry_t *entry)
 		}
 		cur_entry++;
 	}
-	return ((unsigned char*) cur_entry) + skip;
+	return ((uint8_t*) cur_entry) + skip;
 }
 
-int initrd_read(fs_node_t *file, unsigned char *buffer, unsigned int len)
+int initrd_read(fs_node_t *file, uint8_t *buffer, uint32_t len)
 {
 	initrd_table_entry_t *entry = find_initrd_entry(file->drive, file->partition);
-	unsigned char *data = get_initrd_driver(entry);
+	uint8_t *data = get_initrd_driver(entry);
 	if(len <= entry->size)
 	{
 		memcpy(buffer, data, len);
@@ -68,7 +69,7 @@ int initrd_read(fs_node_t *file, unsigned char *buffer, unsigned int len)
 	}
 }
 
-unsigned char *get_driver_name(unsigned char class_id, unsigned char device_id) {
+uint8_t *get_driver_name(uint8_t class_id, uint8_t device_id) {
 	switch(class_id)
 	{
 		case(INITRD_FS_DRIVER):
@@ -118,7 +119,7 @@ fs_node_t *initrd_get_root()
 		/* Allocate a new file and set it's name.  Then, make it so we can read it */
 		initrd_table_entry_t *entry = get_initrd_entry(index);
 		initrd_fs->child_nodes[index + 1] = (fs_node_t*) kmalloc(sizeof(fs_node_t));
-		unsigned char *name = get_driver_name(entry->class_id, entry->device_id);
+		uint8_t *name = get_driver_name(entry->class_id, entry->device_id);
 		initrd_fs->child_nodes[index + 1]->name = name;
 		initrd_fs->child_nodes[index + 1]->type |= FS_FILE;
 		initrd_fs->child_nodes[index + 1]->drive = entry->class_id;

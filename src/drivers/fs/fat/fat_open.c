@@ -1,20 +1,21 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <drivers/fs/fat.h>
 
 /* Read a file from a FAT drive and return a VFS node */
-fs_node_t *fat_open(unsigned char drive, unsigned char partition, unsigned char *path)
+fs_node_t *fat_open(uint8_t drive, uint8_t partition, uint8_t *path)
 {
 	/* Create a VFS node and make sure it's 0 */
 	fs_node_t *file = (fs_node_t*) kmalloc(sizeof(fs_node_t));
 	memset(file, 0, sizeof(fs_node_t));
 
-	/* Split the string by the '/' character so we can get a list of each part of the path */
-	unsigned char **path_parts = strsplit(path, "/");
+	/* Split the string by the '/' int8_tacter so we can get a list of each part of the path */
+	uint8_t **path_parts = strsplit(path, "/");
 
 	/* Get the number of parts of the path using ksize */
-	unsigned int num_path_parts = ksize(path) / sizeof(int);
+	uint32_t num_path_parts = ksize(path) / sizeof(int);
 
 	/* Loop through the path parts, getting the cluster number of a file or directory each time */
 	unsigned long cluster = get_root_cluster();	// Need to modify this to get the root cluster of a specific partition

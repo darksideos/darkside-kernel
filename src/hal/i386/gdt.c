@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/gdt.h>
 #include <hal/i386/msr.h>
@@ -14,7 +15,7 @@ extern void gdt_flush();
 extern void tss_flush();
 
 /* Setup a descriptor in the Global Descriptor Table */
-void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran)
+void gdt_set_gate(int num, unsigned long base, unsigned long limit, uint8_t access, uint8_t gran)
 {
     /* Setup the descriptor base address */
     gdt[num].base_low = (base & 0xFFFF);
@@ -31,10 +32,10 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 }
 
 /* Create a TSS in the GDT */
-void write_tss(int num, unsigned short ss0, unsigned short esp0)
+void write_tss(int num, uint16_t ss0, uint16_t esp0)
 {
-	unsigned int base = (unsigned int) &tss;
-	unsigned int limit = base + sizeof(struct tss_entry);
+	uint32_t base = (uint32_t) &tss;
+	uint32_t limit = base + sizeof(struct tss_entry);
 
 	gdt_set_gate(num, base, limit, 0xE9, 0x00);
 
@@ -48,7 +49,7 @@ void write_tss(int num, unsigned short ss0, unsigned short esp0)
 }
 
 /* Set the kernel stack in the TSS and the kernel stack MSR */
-void set_kernel_stack(unsigned int stack)
+void set_kernel_stack(uint32_t stack)
 {
 	tss.esp0 = stack;
 	wrmsr(MSR_IA32_SYSENTER_ESP, stack, 0);
@@ -59,7 +60,7 @@ void gdt_install()
 {
     /* Setup the GDT pointer and limit */
     gp.limit = (sizeof(struct gdt_entry) * 6) - 1;
-    gp.base = (unsigned int) &gdt;
+    gp.base = (uint32_t) &gdt;
 
 	/* Define the GDT segments */
     gdt_set_gate(0, 0, 0, 0, 0);				// Null segment

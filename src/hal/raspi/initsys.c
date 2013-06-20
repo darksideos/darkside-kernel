@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
  #include <hal/raspi/vmm.h>
  
  /* Virtual memory layout
@@ -11,8 +12,8 @@
  * Memory from 0x80000000 upwards won't be accessible to user processes
  */
 
-static unsigned int *initpagetable = (unsigned int*) 0x4000; /* 16K */
-static unsigned int *kerneldatatable = (unsigned int*) 0x3c00; /* 1K */
+static uint32_t *initpagetable = (uint32_t*) 0x4000; /* 16K */
+static uint32_t *kerneldatatable = (uint32_t*) 0x3c00; /* 1K */
 
 /* initsys calls main() when it's finished, so we need to tell the compiler
  * it's an external symbol
@@ -20,15 +21,15 @@ static unsigned int *kerneldatatable = (unsigned int*) 0x3c00; /* 1K */
 extern void raspi_main(void);
 
 /* Memory locations. Defined in linkscript, set during linking */
-extern unsigned int _physdatastart, _physbssstart, _physbssend;
-extern unsigned int _kstart, _kend;
+extern uint32_t _physdatastart, _physbssstart, _physbssend;
+extern uint32_t _kstart, _kend;
 
 __attribute__((naked)) void initsys(void)
 {
-	register unsigned int x;
-	register unsigned int pt_addr;
-	register unsigned int control;
-	register unsigned int *bss;
+	register uint32_t x;
+	register uint32_t pt_addr;
+	register uint32_t control;
+	register uint32_t *bss;
 
 	/* Save r0-r2 as they contain the start values used by the kernel */
 	asm volatile("push {r0, r1, r2}");
@@ -116,7 +117,7 @@ __attribute__((naked)) void initsys(void)
 	 // * Only memory in use is mapped (to the next 4K). The rest of the
 	 // * table is unmapped.
 	 // */
-	// initpagetable[3072] = 1 | (unsigned int) kerneldatatable;
+	// initpagetable[3072] = 1 | (uint32_t) kerneldatatable;
 
 	// /* Populate kerneldatatable - see ARM1176JZF-S manual, 6-40
 	 // *
@@ -138,8 +139,8 @@ __attribute__((naked)) void initsys(void)
 		 // * kernel data - somewhere between 0x00009000 and 1MB (any
 		 // * more than that and this code will need rewriting...)
 		 // */
-		// if(x <= ((unsigned int) &_physbssend >> 12))
-			// kerneldatatable[x] = ((unsigned int) &_physdatastart + (x << 12)) | PAGE_MODE_XN | 2;
+		// if(x <= ((uint32_t) &_physbssend >> 12))
+			// kerneldatatable[x] = ((uint32_t) &_physdatastart + (x << 12)) | PAGE_MODE_XN | 2;
 		// else
 			// kerneldatatable[x] = 0;
 	// }
@@ -155,7 +156,7 @@ __attribute__((naked)) void initsys(void)
 		// bss++;
 	// }
 
-	// pt_addr = (unsigned int) initpagetable;
+	// pt_addr = (uint32_t) initpagetable;
 
 	// /* Translation table 0 - ARM1176JZF-S manual, 3-57 */
 	// asm volatile("mcr p15, 0, %[addr], c2, c0, 0" : : [addr] "r" (pt_addr));
@@ -184,7 +185,7 @@ __attribute__((naked)) void initsys(void)
 	 * on the stack). The "mov lr" comes first as it's impossible to
 	 * guarantee the compiler wouldn't use one of r0-r2 for %[main]
 	 */
-	asm volatile("mov lr, %[main]" : : [main] "r" ((unsigned int)&raspi_main) );
+	asm volatile("mov lr, %[main]" : : [main] "r" ((uint32_t)&raspi_main) );
 	asm volatile("pop {r0, r1, r2}");
 	asm volatile("bx lr");
 }

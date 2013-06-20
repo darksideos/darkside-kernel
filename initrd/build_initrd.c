@@ -1,14 +1,15 @@
+#include <lib/libc/stdint.h>
 #include <stdio.h>
 #include <sys/stat.h>
 
-int main(int argc, char** argv)
+int main(int argc, int8_t** argv)
 {
 	/* Open the initrd file */
 	FILE *initrd = fopen("initrd", "w");
 	
 	/* Number of modules and line buffer */
-	unsigned short num_el = 0;
-	char line[128];
+	uint16_t num_el = 0;
+	int8_t line[128];
 	
 	/* Count the number of modules */
 	FILE *files = fopen("MODULES", "r");
@@ -18,13 +19,13 @@ int main(int argc, char** argv)
 	}
 	fclose(files);
 	
-	fwrite(&num_el, sizeof(unsigned short), 1, initrd);
+	fwrite(&num_el, sizeof(uint16_t), 1, initrd);
 	
 	files = fopen("MODULES", "r");
-	unsigned int size;
+	uint32_t size;
 	while(fgets(line, sizeof(line), files) != NULL)
 	{
-		char *fname = strtok(line, ",");
+		int8_t *fname = strtok(line, ",");
 		
 		struct stat st;
 		
@@ -40,13 +41,13 @@ int main(int argc, char** argv)
 			continue;
 		}
 		
-		unsigned char class_id = strtoul(strtok(NULL, ","), NULL, 10);
-		unsigned char device_id = strtoul(strtok(NULL, "\n"), NULL, 10);
+		uint8_t class_id = strtoul(strtok(NULL, ","), NULL, 10);
+		uint8_t device_id = strtoul(strtok(NULL, "\n"), NULL, 10);
 		
 		printf("Writing...\n");
-		fwrite(&class_id, sizeof(unsigned char), 1, initrd);
-		fwrite(&device_id, sizeof(unsigned char), 1, initrd);
-		fwrite(&size, sizeof(unsigned int), 1, initrd);
+		fwrite(&class_id, sizeof(uint8_t), 1, initrd);
+		fwrite(&device_id, sizeof(uint8_t), 1, initrd);
+		fwrite(&size, sizeof(uint32_t), 1, initrd);
 		printf("Wrote class %u, device %u, size %u from file %s to initrd.\n", class_id, device_id, size, fname);
 	}
 	fclose(files);
@@ -55,11 +56,11 @@ int main(int argc, char** argv)
 	FILE *mod;
 	while(fgets(line, sizeof(line), files) != NULL)
 	{
-		unsigned char *fname = strtok(line, ",");
+		uint8_t *fname = strtok(line, ",");
 		mod = fopen(fname, "r");
-		int char_to_copy;
-		while((char_to_copy = fgetc(mod)) != EOF) {
-			fputc(char_to_copy, initrd);
+		int int8_t_to_copy;
+		while((int8_t_to_copy = fgetc(mod)) != EOF) {
+			fputc(int8_t_to_copy, initrd);
 		}
 		fclose(mod);
 		printf("Wrote data of file %s to initrd.\n", fname);

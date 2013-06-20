@@ -1,6 +1,7 @@
+#include <lib/libc/stdint.h>
 #include <kernel/modules/elf_types.h>
 
-unsigned char *elf_get_symbol_type(unsigned char type)
+uint8_t *elf_get_symbol_type(uint8_t type)
 {
 	switch(type)
 	{
@@ -15,7 +16,7 @@ unsigned char *elf_get_symbol_type(unsigned char type)
 	}
 }
 
-unsigned char *elf_get_symbol_bind(unsigned char bind)
+uint8_t *elf_get_symbol_bind(uint8_t bind)
 {
 	switch(bind)
 	{
@@ -31,7 +32,7 @@ unsigned char *elf_get_symbol_bind(unsigned char bind)
 }
 
 /* Get encoding (LSB or MSB) */
-unsigned char *elf_get_encoding(unsigned char encoding)
+uint8_t *elf_get_encoding(uint8_t encoding)
 {
 	switch(encoding)
 	{
@@ -42,7 +43,7 @@ unsigned char *elf_get_encoding(unsigned char encoding)
 }
 
 /* Get a string describing the architecture, this is a rather long function! */
-unsigned char *elf_get_arch(unsigned short arch)
+uint8_t *elf_get_arch(uint16_t arch)
 {
 	switch(arch)
 	{
@@ -209,7 +210,7 @@ unsigned char *elf_get_arch(unsigned short arch)
 }
 
 /* Get the file's class (i.e., 64-bit or 32-bit) */
-unsigned char *elf_get_class(unsigned char _class)
+uint8_t *elf_get_class(uint8_t _class)
 {
 	switch(_class)
 	{
@@ -220,7 +221,7 @@ unsigned char *elf_get_class(unsigned char _class)
 }
 
 /* Return a string describing the type, or purpose, of the ELF file */
-unsigned char *elf_get_type(unsigned short type)
+uint8_t *elf_get_type(uint16_t type)
 {
 	switch(type)
 	{

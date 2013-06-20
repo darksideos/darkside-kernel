@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <hal/i386/vmm.h>
 #include <kernel/debug/kprintf.h>
@@ -10,7 +11,7 @@
  * Bit 0: 0 - Kernel mode, 1 - User mode
  * Bit 1: 0 - Task switching is disabled, 1 - Task switching is enabled
  */
-unsigned char mode_flags = 0x00;
+uint8_t mode_flags = 0x00;
 
 /* Is the CPU in user mode? */
 bool user_mode = false;
@@ -98,10 +99,10 @@ void switch_tasks_roundrobin(void *current_context)
 	process_t *current_process = getprocess();
 	thread_t *current_thread = getthread();
 
-	unsigned int current_pid = getpid();
-	unsigned int current_tid = gettid();
+	uint32_t current_pid = getpid();
+	uint32_t current_tid = gettid();
 
-	unsigned int num_pids = getnumpids();
+	uint32_t num_pids = getnumpids();
 
     /* If there are no running processes, just return */
 	if(!num_pids)
@@ -119,7 +120,7 @@ void switch_tasks_roundrobin(void *current_context)
 	copy_registers(current_thread->context, current_context);
 
 	/* Find out if we have more threads to run, and if so, tell the scheduler to switch to the same task and execute the next thread */
-	unsigned int pid, tid;
+	uint32_t pid, tid;
 
 	if ((current_tid + 1) < current_process->num_threads)
 	{
@@ -160,7 +161,7 @@ void init_user_mode()
 }
 
 /* Get the task switching mode flags */
-unsigned char get_mode_flags()
+uint8_t get_mode_flags()
 {
 	return mode_flags;
 }

@@ -1,83 +1,85 @@
 #ifndef __ELF_H
 #define __ELF_H
 
+#include <lib/libc/stdint.h>
+
 /* ELF program header and section header entry structure */
 typedef struct elf_program_header_segment
 {
-	unsigned short program_header_segment_type;
-	unsigned int program_header_offset;
-	unsigned int program_header_virtual_address;
-	unsigned int program_header_physical_address;
-	unsigned int program_header_size;
-	unsigned int program_header_memsize;
-	unsigned int program_header_flags;
-	unsigned int program_header_align;
+	uint16_t program_header_segment_type;
+	uint32_t program_header_offset;
+	uint32_t program_header_virtual_address;
+	uint32_t program_header_physical_address;
+	uint32_t program_header_size;
+	uint32_t program_header_memsize;
+	uint32_t program_header_flags;
+	uint32_t program_header_align;
 } __attribute__((packed)) elf_program_header_segment_t;
 
 typedef struct elf_section_header
 {
-	unsigned int name;
-	unsigned int type;
-	unsigned int flags;
-	unsigned int address;
-	unsigned int offset;
-	unsigned int size;
-	unsigned int link;
-	unsigned int info;
-	unsigned int align;
-	unsigned int subentry_size;
+	uint32_t name;
+	uint32_t type;
+	uint32_t flags;
+	uint32_t address;
+	uint32_t offset;
+	uint32_t size;
+	uint32_t link;
+	uint32_t info;
+	uint32_t align;
+	uint32_t subentry_size;
 } __attribute__((packed)) elf_section_header_t;
 
 /* ELF file structure */
 typedef struct elf_header
 {
-	unsigned char magic[4];
-	unsigned char elf_class;
-	unsigned char encoding;
-	unsigned char version;
-	unsigned char pad[9];
-	unsigned short type;
-	unsigned short machine;
-	unsigned int obj_file_version;
-	unsigned int virtual_address;	// Entry point
-	unsigned int program_header_offset;
-	unsigned int section_header_offset;
-	unsigned int flags;
-	unsigned short header_size;
-	unsigned short program_header_entry_size;
-	unsigned short num_program_header_table_entries;
-	unsigned short section_header_entry_size;
-	unsigned short num_section_header_entries;
-	unsigned short string_table_index;
+	uint8_t magic[4];
+	uint8_t elf_class;
+	uint8_t encoding;
+	uint8_t version;
+	uint8_t pad[9];
+	uint16_t type;
+	uint16_t machine;
+	uint32_t obj_file_version;
+	uint32_t virtual_address;	// Entry point
+	uint32_t program_header_offset;
+	uint32_t section_header_offset;
+	uint32_t flags;
+	uint16_t header_size;
+	uint16_t program_header_entry_size;
+	uint16_t num_program_header_table_entries;
+	uint16_t section_header_entry_size;
+	uint16_t num_section_header_entries;
+	uint16_t string_table_index;
 } __attribute__((packed)) elf_header_t;
 
 /* ELF symtab entry */
 typedef struct elf_symbol
 {
-	unsigned int name;
-	unsigned int value;
-	unsigned int size;
-	unsigned char info;
-	unsigned char other;
-	unsigned short section_index;
+	uint32_t name;
+	uint32_t value;
+	uint32_t size;
+	uint8_t info;
+	uint8_t other;
+	uint16_t section_index;
 } __attribute__((packed)) elf_symbol_t;
 
 /* Read a string table */
-unsigned char *elf_get_section_string(elf_header_t *header, unsigned int num);
-unsigned char *elf_get_string(elf_header_t *header, unsigned int num);
+uint8_t *elf_get_section_string(elf_header_t *header, uint32_t num);
+uint8_t *elf_get_string(elf_header_t *header, uint32_t num);
 
 /* ELF helper functions */
-elf_section_header_t *elf_get_section(elf_header_t *header, unsigned int num);
-elf_section_header_t *elf_get_section_by_type(elf_header_t *header, unsigned int type);
-elf_section_header_t *elf_get_section_by_name(elf_header_t *header, unsigned char *name);
-unsigned char *elf_get_section_data(elf_header_t *header, elf_section_header_t *section);
-unsigned char *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *sym);
+elf_section_header_t *elf_get_section(elf_header_t *header, uint32_t num);
+elf_section_header_t *elf_get_section_by_type(elf_header_t *header, uint32_t type);
+elf_section_header_t *elf_get_section_by_name(elf_header_t *header, uint8_t *name);
+uint8_t *elf_get_section_data(elf_header_t *header, elf_section_header_t *section);
+uint8_t *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *sym);
 
 /* ELF end-user functions */
-elf_symbol_t *elf_lookup_symbol(elf_header_t *header, unsigned char *name);
-unsigned char *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *symbol);
-void elf_load_section(elf_header_t *header, unsigned int num, unsigned char *address);
-void elf_relocate(elf_header_t *header, unsigned char *new_address);
+elf_symbol_t *elf_lookup_symbol(elf_header_t *header, uint8_t *name);
+uint8_t *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *symbol);
+void elf_load_section(elf_header_t *header, uint32_t num, uint8_t *address);
+void elf_relocate(elf_header_t *header, uint8_t *new_address);
 
 /* ELF reader functions */
 bool check_elf_magic(elf_header_t *header);

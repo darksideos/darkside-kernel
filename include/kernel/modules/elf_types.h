@@ -1,6 +1,8 @@
 #ifndef __ELF_TYPES_H
 #define __ELF_TYPES_H
 
+#include <lib/libc/stdint.h>
+
 #define ELF_CLASS_32						1
 #define ELF_CLASS_64						2
 
@@ -238,11 +240,11 @@
 #define ELF_R_386_GLT32						4
 
 /* Helper methods to get a string representation of data */
-unsigned char *elf_get_type(unsigned short type);
-unsigned char *elf_get_arch(unsigned short arch);
-unsigned char *elf_get_class(unsigned char _class);
-unsigned char *elf_get_encoding(unsigned char encoding);
-unsigned char *elf_get_symbol_type(unsigned char type);
-unsigned char *elf_get_symbol_bind(unsigned char bind);
+uint8_t *elf_get_type(uint16_t type);
+uint8_t *elf_get_arch(uint16_t arch);
+uint8_t *elf_get_class(uint8_t _class);
+uint8_t *elf_get_encoding(uint8_t encoding);
+uint8_t *elf_get_symbol_type(uint8_t type);
+uint8_t *elf_get_symbol_bind(uint8_t bind);
 
 #endif

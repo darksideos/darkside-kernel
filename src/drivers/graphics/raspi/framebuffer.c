@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libgeneric.h>
 #include <hal/raspi/barrier.h>
 #include <hal/raspi/mailbox.h>
@@ -5,18 +6,18 @@
 #include <drivers/graphics/raspi/textutils.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 
-/* SAA5050 (teletext) character definitions */
+/* SAA5050 (teletext) int8_tacter definitions */
 #include <drivers/graphics/raspi/teletext.h>
 
 /* Screen parameters set in fb_init() */
-unsigned char *graphics_ptr;
-unsigned int resolution;
-unsigned int width, height, pitch;
+uint8_t *graphics_ptr;
+uint32_t resolution;
+uint32_t width, height, pitch;
 
 /* Framebuffer initialisation failed. Can't display an error, so flashing
  * the OK LED will have to do
  */
-void fb_fail(unsigned int num)
+void fb_fail(uint32_t num)
 {
 	while(true)
 	{
@@ -27,17 +28,17 @@ void fb_fail(unsigned int num)
 /* Initialise the framebuffer */
 void fb_init()
 {
-	unsigned int graphics_ptr_physical;
+	uint32_t graphics_ptr_physical;
 
 	/* Storage space for the buffer used to pass information between the
 	 * CPU and VideoCore
 	 * Needs to be aligned to 16 bytes as the bottom 4 bits of the address
 	 * passed to VideoCore are used for the mailbox number
 	 */
-	volatile unsigned int mailbuffer[256] __attribute__((aligned (16)));
+	volatile uint32_t mailbuffer[256] __attribute__((aligned (16)));
 
 	/* Physical memory address of the mailbuffer, for passing to VC */
-	unsigned char *physical_mb = (unsigned char*) mem_v2p((unsigned int) mailbuffer);
+	uint8_t *physical_mb = (uint8_t*) mem_v2p((uint32_t) mailbuffer);
 
 	/* Get the display size */
 	mailbuffer[0] = 8 * 4;		// Total size
@@ -49,7 +50,7 @@ void fb_init()
 	mailbuffer[6] = 0;			// Space for vertical resolution
 	mailbuffer[7] = 0;			// End tag
 
-	write_mailbox(8, (unsigned int) physical_mb);
+	write_mailbox(8, (uint32_t) physical_mb);
 
 	read_mailbox(8);
 
@@ -78,7 +79,7 @@ void fb_init()
 		fb_fail(FB_FAIL_GOT_INVALID_RESOLUTION);
 	}
 
-	unsigned int index = 1;
+	uint32_t index = 1;
 	
 	/* Set up screen */
 	mailbuffer[index++] = 0;				// Request
@@ -110,7 +111,7 @@ void fb_init()
 
 	mailbuffer[0] = index * 4;				// Buffer size
 
-	write_mailbox(8, (unsigned int) physical_mb);
+	write_mailbox(8, (uint32_t) physical_mb);
 
 	read_mailbox(8);
 
@@ -120,7 +121,7 @@ void fb_init()
 		fb_fail(FB_FAIL_SETUP_FRAMEBUFFER);	
 	}
 
-	unsigned int *tag = ((unsigned int*) mailbuffer) + 2;
+	uint32_t *tag = ((uint32_t*) mailbuffer) + 2;
 	
 	while(*tag != 0x40001)
 	{
@@ -151,7 +152,7 @@ void fb_init()
 		fb_fail(FB_FAIL_INVALID_TAG_DATA);
 	}
 
-	graphics_ptr = (unsigned char*) mem_p2v(graphics_ptr_physical);
+	graphics_ptr = (uint8_t*) mem_p2v(graphics_ptr_physical);
 
 	/* Get the framebuffer pitch (bytes per line) */
 	mailbuffer[0] = 7 * 4;		// Total size
@@ -162,7 +163,7 @@ void fb_init()
 	mailbuffer[5] = 0;			// Space for pitch
 	mailbuffer[6] = 0;			// End tag
 
-	write_mailbox(8, (unsigned int) physical_mb);
+	write_mailbox(8, (uint32_t) physical_mb);
 
 	read_mailbox(8);
 
@@ -181,22 +182,22 @@ void fb_init()
 	memclr(graphics_ptr, height * pitch);
 }
 
-unsigned char *get_graphics_pointer()
+uint8_t *get_graphics_pointer()
 {
 	return graphics_ptr;
 }
 
-unsigned int get_width()
+uint32_t get_width()
 {
 	return width;
 }
 
-unsigned int get_height()
+uint32_t get_height()
 {
 	return height;
 }
 
-unsigned int get_pitch()
+uint32_t get_pitch()
 {
 	return pitch;
 }

@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009, 2011
    Free Software Foundation, Inc.
 
@@ -27,14 +28,14 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  */
 #if (!defined(_STDDEF_H) && !defined(_STDDEF_H_) && !defined(_ANSI_STDDEF_H) \
      && !defined(__STDDEF_H__)) \
-    || defined(__need_wchar_t) || defined(__need_size_t) \
+    || defined(__need_wint8_t_t) || defined(__need_size_t) \
     || defined(__need_ptrdiff_t) || defined(__need_NULL) \
     || defined(__need_wint_t)
 
 /* Any one of these symbols __need_* means that GNU libc
    wants us just to define one data type.  So don't define
    the symbols that indicate this file's entire job has been done.  */
-#if (!defined(__need_wchar_t) && !defined(__need_size_t)	\
+#if (!defined(__need_wint8_t_t) && !defined(__need_size_t)	\
      && !defined(__need_ptrdiff_t) && !defined(__need_NULL)	\
      && !defined(__need_wint_t))
 #define _STDDEF_H
@@ -86,7 +87,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #undef _SIZE_T_
 #undef _BSD_SIZE_T_
 #endif
-#if defined (__need_wchar_t) || defined (_STDDEF_H_)
+#if defined (__need_wint8_t_t) || defined (_STDDEF_H_)
 #undef _WCHAR_T_
 #undef _BSD_WCHAR_T_
 #endif
@@ -112,9 +113,9 @@ _TYPE_ptrdiff_t;
 _TYPE_size_t;
 #undef _TYPE_size_t
 #endif
-#if defined (_TYPE_wchar_t) && (defined (__need_wchar_t) || defined (_STDDEF_H_))
-_TYPE_wchar_t;
-#undef _TYPE_wchar_t
+#if defined (_TYPE_wint8_t_t) && (defined (__need_wint8_t_t) || defined (_STDDEF_H_))
+_TYPE_wint8_t_t;
+#undef _TYPE_wint8_t_t
 #endif
 
 /* In case nobody has defined these types, but we aren't running under
@@ -207,7 +208,7 @@ typedef __PTRDIFF_TYPE__ ptrdiff_t;
 #define __size_t
 #endif
 #ifndef __SIZE_TYPE__
-#define __SIZE_TYPE__ long unsigned int
+#define __SIZE_TYPE__ long uint32_t
 #endif
 #if !(defined (__GNUG__) && defined (size_t))
 typedef __SIZE_TYPE__ size_t;
@@ -236,15 +237,15 @@ typedef long ssize_t;
 #endif /* _STDDEF_H or __need_size_t.  */
 
 
-/* Wide character type.
+/* Wide int8_tacter type.
    Locale-writers should change this as necessary to
    be big enough to hold unique values not between 0 and 127,
-   and not (wchar_t) -1, for each defined multibyte character.  */
+   and not (wint8_t_t) -1, for each defined multibyte int8_tacter.  */
 
 /* Define this type if we are doing the whole job,
    or if we want this type in particular.  */
-#if defined (_STDDEF_H) || defined (__need_wchar_t)
-#ifndef __wchar_t__	/* BeOS */
+#if defined (_STDDEF_H) || defined (__need_wint8_t_t)
+#ifndef __wint8_t_t__	/* BeOS */
 #ifndef __WCHAR_T__	/* Cray Unicos/Mk */
 #ifndef _WCHAR_T
 #ifndef _T_WCHAR_
@@ -258,10 +259,10 @@ typedef long ssize_t;
 #ifndef _WCHAR_T_DEFINED_
 #ifndef _WCHAR_T_DEFINED
 #ifndef _WCHAR_T_H
-#ifndef ___int_wchar_t_h
+#ifndef ___int_wint8_t_t_h
 #ifndef __INT_WCHAR_T_H
 #ifndef _GCC_WCHAR_T
-#define __wchar_t__	/* BeOS */
+#define __wint8_t_t__	/* BeOS */
 #define __WCHAR_T__	/* Cray Unicos/Mk */
 #define _WCHAR_T
 #define _T_WCHAR_
@@ -272,7 +273,7 @@ typedef long ssize_t;
 #define _WCHAR_T_DEFINED_
 #define _WCHAR_T_DEFINED
 #define _WCHAR_T_H
-#define ___int_wchar_t_h
+#define ___int_wint8_t_t_h
 #define __INT_WCHAR_T_H
 #define _GCC_WCHAR_T
 #define _WCHAR_T_DECLARED
@@ -280,7 +281,7 @@ typedef long ssize_t;
 /* On BSD/386 1.1, at least, machine/ansi.h defines _BSD_WCHAR_T_
    instead of _WCHAR_T_, and _BSD_RUNE_T_ (which, unlike the other
    symbols in the _FOO_T_ family, stays defined even after its
-   corresponding type is defined).  If we define wchar_t, then we
+   corresponding type is defined).  If we define wint8_t_t, then we
    must undef _WCHAR_T_; for BSD/386 1.1 (and perhaps others), if
    we undef _WCHAR_T_, then we must also define rune_t, since 
    headers like runetype.h assume that if machine/ansi.h is included,
@@ -322,7 +323,7 @@ typedef __rune_t        rune_t;
 #define __WCHAR_TYPE__ int
 #endif
 #ifndef __cplusplus
-typedef __WCHAR_TYPE__ wchar_t;
+typedef __WCHAR_TYPE__ wint8_t_t;
 #endif
 #endif
 #endif
@@ -340,16 +341,16 @@ typedef __WCHAR_TYPE__ wchar_t;
 #endif
 #endif
 #endif /* __WCHAR_T__ */
-#endif /* __wchar_t__ */
-#undef	__need_wchar_t
-#endif /* _STDDEF_H or __need_wchar_t.  */
+#endif /* __wint8_t_t__ */
+#undef	__need_wint8_t_t
+#endif /* _STDDEF_H or __need_wint8_t_t.  */
 
 #if defined (__need_wint_t)
 #ifndef _WINT_T
 #define _WINT_T
 
 #ifndef __WINT_TYPE__
-#define __WINT_TYPE__ unsigned int
+#define __WINT_TYPE__ uint32_t
 #endif
 typedef __WINT_TYPE__ wint_t;
 #endif

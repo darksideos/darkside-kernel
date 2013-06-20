@@ -1,3 +1,4 @@
+#include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <lib/libc/ctype.h>
 #include <kernel/mm/heap/heap.h>
@@ -6,39 +7,39 @@
 
 #ifdef __arm__
 
-unsigned int kmalloc(unsigned int sz)
+uint32_t kmalloc(uint32_t sz)
 {
 	return 0;
 }
 
 #endif
 
-unsigned char *memcpy(void *dest, void *src, int count)
+uint8_t *memcpy(void *dest, void *src, int count)
 {
-    const char *sp = (const char*) src;
-    char *dp = (char*) dest;
+    const int8_t *sp = (const int8_t*) src;
+    int8_t *dp = (int8_t*) dest;
     for(; count != 0; count--) *dp++ = *sp++;
     return dest;
 }
 
-unsigned char *memset(void *dest, unsigned char val, int count)
+uint8_t *memset(void *dest, uint8_t val, int count)
 {
-    char *temp = (char*) dest;
+    int8_t *temp = (int8_t*) dest;
     for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
+uint16_t *memsetw(uint16_t *dest, uint16_t val, int count)
 {
-    unsigned short *temp = (unsigned short*) dest;
+    uint16_t *temp = (uint16_t*) dest;
     for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-bool memequal(void *ptr1, void *ptr2, unsigned int count)
+bool memequal(void *ptr1, void *ptr2, uint32_t count)
 {
-	unsigned char *temp1 = (unsigned char*) ptr1;
-	unsigned char *temp2 = (unsigned char*) ptr2;
+	uint8_t *temp1 = (uint8_t*) ptr1;
+	uint8_t *temp2 = (uint8_t*) ptr2;
 
 	bool ret = true;
 
@@ -50,19 +51,19 @@ bool memequal(void *ptr1, void *ptr2, unsigned int count)
 	return ret;
 }
 
-void memclr(void *address, unsigned int length)
+void memclr(void *address, uint32_t length)
 {
-	register unsigned int addr = (unsigned int)address;
+	register uint32_t addr = (uint32_t)address;
 
 	while((addr & 3) && length)
 	{
-		*((unsigned char*) addr) = 0;
+		*((uint8_t*) addr) = 0;
 		addr++;
 		length--;
 	}
 	while(length & 0xfffffffc)
 	{
-		*((unsigned int*) addr) = 0;
+		*((uint32_t*) addr) = 0;
 		addr += 4;
 		length -= 4;
 	}
@@ -70,28 +71,28 @@ void memclr(void *address, unsigned int length)
 	{
 		addr++;
 		length--;
-		*((unsigned char*) addr) = 0;
+		*((uint8_t*) addr) = 0;
 	}
 }
 
-int strlen(const char *str)
+int strlen(const int8_t *str)
 {
     int retval;
     for(retval = 0; *str != '\0'; str++) retval++;
     return retval;
 }
 
-unsigned char *strcpy(unsigned char *dest, const unsigned char *src)
+uint8_t *strcpy(uint8_t *dest, const uint8_t *src)
 {
-	return (unsigned char*) memcpy(dest, (void*) src, strlen(src) + 1);
+	return (uint8_t*) memcpy(dest, (void*) src, strlen(src) + 1);
 }
 
-unsigned char *strncpy(unsigned char *dest, const unsigned char *src, unsigned int size)
+uint8_t *strncpy(uint8_t *dest, const uint8_t *src, uint32_t size)
 {
-	return (unsigned char*) memcpy(dest, (void*) src, size + 1);
+	return (uint8_t*) memcpy(dest, (void*) src, size + 1);
 }
 
-bool strequal(unsigned char *s1, unsigned char *s2)
+bool strequal(uint8_t *s1, uint8_t *s2)
 {
 	if (strlen(s1) != strlen(s2))
 	{
@@ -108,7 +109,7 @@ bool strequal(unsigned char *s1, unsigned char *s2)
 	return ret;
 }
 
-bool strnequal(unsigned char *s1, unsigned char *s2, unsigned int num)
+bool strnequal(uint8_t *s1, uint8_t *s2, uint32_t num)
 {
 	int ret = true;
 	int index = 0;
@@ -120,7 +121,7 @@ bool strnequal(unsigned char *s1, unsigned char *s2, unsigned int num)
 	return ret;
 }
 
-unsigned char *strlower(unsigned char *str)
+uint8_t *strlower(uint8_t *str)
 {
 	int i;
 	for (i = 0; i < strlen(str); i++)
@@ -131,7 +132,7 @@ unsigned char *strlower(unsigned char *str)
 	return str;
 }
 
-unsigned char *strupper(unsigned char *str)
+uint8_t *strupper(uint8_t *str)
 {
 	int i;
 	for (i = 0; i < strlen(str); i++)
@@ -142,9 +143,9 @@ unsigned char *strupper(unsigned char *str)
 	return str;
 }
 
-unsigned char *strcat(unsigned char *s1, unsigned char *s2)
+uint8_t *strcat(uint8_t *s1, uint8_t *s2)
 {
-	unsigned char *str = (unsigned char*) kmalloc(strlen(s1) + strlen(s2) + 1);
+	uint8_t *str = (uint8_t*) kmalloc(strlen(s1) + strlen(s2) + 1);
 
 	int i;
 	for (i = 0; i < strlen(s1); i++)
@@ -161,7 +162,7 @@ unsigned char *strcat(unsigned char *s1, unsigned char *s2)
 	return str;
 }
 
-unsigned char *strtok(unsigned char *str, const char *delimeter, unsigned char **saveptr)
+uint8_t *strtok(uint8_t *str, const int8_t *delimeter, uint8_t **saveptr)
 {
 	/* First call */
 	if (str)
@@ -174,13 +175,13 @@ unsigned char *strtok(unsigned char *str, const char *delimeter, unsigned char *
 		return 0;
 	}
 		
-	unsigned int skipped = 0;
-	while (!strnequal(*saveptr, (unsigned char*) delimeter, strlen(delimeter)))
+	uint32_t skipped = 0;
+	while (!strnequal(*saveptr, (uint8_t*) delimeter, strlen(delimeter)))
 	{
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')
 		{
-			unsigned char *found_str = kmalloc(skipped + 1);
+			uint8_t *found_str = kmalloc(skipped + 1);
 			memcpy(found_str, *saveptr - skipped, skipped + 1);
 			
 			*saveptr = 0;
@@ -192,7 +193,7 @@ unsigned char *strtok(unsigned char *str, const char *delimeter, unsigned char *
 	}
 	
 	/* We've found it! */
-	unsigned char *found_str = kmalloc(skipped + 1);
+	uint8_t *found_str = kmalloc(skipped + 1);
 	memcpy(found_str, *saveptr - skipped, skipped);
 	found_str[skipped] = '\0';
 	

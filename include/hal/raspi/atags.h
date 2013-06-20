@@ -1,7 +1,9 @@
 #ifndef ATAGS_H
 #define ATAGS_H
 
-extern void print_atags(unsigned int address);
+#include <lib/libc/stdint.h>
+
+extern void print_atags(uint32_t address);
 
 #define	ATAG_NONE	0
 #define	ATAG_CORE	0x54410001
@@ -16,8 +18,8 @@ extern void print_atags(unsigned int address);
 
 struct atag_header
 {
-	unsigned int size;	/* Size in words of this tag */
-	unsigned int tag;	/* Tag value */
+	uint32_t size;	/* Size in words of this tag */
+	uint32_t tag;	/* Tag value */
 };
 
 /* ATAG_NONE ends the list of ATAGs */
@@ -32,17 +34,17 @@ struct atag_core
 {
 	struct atag_header	header;
 	/* Optional entries below */
-	unsigned int flags;	/* Bit 0 - read only. Others unused */
-	unsigned int pagesize;	/* Page size */
-	unsigned int rootdevice;	/* Root device number */
+	uint32_t flags;	/* Bit 0 - read only. Others unused */
+	uint32_t pagesize;	/* Page size */
+	uint32_t rootdevice;	/* Root device number */
 };
 
 /* ATAG_MEM defines a physical memory region */
 struct atag_mem
 {
 	struct atag_header header;
-	unsigned int size;	/* Size of region */
-	unsigned int address;	/* Address of start of region */
+	uint32_t size;	/* Size of region */
+	uint32_t address;	/* Address of start of region */
 };
 
 /* ATAG_VIDEOTEXT defines a VGA text screen. Not relevant to a Raspberry Pi  */
@@ -51,59 +53,59 @@ struct atag_mem
 struct atag_ramdisk
 {
 	struct atag_header header;
-	unsigned int flags;	/* Bit 0 = load, bit 1 = prompt */
-	unsigned int size;	/* Decompressed size in KB */
-	unsigned int start;	/* Start block of ram disk */
+	uint32_t flags;	/* Bit 0 = load, bit 1 = prompt */
+	uint32_t size;	/* Decompressed size in KB */
+	uint32_t start;	/* Start block of ram disk */
 };
 
 /* ATAG_INITRD2 - define physical location of ramdisk image */
 struct atag_initrd2
 {
 	struct atag_header header;
-	unsigned int address;	/* Address of ramdisk image */
-	unsigned int size;	/* Size of compressed(?) image */
+	uint32_t address;	/* Address of ramdisk image */
+	uint32_t size;	/* Size of compressed(?) image */
 };
 
 /* ATAG_SERIAL has the 64-bit serial number */
 struct atag_serial
 {
 	struct atag_header header;
-	unsigned int low;
-	unsigned int high;
+	uint32_t low;
+	uint32_t high;
 };
 
 /* ATAG_REVISION - board revision number */
 struct atag_revision
 {
 	struct atag_header header;
-	unsigned int revision;
+	uint32_t revision;
 };
 
 /* ATAG_VIDEOLFB - describes a framebuffer */
 struct atag_videolfb
 {
 	struct atag_header header;
-	unsigned short int width;	/* Width of buffer */
-	unsigned short int height;	/* Height */
-	unsigned short int depth;	/* Bits/pixel */
-	unsigned short int linelength;	// ?
-	unsigned int address;		/* Base address of buffer */
-	unsigned int size;		/* Size of buffer */
-	unsigned char redsize;		/* Number of red bits in each pixel */
-	unsigned char redpos;		/* Position of red bits in pixel */
-	unsigned char greensize;
-	unsigned char greenpos;
-	unsigned char bluesize;
-	unsigned char bluepos;
-	unsigned char reservedsize;	/* Number of reserved bits/pixel */
-	unsigned char reservedpos;	/* Position of reserved bits */
+	uint16_t int width;	/* Width of buffer */
+	uint16_t int height;	/* Height */
+	uint16_t int depth;	/* Bits/pixel */
+	uint16_t int linelength;	// ?
+	uint32_t address;		/* Base address of buffer */
+	uint32_t size;		/* Size of buffer */
+	uint8_t redsize;		/* Number of red bits in each pixel */
+	uint8_t redpos;		/* Position of red bits in pixel */
+	uint8_t greensize;
+	uint8_t greenpos;
+	uint8_t bluesize;
+	uint8_t bluepos;
+	uint8_t reservedsize;	/* Number of reserved bits/pixel */
+	uint8_t reservedpos;	/* Position of reserved bits */
 };
 
 /* ATAG_CMDLINE - kernel command line */
 struct atag_cmdline
 {
 	struct atag_header header;
-	char commandline;		/* Multiple characters from here */
+	int8_t commandline;		/* Multiple int8_tacters from here */
 };
 
 #endif	/* ATAGS_H */

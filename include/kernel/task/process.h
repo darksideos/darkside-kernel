@@ -1,6 +1,7 @@
 #ifndef __PROCESS_H
 #define __PROCESS_H
 
+#include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <kernel/task/thread.h>
 #include <kernel/vfs/vfs.h>
@@ -16,20 +17,20 @@
 struct thread;
 typedef struct process
 {
-    unsigned int pid;					// Process ID
-	unsigned char *name;				// Name of the process
+    uint32_t pid;					// Process ID
+	uint8_t *name;				// Name of the process
 
 	struct thread **threads;			// Threads
-	unsigned int num_threads;			// Number of threads
+	uint32_t num_threads;			// Number of threads
 
-	unsigned int address_space;			// Address space
+	uint32_t address_space;			// Address space
 
 	fs_node_t **files;					// Files opened by the process
-	unsigned int num_files;				// Number of files opened by the process
+	uint32_t num_files;				// Number of files opened by the process
 
 	int state;							// Process state (ready, sleeping, stopped, I/O blocked)
 
-	unsigned int signals;				// The currently triggered signals in the process
+	uint32_t signals;				// The currently triggered signals in the process
 	sighandler_t signal_handlers[16];	// Signal handlers
 
 	bool vm86_process;					// Is this a VM86 process?
@@ -37,7 +38,7 @@ typedef struct process
 
 	struct process *parent_process;		// Parent process
 	struct process **child_processes;	// Child processes
-	unsigned int num_child_processes;	// Number of child processes
+	uint32_t num_child_processes;	// Number of child processes
 } process_t;
 
 /* Initialize processes */
@@ -45,18 +46,18 @@ void init_processes();
 
 /* These 2 functions are used to create new processes using POSIX syscalls */ 
 int fork();
-int execve(char *name, char **argv, char **env);
+int execve(int8_t *name, int8_t **argv, int8_t **env);
 
 /* Create a new blank process without cloning the registers, address space, and files of the current one */
-process_t *create_process(unsigned char *name, void (*function)(), char **argv, unsigned int user_stack_size);
+process_t *create_process(uint8_t *name, void (*function)(), int8_t **argv, uint32_t user_stack_size);
 
 /* Switch the current process and thread to a specified one */
-void switchpid(unsigned int pid, unsigned int tid);
+void switchpid(uint32_t pid, uint32_t tid);
 
 /* Return the current PID, a pointer to the current process, and the number of running processes */
-unsigned int getpid();
+uint32_t getpid();
 process_t *getprocess();
-unsigned int getnumpids();
+uint32_t getnumpids();
 
 /* Both of these functions wait for a child process's status to change */
 int waitpid(int pid, int *status, int options);
