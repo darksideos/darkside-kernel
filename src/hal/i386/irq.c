@@ -71,12 +71,12 @@ void irq_uninstall_handler(int32_t irq)
 }
 
 /* Disable and enable IRQs */
-void hal_cli()
+void cli()
 {
 	__asm__ __volatile__ ("cli");
 }
 
-void hal_sti()
+void sti()
 {
 	__asm__ __volatile__ ("sti");
 }

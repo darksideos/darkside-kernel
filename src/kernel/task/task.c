@@ -1,6 +1,6 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
-#include <hal/i386/vmm.h>
+#include <kernel/init/hal.h>
 #include <kernel/debug/kprintf.h>
 #include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
@@ -17,7 +17,7 @@ uint8_t mode_flags = 0x00;
 bool user_mode = false;
 
 /* Current page directory */
-extern page_directory_t *current_directory;
+extern uint32_t current_directory;
 
 /* The system idle process, which runs at full priveleges in kernel mode */
 void kernel_process_run()
@@ -59,7 +59,8 @@ void test3_process_run()
 /* Initialize the multitasking system */
 void init_multitasking()
 {
-	hal_cli();
+	/* Disable interrupts */
+	cli();
 
 	/* Initialize processes */
 	init_processes();

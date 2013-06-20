@@ -1,7 +1,6 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
-#include <hal/i386/vmm.h>
-#include <hal/i386/isrs.h>
+#include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/vfs/vfs.h>
@@ -20,7 +19,7 @@ volatile uint32_t current_pid = 0;
 volatile uint32_t num_processes = 0;
 
 /* Current page directory */
-extern page_directory_t *current_directory;
+extern uint32_t *current_directory;
 
 /* Initialize processes */
 void init_processes()
@@ -77,8 +76,8 @@ int32_t fork()
 		memcpy(new_process->threads[i], parent_process->threads[i], sizeof(thread_t));
 
 		/* Now copy its register context */
-		struct i386_regs *context = (struct i386_regs*) kmalloc(sizeof(struct i386_regs));
-		memcpy(context, parent_process->threads[i]->context, sizeof(struct i386_regs));
+		void *context = create_registers(0, true);
+		copy_registers(context, parent_process->threads[i]->context);
 		new_process->threads[i]->context = context;
 
 		/* Finally, create the task's kernel stack */
@@ -164,7 +163,7 @@ process_t *create_process(uint8_t *name, void (*function)(), int8_t **argv, uint
 	create_thread(new_process, function, argv, user_stack_size);
 
 	/* Give the process its own blank page directory and map the kernel into it */
-    new_process->address_space = create_page_directory();
+    new_process->address_space = create_address_space();
 	//map_kernel(new_process->address_space);
 
 	/* Add the 3 standard streams to the process. We call a function in the VFS to give them to us */
@@ -227,8 +226,8 @@ void switchpid(uint32_t pid, uint32_t tid)
 	/* Get the new thread's context */
 	struct i386_regs *new_context = processes[pid]->threads[tid]->context;
 
-	/* Switch to the new task's page directory */
-	switch_page_directory(processes[pid]->address_space);
+	/* Switch to the new task's address space */
+	switch_address_space(processes[pid]->address_space);
 
 	/* Set the kernel stack in the TSS to the one in the new thread */
 	set_kernel_stack(processes[pid]->threads[tid]->kernel_stack);

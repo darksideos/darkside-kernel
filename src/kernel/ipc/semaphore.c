@@ -1,6 +1,5 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
-#include <hal/i386/lock.h>
 #include <kernel/ipc/semaphore.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/task/thread.h>
