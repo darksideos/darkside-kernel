@@ -16,7 +16,11 @@ void hal_main(struct multiboot *mboot_ptr)
 	isrs_install();
 	irq_install();
 	timer_install(100);
+	asm volatile("sti");
+	log("Interrupts enabled");
+	log("Timer and log are up");
 
  	init_pmm(0x100000 + (mboot_ptr->mem_upper * 1024));
+ 	log("PMM initialization complete");
  	init_vmm();
 }

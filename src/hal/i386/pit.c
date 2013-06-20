@@ -15,6 +15,11 @@ void pit_handler(struct i386_regs *r)
 	switch_tasks_roundrobin(r);
 }
 
+unsigned int pit_get_time()
+{
+	return pit_ticks * pit_frequency;
+}
+
 /* Wait for a specified amount of PIT ticks */
 void pit_wait(int ticks)
 {

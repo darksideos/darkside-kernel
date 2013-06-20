@@ -7,6 +7,7 @@
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 #include <kernel/debug/kprintf.h>
+#include <kernel/debug/log.h>
 
 /* A bitmap of used and free pages */
 unsigned int *pmm_pages;
@@ -94,6 +95,8 @@ void init_pmm(unsigned int size)
 		bitmap_page += 0x1000;
 	}
 	
+	log("Mapped pages for PMM bitmap");
+	
 	pmm_pages = (unsigned int*) page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
 	memset(pmm_pages, 0, num_bitmap_pages * 0x1000);
 
@@ -104,4 +107,6 @@ void init_pmm(unsigned int size)
 	{
 		pmm_claim_page(i);
 	}
+	
+	log("Claimed pages for PMM bitmap");
 }
