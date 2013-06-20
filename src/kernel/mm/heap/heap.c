@@ -35,7 +35,7 @@ void *krealloc(void *ptr, unsigned int size)
 }
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user)
+heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user, bool global)
 {
 	/* First, place a heap structure, make sure it's 0, and fill in its data */
 	heap_t *heap = (heap_t*) start_address;
@@ -47,6 +47,7 @@ heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsign
 	heap->max_address = max_address;
 
 	heap->user = user;
+	heap->global = global;
 
 	/* Second, create the heap index */
 	header_t *header = (header_t*) start_address + sizeof(heap_t);
@@ -98,7 +99,7 @@ void resize_heap(heap_t *heap, unsigned int new_size)
 		/* Allocate new pages for the heap */
 		for (i = heap->start_address + old_size; i < heap->start_address + new_size; i += 0x1000)
 		{
-			map_page(kernel_directory, i, pmm_alloc_page(), true, true, heap->user);
+			map_page(kernel_directory, i, pmm_alloc_page(), true, true, heap->user, heap->global);
 		}
 
 		/* Finally, modify the heap's end address */
@@ -226,5 +227,5 @@ void *heap_realloc(heap_t *heap, void *ptr, unsigned int size, bool align)
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, false);
+	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, false, true);
 }
