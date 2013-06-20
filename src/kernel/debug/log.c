@@ -31,7 +31,7 @@ void panic(const int8_t *fmt, ...)
 	int8_t buf[1024];
 
 	va_list args;
-	int i;
+	int32_t i;
 
 	va_start(args, fmt);
 	i = vsprintf(buf, fmt, args);
