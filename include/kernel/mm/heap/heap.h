@@ -31,6 +31,7 @@ typedef struct heap
 	unsigned int max_address;   // The maximum address of the heap
 
 	bool user;					// Accessible in user mode?
+	bool global;				// Withstands TLB flushes?
 } heap_t;
 
 /* Allocate, free, and resize memory on the kernel heap */
@@ -39,7 +40,7 @@ void kfree(void *ptr);
 void *krealloc(void *ptr, unsigned int size);
 
 /* Create a heap */
-heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user);
+heap_t *create_heap(unsigned int start_address, unsigned int end_address, unsigned int min_address, unsigned int max_address, bool user, bool global);
 
 /* Allocate, free memory, and resize memory allocated on a heap */
 void *heap_malloc(heap_t *heap, unsigned int size, bool align);

@@ -14,24 +14,29 @@ unsigned int current_directory = 0;
 unsigned int page_size = 0x1000;
 
 /* Get a page */
-page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user)
+page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool present, bool rw, bool user, bool global)
 {
 	/* Construct the page flags */
 	unsigned int flags = 0;
 
 	if (present)
 	{
-		flags |= 0x01;
+		flags |= PAGE_FLAG_PRESENT;
 	}
 
 	if (rw)
 	{
-		flags |= 0x02;
+		flags |= PAGE_FLAG_RW;
 	}
 
 	if (user)
 	{
-		flags |= 0x04;
+		flags |= PAGE_FLAG_USER;
+	}
+
+	if (global)
+	{
+		flags |= PAGE_FLAG_GLOBAL;
 	}
 
 	/* Find out which page the virtual address in in */
@@ -45,11 +50,11 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 	page_table_t *table = &((page_table_t*) PAGE_STRUCTURES_START)[table_index];
 
 	/* The page directory is mapped as the recursive page directory */
-	if (directory->tables[1023] == dir | 0x03)
+	if (PAGE_FRAME(directory->tables[1023]) == dir)
 	{
 	}
 	/* The page directory is mapped as the secondary recursive page directory */
-	else if (directory->tables[1022] == dir | 0x03)
+	else if (PAGE_FRAME(directory->tables[1022]) == dir)
 	{
 		/* Choose the secondary recursive page directory */
 		directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
@@ -58,14 +63,13 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 	else
 	{
 		/* Map it in as the secondary recursive page directory */
-		directory->tables[1022] = dir | 0x03;
+		directory->tables[1022] = dir | PAGE_KERNEL;
+
+		/* Flush the entire TLB */
+		flush_tlb();
 
 		/* Choose the secondary recursive page directory */
 		directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
-
-		/* Invalidate the TLB entries */
-		asm volatile ("invlpg (%0)" :: "a" (directory));
-		asm volatile ("invlpg (%0)" :: "a" (table));
 	}
 
 	/* If the page table already exists, return the page */
@@ -77,11 +81,9 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 	else if (make)
 	{
 		/* Create a new page table */
-		directory->tables[table_index] = pmm_alloc_page() | 0x03;
-		asm volatile ("invlpg (%0)" :: "a" (table));
+		directory->tables[table_index] = pmm_alloc_page() | PAGE_KERNEL;
+		flush_tlb();
 		memset(table, 0, 0x1000);
-
-		kprintf("0x%08X\n", directory->tables[table_index]);
 
 		/* Return the page */
 		return &table->pages[page % 1024];
@@ -94,31 +96,36 @@ page_t *get_page(unsigned int dir, unsigned int virtual_address, bool make, bool
 }
 
 /* Map a virtual address to a physical address */
-void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user)
+void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physical_address, bool present, bool rw, bool user, bool global)
 {
 	/* Construct the page flags */
 	unsigned int flags = 0;
 
 	if (present)
 	{
-		flags |= 0x01;
+		flags |= PAGE_FLAG_PRESENT;
 	}
 
 	if (rw)
 	{
-		flags |= 0x02;
+		flags |= PAGE_FLAG_RW;
 	}
 
 	if (user)
 	{
-		flags |= 0x04;
+		flags |= PAGE_FLAG_USER;
+	}
+
+	if (global)
+	{
+		flags |= PAGE_FLAG_GLOBAL;
 	}
 
 	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
-	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
+	page_t *page = get_page(dir, virtual_address, true, present, rw, user, global);
 
 	/* Map the page in the table to the physical address */
-	*((unsigned int*) page) = physical_address | flags | 0x01;
+	*((unsigned int*) page) = physical_address | flags;	// Page fault here
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
@@ -128,7 +135,7 @@ void map_page(unsigned int dir, unsigned int virtual_address, unsigned int physi
 void unmap_page(unsigned int dir, unsigned int virtual_address)
 {
 	/* Return the page that corresponds to the virtual address */
-	page_t *page = get_page(dir, virtual_address, false, false, false, false);
+	page_t *page = get_page(dir, virtual_address, false, false, false, false, false);
 
 	/* If the page already does not exist, return */
 	if (!page)
@@ -156,11 +163,11 @@ unsigned int create_page_directory()
 	/* Map the page directory in as the secondary recursive page directory */
 	directory->tables[1022] = dir | 0x03;
 
+	/* Flush the entire TLB */
+	flush_tlb();
+
 	/* Choose the secondary recursive page directory */
 	directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
-
-	/* Invalidate the TLB entries */
-	asm volatile ("invlpg (%0)" :: "a" (directory));
 
 	/* Clear the page directory */
 	memset(directory, 0, sizeof(page_directory_t));
@@ -174,6 +181,12 @@ void switch_page_directory(unsigned int dir)
 {
     current_directory = dir;
     asm volatile("mov %0, %%cr3" :: "r"(dir));
+}
+
+/* Flush the entire TLB */
+void flush_tlb()
+{
+	asm volatile("mov %0, %%cr3" :: "r"(current_directory));
 }
 
 /* Page align an address */
@@ -192,27 +205,30 @@ unsigned int page_align(unsigned int address)
 /* Initialize paging */
 void init_vmm()
 {
+	/* Set the address of the current directory */
+	asm volatile ("mov %%cr3, %0" : "=r"(current_directory));
+
 	/* Create the kernel directory */
 	kernel_directory = create_page_directory();
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
-	directory[1023] = directory[1022];
+	directory->tables[1023] = directory->tables[1022];
+
+	/* Flush the entire TLB */
+	flush_tlb();
 
 	unsigned int i;
 	
 	/* Identity map the first 1 MB of the address space, so that the VGA framebuffer and VM86 tasks will work */
 	for (i = 0; i < 0x100000; i += 0x1000)
 	{
-		map_page(kernel_directory, i, i, true, true, false);
+		map_page(kernel_directory, i, i, true, true, false, true);
 	}
 
 	/* Map our kernel into the kernel directory */
 	for (i = 0; i < KERNEL_PHYSICAL_SIZE; i += 0x1000)
 	{
-		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, false);
+		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, false, true);
 	}
-
-	unsigned int *pd = (unsigned int*) (PAGE_STRUCTURES_START + (0x1000 * 1023));
-	kprintf("0x%08X, 0x%08X\n", pd, *pd);
 
 	/* Switch to the the kernel directory */
 	switch_page_directory(kernel_directory);
