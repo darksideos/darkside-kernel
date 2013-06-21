@@ -5,7 +5,7 @@ CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-poin
 
 OBJFILES = ata.o
  
-.cpp.o:
-	$(CCBASE)-g++ $(CFLAGS) -o $(ROOT)/build/drivers/ide/ata/$@ -c $<
+.c.o:
+	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build/drivers/ide/ata/$@ -c $<
 	
 all: $(OBJFILES)

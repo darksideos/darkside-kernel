@@ -4,7 +4,7 @@
 
 cli
 
-mov	ax, 0x4000		; destination segment
+mov	ax, 0x600		; destination segment
 mov	es, ax			; is stored in es
 mov	ah, 0x02		; function = 02h to read
 mov al, 1			; read one sector
@@ -17,7 +17,7 @@ mov	dh,	0			; head number 0
 mov	dl, 0x80		; goes in dh
 
 mov	bx, 0x0000			; offset goes in bx
-; stage2 will be stored at 0x4444:0x0000 (es:bx)
+; stage2 will be stored at 0x6000
 
 ; Call the BIOS to read the disk
 int	0x13
@@ -26,7 +26,7 @@ int	0x13
 jc eternal
 
 ; Otherwise, jump to our code
-jmp 0x4000:0x0000
+jmp 0x600:0x0000
 
 ; Eternal loop
 eternal:

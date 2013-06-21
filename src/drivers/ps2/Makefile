@@ -6,6 +6,6 @@ CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-poin
 OBJFILES = keyboard.o mouse.o
  
 .cpp.o:
-	$(CCBASE)-g++ $(CFLAGS) -o $(ROOT)/build-i386/drivers/ps2/$@ -c $<
+	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build-i386/drivers/ps2/$@ -c $<
 	
 all: $(OBJFILES)

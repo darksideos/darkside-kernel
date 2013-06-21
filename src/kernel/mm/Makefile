@@ -2,8 +2,8 @@ ROOT = ../../..
 
 OBJFILES = address_space.o
  
-.cpp.o:
-	$(CCBASE)-g++ $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/kernel/mm/$@ -c $<
+.c.o:
+	$(CCBASE)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/kernel/mm/$@ -c $<
 
 all: $(OBJFILES)
 	cd heap; make CFLAGS="$(CFLAGS)" CCBASE=$(CCBASE) BLD_TARGET=$(BLD_TARGET)
