@@ -2,8 +2,8 @@
 #include <lib/libc/stdbool.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/task/process.h>
-#include <kernel/debug/kprintf.h>
 
 /* GPF handler */
 void gpf_handler(struct i386_regs *r)

@@ -5,7 +5,7 @@
 #include <hal/i386/bios.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
-#include <kernel/debug/log.h>
+#include <kernel/console/log.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 

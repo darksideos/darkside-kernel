@@ -1,12 +1,12 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
+#include <lib/libc/math.h>
 #include <kernel/mm/heap/heap.h>
-#include <kernel/vfs/vfs.h>
 #include <kernel/modules/initrd.h>
+#include <kernel/vfs/vfs.h>
 #include <drivers/graphics/vga.h>
 #include <drivers/ps2/keyboard.h>
-#include <lib/libc/math.h>
 
 /* Root and dev nodes of the filesystem */
 fs_node_t *fs_root;

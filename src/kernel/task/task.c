@@ -1,8 +1,8 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
+#include <kernel/console/kprintf.h>
+#include <kernel/console/bochs.h>
 #include <kernel/init/hal.h>
-#include <kernel/debug/kprintf.h>
-#include <kernel/debug/bochs.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>
@@ -12,9 +12,6 @@
  * Bit 1: 0 - Task switching is disabled, 1 - Task switching is enabled
  */
 uint8_t mode_flags = 0x00;
-
-/* Is the CPU in user mode? */
-bool user_mode = false;
 
 /* Current page directory */
 extern uint32_t current_directory;

@@ -4,7 +4,6 @@
 #include <hal/i386/irq.h>
 #include <hal/i386/timer.h>
 #include <kernel/task/task.h>
-#include <kernel/debug/kprintf.h>
 
 /* The number of PIT ticks and frequency */
 volatile int32_t pit_ticks = 0;

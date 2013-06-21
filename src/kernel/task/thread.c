@@ -2,10 +2,10 @@
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
 #include <kernel/init/hal.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/task.h>
-#include <kernel/mm/heap/heap.h>
 
 /* Current thread ID and the number of running threads */
 volatile uint32_t current_tid = 0;
