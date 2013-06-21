@@ -4,9 +4,9 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
-#include <kernel/debug/kprintf.h>
 
 /* Debugging info: what we know so far...
 - map_page() works...

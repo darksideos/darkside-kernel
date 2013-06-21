@@ -5,7 +5,7 @@
 #include <hal/i386/timer.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
-#include <kernel/debug/log.h>
+#include <kernel/console/log.h>
 #include <kernel/modules/multiboot.h>
 
 /* Initialize the HAL */

@@ -1,8 +1,8 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
-#include <kernel/vfs/vfs.h>
-#include <kernel/modules/initrd.h>
 #include <kernel/mm/heap/heap.h>
+#include <kernel/modules/initrd.h>
+#include <kernel/vfs/vfs.h>
 
 initrd_header_t *initrd;
 

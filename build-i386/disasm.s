@@ -11392,10 +11392,7 @@ Disassembly of section .bss:
 	...
 
 8001e438 <mode_flags>:
-	...
-
-8001e439 <user_mode>:
-8001e439:	00 00                	add    %al,(%eax)
+8001e438:	00 00                	add    %al,(%eax)
 	...
 
 8001e43c <current_tid>:

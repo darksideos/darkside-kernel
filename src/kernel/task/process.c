@@ -1,13 +1,13 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/init/hal.h>
+#include <kernel/ipc/signal.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
-#include <kernel/vfs/vfs.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
-#include <kernel/ipc/signal.h>
-#include <kernel/debug/kprintf.h>
+#include <kernel/vfs/vfs.h>
 
 /* Maximum number of processes that can be run */
 uint32_t max_processes = 4096;
@@ -22,6 +22,7 @@ volatile uint32_t num_processes = 0;
 /* Current page directory */
 extern uint32_t *current_directory;
 
+/* Switch the current CPU context */
 extern void task_switch_stub(void*);
 
 /* Initialize processes */
