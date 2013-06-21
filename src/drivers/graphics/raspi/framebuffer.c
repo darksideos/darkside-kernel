@@ -1,5 +1,5 @@
 #include <lib/libc/stdint.h>
-#include <lib/libgeneric.h>
+#include <lib/libc/stdbool.h>
 #include <hal/raspi/barrier.h>
 #include <hal/raspi/mailbox.h>
 #include <hal/raspi/vmm.h>
