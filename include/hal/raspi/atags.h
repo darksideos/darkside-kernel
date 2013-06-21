@@ -85,10 +85,10 @@ struct atag_revision
 struct atag_videolfb
 {
 	struct atag_header header;
-	uint16_t int width;	/* Width of buffer */
-	uint16_t int height;	/* Height */
-	uint16_t int depth;	/* Bits/pixel */
-	uint16_t int linelength;	// ?
+	uint16_t width;	/* Width of buffer */
+	uint16_t height;	/* Height */
+	uint16_t depth;	/* Bits/pixel */
+	uint16_t linelength;	// ?
 	uint32_t address;		/* Base address of buffer */
 	uint32_t size;		/* Size of buffer */
 	uint8_t redsize;		/* Number of red bits in each pixel */

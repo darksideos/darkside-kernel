@@ -1,5 +1,5 @@
 #include <lib/libc/stdint.h>
- #include <hal/raspi/vmm.h>
+#include <hal/raspi/vmm.h>
  
  /* Virtual memory layout
  *

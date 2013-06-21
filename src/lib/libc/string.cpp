@@ -7,7 +7,7 @@
 
 #ifdef __arm__
 
-uint32_t kmalloc(uint32_t sz)
+void* kmalloc(uint32_t sz)
 {
 	return 0;
 }
