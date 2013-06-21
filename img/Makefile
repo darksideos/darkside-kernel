@@ -5,8 +5,8 @@ EJECT ?= sudo eject
 
 OS = $(shell uname -s)
 
-CFLAGS_i386	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -fpermissive
-CFLAGS_RASPI	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -Wall -O6 -nostdinc -ffreestanding -nostartfiles -nodefaultlibs -marm -mcpu=arm1176jzf-s -fpermissive
+CFLAGS_i386	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin
+CFLAGS_RASPI	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -Wall -O6 -nostdinc -ffreestanding -nostartfiles -nodefaultlibs -marm -mcpu=arm1176jzf-s
 
 .PHONY: kernel-i386.elf kernel-raspi.elf kernel.img kernel-raspi.img clean
 
@@ -31,7 +31,7 @@ kernel-raspi.elf: clean
 	cd ../src/drivers/raspi; make CCBASE=$(ARM)
 #	cd ../src/kernel; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
 	cd ../src/lib/libc; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
-	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a ../build-raspi/hal/raspi/*.o ../build-raspi/drivers/graphics/raspi/*.o ../build-raspi/drivers/raspi/*/*.o ../lib/libgeneric-raspi.a
+	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a ../build-raspi/hal/raspi/*.o ../build-raspi/drivers/graphics/raspi/*.o ../build-raspi/drivers/raspi/*/*.o ../lib/libc-raspi.a
 
 kernel-raspi.img: kernel-raspi.elf
 	$(ARM)-objcopy kernel-raspi.elf -O binary kernel-raspi.img
