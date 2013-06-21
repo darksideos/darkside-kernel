@@ -32,7 +32,7 @@ void syscall_install_handler(int32_t syscall, void *handler)
 }
 
 /* Handle the syscall interrupt */
-extern "C" void syscall_handler(struct i386_regs *r)
+void syscall_handler(struct i386_regs *r)
 {
 	/* Make sure that the syscall number is valid */
 	if (r->eax >= num_syscalls)
