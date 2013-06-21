@@ -1,14 +1,14 @@
-[ORG 0x40000]
+[ORG 0x6000]
 [BITS 16]
 
-mov ax, 0x4000
+mov ax, 0x600
 mov ds, ax
 
 in al, 0x92
 or al, 2
 out 0x92, al
 
-lgdt [ds:gdtr]	; load gdt register
+lgdt [gdtr]	; load gdt register
 mov ebx, 0xBEEF0000
 
 mov eax, cr0	; switch to protected mode by
@@ -17,7 +17,14 @@ mov cr0, eax	; in CR0
 
 jmp 0x08:flush_gdt
 
-[BITS 32]
+gdtr:
+	dw gdt_end - null_seg - 1	; last byte in table
+	dd null_seg					; start of table
+ 
+null_seg					db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00	; entry 0 (null seg) is always unused
+code_seg					db 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x9A, 0xCF, 0x00	; entry 1 (code seg)
+data_seg					db 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x92, 0xCF, 0x00	; entry 2 (data seg)
+gdt_end:
 
 flush_gdt:
 	mov ebx, 0xBEEF0001
@@ -35,15 +42,3 @@ mov eax, 0xDEADBEEF
 mov ebx, 0xDEADBEEF
 
 jmp $
-
-[BITS 16]
-
-; GDT
-
-gdtr:
-	dw gdt_end - gdt - 1	; last byte in table
-	dd gdt					; start of table
- 
-gdt					dd 0,0	; entry 0 is always unused
-flatdesc			db 0xff, 0xff, 0, 0, 0, 10010010b, 11001111b, 0
-gdt_end:

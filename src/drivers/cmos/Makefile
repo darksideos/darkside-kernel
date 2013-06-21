@@ -4,7 +4,7 @@ CCBASE	?= i586-elf
 CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I$(ROOT)/include
 OBJFILES = cmos.o
  
-.cpp.o:
-	$(CCBASE)-g++ $(CFLAGS) -o $(ROOT)/build/drivers/cmos/$@ -c $<
+.c.o:
+	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build/drivers/cmos/$@ -c $<
 	
 all: $(OBJFILES)
