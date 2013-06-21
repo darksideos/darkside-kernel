@@ -6,6 +6,11 @@
 #include <hal/i386/vmm.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
+#include <kernel/debug/kprintf.h>
+
+/* Debugging info: what we know so far...
+- map_page() works...
+- flush_tlb() works...
 
 /* Kernel and current page directory */
 uint32_t kernel_directory = 0;
@@ -205,10 +210,10 @@ uint32_t page_align(uint32_t address)
 
 /* Initialize paging */
 void init_vmm()
-{
+{	
 	/* Set the address of the current directory */
 	asm volatile ("mov %%cr3, %0" : "=r"(current_directory));
-
+	
 	/* Create the kernel directory */
 	kernel_directory = create_address_space();
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
