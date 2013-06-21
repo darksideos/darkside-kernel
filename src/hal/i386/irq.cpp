@@ -70,15 +70,30 @@ void irq_uninstall_handler(int32_t irq)
     irqs[irq] = 0;
 }
 
+/* Send an EOI */
+void eoi(int32_t irq)
+{
+	/* If we are using the 8259 PIC, send it an EOI */
+	if (current_pic == 0)
+	{
+		pic_eoi(irq);
+	}
+	/* If we are using the APIC, send it an EOI */
+	else if (current_pic == 1)
+	{
+		lapic_eoi();
+	}
+}
+
 /* Disable and enable IRQs */
 void cli()
 {
-	__asm__ __volatile__ ("cli");
+	asm volatile ("cli");
 }
 
 void sti()
 {
-	__asm__ __volatile__ ("sti");
+	asm volatile ("sti");
 }
 
 /* Handle an IRQ */
@@ -94,14 +109,6 @@ extern "C" void irq_handler(struct i386_regs *r)
         handler(r);
     }
 
-	/* If we are using the 8259 PIC, send it an EOI */
-	if (current_pic == 0)
-	{
-		pic_eoi(r->int_no - 32);
-	}
-	/* If we are using the APIC, send it an EOI */
-	else if (current_pic == 1)
-	{
-		lapic_eoi();
-	}
+	/* Send an EOI */
+	eoi(r->int_no - 32);
 }
