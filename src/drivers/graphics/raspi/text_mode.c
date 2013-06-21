@@ -1,8 +1,8 @@
 #include <lib/libc/stdint.h>
+#include <lib/libc/string.h>
 #include <drivers/graphics/raspi/text_mode.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/teletext.h>
-#include <lib/libgeneric.h>
 
 uint16_t fg_color, bg_color;
 uint8_t current_x, current_y;

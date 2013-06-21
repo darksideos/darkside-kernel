@@ -4,7 +4,6 @@
 #include <hal/raspi/interrupts.h>
 #include <hal/raspi/mailbox.h>
 #include <hal/raspi/vmm.h>
-#include <lib/libgeneric.h>
 #include <hal/raspi/systimer.h>
 #include <hal/raspi/interrupts.h>
 #include <drivers/raspi/gpio/gpio.h>
@@ -15,12 +14,12 @@
 
 
 /* Location of the initial page table in RAM */
-//static uint32_t *initpagetable = (uint32_t *) mem_p2v(0x4000);
+static uint32_t *initpagetable = (uint32_t *) mem_p2v(0x4000);
 
 /* Data/bss locations in physical RAM */
-//extern uint32_t _physdatastart, _physbssstart, _physbssend;
-//extern uint32_t _datastart, _bssstart, _bssend;
-//extern uint32_t _kstart, _krodata, _kend;
+extern uint32_t _physdatastart, _physbssstart, _physbssend;
+extern uint32_t _datastart, _bssstart, _bssend;
+extern uint32_t _kstart, _krodata, _kend;
 
 /* Main high memory kernel routine - called directly from initsys.c
  * Begins by completing the memory management work of initsys; removing the
@@ -37,15 +36,15 @@
 void raspi_main(uint32_t r0, uint32_t machtype, uint32_t atagsaddr)
 {
 	/* No further need to access kernel code at 0x00000000 - 0x000fffff */
-	//initpagetable[0] = 0;
+	initpagetable[0] = 0;
 	/* Flush it out of the TLB */
-	//asm volatile("mcr p15, 0, %[data], c8, c7, 1" : : [data] "r" (0x00000000));
+	asm volatile("mcr p15, 0, %[data], c8, c7, 1" : : [data] "r" (0x00000000));
 	
 	/* Initialise stuff */
-	//mem_init();
+	mem_init();
 	uart_init();
-	//interrupts_init();
-	//init_text_mode(0xFFFF, 0x0000);
+	interrupts_init();
+	init_text_mode(0xFFFF, 0x0000);
 	
 	uart_puts("Hello UART World");
 	puts("Hello, World");
