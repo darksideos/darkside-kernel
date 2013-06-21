@@ -1,9 +1,9 @@
 #include <lib/libc/stdint.h>
-#include <kernel/vfs/vfs.h>
-#include <kernel/task/process.h>
+#include <kernel/mm/heap/heap.h>
 #include <kernel/syscall/syscall.h>
 #include <kernel/syscall/file.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/task/process.h>
+#include <kernel/vfs/vfs.h>
 
 /* Kernel mode file syscall implementations */
 int32_t create(const int8_t *name, int32_t mode)

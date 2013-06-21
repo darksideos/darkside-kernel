@@ -1,7 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdarg.h>
-#include <kernel/debug/kprintf.h>
-#include <kernel/debug/log.h>
+#include <kernel/console/kprintf.h>
+#include <kernel/console/log.h>
 #include <kernel/init/hal.h>
 #include <drivers/graphics/text.h>
 

@@ -1,6 +1,6 @@
 #include <lib/libc/stdint.h>
-#include <kernel/task/process.h>
 #include <kernel/ipc/signal.h>
+#include <kernel/task/process.h>
 
 /* Send a signal to a process */
 int32_t kill(uint32_t pid, int32_t signal)

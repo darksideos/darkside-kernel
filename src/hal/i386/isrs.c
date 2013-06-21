@@ -4,7 +4,7 @@
 #include <hal/i386/idt.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
-#include <kernel/debug/kprintf.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/mm/heap/heap.h>
 
 /* The ISRs */

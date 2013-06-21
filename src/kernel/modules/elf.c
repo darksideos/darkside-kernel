@@ -1,7 +1,5 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
-#include <kernel/debug/kprintf.h>
-#include <kernel/debug/bochs.h>
 #include <kernel/modules/elf.h>
 #include <kernel/modules/elf_types.h>
 
