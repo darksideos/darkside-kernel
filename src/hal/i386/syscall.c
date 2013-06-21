@@ -6,7 +6,7 @@
 #include <kernel/task/thread.h>
 
 /* The SYSENTER entry for syscalls */
-extern "C" void kernel_sysenter_entry();
+extern void kernel_sysenter_entry();
 
 /* The kernel syscalls */
 static void *syscalls[200];

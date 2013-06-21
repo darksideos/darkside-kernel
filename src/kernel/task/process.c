@@ -22,7 +22,7 @@ volatile uint32_t num_processes = 0;
 /* Current page directory */
 extern uint32_t *current_directory;
 
-extern "C" void task_switch_stub(struct i386_regs*);
+extern void task_switch_stub(void*);
 
 /* Initialize processes */
 void init_processes()
