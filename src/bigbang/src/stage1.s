@@ -9,12 +9,12 @@ mov	es, ax			; is stored in es
 mov	ah, 0x02		; function = 02h to read
 mov al, 1			; read one sector
 mov	bx, 0			; track number 0
-mov	ch, bl			; in cs
+mov	ch, bl			; in ch
 mov	bx, 15			; sector number 15
 mov	cl, bl			; in cl
 inc	cl				; make it one-based
-mov	dh,	0			; head number 0
-mov	dl, 0x80		; goes in dh
+mov	dh,	0			; head number 0 goes in dh
+mov	dl, 0x80		; hard drive
 
 mov	bx, 0x0000			; offset goes in bx
 ; stage2 will be stored at 0x6000
