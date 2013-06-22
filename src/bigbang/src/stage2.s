@@ -1,11 +1,16 @@
 [ORG 0x6000]
 [BITS 16]
 
+; Clear the screen
+mov al, 0x03	; video mode 0x03
+mov ah, 0x00
+int 0x10
+
 in al, 0x92
 or al, 2
 out 0x92, al
 
-lgdt [gdtr]	; load gdt register
+lgdt [gdtr]		; load gdt register
 
 mov eax, cr0	; switch to protected mode by
 or al,1			; setting the protected mode bit
