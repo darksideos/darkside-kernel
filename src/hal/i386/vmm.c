@@ -109,8 +109,8 @@ uint32_t get_mapping(uint32_t dir, uint32_t virtual_address)
 		return 0xFFFFFFFF;
 	}
 
-	/* Return the address of the physical page */
-	return page->frame * 0x1000;
+	/* Return the physical address */
+	return (page->frame * 0x1000) + (virtual_address % 0x1000);
 }
 
 /* Map a virtual address to a physical address */
