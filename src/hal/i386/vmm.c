@@ -8,10 +8,6 @@
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap/heap.h>
 
-/* Debugging info: what we know so far...
-- map_page() works...
-- flush_tlb() works...
-
 /* Kernel and current page directory */
 uint32_t kernel_directory = 0;
 uint32_t current_directory = 0;
@@ -99,6 +95,22 @@ page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present
 	{
 		return 0;
 	}
+}
+
+/* Get the physical address mapping of a virtual address */
+uint32_t get_mapping(uint32_t dir, uint32_t virtual_address)
+{
+	/* Get the page */
+	page_t *page = get_page(dir, virtual_address, false, false, false, false, false);
+
+	/* If the page doesn't exist, return an error */
+	if (!page)
+	{
+		return 0xFFFFFFFF;
+	}
+
+	/* Return the address of the physical page */
+	return page->frame * 0x1000;
 }
 
 /* Map a virtual address to a physical address */
