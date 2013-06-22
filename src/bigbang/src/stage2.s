@@ -6,7 +6,6 @@ or al, 2
 out 0x92, al
 
 lgdt [gdtr]	; load gdt register
-mov ebx, 0xBEEF0000
 
 mov eax, cr0	; switch to protected mode by
 or al,1			; setting the protected mode bit
@@ -26,16 +25,13 @@ gdt_end:
 [BITS 32]
 
 reload_segs:
-	mov ebx, 0xBEEF0001
 	mov ax, 0x10
-	mov ebx, 0xBEEF0002
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
 	mov bx, 0xBEE2
-	ret
 
 mov eax, 0xDEADBEEF
 mov ebx, 0xDEADBEEF

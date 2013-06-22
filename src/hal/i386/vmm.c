@@ -186,7 +186,7 @@ uint32_t create_address_space()
 
 	/* Choose the secondary recursive page directory */
 	directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
-
+	kprintf("Mapping1: %08X\n", get_mapping(current_directory, directory));
 	/* Clear the page directory */
 	memset(directory, 0, sizeof(page_directory_t));
 
@@ -225,10 +225,11 @@ void init_vmm()
 {	
 	/* Set the address of the current directory */
 	asm volatile ("mov %%cr3, %0" : "=r"(current_directory));
+	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
+	kprintf("Mapping2: %08X\n", get_mapping(current_directory, &(directory->tables[1022])));
 	
 	/* Create the kernel directory */
 	kernel_directory = create_address_space();
-	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
 	directory->tables[1023] = directory->tables[1022];
 
 	/* Flush the entire TLB */
