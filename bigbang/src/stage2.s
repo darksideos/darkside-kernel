@@ -21,7 +21,7 @@ int	0x13
 
 ; If the carry flag was set, then there was an error.
 mov bp, error_stage_3
-jc error
+jc near error
 
 ; Get the BIOS memory map
 do_e820:
