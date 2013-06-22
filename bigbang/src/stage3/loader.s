@@ -4,12 +4,13 @@ section .text
 
 global start
 start:
-	extern main
-	call main
+	mov esp, stack	; Set up the stack
+	extern main		; Tell the linker that main is in another file
+	call main		; Call our main function
 
 eternal:
 	jmp eternal
 
 section .bss
-	resb 4096               ; This reserves 64KBytes of memory here
+	resb 4096               ; This reserves 4KBytes of memory here
 stack:
