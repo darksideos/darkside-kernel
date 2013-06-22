@@ -67,7 +67,7 @@ do_e820:
 	test ebx, ebx				; if ebx resets to 0, list is complete
 	jne short .e820lp
 .e820f:
-	mov [os_info + 4], bp		; Store the entry count in the OS info structure
+	mov [os_info + 6], bp		; Store the entry count in the OS info structure
 	clc							; There is a carry flag at this point, so it must be cleared
 	jmp enable_a20				; Leave the function
 .failed:
@@ -110,7 +110,7 @@ eternal:
 		
 os_info:
 	dw 0, 0x500	; BIOS memory map
-	dw 0		; Number of memory map entries
+	dd 0		; Number of memory map entries
 	dw 0, 0		; VBE mode info
 
 gdtr:
@@ -131,5 +131,6 @@ reload_segs:
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
-
-jmp 0xA000
+	
+mov ebx, os_info	; Give stage3 the OS info struct
+jmp 0xA000			; Jump to stage3
