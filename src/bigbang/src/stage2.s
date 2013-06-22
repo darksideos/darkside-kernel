@@ -1,9 +1,6 @@
 [ORG 0x6000]
 [BITS 16]
 
-mov ax, 0x600
-mov ds, ax
-
 in al, 0x92
 or al, 2
 out 0x92, al
@@ -15,7 +12,7 @@ mov eax, cr0	; switch to protected mode by
 or al,1			; setting the protected mode bit
 mov cr0, eax	; in CR0
 
-jmp 0x08:flush_gdt
+jmp 0x08:reload_segs
 
 gdtr:
 	dw gdt_end - null_seg - 1	; last byte in table
@@ -28,7 +25,7 @@ gdt_end:
 
 [BITS 32]
 
-flush_gdt:
+reload_segs:
 	mov ebx, 0xBEEF0001
 	mov ax, 0x10
 	mov ebx, 0xBEEF0002
