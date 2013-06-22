@@ -69,15 +69,16 @@ do_e820:
 .e820f:
 	mov [os_info + 4], bp		; Store the entry count in the OS info structure
 	clc							; There is a carry flag at this point, so it must be cleared
-	ret
+	jmp enable_a20				; Leave the function
 .failed:
 	mov bp, error_mem_map
 	jmp error
 
 ; Enable the A20 gate
-in al, 0x92
-or al, 2
-out 0x92, al
+enable_a20:
+	in al, 0x92
+	or al, 2
+	out 0x92, al
 
 lgdt [gdtr]		; Load our GDT
 
