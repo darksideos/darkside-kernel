@@ -220,6 +220,19 @@ uint32_t page_align(uint32_t address)
 	}
 }
 
+uint32_t page_to_check;
+
+bool check_page_mapped(uint32_t page)
+{
+	/* Just in case */
+	page_to_check = page & ~0xFFF;
+	
+	/* If this line has faulted, the page fault handler will set the last bit in page_to_check to 1 */
+	uint32_t value = *((uint32_t*) page);
+	
+	return page_to_check & 1;
+}
+
 /* Initialize paging */
 void init_vmm()
 {	
@@ -233,7 +246,6 @@ void init_vmm()
 	
 	/* Flush the entire TLB */
 	flush_tlb();
-	kprintf("Values: %08X\n", *((unsigned int*) 0xFFFFC000));
 
 	uint32_t i;
 	
