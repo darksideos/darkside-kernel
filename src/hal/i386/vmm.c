@@ -220,7 +220,7 @@ uint32_t page_align(uint32_t address)
 	}
 }
 
-uint32_t page_to_check;
+volatile uint32_t page_to_check;
 
 bool check_page_mapped(uint32_t page)
 {
@@ -229,8 +229,15 @@ bool check_page_mapped(uint32_t page)
 	
 	/* If this line has faulted, the page fault handler will set the last bit in page_to_check to 1 */
 	uint32_t value = *((uint32_t*) page);
-	
-	return page_to_check & 1;
+
+	if (page_to_check == 1)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 /* Initialize paging */
