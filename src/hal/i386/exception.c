@@ -35,7 +35,7 @@ void gpf_handler(struct i386_regs *r)
 	}
 }
 
-extern uint32_t page_to_check;
+extern volatile uint32_t page_to_check;
 
 /* Page fault handler */
 void page_fault_handler(struct i386_regs *r)
@@ -46,7 +46,7 @@ void page_fault_handler(struct i386_regs *r)
 	
 	if(faulting_address == page_to_check)
 	{
-		page_to_check |= 1;
+		page_to_check = 1;
 	}
 	else
 	{
