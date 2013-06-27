@@ -2,7 +2,7 @@
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <drivers/ps2/keyboard.h>
 #include <drivers/graphics/vga.h>

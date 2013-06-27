@@ -1,5 +1,5 @@
 #include <lib/libc/stdint.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 #include <kernel/syscall/syscall.h>
 #include <kernel/syscall/file.h>
 #include <kernel/task/process.h>

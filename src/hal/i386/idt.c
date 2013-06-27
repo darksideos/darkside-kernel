@@ -1,6 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/idt.h>
+#include <kernel/console/log.h>
 
 /* IDT and IDT Pointer */
 struct idt_entry idt[256];
@@ -34,4 +35,7 @@ void idt_install()
 
     /* Points the processor's internal register to the new IDT */
     idt_load();
+
+	/* Print a log message */
+	log("IDT installed");
 }
