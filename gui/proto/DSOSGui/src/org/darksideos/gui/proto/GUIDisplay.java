@@ -10,14 +10,12 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-public class GUIDisplay extends JPanel implements MouseMotionListener {
+public class GUIDisplay extends JPanel {
 	private static final long serialVersionUID = -8847979958069676105L;
 	private BufferedImage buffer;
 	
 	public GUIDisplay() {
 		setBackground(Color.BLUE);
-		addMouseMotionListener(this);
-		setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 	}
 	
 	public void resetBuffer() {
@@ -29,19 +27,14 @@ public class GUIDisplay extends JPanel implements MouseMotionListener {
 	
 	public void flipBuffer() {
 		repaint();
-		resetBuffer();
 	}
 	
 	public void paintComponent(Graphics graphics) {
 		graphics.drawImage(buffer, 0, 0, getWidth(), getHeight(), this);
 	}
-
-	public void mouseDragged(MouseEvent e) {
-		
-	}
-
-	public void mouseMoved(MouseEvent e) {
-		flipBuffer();
+	
+	public BufferedImage getBuffer() {
+		return buffer;
 	}
 
 }
