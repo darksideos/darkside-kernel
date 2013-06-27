@@ -1,4 +1,4 @@
-#include <vga.h>
+#include <vga/vga.h>
 #include <lib/libc/string.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */

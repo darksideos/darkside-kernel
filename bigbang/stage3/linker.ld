@@ -1,6 +1,6 @@
 ENTRY(start)
 OUTPUT_FORMAT("elf32-i386")
-phys = 0x6000;
+phys = 0x2000;
 
 SECTIONS
 {
@@ -10,7 +10,7 @@ SECTIONS
 		*(.text)
 	}
 	
-	.rodata phys : AT(phys + (rodata - code))
+	.rodata : AT(phys + (rodata - code))
 	{
 		rodata = .;
 		*(.rodata)
