@@ -190,6 +190,10 @@ uint32_t create_address_space()
 	/* Clear the page directory */
 	memset(directory, 0, sizeof(page_directory_t));
 
+	/* Add the recursive page directories */
+	directory->tables[1022] = dir | PAGE_KERNEL;
+	directory->tables[1023] = dir | PAGE_KERNEL;
+
 	/* Return the physical address of the page directory */
 	return dir;
 }
@@ -217,26 +221,6 @@ uint32_t page_align(uint32_t address)
 	else
 	{
 		return address;
-	}
-}
-
-volatile uint32_t page_to_check;
-
-bool check_page_mapped(uint32_t page)
-{
-	/* Just in case */
-	page_to_check = page & ~0xFFF;
-	
-	/* If this line has faulted, the page fault handler will set the last bit in page_to_check to 1 */
-	uint32_t value = *((uint32_t*) page);
-
-	if (page_to_check == 1)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
 	}
 }
 
