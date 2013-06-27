@@ -95,8 +95,6 @@ void init_pmm(uint32_t size)
 		bitmap_page += 0x1000;
 	}
 	
-	log("Mapped pages for PMM bitmap");
-	
 	pmm_pages = (uint32_t*) page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
 	memset(pmm_pages, 0, num_bitmap_pages * 0x1000);
 
@@ -107,6 +105,4 @@ void init_pmm(uint32_t size)
 	{
 		pmm_claim_page(i);
 	}
-	
-	log("Claimed pages for PMM bitmap");
 }
