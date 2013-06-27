@@ -227,8 +227,12 @@ bool check_page_mapped(uint32_t page)
 	/* Just in case */
 	page_to_check = page & ~0xFFF;
 	
+	kprintf("Checking: %08X\n", page_to_check);
+	
 	/* If this line has faulted, the page fault handler will set the last bit in page_to_check to 1 */
-	uint32_t value = *((uint32_t*) page);
+	unsigned int value = *((unsigned int*) 0x50000000);
+
+	kprintf("Value: %08X\n", page_to_check);
 
 	if (page_to_check == 1)
 	{

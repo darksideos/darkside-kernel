@@ -35,28 +35,19 @@ void gpf_handler(struct i386_regs *r)
 	}
 }
 
-extern volatile uint32_t page_to_check;
-
 /* Page fault handler */
 void page_fault_handler(struct i386_regs *r)
 {
 	/* Get the faulting address */
 	uint32_t faulting_address;
 	asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
-	
-	if(faulting_address == page_to_check)
-	{
-		page_to_check = 1;
-	}
-	else
-	{
-		/* Print the exception information */
-		error_kprintf("Unhandled Page Fault Exception at 0x%08x, error code 0x%08x\n", faulting_address, r->err_code);
-		error_kprintf("Present: %s, Access: %s, Mode: %s\n", r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
 
-		dump_registers(r);
+	/* Print the exception information */
+	error_kprintf("Unhandled Page Fault Exception at 0x%08x, error code 0x%08x\n", faulting_address, r->err_code);
+	error_kprintf("Present: %s, Access: %s, Mode: %s\n", r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
 
-		/* Endless loop */
-		while(1);
-	}
+	dump_registers(r);
+
+	/* Endless loop */
+	while(1);
 }
