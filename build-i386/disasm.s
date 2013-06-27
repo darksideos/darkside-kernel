@@ -2117,7 +2117,7 @@ Disassembly of section .text:
 800027ce:	39 f3                	cmp    %esi,%ebx
 800027d0:	72 dd                	jb     800027af <init_pmm+0xb3>
 800027d2:	83 ec 0c             	sub    $0xc,%esp
-800027d5:	68 96 73 00 80       	push   $0x80007396
+800027d5:	68 97 73 00 80       	push   $0x80007397
 800027da:	e8 89 0a 00 00       	call   80003268 <log>
 800027df:	83 c4 1c             	add    $0x1c,%esp
 800027e2:	5b                   	pop    %ebx
@@ -8938,16 +8938,20 @@ Disassembly of section .rodata:
 80007389:	20 49 6e             	and    %cl,0x6e(%ecx)
 8000738c:	69 74 69 61 6c 69 7a 	imul   $0x657a696c,0x61(%ecx,%ebp,2),%esi
 80007393:	65 
-80007394:	64 00 50 4d          	add    %dl,%fs:0x4d(%eax)
+80007394:	64 0a 00             	or     %fs:(%eax),%al
+80007397:	50                   	push   %eax
 80007398:	4d                   	dec    %ebp
-80007399:	20 69 6e             	and    %ch,0x6e(%ecx)
-8000739c:	69 74 69 61 6c 69 7a 	imul   $0x657a696c,0x61(%ecx,%ebp,2),%esi
-800073a3:	65 
-800073a4:	64 00 00             	add    %al,%fs:(%eax)
-800073a7:	00 54 69 6d          	add    %dl,0x6d(%ecx,%ebp,2)
-800073ab:	65                   	gs
-800073ac:	72 20                	jb     800073ce <rodata+0x3ce>
-800073ae:	69 6e 73 74 61 6c 6c 	imul   $0x6c6c6174,0x73(%esi),%ebp
+80007399:	4d                   	dec    %ebp
+8000739a:	20 69 6e             	and    %ch,0x6e(%ecx)
+8000739d:	69 74 69 61 6c 69 7a 	imul   $0x657a696c,0x61(%ecx,%ebp,2),%esi
+800073a4:	65 
+800073a5:	64 00 00             	add    %al,%fs:(%eax)
+800073a8:	54                   	push   %esp
+800073a9:	69 6d 65 72 20 69 6e 	imul   $0x6e692072,0x65(%ebp),%ebp
+800073b0:	73 74                	jae    80007426 <rodata+0x426>
+800073b2:	61                   	popa   
+800073b3:	6c                   	insb   (%dx),%es:(%edi)
+800073b4:	6c                   	insb   (%dx),%es:(%edi)
 800073b5:	65 64 20 77 69       	gs and %dh,%fs:%gs:0x69(%edi)
 800073ba:	74 68                	je     80007424 <rodata+0x424>
 800073bc:	20 61 20             	and    %ah,0x20(%ecx)
