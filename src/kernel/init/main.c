@@ -1,5 +1,4 @@
 #include <kernel/init/hal.h>
-#include <kernel/console/kprintf.h>
 #include <drivers/graphics/vga.h>
 
 void kernel_main(struct multiboot *mboot_ptr)

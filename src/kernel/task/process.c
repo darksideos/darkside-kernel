@@ -4,7 +4,7 @@
 #include <kernel/init/hal.h>
 #include <kernel/ipc/signal.h>
 #include <kernel/mm/address_space.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/vfs/vfs.h>

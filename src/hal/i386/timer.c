@@ -40,4 +40,7 @@ void timer_install(int32_t hz)
 	/* Install the PIT on Channel 0 */
 	pit_install(0, hz);
 	current_timer = 0;
+
+	/* Print a log message */
+	log("Timer installed with a frequency of %d hz", hz);
 }

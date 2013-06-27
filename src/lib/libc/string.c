@@ -1,7 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/ctype.h>
 #include <lib/libc/string.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 
 /* THIS IS A RASPI TEMPORARY FIX */
 
