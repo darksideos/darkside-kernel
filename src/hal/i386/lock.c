@@ -1,6 +1,6 @@
 #include <lib/libc/stdint.h>
 #include <hal/i386/lock.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 
 /* Create a spinlock */
 spinlock_t *create_lock()

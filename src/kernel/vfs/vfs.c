@@ -2,7 +2,7 @@
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
 #include <lib/libc/math.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 #include <kernel/modules/initrd.h>
 #include <kernel/vfs/vfs.h>
 #include <drivers/graphics/vga.h>

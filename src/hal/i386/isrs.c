@@ -5,7 +5,8 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/console/log.h>
+#include <kernel/mm/heap.h>
 
 /* The ISRs */
 extern void isr0();
@@ -127,6 +128,9 @@ void isrs_install()
 	/* Install some ISR handlers */
 	isr_install_handler(13, gpf_handler);
 	isr_install_handler(14, page_fault_handler);
+
+	/* Print a log message */
+	log("Exception ISRs installed in the IDT");
 }
 
 /* Install an ISR handler */

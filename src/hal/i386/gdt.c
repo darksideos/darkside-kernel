@@ -2,6 +2,7 @@
 #include <lib/libc/string.h>
 #include <hal/i386/gdt.h>
 #include <hal/i386/msr.h>
+#include <kernel/console/log.h>
 
 /* Our GDT, with 6 entries, and our GDT pointer */
 struct gdt_entry gdt[6];
@@ -73,4 +74,7 @@ void gdt_install()
     /* Flush out the old GDT and TSS and install the new changes! */
     gdt_flush();
 	tss_flush();
+
+	/* Print a log message */
+	log("GDT installed");
 }

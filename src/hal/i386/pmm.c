@@ -7,7 +7,7 @@
 #include <hal/i386/vmm.h>
 #include <kernel/console/log.h>
 #include <kernel/mm/address_space.h>
-#include <kernel/mm/heap/heap.h>
+#include <kernel/mm/heap.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;
@@ -105,4 +105,7 @@ void init_pmm(uint32_t size)
 	{
 		pmm_claim_page(i);
 	}
+
+	/* Print a log message */
+	log("PMM initialized");
 }

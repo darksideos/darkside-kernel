@@ -4,6 +4,7 @@
 #include <hal/i386/pic.h>
 #include <hal/i386/lapic.h>
 #include <hal/i386/irq.h>
+#include <kernel/console/log.h>
 
 extern void irq0();
 extern void irq1();
@@ -56,6 +57,9 @@ void irq_install()
     idt_set_gate(45, (unsigned) irq13);
     idt_set_gate(46, (unsigned) irq14);
     idt_set_gate(47, (unsigned) irq15);
+
+	/* Print a log message */
+	log("IRQs installed in the IDT");
 }
 
 /* Install an IRQ handler */
