@@ -42,6 +42,9 @@ void sti();
 uint32_t get_time();
 void sleep(int32_t sec);
 
+/* Speaker */
+void speaker_beep(int32_t frequency);
+
 /* Physical memory manager */
 uint32_t pmm_alloc_page();
 void pmm_free_page(uint32_t address);
