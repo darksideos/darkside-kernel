@@ -1,5 +1,6 @@
 package org.darksideos.gui.proto;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,8 +20,10 @@ public class GUIConfig {
 			
 			String inputLine;
 	        while ((inputLine = reader.readLine()) != null) {
-	        	configVals.put(inputLine.split("=")[0].trim(),
-	        			inputLine.split("=")[1].trim());
+	        	if(!inputLine.equals("") && !inputLine.startsWith(";")) {
+	        		configVals.put(inputLine.split("=")[0].trim(),
+	        				inputLine.split("=")[1].trim());
+	        	}
 	        }
 	        reader.close();
 		} catch (IOException e) {
@@ -60,5 +63,13 @@ public class GUIConfig {
 			System.err.println("Invalid double retrieved for key '" + key +"': " + configVals.get(key));
 		}
 		return 0;
+	}
+	
+	public static Color getColor(String key) {
+		Color value = Color.decode(configVals.get(key));
+		if(value == null) {
+			System.err.println("Key not found (color): " + key);
+		}
+		return value;
 	}
 }
