@@ -48,6 +48,7 @@ heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_a
 	heap->global = global;
 
 	/* Second, create the heap index */
+	memset((void*) start_address + sizeof(heap_t), 0, index_size);
 	heap->index = place_btree((void*) start_address + sizeof(heap_t), index_size);
 
 	/* Third, create a large hole */
