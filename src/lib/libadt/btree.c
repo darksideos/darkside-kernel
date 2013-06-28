@@ -76,7 +76,6 @@ btree_node_t *create_btree_node(btree_t *tree)
 	/* Dynamic tree */
 	if (tree->max_nodes == 0)
 	{
-		kprintf("Allocating using dynamic allocation\n");
 		/* Create the node and make sure it's 0 */
 		node = (btree_node_t*) kmalloc(sizeof(btree_node_t));
 		memset(node, 0, sizeof(btree_node_t));
@@ -88,11 +87,9 @@ btree_node_t *create_btree_node(btree_t *tree)
 	/* Static tree */
 	else
 	{
-		kprintf("Allocating using static allocation\n");
 		/* Search for an available node */
 		for (node = tree->root; node < tree->root + (tree->max_nodes * sizeof(btree_node_t)); node += 1)
 		{
-			kprintf("Looking @ 0x%08X\n", node);
 			/* If the node does not exist, use it */
 			if (node->exists == false)
 			{
@@ -102,14 +99,13 @@ btree_node_t *create_btree_node(btree_t *tree)
 				/* Fill out the node's tree and that the node exists */
 				node->tree = tree;
 				node->exists = true;
-				kprintf("I found it!  Returning 0x%08x\n", node);
+				
 				break;
 			}
 
 			/* If we reached the end, set node to 0 */
 			if (node == tree->root + ((tree->max_nodes - 1) * sizeof(btree_node_t)))
 			{
-				kprintf("I haven't found it :(\n");
 				node = 0;
 			}
 		}
@@ -143,16 +139,12 @@ void insert_btree_node(btree_node_t *node, void *value)
 		/* The left node exists */
 		if (node->left)
 		{
-			kprintf("Inserting 0x%08X at left\n", value);
-
 			/* Insert the object at the left node */
 			insert_btree_node(node->left, value);
 		}
 		/* The left node does not exist */
 		else
 		{
-			kprintf("Adding 0x%08X at left\n", value);
-
 			/* Create the left node and set its value and parent */
 			node->left = create_btree_node(node->tree);
 
@@ -166,21 +158,17 @@ void insert_btree_node(btree_node_t *node, void *value)
 		/* The right node exists */
 		if (node->right)
 		{
-			kprintf("Inserting 0x%08X at right\n", value);
-
 			/* Insert the object at the right node */
 			insert_btree_node(node->right, value);
 		}
 		/* The right node does not exist */
 		else
 		{
-			kprintf("Adding 0x%08X at right\n", value);
-
 			/* Create the right node and set its value */
-			node->left = create_btree_node(node->tree);
+			node->right = create_btree_node(node->tree);
 
-			node->left->value = value;
-			node->left->parent = node;
+			node->right->value = value;
+			node->right->parent = node;
 		}
 	}
 }
