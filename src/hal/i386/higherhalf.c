@@ -23,7 +23,7 @@ void load_higherhalf(struct multiboot *mboot_ptr, uint32_t *pd, uint32_t *pt_low
 	/* Higher half */
 	for (address = 0x100000; address < 0x400000; address += 0x1000)
 	{
-		pt_higher[(address - 0x100000) / 0x1000] = address | PAGE_KERNEL;
+		pt_higher[(address - 0x100000) / 0x1000] = address | PAGE_KERNEL | PAGE_FLAG_GLOBAL;
 	}
 
 	/* Add the page tables into the page directory */
