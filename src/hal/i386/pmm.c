@@ -78,7 +78,7 @@ void init_pmm(uint32_t size)
 	/* The number of pages of virtual memory the PMM bitmap will occupy */
 	num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
 	
-	uint32_t bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
+	int32_t bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
 	uint32_t mapped = 0;
 	
 	while(mapped < num_bitmap_pages)
