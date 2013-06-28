@@ -4,6 +4,27 @@
 #include <lib/libadt/btree.h>
 #include <kernel/mm/heap.h>
 
+/* Standard btree predicates */
+bool standard_lt_predicate(void *a, void *b)
+{
+	return a < b;
+}
+
+bool standard_le_predicate(void *a, void *b)
+{
+	return a <= b;
+}
+
+bool standard_eq_predicate(void *a, void *b)
+{
+	return a == b;
+}
+
+bool standard_gt_predicate(void *a, void *b)
+{
+	return a > b;
+}
+
 /* Create a binary tree */
 btree_t create_btree(uint32_t max_size)
 {
@@ -12,6 +33,11 @@ btree_t create_btree(uint32_t max_size)
 
 	/* Fill out the binary tree */
 	tree.max_nodes = max_size / sizeof(btree_node_t);
+
+	tree.lt_predicate = &standard_lt_predicate;
+	tree.le_predicate = &standard_le_predicate;
+	tree.eq_predicate = &standard_eq_predicate;
+	tree.gt_predicate = &standard_gt_predicate;
 
 	/* Create the root node and make sure it's 0 */
 	tree.root = (btree_node_t*) kmalloc(sizeof(btree_node_t));
@@ -33,6 +59,11 @@ btree_t place_btree(void *addr, uint32_t max_size)
 
 	/* Fill out the binary tree */
 	tree.max_nodes = max_size / sizeof(btree_node_t);
+
+	tree.lt_predicate = &standard_lt_predicate;
+	tree.le_predicate = &standard_le_predicate;
+	tree.eq_predicate = &standard_eq_predicate;
+	tree.gt_predicate = &standard_gt_predicate;
 
 	/* Place the root node and make sure it's 0 */
 	tree.root = (btree_node_t*) addr;

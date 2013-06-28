@@ -4,6 +4,9 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 
+/* Define a predicate */
+typedef bool (*predicate_t)(void *a, void *b);
+
 /* Binary tree node structure */
 typedef struct btree_node
 {
@@ -27,6 +30,12 @@ typedef struct btree
 	/* Root node and maximum nodes */
 	btree_node_t *root;
 	uint32_t max_nodes;
+
+	/* Predicates */
+	predicate_t lt_predicate;
+	predicate_t le_predicate;
+	predicate_t eq_predicate;
+	predicate_t gt_predicate;
 } btree_t;
 
 /* Create, place, destroy, insert an object into, and search a binary tree */
