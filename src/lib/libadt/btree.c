@@ -88,7 +88,7 @@ btree_node_t *create_btree_node(btree_t *tree)
 	else
 	{
 		/* Search for an available node */
-		for (node = tree->root; node < tree->root + (tree->max_nodes * sizeof(btree_node_t)); node += sizeof(btree_node_t))
+		for (node = tree->root; node < tree->root + (tree->max_nodes * sizeof(btree_node_t)); node += 1)
 		{
 			/* If the node does not exist, use it */
 			if (node->exists == false)
@@ -99,7 +99,7 @@ btree_node_t *create_btree_node(btree_t *tree)
 				/* Fill out the node's tree and that the node exists */
 				node->tree = tree;
 				node->exists = true;
-
+				
 				break;
 			}
 
@@ -132,7 +132,6 @@ void destroy_btree_node(btree_node_t *node)
 /* Insert an object at a binary tree node */
 void insert_btree_node(btree_node_t *node, void *value)
 {
-	kprintf("Inserting 0x%08X into tree\n", value);
 
 	/* The object is less than or equal to the node's value */
 	if (value <= node->value)
@@ -140,16 +139,12 @@ void insert_btree_node(btree_node_t *node, void *value)
 		/* The left node exists */
 		if (node->left)
 		{
-			kprintf("Inserting 0x%08X at left\n", value);
-
 			/* Insert the object at the left node */
 			insert_btree_node(node->left, value);
 		}
 		/* The left node does not exist */
 		else
 		{
-			kprintf("Adding 0x%08X at left\n", value);
-
 			/* Create the left node and set its value and parent */
 			node->left = create_btree_node(node->tree);
 
@@ -163,21 +158,17 @@ void insert_btree_node(btree_node_t *node, void *value)
 		/* The right node exists */
 		if (node->right)
 		{
-			kprintf("Inserting 0x%08X at right\n", value);
-
 			/* Insert the object at the right node */
 			insert_btree_node(node->right, value);
 		}
 		/* The right node does not exist */
 		else
 		{
-			kprintf("Adding 0x%08X at right\n", value);
-
 			/* Create the right node and set its value */
-			node->left = create_btree_node(node->tree);
+			node->right = create_btree_node(node->tree);
 
-			node->left->value = value;
-			node->left->parent = node;
+			node->right->value = value;
+			node->right->parent = node;
 		}
 	}
 }
