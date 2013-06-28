@@ -76,6 +76,7 @@ btree_node_t *create_btree_node(btree_t *tree)
 	/* Dynamic tree */
 	if (tree->max_nodes == 0)
 	{
+		kprintf("Allocating using dynamic allocation\n");
 		/* Create the node and make sure it's 0 */
 		node = (btree_node_t*) kmalloc(sizeof(btree_node_t));
 		memset(node, 0, sizeof(btree_node_t));
@@ -87,9 +88,11 @@ btree_node_t *create_btree_node(btree_t *tree)
 	/* Static tree */
 	else
 	{
+		kprintf("Allocating using static allocation\n");
 		/* Search for an available node */
-		for (node = tree->root; node < tree->root + (tree->max_nodes * sizeof(btree_node_t)); node += sizeof(btree_node_t))
+		for (node = tree->root; node < tree->root + (tree->max_nodes * sizeof(btree_node_t)); node += 1)
 		{
+			kprintf("Looking @ 0x%08X\n", node);
 			/* If the node does not exist, use it */
 			if (node->exists == false)
 			{
@@ -99,13 +102,14 @@ btree_node_t *create_btree_node(btree_t *tree)
 				/* Fill out the node's tree and that the node exists */
 				node->tree = tree;
 				node->exists = true;
-
+				kprintf("I found it!  Returning 0x%08x\n", node);
 				break;
 			}
 
 			/* If we reached the end, set node to 0 */
 			if (node == tree->root + ((tree->max_nodes - 1) * sizeof(btree_node_t)))
 			{
+				kprintf("I haven't found it :(\n");
 				node = 0;
 			}
 		}
@@ -132,7 +136,6 @@ void destroy_btree_node(btree_node_t *node)
 /* Insert an object at a binary tree node */
 void insert_btree_node(btree_node_t *node, void *value)
 {
-	kprintf("Inserting 0x%08X into tree\n", value);
 
 	/* The object is less than or equal to the node's value */
 	if (value <= node->value)
