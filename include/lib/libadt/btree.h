@@ -17,9 +17,6 @@ typedef struct btree_node
 	struct btree_node *left, *right;
 	struct btree_node *parent;
 
-	/* The tree that the node belongs to */
-	void *tree;
-
 	/* Node exists */
 	bool exists;
 } btree_node_t;
@@ -46,9 +43,9 @@ void insert_btree(btree_t tree, void *value);
 btree_node_t *search_btree(btree_t tree, void *value);
 
 /* Create, destroy, insert an object at, and search at a binary tree node */
-btree_node_t *create_btree_node(btree_t *tree);
+btree_node_t *create_btree_node(btree_t tree);
 void destroy_btree_node(btree_node_t *node);
-void insert_btree_node(btree_node_t *node, void *value);
-btree_node_t *search_btree_node(btree_node_t *node, void *value);
+void insert_btree_node(btree_t tree, btree_node_t *node, void *value);
+btree_node_t *search_btree_node(btree_t tree, btree_node_t *node, void *value);
 
 #endif
