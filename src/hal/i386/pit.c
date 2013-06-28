@@ -1,4 +1,5 @@
 #include <lib/libc/stdint.h>
+#include <lib/libc/stdbool.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
@@ -8,6 +9,9 @@
 /* The number of PIT ticks and frequency */
 volatile int32_t pit_ticks = 0;
 int32_t pit_frequency;
+
+/* Is this speaker installed */
+bool speaker_installed = false;
 
 /* Handle the PIT interrupt */
 void pit_handler(struct i386_regs *r)
@@ -71,6 +75,21 @@ void pit_channel2_install(int32_t hz)
 	tmp = inportb(0x61) & 0xFE;
 	outportb(0x61, (uint8_t) tmp);
 	outportb(0x61, (uint8_t) tmp | 1);
+}
+
+/* Beep using the PC Speaker */
+void speaker_beep(int32_t frequency)
+{
+	/* Install the speaker if it isn't */
+	if (!speaker_installed)
+	{
+		pit_install(2, frequency);
+		speaker_installed = true;
+	}
+
+	/* Beep */
+	uint8_t tmp = inportb(0x61);
+	outportb(0x61, tmp | 3);
 }
 
 /* Install the PIT on a specified channel */
