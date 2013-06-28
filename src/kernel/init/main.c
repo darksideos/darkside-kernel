@@ -19,6 +19,7 @@ void kernel_main(struct multiboot *mboot_ptr)
 	insert_btree(tree, 7);	// tree.root->right
 	insert_btree(tree, 4);	// tree.root->left
 
+	kprintf("My pointer babies: 0x%08X 0x%08X\n", tree.root->left, tree.root->right);
 	kprintf("0x%08X 0x%08X\n", tree.root->left->value, tree.root->right->value);
 
 	while(1);
