@@ -51,6 +51,11 @@ heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_a
 	memset((void*) start_address + sizeof(heap_t), 0, index_size);
 	heap->index = place_btree((void*) start_address + sizeof(heap_t), index_size);
 
+	heap->index.lt_predicate = &heap_lt_predicate;
+	heap->index.le_predicate = &heap_le_predicate;
+	heap->index.eq_predicate = &heap_eq_predicate;
+	heap->index.gt_predicate = &heap_gt_predicate;
+
 	/* Third, create a large hole */
 	header_t *header = (header_t*) ((uint32_t) heap->index.root + index_size);
 

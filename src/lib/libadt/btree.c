@@ -160,7 +160,7 @@ void destroy_btree_node(btree_node_t *node)
 void insert_btree_node(btree_t tree, btree_node_t *node, void *value)
 {
 	/* The object is less than or equal to the node's value */
-	if (value <= node->value)
+	if (tree.le_predicate(value, node->value))
 	{
 		/* The left node exists */
 		if (node->left)
@@ -179,7 +179,7 @@ void insert_btree_node(btree_t tree, btree_node_t *node, void *value)
 		}
 	}
 	/* The object is greater than or equal to the node's value */
-	else if (value > node->value)
+	else if (tree.gt_predicate(value, node->value))
 	{
 		/* The right node exists */
 		if (node->right)
@@ -203,7 +203,7 @@ void insert_btree_node(btree_t tree, btree_node_t *node, void *value)
 btree_node_t *search_btree_node(btree_t tree, btree_node_t *node, void *value)
 {
 	/* The object equals the node's value */
-	if (value == node->value)
+	if (tree.eq_predicate(value, node->value))
 	{
 		/* The left node exists */
 		if (node->left)
@@ -219,7 +219,7 @@ btree_node_t *search_btree_node(btree_t tree, btree_node_t *node, void *value)
 		}
 	}
 	/* The object is less than the node's value */
-	else if (value < node->value)
+	else if (tree.lt_predicate(value, node->value))
 	{
 		/* The left node exists */
 		if (node->left)
@@ -235,7 +235,7 @@ btree_node_t *search_btree_node(btree_t tree, btree_node_t *node, void *value)
 		}
 	}
 	/* The object is greater than the node's value */
-	else if (value > node->value)
+	else if (tree.gt_predicate(value, node->value))
 	{
 		/* The right node exists */
 		if (node->right)
