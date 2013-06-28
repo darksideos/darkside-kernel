@@ -1,6 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/stdbool.h>
 #include <lib/libc/string.h>
+#include <lib/libadt/btree.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap.h>
@@ -10,34 +11,29 @@ heap_t *kheap = 0;
 
 extern uint32_t kernel_directory;
 
-/* Allocate memory on the kernel heap */
-void *kmalloc(uint32_t size)
+/* Heap index predicates */
+bool heap_lt_predicate(void *chunk, void *value)
 {
-	/* Allocate the memory */
-	void *address = heap_malloc(kheap, size, false);
-
-	/* Return the address */
-	return address;
+	return ((header_t*) chunk)->type < (uint32_t) value;
 }
 
-/* Free memory on the kernel heap */
-void kfree(void *ptr)
+bool heap_le_predicate(void *chunk, void *value)
 {
-	heap_free(kheap, ptr);
+	return ((header_t*) chunk)->type <= (uint32_t) value;
 }
 
-/* Resize memory allocated on the kernel heap */
-void *krealloc(void *ptr, uint32_t size)
+bool heap_eq_predicate(void *chunk, void *value)
 {
-	/* Resize the memory */
-	void *address = heap_realloc(kheap, ptr, size, false);
+	return ((header_t*) chunk)->type == (uint32_t) value;
+}
 
-	/* Return the address */
-	return address;
+bool heap_gt_predicate(void *chunk, void *value)
+{
+	return ((header_t*) chunk)->type > (uint32_t) value;
 }
 
 /* Create a heap */
-heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_address, uint32_t max_address, bool user, bool global)
+heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_address, uint32_t max_address, uint32_t index_size, bool user, bool global)
 {
 	/* First, place a heap structure, make sure it's 0, and fill in its data */
 	heap_t *heap = (heap_t*) start_address;
@@ -52,19 +48,22 @@ heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_a
 	heap->global = global;
 
 	/* Second, create the heap index */
-	heap->index = 0;
+	heap->index = place_btree((void*) start_address + sizeof(heap_t), index_size);
 
 	/* Third, create a large hole */
-	header_t *header = (header_t*) start_address + sizeof(heap_t);
+	header_t *header = (header_t*) ((uint32_t) heap->index.root + index_size);
 
 	header->magic = HEAP_MAGIC;
 	header->type = 0;
-	header->size = (end_address - start_address) - sizeof(heap_t);
+	header->size = end_address - (uint32_t) header;
 
-	footer_t *footer = (footer_t*) (start_address + sizeof(heap_t) + header->size) - 8;
+	footer_t *footer = (footer_t*) (sizeof(header_t) + header->size) - sizeof(footer_t);
 
 	footer->magic = HEAP_MAGIC;
 	footer->header = header;
+
+	/* Fourth, add the hole to the heap index */
+	heap->index.root->value = header;
 
 	/* Finally, return the new heap */
 	return heap;
@@ -136,8 +135,26 @@ void resize_heap(heap_t *heap, uint32_t new_size)
 }
 
 /* Lookup a chunk */
-header_t *lookup_chunk(heap_t *heap, header_t *chunk, uint32_t size, bool align)
+header_t *lookup_chunk(heap_t *heap, uint32_t size)
 {
+	/* Get the heap index */
+	btree_t index = heap->index;
+
+	/* Search for a hole */
+	header_t *chunk = (header_t*) search_btree(index, 0)->value;
+
+	/* The hole is larger than what we need */
+	if (chunk->size > size)
+	{
+		/* Split up the chunk and return it */
+		return split_chunk(heap, chunk, size);
+	}
+	/* The hole is the same size as what we need */
+	else if (chunk->size == size)
+	{
+		/* Return the chunk */
+		return chunk;
+	}
 }
 
 /* Free a chunk */
@@ -156,7 +173,7 @@ header_t *glue_chunk(heap_t *heap, header_t *chunk1, header_t *chunk2)
 }
 
 /* Allocate memory on a heap */
-void *heap_malloc(heap_t *heap, uint32_t size, bool align)
+void *heap_malloc(heap_t *heap, uint32_t size)
 {
 	/* If the heap doesn't exist, return 0 */
 	if (!heap)
@@ -189,7 +206,7 @@ void heap_free(heap_t *heap, void *ptr)
 }
 
 /* Resize memory allocated on a heap */
-void *heap_realloc(heap_t *heap, void *ptr, uint32_t size, bool align)
+void *heap_realloc(heap_t *heap, void *ptr, uint32_t size)
 {
 	/* If the heap doesn't exist, return 0 */
 	if (!heap)
@@ -211,7 +228,7 @@ void *heap_realloc(heap_t *heap, void *ptr, uint32_t size, bool align)
 		/* See if we have enough space to our right, and if we do, use that */
 
 		/* Otherwise, we need to allocate a completely new memory block, and copy the data there */
-		void *new_address = heap_malloc(heap, size, align);
+		void *new_address = heap_malloc(heap, size);
 
 		/* Expand the memory block */
 		if (old_size < size)
@@ -236,16 +253,42 @@ void *heap_realloc(heap_t *heap, void *ptr, uint32_t size, bool align)
 	/* Null pointer */
 	else if (ptr == 0)
 	{
-		return heap_malloc(heap, size, align);
+		return heap_malloc(heap, size);
 	}
 
 	/* If the reallocation failed, return 0 */
 	return 0;
 }
 
+/* Allocate memory on the kernel heap */
+void *kmalloc(uint32_t size)
+{
+	/* Allocate the memory */
+	void *address = heap_malloc(kheap, size);
+
+	/* Return the address */
+	return address;
+}
+
+/* Free memory on the kernel heap */
+void kfree(void *ptr)
+{
+	heap_free(kheap, ptr);
+}
+
+/* Resize memory allocated on the kernel heap */
+void *krealloc(void *ptr, uint32_t size)
+{
+	/* Resize the memory */
+	void *address = heap_realloc(kheap, ptr, size);
+
+	/* Return the address */
+	return address;
+}
+
 /* Initialize the kernel heap */
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, false, true);
+	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, KHEAP_INDEX_SIZE, false, true);
 }
