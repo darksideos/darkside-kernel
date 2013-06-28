@@ -13,7 +13,6 @@ import javax.swing.JFrame;
 public class GUIFrame extends JFrame {
 	private static final long serialVersionUID = 426467989326122278L;
 	private GUIDisplay display;
-	@SuppressWarnings("unused")
 	private GUI gui;
 
 	public GUIFrame() {
@@ -31,6 +30,9 @@ public class GUIFrame extends JFrame {
 		dev.setFullScreenWindow(this);
 		
 		gui = new GUI(display);
+		display.resetBuffer();
+		gui.paintGUI();
+		display.flipBuffer();
 		
 		/* Hide the cursor */
 		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
@@ -47,11 +49,6 @@ public class GUIFrame extends JFrame {
 	}
 	
 	public static void main(String[] args) {
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		String []fontFamilies = ge.getAvailableFontFamilyNames();
-		for(int i =0; i < fontFamilies.length; i++) {
-			System.out.println(fontFamilies[i]);
-		}
 		new GUIFrame();
 	}
 

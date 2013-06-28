@@ -1,8 +1,9 @@
 package org.darksideos.gui.proto;
 
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -11,11 +12,18 @@ public class GUIDisplay extends JPanel {
 	private static final long serialVersionUID = -8847979958069676105L;
 	private BufferedImage buffer;
 	
+	public static Dimension size;
+	
+	static {
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		size = toolkit.getScreenSize();
+	}
+	
+	
 	public void resetBuffer() {
 		buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = buffer.createGraphics();
-		g2d.setColor(Color.white);
-		g2d.fillRect(0, 0, getWidth(), getHeight());
+		g2d.drawImage(GUI.background, 0, 0, getWidth(), getHeight(), this);
 	}
 	
 	public void flipBuffer() {
