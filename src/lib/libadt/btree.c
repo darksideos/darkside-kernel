@@ -43,8 +43,7 @@ btree_t create_btree(uint32_t max_size)
 	tree.root = (btree_node_t*) kmalloc(sizeof(btree_node_t));
 	memset(tree.root, 0, sizeof(btree_node_t));
 
-	/* Fill out the node's tree and that the node exists */
-	tree.root->tree = &tree;
+	/* Fill out that the node exists */
 	tree.root->exists = true;
 
 	/* Return the binary tree */
@@ -69,8 +68,7 @@ btree_t place_btree(void *addr, uint32_t max_size)
 	tree.root = (btree_node_t*) addr;
 	memset(tree.root, 0, sizeof(btree_node_t));
 
-	/* Fill out the node's tree and that the node exists */
-	tree.root->tree = &tree;
+	/* Fill out that the node exists */
 	tree.root->exists = true;
 
 	/* Return the binary tree */
@@ -88,38 +86,37 @@ void destroy_btree(btree_t tree)
 void insert_btree(btree_t tree, void *value)
 {
 	/* Insert the object at the root node */
-	insert_btree_node(tree.root, value);
+	insert_btree_node(tree, tree.root, value);
 }
 
 /* Search a binary tree */
 btree_node_t *search_btree(btree_t tree, void *value)
 {
 	/* Search the binary tree at the root node */
-	return search_btree_node(tree.root, value);
+	return search_btree_node(tree, tree.root, value);
 }
 
 /* Create a binary tree node */
-btree_node_t *create_btree_node(btree_t *tree)
+btree_node_t *create_btree_node(btree_t tree)
 {
 	/* Declare a binary tree node */
 	btree_node_t *node;
 
 	/* Dynamic tree */
-	if (tree->max_nodes == 0)
+	if (tree.max_nodes == 0)
 	{
 		/* Create the node and make sure it's 0 */
 		node = (btree_node_t*) kmalloc(sizeof(btree_node_t));
 		memset(node, 0, sizeof(btree_node_t));
 
-		/* Fill out the node's tree and that the node exists */
-		node->tree = tree;
+		/* Fill out that the node exists */
 		node->exists = true;
 	}
 	/* Static tree */
 	else
 	{
 		/* Search for an available node */
-		for (node = tree->root; node < tree->root + (tree->max_nodes * sizeof(btree_node_t)); node += 1)
+		for (node = tree.root; node < tree.root + (tree.max_nodes * sizeof(btree_node_t)); node += 1)
 		{
 			/* If the node does not exist, use it */
 			if (node->exists == false)
@@ -127,15 +124,14 @@ btree_node_t *create_btree_node(btree_t *tree)
 				/* Make sure it's 0 */
 				memset(node, 0, sizeof(btree_node_t));
 
-				/* Fill out the node's tree and that the node exists */
-				node->tree = tree;
+				/* Fill out that the node exists */
 				node->exists = true;
 				
 				break;
 			}
 
 			/* If we reached the end, set node to 0 */
-			if (node == tree->root + ((tree->max_nodes - 1) * sizeof(btree_node_t)))
+			if (node == tree.root + ((tree.max_nodes - 1) * sizeof(btree_node_t)))
 			{
 				node = 0;
 			}
@@ -161,9 +157,8 @@ void destroy_btree_node(btree_node_t *node)
 }
 
 /* Insert an object at a binary tree node */
-void insert_btree_node(btree_node_t *node, void *value)
+void insert_btree_node(btree_t tree, btree_node_t *node, void *value)
 {
-
 	/* The object is less than or equal to the node's value */
 	if (value <= node->value)
 	{
@@ -171,13 +166,13 @@ void insert_btree_node(btree_node_t *node, void *value)
 		if (node->left)
 		{
 			/* Insert the object at the left node */
-			insert_btree_node(node->left, value);
+			insert_btree_node(tree, node->left, value);
 		}
 		/* The left node does not exist */
 		else
 		{
 			/* Create the left node and set its value and parent */
-			node->left = create_btree_node(node->tree);
+			node->left = create_btree_node(tree);
 
 			node->left->value = value;
 			node->left->parent = node;
@@ -190,13 +185,13 @@ void insert_btree_node(btree_node_t *node, void *value)
 		if (node->right)
 		{
 			/* Insert the object at the right node */
-			insert_btree_node(node->right, value);
+			insert_btree_node(tree, node->right, value);
 		}
 		/* The right node does not exist */
 		else
 		{
 			/* Create the right node and set its value */
-			node->right = create_btree_node(node->tree);
+			node->right = create_btree_node(tree);
 
 			node->right->value = value;
 			node->right->parent = node;
@@ -205,7 +200,7 @@ void insert_btree_node(btree_node_t *node, void *value)
 }
 
 /* Search for an object at a binary tree node */
-btree_node_t *search_btree_node(btree_node_t *node, void *value)
+btree_node_t *search_btree_node(btree_t tree, btree_node_t *node, void *value)
 {
 	/* The object equals the node's value */
 	if (value == node->value)
@@ -214,7 +209,7 @@ btree_node_t *search_btree_node(btree_node_t *node, void *value)
 		if (node->left)
 		{
 			/* Search for the object at the left node */
-			return search_btree_node(node->left, value);
+			return search_btree_node(tree, node->left, value);
 		}
 		/* The left node does not exist */
 		else
@@ -230,7 +225,7 @@ btree_node_t *search_btree_node(btree_node_t *node, void *value)
 		if (node->left)
 		{
 			/* Search for the object at the left node */
-			return search_btree_node(node->left, value);
+			return search_btree_node(tree, node->left, value);
 		}
 		/* The left node does not exist */
 		else
@@ -246,7 +241,7 @@ btree_node_t *search_btree_node(btree_node_t *node, void *value)
 		if (node->right)
 		{
 			/* Search for the object at the right node */
-			return search_btree_node(node->right, value);
+			return search_btree_node(tree, node->right, value);
 		}
 		/* The right node does not exist */
 		else
