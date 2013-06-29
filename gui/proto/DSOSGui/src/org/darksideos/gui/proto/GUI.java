@@ -112,9 +112,6 @@ public class GUI implements MouseMotionListener, MouseListener {
 						window.getFullBounds().y + GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT"),
 						window.getFullBounds().width - 2, window.getFullBounds().height
 						- GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT")));
-				
-				g2d.setColor(Color.red);
-				g2d.draw(window.getFullBounds());
 			}
 		}
 		
@@ -123,6 +120,7 @@ public class GUI implements MouseMotionListener, MouseListener {
 		g2d.fill(new Rectangle2D.Double(0, GUIDisplay.size.height -
 				GUIConfig.getDouble("TASK_BAR_HEIGHT"),
 				GUIDisplay.size.width, GUIConfig.getDouble("TASK_BAR_HEIGHT")));
+		
 		/* Draw the cursor */
 		Image cursorToUse = default_cursor;
 		if(dragOrigin != null && windowOrigin != null) {
