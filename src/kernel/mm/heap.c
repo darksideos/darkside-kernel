@@ -12,24 +12,24 @@ heap_t *kheap = 0;
 extern uint32_t kernel_directory;
 
 /* Heap index predicates */
-bool heap_lt_predicate(void *chunk, void *value)
+bool heap_lt_predicate(void *value, void *chunk)
 {
-	return ((header_t*) chunk)->type < (uint32_t) value;
+	return (uint32_t) value < ((header_t*) chunk)->type;
 }
 
-bool heap_le_predicate(void *chunk, void *value)
+bool heap_le_predicate(void *value, void *chunk)
 {
-	return ((header_t*) chunk)->type <= (uint32_t) value;
+	return (uint32_t) value <= ((header_t*) chunk)->type;
 }
 
-bool heap_eq_predicate(void *chunk, void *value)
+bool heap_eq_predicate(void *value, void *chunk)
 {
-	return ((header_t*) chunk)->type == (uint32_t) value;
+	return (uint32_t) value == ((header_t*) chunk)->type;
 }
 
-bool heap_gt_predicate(void *chunk, void *value)
+bool heap_gt_predicate(void *value, void *chunk)
 {
-	return ((header_t*) chunk)->type > (uint32_t) value;
+	return (uint32_t) value > ((header_t*) chunk)->type;
 }
 
 /* Create a heap */
@@ -202,9 +202,13 @@ header_t *split_chunk(heap_t *heap, header_t *chunk, uint32_t size)
 	chunk1->type = 1;
 	chunk1->size = size;
 
+	kprintf("chunk1: 0x%08X\nchunk2: 0x%08X\n", chunk1, chunk2);
+
 	/* Create their footers */
 	footer_t *footer1 = (footer_t*) chunk1 + (chunk1->size - sizeof(footer_t));
 	footer_t *footer2 = (footer_t*) chunk2 + (chunk2->size - sizeof(footer_t));
+
+	kprintf("footer1: 0x%08X\nfooter2: 0x%08X\n", footer1, footer2);
 
 	/* Fill out their footers */
 	footer1->magic = HEAP_MAGIC;
