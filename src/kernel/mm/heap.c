@@ -35,7 +35,14 @@ bool heap_gt_predicate(void *chunk, void *value)
 /* Create a heap */
 heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_address, uint32_t max_address, uint32_t index_size, bool user, bool global)
 {
-	/* First, place a heap structure, make sure it's 0, and fill in its data */
+	/* First, map some pages in the kernel heap */
+	uint32_t address;
+	for (address = start_address; address < end_address; address += 0x1000)
+	{
+		map_page(kernel_directory, address, pmm_alloc_page(), true, true, user, global);
+	}
+
+	/* Second, place a heap structure, make sure it's 0, and fill in its data */
 	heap_t *heap = (heap_t*) start_address;
 	memset(heap, 0, sizeof(heap_t));
 
@@ -47,7 +54,7 @@ heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_a
 	heap->user = user;
 	heap->global = global;
 
-	/* Second, create the heap index */
+	/* Third, create the heap index */
 	memset((void*) start_address + sizeof(heap_t), 0, index_size);
 	heap->index = place_btree((void*) start_address + sizeof(heap_t), index_size);
 
@@ -56,7 +63,7 @@ heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_a
 	heap->index.eq_predicate = &heap_eq_predicate;
 	heap->index.gt_predicate = &heap_gt_predicate;
 
-	/* Third, create a large hole */
+	/* Fourth, create a large hole */
 	header_t *header = (header_t*) ((uint32_t) heap->index.root + index_size);
 
 	header->magic = HEAP_MAGIC;
@@ -68,7 +75,7 @@ heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_a
 	footer->magic = HEAP_MAGIC;
 	footer->header = header;
 
-	/* Fourth, add the hole to the heap index */
+	/* Fifth, add the hole to the heap index */
 	heap->index.root->value = header;
 
 	/* Finally, return the new heap */
@@ -171,6 +178,54 @@ void free_chunk(heap_t *heap, header_t *chunk)
 /* Split a chunk */
 header_t *split_chunk(heap_t *heap, header_t *chunk, uint32_t size)
 {
+	/* Get the heap index */
+	btree_t index = heap->index;
+
+	/* If there is not enough space to store data if we split the chunk, return the chunk */
+	if ((chunk->size - size) <= (sizeof(header_t) + sizeof(footer_t)))
+	{
+		return chunk;
+	}
+
+	/* Search for the hole */
+	btree_node_t *node = search_btree(index, 0);
+
+	/* Set up pointers to the chunks */
+	header_t *chunk1 = chunk;
+	header_t *chunk2 = chunk + size;
+
+	/* Rewrite their headers */
+	chunk2->magic = HEAP_MAGIC;
+	chunk2->type = 0;
+	chunk2->size = chunk1->size - size;
+
+	chunk1->type = 1;
+	chunk1->size = size;
+
+	/* Create their footers */
+	footer_t *footer1 = (footer_t*) chunk1 + (chunk1->size - sizeof(footer_t));
+	footer_t *footer2 = (footer_t*) chunk2 + (chunk2->size - sizeof(footer_t));
+
+	/* Fill out their footers */
+	footer1->magic = HEAP_MAGIC;
+	footer1->header = chunk1;
+
+	footer2->magic = HEAP_MAGIC;
+	footer2->header = chunk2;
+
+	/* Insert the 2 blocks at the node */
+	btree_node_t *node1 = create_btree_node(index);
+	node1->value = chunk2;
+	node1->parent = node;
+	node->left = node1;
+
+	btree_node_t *node2 = create_btree_node(index);
+	node2->value = chunk1;
+	node2->parent = node;
+	node->right = node2;
+
+	/* Finally, return the chunk */
+	return chunk1;
 }
 
 /* Glue two chunks */
@@ -191,8 +246,7 @@ void *heap_malloc(heap_t *heap, uint32_t size)
 	uint32_t chunk_size = sizeof(header_t) + size + sizeof(footer_t);
 
 	/* Find a chunk that can fit our size */
-	//header_t *chunk = lookup_chunk(heap->index, chunk_size);
-	header_t *chunk = 0;
+	header_t *chunk = lookup_chunk(heap, chunk_size);
 
 	/* If we found a chunk, return the address of the memory we found */
 	if (chunk != 0)
