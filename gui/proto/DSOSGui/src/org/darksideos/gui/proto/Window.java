@@ -75,11 +75,10 @@ public class Window {
 	
 	static Rectangle2D.Double createWindowButton(Window window, int button) {
 		return new Rectangle2D.Double(window.getFullBounds().x +
-				window.getFullBounds().width - GUIConfig.getDouble("WINDOW_TITLE_BAR_ARC") / 2 -
-				GUIConfig.getDouble("WINDOW_BUTTON_RADIUS") * (button * 2 + 1.5) - GUIConfig.getDouble("WINDOW_BUTTON_GAP") * button,
-				window.getFullBounds().y + GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT") / 2
-				- GUIConfig.getDouble("WINDOW_BUTTON_RADIUS"),
-				GUIConfig.getDouble("WINDOW_BUTTON_RADIUS") * 2, GUIConfig.getDouble("WINDOW_BUTTON_RADIUS") * 2);
+				window.getFullBounds().width - GUIConfig.getDouble("WINDOW_BUTTON_RIGHT_GAP") -
+				GUIConfig.getDouble("WINDOW_BUTTON_WIDTH") * (button * 2 + 1.5) - GUIConfig.getDouble("WINDOW_BUTTON_GAP") * button,
+				window.getFullBounds().y + 1,
+				GUIConfig.getDouble("WINDOW_BUTTON_WIDTH") * 2, GUIConfig.getDouble("WINDOW_BUTTON_HEIGHT") * 2);
 	}
 	
 	static Dimension getMaxWindowContentsSize() {
