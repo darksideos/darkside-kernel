@@ -1,7 +1,7 @@
 This document contains a basic overview of the design of DarkSide OS.
 
 ---------------------------HARDWARE ABSTRACTION LAYER---------------------------
-The Hardware Abstraction Layer abstracts away the hardware and provides a common interface for the kernel to run on. That way, the only thing that needs to be done to port the OS is writing a new HAL.
+The Hardware Abstraction Layer abstracts away the hardware and provides a common interface for the kernel to run on. It is a set of several architecture dependent functions that are used in the kernel. That way, the only thing that needs to be done to port the OS is writing a new HAL.
 
 The HAL contains these functions:
 
@@ -10,55 +10,57 @@ The HAL contains these functions:
 -bus_t **hal_init_system(struct multiboot *mboot_ptr);
 
 ======================================I/O=======================================
--unsigned char inportb(unsigned int port);
--unsigned char inmemb(unsigned int address);
--void outportb(unsigned int port, unsigned char data);
--void outmemb(unsigned int address, unsigned char data);
--unsigned short inportw(unsigned int port);
--unsigned short inmemw(unsigned int address);
--void outportw(unsigned int port, unsigned short data);
--void outmemw(unsigned int address, unsigned short data);
--unsigned long inportl(unsigned int port);
--unsigned long inmeml(unsigned int address);
--void outportl(unsigned int port, unsigned long data);
--void outmeml(unsigned int address, unsigned long data);
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Port I/O>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-uint8_t inportb(uint32_t port);
+-void outportb(uint32_t port, uint8_t data);
+-uint16_t inportw(uint32_t port);
+-void outportw(uint32_t port, uint16_t data);
+-unsigned long inportl(uint32_t port);
+-void outportl(uint32_t port, unsigned long data);
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<MMIO>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-uint8_t inmemb(uint32_t address);
+-void outmemb(uint32_t address, uint8_t data);
+-uint16_t inmemw(uint32_t address);
+-void outmemw(uint32_t address, uint16_t data);
+-unsigned long inmeml(uint32_t address);
+-void outmeml(uint32_t address, unsigned long data);
 
 ===================================INTERRUPTS===================================
--void irq_install_handler(int irq, void *handler);
--void irq_uninstall_handler(int irq);
+-void irq_install_handler(int32_t irq, void *handler);
+-void irq_uninstall_handler(int32_t irq);
 
 ===========================PHYSICAL MEMORY MANAGEMENT===========================
--unsigned int pmm_alloc_page();
--void pmm_free_page(unsigned int address);
+-uint32_t pmm_alloc_page();
+-void pmm_claim_page(uint32_t address);
+-void pmm_free_page(uint32_t address);
 
 ===========================VIRTUAL MEMORY MANAGEMENT============================
--void *get_page(void *dir, unsigned int virtual_address, bool make, unsigned int flags);
--void map_page(void *dir, unsigned int virtual_address, unsigned int physical_address, unsigned int flags);
--void unmap_page(void *dir, unsigned int virtual_address);
--void map_kernel(void *dir);
--void *create_address_space();
--void *clone_address_space(void *src);
--void switch_address_space(void *dir);
+-void *get_mapping(uint32_t dir, unsigned int virtual_address);
+-void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user, bool global);
+-void unmap_page(uint32_t dir, uint32_t virtual_address);
+-void map_kernel(uint32_t dir);
+-uint32_t create_address_space();
+-void switch_address_space(uint32_t dir);
 
 ====================================SYSCALLS====================================
 -void init_syscalls();
--void syscall_install_handler(int syscall, void *handler);
+-void syscall_install_handler(int32_t syscall, void *handler);
 
 -------------------------------------KERNEL-------------------------------------
-The kernel is the central component of DarkSide OS (and all operating systems).  It provides the basic system functionality
-that all applications, libraries, and drivers need to interface with the hardware, such as memory management and a file manager.
+The kernel is the central component of DarkSide OS (and all operating systems).  It provides the basic system functionality that all applications, libraries, and drivers need to interface with the hardware, such as memory management, a file manager, processes and threads, and device management.
 
-=================================MEMORY LAYOUT==================================
+=================================MEMORY MANAGER==================================
 The kernel’s memory manager is responsible for creating address spaces for processes. It also provides a kernel heap for data structures to be allocated on.
 
-This is the layout of every process’s address space in i386:
+This is the layout of every process’s address space on a 32 bit system:
 
 0x80000000 – 0x8FFFFFFF		Kernel code and data
 0x90000000					Kernel heap (grows upwards)
 0xB0000000					Kernel stack (grows downwards)
 0xB0000000 – 0xEFFFFFFF		Loaded modules
-0xF0000000 – 0xF1000FFF		Page directory and page tables
-0xF1001000 – 0xFFFFFFFF		Memory mapped devices
+0xF0000000 – 0xF3FFFFFF		Memory mapped devices
+0xF4000000 – 0xFFFFFFFF		Paging structures
 
 ==============================VIRTUAL FILE SYSTEM===============================
 The kernel’s VFS provides a filesystem abstraction. It uses a node tree with currently opened files cached in memory, but a mountpoint list is also used.
@@ -85,12 +87,13 @@ This is the directory layout:
 ==================================MULTITASKING==================================
 The kernel provides multitasking with processes and threads. Processes are self contained tasks with their own threads, address space, and files. Threads are parts of processes that have their own execution path, registers, and stacks, but run in the same address space as every other thread in their parent process. Each process contains at least one executing thread.
 
-Processes and threads can be preemptively multitasked using several different schedulers. One scheduler is round robin, where the processes and threads are ran in order. Another scheduler is priority-based round robin, where there are several priority queues. The queues are run in priority order. Each priority queue has a set of threads waiting to be executed, and the threads are executed in order. With this algorithm, a process’s priority determines whether it is run first. The priority is set by how often the task is run and whether it is important to the system.
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<SCHEDULER>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Processes and threads can be preemptively multitasked using a powerful scheduler. In the scheduler, there are several priority queues. The queues are run in priority order. Each priority queue has a set of threads waiting to be executed, and the threads are executed in order. With this algorithm, a process’s priority determines whether it is run first. The priority is set by how often the task is run and whether it is important to the system.
 
-A variation of priority-based round robin uses timeslices as well as priority. Priority queues are still used like above, but tasks also get timeslices, which controls how much time they execute for. Finally, a variation of the above uses priority queues and timeslices, but for each priority queue, it also determines what order the tasks should run in. This is the most efficient scheduler, so it should be used.
+Tasks also get timeslices, which controls how much time they execute for. Finally, a variation of the above uses priority queues and timeslices, but for each priority queue, it also determines what order the tasks should run in.
 
-<<<<<<<<<<<<<<<<<<<<<<<<<<INTER-PROCESS COMMUNICATION>>>>>>>>>>>>>>>>>>>>>>>>>>>
-The kernel provides a few methods of IPC. These are messages, shared memory, signals, semaphores, mutexes, and spinlocks. Most of them are implemented in the kernel, but spinlocks are implemented in the HAL. Spinlocks are required for all other methods to be implemented.
+==========================INTER-PROCESS COMMUNICATION===========================
+The kernel provides a few methods of IPC. These are messages, shared memory, signals, pipes, semaphores, and mutexes. Spinlocks are implemented in the HAL. They are used in the kernel for multiprocessor synchronization.
 
 ====================================SYSCALLS====================================
 The kernel exposes the user mode API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The user mode API contains functions that directly call kernel functions.
@@ -105,18 +108,16 @@ These are the function categories for syscalls:
 
 These syscalls may be used directly or through libraries provided by the operating system.
 
-
 ==============================EXECUTABLE BINARIES===============================
 The kernel can execute ELF or PE binaries. When a new program is executed, the code and data from its executable binary is loaded into the process’s address space. Any user libraries that are linked with the kernel are then mapped into the address space as well. The executable binary is dynamically linked with these libraries, and relocated if needed.
 
 ====================================MODULES=====================================
-The kernel can also load ELF or PE modules. Kernel modules are dynamically linked with the kernel. They can be dynamically loaded or unloaded. Modules are stored in /boot/modules, and can be loaded from the initrd or the hard drive. The initrd contains only hard drive, FAT, video, and keyboard drivers, which are the bare minimum drivers required to get the system running. It also has the HAL. Modules are loaded to the kernel’s module area.
+The kernel can also load ELF or PE modules. Kernel modules are dynamically linked with the kernel. They can be dynamically loaded or unloaded. Modules are stored in /boot/modules, and can be loaded from the initrd or the hard drive. The initrd contains only video, input, hard drive, and filesystem drivers, which are the bare minimum drivers required to get the system running. Modules are loaded to the kernel’s module area. The module area is a special heap.
 
 =================================DEVICE MANAGER=================================
-The kernel has a device manager that can detect devices, load and unload drivers, and provide an API for the devices to be used. When the device manager is started, the bus drivers for the system are first loaded. The device manager uses the bus drivers to detect devices on the system and load their drivers. Drivers are normally kernel modules, but some are in user mode. Devices are part of the device tree on /dev, and can be accessed through normal file syscalls or the ioctl syscall, which allows the driver to have special functions.
+The kernel has a device manager that can detect devices, load and unload drivers, and provide an API for the devices to be used. When the device manager is started, the bus drivers for the system are first loaded. The device manager uses the bus drivers to detect devices on the system and load their drivers. Devices are part of the device tree on /dev, and can be accessed through normal file syscalls or the ioctl syscall, which allows the driver to have special functions.
 
-====================================DRIVERS=====================================
-The kernel loads drivers through its device manager. Drivers are normally kernel mode modules, but some are in user mode. There are three types of drivers, which are at different levels. Drivers run on top of lower level drivers in a tree structure. When drivers are unloaded, all of the drivers in that depend on it are recursively unloaded.
+Drivers are loaded through the device manager. Drivers are normally kernel mode modules, but some are in user mode. There are three types of drivers, which are at different levels. Drivers run on top of lower level drivers in a tree structure. When drivers are unloaded, all of the drivers in that depend on it are recursively unloaded.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<LOW-LEVEL DRIVERS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Low level drivers are the lowest level drivers in the tree. They are bus drivers, which allow the device manager to detect devices on the system. Bus drivers interface directly with the hardware, and provide an interface for other drivers to access the hardware. The bus drivers are loaded on i386 by ACPI, which provides a list of the system buses in the DSDT. Examples of bus drivers are PCI, PCI Express, and USB drivers.
@@ -128,10 +129,10 @@ Middle level drivers are drivers that control devices found on a bus. They sit b
 High level drivers are the highest level of drivers in the tree. They control software protocols that are part of devices. They run on top of either low level drivers or high level drivers, depending on the type of device. Graphics drivers, filesystem drivers, and networking drivers run on top of middle level drivers, because they are drivers for software protocols that run on top of middle level drivers that deal with raw data. Input drivers, such as keyboard and mouse drivers, are high level drivers that directly implement software protocols, and don’t use middle level drivers. Instead, they run directly on top of low level drivers.
 
 -----------------------------------USER MODE------------------------------------
-User mode is the part of the OS that users interface with. It runs on top of the kernel, which provides user mode with the native API and a device driver tree. This allows user mode to access the system, but this access is still managed by the kernel. User mode is responsible for applications, the shell, and users.
+User mode is the part of the OS that users interface with. It runs on top of the kernel, which provides user mode with the OS API and a device driver tree. This allows user mode to access the system, but this access is still managed by the kernel. User mode is responsible for applications, the shell, and users.
 
 ==================================APPLICATIONS==================================
-User mode is responsible for running user mode applications. It uses the kernel to create a process and execute the application in it. User mode also provides several APIs that wrap the kernel’s native API and a window manager for applications.
+User mode is responsible for running user mode applications. It uses the kernel to create a process and execute the application in it. User mode also provides several APIs and a window manager for applications.
 
 =======================APPLICATION PROGRAMMING INTERFACE========================
 Application programming interfaces, or APIs, are libraries that allow applications to interface with the OS.
@@ -143,17 +144,17 @@ The OS API is a library of kernel functions. The functions in the OS API directl
 There is also a POSIX API that wraps the kernel functions. It provides standard POSIX functions to applications, as well as the pthreads API. The POSIX API allows applications on Unix systems to be ported.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<WINDOWS API>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-A Windows API is provided as a wrapper of the kernel functions to run Windows applications on the OS. The Windows API emulates the Windows API using kernel functions, and emulates its GUI functions using the window manager. There is also a .NET library that runs on top of the kernel functions and window manager.
+A Windows API is provided as a wrapper of the kernel functions to run Windows applications on the OS. It emulates the Windows API using kernel functions, and emulates its GUI functions using the window manager. There is also a .NET library that runs on top of the kernel functions and window manager.
 
-<<<<<<<<<<<<<<<<<<<<<<<<<<WINDOW MANAGER/GRAPHICS API>>>>>>>>>>>>>>>>>>>>>>>>>>>
+==========================WINDOW MANAGER/GRAPHICS API===========================
 The Window Manager provides GUI functions. It allows applications to use windows, and provides widgets for them to place on the windows. The Window Manager calls graphical functions that are implemented in the kernel in order to display the windows. The functions in the Window Manager are part of the OS API.
 
 =====================================SHELL======================================
 The OS shell allows for file management and program execution. It is written as an application that uses the OS APIs. The OS can use a command line or graphical shell.
 
-DarkSide OS's default command line shell is fish, an open source extension of bash that offers several improved features.  fish can also be used in compatibility mode to act like bash.
+Command line shell - fish, an open source extension of bash that offers several improved features
 
-Graphical shell - tbc
+Graphical shell - TBD
 
 =====================================USERS======================================
 User mode in the OS provides users and groups. It also uses them to implement security. Users and groups have specific permissions that control what they are allowed to do. User passwords are implemented by the security manager as well.
