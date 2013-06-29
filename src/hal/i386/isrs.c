@@ -163,7 +163,7 @@ extern void fault_handler(struct i386_regs *r)
 		/* Otherwise, just display an error message, dump the registers, and halt the processor */
 		else
 		{
-			error_kprintf("Unhandled %s Exception at %08x\n", exceptions[r->int_no], r->eip);
+			panic("Unhandled %s Exception at %08x\n", exceptions[r->int_no], r->eip);
 			dump_registers(r);
 			while(1);
 		}
