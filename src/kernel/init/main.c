@@ -13,5 +13,7 @@ void kernel_main(struct multiboot *mboot_ptr)
 	/* Initialize the kernel heap */
 	//init_kheap();
 
+	pmm_alloc_page();
+
 	while(1);
 }

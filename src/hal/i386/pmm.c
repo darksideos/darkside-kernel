@@ -35,7 +35,7 @@ uint32_t pmm_alloc_page()
 	}
 }
 
-/* "Claim" a page */
+/* Claim a physical memory page */
 void pmm_claim_page(uint32_t address)
 {
 	/* Find the bit that corresponds to the address and set it to 1 */
@@ -75,33 +75,38 @@ void init_pmm(uint32_t size)
 	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
 	
-	/* The number of pages of virtual memory the PMM bitmap will occupy */
+	/* The physical address of the PMM bitmap and number of pages it will occupy */
+	uint32_t phys_bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
 	num_bitmap_pages = ceil(num_pmm_pages, 0x8000);
 	
-	int32_t bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
+	/* Map the PMM bitmap into virtual memory */
 	uint32_t mapped = 0;
-	
 	while(mapped < num_bitmap_pages)
 	{
-		if(mem_map_page_ok(bitmap_page))
+		/* The page is available in the memory map */
+		if(mem_map_page_ok(phys_bitmap_page))
 		{
-			((uint32_t*) PAGE_TABLE_PMM_BITMAP_START)[512 + mapped] = bitmap_page | 0x03;
+			/* Map a page of the PMM bitmap into virtual memory */
+			((uint32_t*) PAGE_TABLE_PMM_BITMAP_START)[512 + mapped] = phys_bitmap_page | 0x03;
 			
 			/* Invalidate the TLB entry */
-			asm volatile ("invlpg (%0)" :: "a" (bitmap_page));
+			asm volatile ("invlpg (%0)" :: "a" (phys_bitmap_page));
 			
+			/* We have mapped a page of the PMM bitmap */
 			mapped++;
 		}
-		bitmap_page += 0x1000;
+		/* Go to the next page of physical memory */
+		phys_bitmap_page += 0x1000;
 	}
 	
+	/* Set up a pointer to the PMM bitmap and make sure it's 0 */
 	pmm_pages = (uint32_t*) page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
 	memset(pmm_pages, 0, num_bitmap_pages * 0x1000);
 
-	/* Claim pages in the first 1 MB of the address space and in the kernel */
+	/* Claim pages in the first 1 MB of memory, the kernel, and the PMM bitmap */
 	/* Note: bitmap_page is 0x1000 greater than the last page allocated for the bitmap */
 	uint32_t i;
-	for (i = 0; i < bitmap_page; i += 0x1000)
+	for (i = 0; i < phys_bitmap_page; i += 0x1000)
 	{
 		pmm_claim_page(i);
 	}
