@@ -253,6 +253,9 @@ void init_vmm()
 		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, false, true);
 	}
 
+	/* Map the PMM bitmap into the kernel directory */
+	map_pmm_bitmap(kernel_directory);
+
 	/* Switch to the the kernel directory */
 	switch_address_space(kernel_directory);
 
