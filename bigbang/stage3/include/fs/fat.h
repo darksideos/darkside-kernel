@@ -68,6 +68,8 @@ unsigned int get_total_data_sectors(fat_BPB_t *bpb);
 unsigned int get_total_clusters(fat_BPB_t *bpb);
 unsigned int get_fat_type(fat_BPB_t *bpb);
 unsigned int get_root_cluster(fat_BPB_t *bpb);
-unsigned int get_absolute_cluster(fat_BPB_t *bpb, unsigned int relative);
+unsigned int get_absolute_cluster(unsigned int relative);
+unsigned int get_cluster_lba(fat_BPB_t *bpb, partition_t *part, unsigned int absolute_cluster);
+unsigned char *read_root_cluster(fat_BPB_t *bpb, partition_t *part);
 
 #endif

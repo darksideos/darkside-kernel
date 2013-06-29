@@ -22,7 +22,7 @@ unsigned int get_root_dir_sectors(fat_BPB_t *bpb)
 
 unsigned int get_table_size(fat_BPB_t *bpb)
 {
-	return bpb->total_sectors_16 == 0 ? bpb->table_size_16 : get_extended_section_32(bpb)->table_size_32;
+	return bpb->total_sectors_16 == 0 ? get_extended_section_32(bpb)->table_size_32 : bpb->table_size_16;
 }
 
 unsigned int get_first_data_sector(fat_BPB_t *bpb)
@@ -71,20 +71,21 @@ unsigned int get_fat_type(fat_BPB_t *bpb)
 
 unsigned int get_root_cluster(fat_BPB_t *bpb)
 {
-	return get_fat_type(bpb) == FAT_TYPE_32 ? get_extended_section_32(bpb)->root_cluster : get_first_data_sector(bpb);
+	return get_fat_type(bpb) == FAT_TYPE_32 ? get_extended_section_32(bpb)->root_cluster : get_first_data_sector(bpb) / bpb->sectors_per_cluster;
 }
 
-unsigned int get_absolute_cluster(fat_BPB_t *bpb, unsigned int relative)
+unsigned int get_absolute_cluster(unsigned int relative)
 {
-	return relative - 2 + get_first_data_sector(bpb);
+	return relative - 2;
 }
 
-unsigned int get_cluster_lba(fat_BPB_t *bpb, unsigned int absolute_cluster)
+unsigned int get_cluster_lba(fat_BPB_t *bpb, partition_t *part, unsigned int absolute_cluster)
 {
-	return absolute_cluster + (bpb->root_entry_count * 32 / bpb->bytes_per_sector);
+	return absolute_cluster * bpb->sectors_per_cluster + get_first_data_sector(bpb) + part->offset;
 }
 
-unsigned char *read_root_cluster(partition_t *part, fat_BPB_t *bpb)
+unsigned char *read_root_cluster(fat_BPB_t *bpb, partition_t *part)
 {
-	return lba28_sector_read_pio(part->drive, get_cluster_lba(bpb, get_absolute_cluster(bpb, get_root_cluster(bpb))) + part->offset, bpb->sectors_per_cluster);
+	kprintf(get_cluster_lba(bpb, part, get_absolute_cluster(get_root_cluster(bpb))));
+	return lba28_sector_read_pio(part->drive, get_cluster_lba(bpb, part, get_absolute_cluster(get_root_cluster(bpb))), bpb->sectors_per_cluster);
 }
