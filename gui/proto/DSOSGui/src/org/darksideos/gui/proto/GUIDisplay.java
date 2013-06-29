@@ -23,7 +23,8 @@ public class GUIDisplay extends JPanel {
 	public void resetBuffer() {
 		buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = buffer.createGraphics();
-		g2d.drawImage(GUI.background, 0, 0, getWidth(), getHeight(), this);
+		g2d.setColor(GUIConfig.getColor("BACKGROUND_COLOR"));
+		g2d.fillRect(0, 0, getWidth(), getHeight());
 	}
 	
 	public void flipBuffer() {
