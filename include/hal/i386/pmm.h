@@ -13,6 +13,9 @@
 /* Allocate a physical memory page */
 uint32_t pmm_alloc_page();
 
+/* Claim a physical memory page */
+void pmm_claim_page(uint32_t address);
+
 /* Free a physical memory page */
 void pmm_free_page(uint32_t address);
 

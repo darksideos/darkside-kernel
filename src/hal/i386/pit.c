@@ -3,6 +3,7 @@
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
+#include <hal/i386/pit.h>
 #include <hal/i386/timer.h>
 #include <kernel/task/task.h>
 
