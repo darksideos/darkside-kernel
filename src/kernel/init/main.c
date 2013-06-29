@@ -11,9 +11,10 @@ void kernel_main(struct multiboot *mboot_ptr)
 	hal_main(mboot_ptr);
 
 	/* Initialize the kernel heap */
-	//init_kheap();
+	init_kheap();
 
-	pmm_alloc_page();
+	/* Kmalloc testing */
+	kprintf("0x%08X\n", kmalloc(4));
 
 	while(1);
 }

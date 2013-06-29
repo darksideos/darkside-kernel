@@ -20,7 +20,7 @@ void pmm_claim_page(uint32_t address);
 void pmm_free_page(uint32_t address);
 
 /* Map the PMM bitmap into a page directory */
-void map_pmm_bitmap(uint32_t directory);
+void map_pmm_bitmap(uint32_t dir);
 
 /* Initialize the physical memory manager */
 void init_pmm(uint32_t size);
