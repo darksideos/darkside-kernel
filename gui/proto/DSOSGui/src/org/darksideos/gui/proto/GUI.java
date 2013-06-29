@@ -77,17 +77,17 @@ public class GUI implements MouseMotionListener, MouseListener {
 						: GUIConfig.getColor("WINDOW_MAX_BUTTON_COLOR"));
 				g2d.fill(Window.createWindowButton(window, 2));
 				
-				double textWidth = window.getFullBounds().width - GUIConfig.getDouble("WINDOW_BUTTON_WIDTH") * 6 -
-						GUIConfig.getDouble("WINDOW_BUTTON_GAP") * 2 - GUIConfig.getDouble("WINDOW_TITLE_BAR_ARC") / 2 -
-						GUIConfig.getDouble("WINDOW_BUTTON_RIGHT_GAP") - 
-						GUIConfig.getDouble("WINDOW_TITLE_LEFT_GAP") - GUIConfig.getDouble("WINDOW_TITLE_RIGHT_GAP"); 
+				double textWidth = window.getFullBounds().width / 2 - GUIConfig.getDouble("WINDOW_BUTTON_WIDTH") * 3 -
+						GUIConfig.getDouble("WINDOW_BUTTON_GAP") * 2 -
+						GUIConfig.getDouble("WINDOW_BUTTON_LEFT_GAP") - 
+						GUIConfig.getDouble("WINDOW_TITLE_LEFT_GAP");
 				
 				String displayedTitle = window.title;
 				
 				g2d.setFont(new Font(GUIConfig.get("WINDOW_TITLE_FONT"), Font.PLAIN, GUIConfig.getInt("WINDOW_TITLE_FONT_SIZE")));
 				Font curFont = g2d.getFont();
 				FontMetrics metrics = g2d.getFontMetrics(curFont);
-				if(metrics.stringWidth(displayedTitle) > textWidth) {
+				if(metrics.stringWidth(displayedTitle) / 2 > textWidth) {
 					displayedTitle += "...";
 					while(metrics.stringWidth(displayedTitle) > textWidth) {
 						displayedTitle = displayedTitle.substring(0, displayedTitle.length() - 4) +
@@ -97,7 +97,7 @@ public class GUI implements MouseMotionListener, MouseListener {
 				
 				g2d.setColor(GUIConfig.getColor("WINDOW_TITLE_TEXT_COLOR"));
 				g2d.drawString(displayedTitle, (int) window.getFullBounds().x +
-						(int) GUIConfig.getDouble("WINDOW_TITLE_BAR_ARC") / 2,
+						(int) window.getFullBounds().width / 2 - metrics.stringWidth(displayedTitle) / 2,
 						(int) window.getFullBounds().y + (int) GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT") -
 						(int) GUIConfig.getDouble("WINDOW_TITLE_BASELINE_OFFSET"));
 				
@@ -112,9 +112,6 @@ public class GUI implements MouseMotionListener, MouseListener {
 						window.getFullBounds().y + GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT"),
 						window.getFullBounds().width - 2, window.getFullBounds().height
 						- GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT")));
-				
-				g2d.setColor(Color.red);
-				g2d.draw(window.getFullBounds());
 			}
 		}
 		
@@ -123,6 +120,7 @@ public class GUI implements MouseMotionListener, MouseListener {
 		g2d.fill(new Rectangle2D.Double(0, GUIDisplay.size.height -
 				GUIConfig.getDouble("TASK_BAR_HEIGHT"),
 				GUIDisplay.size.width, GUIConfig.getDouble("TASK_BAR_HEIGHT")));
+		
 		/* Draw the cursor */
 		Image cursorToUse = default_cursor;
 		if(dragOrigin != null && windowOrigin != null) {
