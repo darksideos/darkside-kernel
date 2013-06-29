@@ -1,6 +1,5 @@
 package org.darksideos.gui.proto;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -30,9 +29,6 @@ public class GUIFrame extends JFrame {
 		dev.setFullScreenWindow(this);
 		
 		gui = new GUI(display);
-		display.resetBuffer();
-		gui.paintGUI();
-		display.flipBuffer();
 		
 		/* Hide the cursor */
 		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
@@ -42,14 +38,20 @@ public class GUIFrame extends JFrame {
 		System.setProperty("apple.awt.fullscreenhidecursor", "true");
 		
 		/* Some standard stuff */
-		setBackground(Color.GREEN);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("DarkSide OS GUI Prototype");
+	}
+	
+	public void showWindow() {
+		display.resetBuffer();
+		gui.paintGUI();
+		display.flipBuffer();
 		setVisible(true);
 	}
 	
 	public static void main(String[] args) {
-		new GUIFrame();
+		GUIFrame frame = new GUIFrame();
+		frame.showWindow();
 	}
 
 }

@@ -1,12 +1,12 @@
 package org.darksideos.gui.proto;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MouseInfo;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -27,16 +27,6 @@ public class GUI implements MouseMotionListener, MouseListener {
 	private Image default_cursor;
 	private Image moving_cursor;
 	
-	public static Image background;
-	
-	static {
-		try {
-			background = ImageIO.read(GUI.class.getClassLoader().getResource("org/darksideos/gui/proto/images/spitzer_helix_nebula_background.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private Point2D.Double dragOrigin;
 	private Point2D.Double windowOrigin;
 	
@@ -45,7 +35,6 @@ public class GUI implements MouseMotionListener, MouseListener {
 	public GUI(GUIDisplay display) {
 		this.display = display;
 
-		display.resetBuffer();
 		display.addMouseListener(this);
 		display.addMouseMotionListener(this);
 
@@ -53,7 +42,7 @@ public class GUI implements MouseMotionListener, MouseListener {
 		windows.add(new Window(new Point2D.Double(100, 100), new Dimension(100, 100), "Window 1"));
 		windows.add(new Window(new Point2D.Double(300, 300), new Dimension(400, 255), "Window 2"));
 		windows.add(new Window(new Point2D.Double(600, 350), new Dimension(300, 280), "Window 3"));
-		windows.add(new Window(new Point2D.Double(95, 500), new Dimension(400, 300), "Window 4"));
+		windows.add(new Window(new Point2D.Double(95, 400), new Dimension(400, 300), "Window 4"));
 		windows.add(new Window(new Point2D.Double(800, 60), new Dimension(400, 250), "Window 5"));
 		
 		try {
@@ -88,8 +77,9 @@ public class GUI implements MouseMotionListener, MouseListener {
 						: GUIConfig.getColor("WINDOW_MAX_BUTTON_COLOR"));
 				g2d.fill(Window.createWindowButton(window, 2));
 				
-				double textWidth = window.getFullBounds().width - GUIConfig.getDouble("WINDOW_BUTTON_RADIUS") * 6 -
-						GUIConfig.getDouble("WINDOW_BUTTON_GAP") * 2 - GUIConfig.getDouble("WINDOW_TITLE_BAR_ARC") -
+				double textWidth = window.getFullBounds().width - GUIConfig.getDouble("WINDOW_BUTTON_WIDTH") * 6 -
+						GUIConfig.getDouble("WINDOW_BUTTON_GAP") * 2 - GUIConfig.getDouble("WINDOW_TITLE_BAR_ARC") / 2 -
+						GUIConfig.getDouble("WINDOW_BUTTON_RIGHT_GAP") - 
 						GUIConfig.getDouble("WINDOW_TITLE_LEFT_GAP") - GUIConfig.getDouble("WINDOW_TITLE_RIGHT_GAP"); 
 				
 				String displayedTitle = window.title;
@@ -122,6 +112,9 @@ public class GUI implements MouseMotionListener, MouseListener {
 						window.getFullBounds().y + GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT"),
 						window.getFullBounds().width - 2, window.getFullBounds().height
 						- GUIConfig.getDouble("WINDOW_TITLE_BAR_HEIGHT")));
+				
+				g2d.setColor(Color.red);
+				g2d.draw(window.getFullBounds());
 			}
 		}
 		
@@ -130,16 +123,13 @@ public class GUI implements MouseMotionListener, MouseListener {
 		g2d.fill(new Rectangle2D.Double(0, GUIDisplay.size.height -
 				GUIConfig.getDouble("TASK_BAR_HEIGHT"),
 				GUIDisplay.size.width, GUIConfig.getDouble("TASK_BAR_HEIGHT")));
-		
 		/* Draw the cursor */
-		if(loc != null) {
-			Image cursorToUse = default_cursor;
-			if(dragOrigin != null && windowOrigin != null) {
-				cursorToUse = moving_cursor;
-			}
-			g2d.drawImage(cursorToUse, (int) loc.getX(), (int) loc.getY(), 16, 16, null);
+		Image cursorToUse = default_cursor;
+		if(dragOrigin != null && windowOrigin != null) {
+			cursorToUse = moving_cursor;
 		}
-	}
+		g2d.drawImage(cursorToUse, (int) loc.getX(), (int) loc.getY(), 16, 16, null);
+}
 	
 	public void mouseDragged(MouseEvent event) {
 		display.resetBuffer();
