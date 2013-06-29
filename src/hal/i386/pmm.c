@@ -50,19 +50,23 @@ void pmm_free_page(uint32_t address)
 }
 
 /* Map the PMM bitmap into a page directory */
-void map_pmm_bitmap(uint32_t directory)
+void map_pmm_bitmap(uint32_t dir)
 {
+	/* Physical and virtual address of the PMM bitmap */
 	uint32_t phys_bitmap_page = page_align(PMM_BITMAP_PHYSICAL_START);
 	uint32_t virt_bitmap_page = PMM_BITMAP_VIRTUAL_START;
 
+	/* Map the PMM bitmap into virtual memory */
 	uint32_t mapped = 0;
-	
-	while(mapped < num_bitmap_pages)
+	while (mapped < num_bitmap_pages)
 	{
-		if(mem_map_page_ok(phys_bitmap_page))
+		/* The page is available in the memory map */
+		if (mem_map_page_ok(phys_bitmap_page))
 		{
-			map_page(directory, virt_bitmap_page + (mapped * 0x1000), phys_bitmap_page, true, true, false, true);
+			/* Map a page of the PMM bitmap into virtual memory */
+			map_page(dir, virt_bitmap_page + (mapped * 0x1000), phys_bitmap_page, true, true, false, true);
 			
+			/* We have mapped a page of the PMM bitmap */
 			mapped++;
 		}
 		phys_bitmap_page += 0x1000;
@@ -81,13 +85,13 @@ void init_pmm(uint32_t size)
 	
 	/* Map the PMM bitmap into virtual memory */
 	uint32_t mapped = 0;
-	while(mapped < num_bitmap_pages)
+	while (mapped < num_bitmap_pages)
 	{
 		/* The page is available in the memory map */
-		if(mem_map_page_ok(phys_bitmap_page))
+		if (mem_map_page_ok(phys_bitmap_page))
 		{
 			/* Map a page of the PMM bitmap into virtual memory */
-			((uint32_t*) PAGE_TABLE_PMM_BITMAP_START)[512 + mapped] = phys_bitmap_page | 0x03;
+			((uint32_t*) PAGE_TABLE_PMM_BITMAP_START)[512 + mapped] = phys_bitmap_page | PAGE_KERNEL;
 			
 			/* Invalidate the TLB entry */
 			asm volatile ("invlpg (%0)" :: "a" (phys_bitmap_page));
@@ -100,7 +104,7 @@ void init_pmm(uint32_t size)
 	}
 	
 	/* Set up a pointer to the PMM bitmap and make sure it's 0 */
-	pmm_pages = (uint32_t*) page_align(KERNEL_VIRTUAL_START + KERNEL_PHYSICAL_SIZE);
+	pmm_pages = (uint32_t*) PMM_BITMAP_VIRTUAL_START;
 	memset(pmm_pages, 0, num_bitmap_pages * 0x1000);
 
 	/* Claim pages in the first 1 MB of memory, the kernel, and the PMM bitmap */
