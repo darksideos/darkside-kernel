@@ -84,8 +84,45 @@ unsigned int get_cluster_lba(fat_BPB_t *bpb, partition_t *part, unsigned int abs
 	return absolute_cluster * bpb->sectors_per_cluster + get_first_data_sector(bpb) + part->offset;
 }
 
-unsigned char *read_root_cluster(fat_BPB_t *bpb, partition_t *part)
+unsigned char *read_cluster(fat_BPB_t *bpb, partition_t *part, unsigned int number)
 {
-	kprintf(get_cluster_lba(bpb, part, get_absolute_cluster(get_root_cluster(bpb))));
-	return lba28_sector_read_pio(part->drive, get_cluster_lba(bpb, part, get_absolute_cluster(get_root_cluster(bpb))), bpb->sectors_per_cluster);
+		return lba28_sector_read_pio(part->drive, get_cluster_lba(bpb, part, get_absolute_cluster(number)), bpb->sectors_per_cluster);
+}
+
+unsigned int find_child_cluster(fat_BPB_t *bpb, partition_t* part, unsigned int cluster_number, unsigned char *name)
+{
+	unsigned char *cluster = read_cluster(bpb, part, cluster_number);
+	/* Temporary */
+	int index = 0;
+	for(index = 0; index < bpb->sectors_per_cluster * bpb->bytes_per_sector; index += 32)
+	{
+		unsigned char *entry = cluster + index;
+		if(entry[11] == 0x0F)
+		{
+			kprintf("#%02x ", (unsigned char) entry[0]);
+			int index2;
+			for(index2 = 1; index2 < 12; index2 += 2)
+			{
+				kprintf("%c", entry[index2]);
+			}
+			for(index2 = 14; index2 < 26; index2 += 2)
+			{
+				kprintf("%c", entry[index2]);
+			}
+			for(index2 = 28; index2 < 32; index2 += 2)
+			{
+				kprintf("%c", entry[index2]);
+			}
+			kprintf("\n");
+		}
+		else
+		{
+			int index2;
+			for(index2 = 0; index2 < 11; index2++)
+			{
+				kprintf("%c", entry[index2]);
+			}
+			kprintf("\n");
+		}
+	}
 }

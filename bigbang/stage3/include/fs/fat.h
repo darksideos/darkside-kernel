@@ -56,6 +56,33 @@ typedef struct fat_BPB
 	unsigned char		extended_section[54];
 } __attribute__((packed)) fat_BPB_t;
 
+typedef struct fat_cluster_8_3_entry
+{
+	unsigned char		name[11];
+	unsigned char 		flags;
+	unsigned char		reserved;
+	unsigned char		creation_time_second_tenths;
+	unsigned short		creation_time;
+	unsigned short		creation_date;
+	unsigned short		accessed_date;
+	unsigned short		high_cluster;
+	unsigned short		modified_time;
+	unsigned short		modified_date;
+	unsigned int		size;
+} fat_cluster_8_3_entry_t;
+
+typedef struct fat_cluster_long_name_entry
+{
+	unsigned char		number;
+	unsigned char		name1[10];
+	unsigned char		flags;
+	unsigned char		type;
+	unsigned char		checksum;
+	unsigned char		name2[6];
+	unsigned short		zero;
+	unsigned char		name3[4];
+} fat_cluster_long_name_entry_t;
+
 /* FAT helper funcs */
 fat_extBS_32_t* get_extended_section_32(fat_BPB_t *bpb);
 fat_BPB_t *read_BPB(partition_t *part);
@@ -70,6 +97,7 @@ unsigned int get_fat_type(fat_BPB_t *bpb);
 unsigned int get_root_cluster(fat_BPB_t *bpb);
 unsigned int get_absolute_cluster(unsigned int relative);
 unsigned int get_cluster_lba(fat_BPB_t *bpb, partition_t *part, unsigned int absolute_cluster);
-unsigned char *read_root_cluster(fat_BPB_t *bpb, partition_t *part);
+unsigned char *read_cluster(fat_BPB_t *bpb, partition_t *part, unsigned int number);
+unsigned int find_child_cluster(fat_BPB_t *bpb, partition_t* part, unsigned int cluster_number, unsigned char *name);
 
 #endif
