@@ -89,7 +89,7 @@ uint32_t append_list(list_t list, void *value)
 	list.end = element;
 
 	/* Increment the number of elements and return the index of the new element */
-	list.num_elements += 1;
+	list.num_elements++;
 	return list.num_elements - 1;
 }
 
@@ -132,6 +132,9 @@ free:
 
 	/* Free our element */
 	kfree(element);
+
+	/* Decrement the number of elements */
+	list.num_elements--;
 }
 
 /* Get an element in a list */
