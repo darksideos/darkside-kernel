@@ -1,7 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
-#include <drivers/ata/ata.h>
+#include <drivers/ide/ata/ata.h>
 #include <drivers/fs/fat.h>
 
 fat_BS_t *fat_boot;
