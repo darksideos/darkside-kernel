@@ -12,8 +12,19 @@ void main(unsigned int *os_info)
 	partition_t *part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
 	superblock_t *superblock = read_superblock(part);
-	inode_t *inode = read_inode(part, superblock, 2);
+	inode_t *root_inode = read_inode(part, superblock, 2);
+	unsigned int test = ext2_finddir(part, superblock, root_inode, "test.txt");
+	inode_t *test_inode = read_inode(part, superblock, test);
+	unsigned char *data = test_inode;
+		
+	unsigned char *test_data = kmalloc(1024);
+	read_inode_contents(part, superblock, test_inode, test_data, 1024);
 	
-	kprintf("Date: %d\n", inode->creation_time);
+	int index;
+	for(index = 0; index < test_inode->low_size; index++)
+	{
+		kprintf("%c", test_data[index]);
+	}
+	
 	while(1);
 }

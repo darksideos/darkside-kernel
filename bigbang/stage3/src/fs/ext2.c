@@ -1,6 +1,8 @@
 #include <fs/ext2.h>
 #include <storage/ata.h>
 #include <storage/partition.h>
+#include <lib/libc/string.h>
+#include <mm/placement.h>
 
 unsigned int get_inode_size(superblock_t *superblock)
 {
@@ -32,8 +34,8 @@ inode_t *read_inode(partition_t *part, superblock_t *superblock, unsigned int in
 	unsigned int block_group = floor((inode - 1), superblock->inodes_per_group);
 	block_group_desc_t *desc = read_block_descriptor(part, superblock, block_group);
 	
-	unsigned int table_index = (inode - 1) % superblock->inodes_per_group;
-	unsigned int table_block = floor((table_index * get_inode_size(superblock)), get_block_size(superblock));
+	unsigned int table_index = (inode - 1) % floor(get_block_size(superblock), get_inode_size(superblock));
+	unsigned int table_block = floor((inode * get_inode_size(superblock)), get_block_size(superblock));
 	
 	return read_block(part, superblock, desc->inode_table_block + table_block) + table_index * get_inode_size(superblock);
 }
@@ -43,11 +45,63 @@ unsigned char *read_block(partition_t *part, superblock_t *superblock, unsigned 
 	return lba28_sector_read_pio(part->drive, (block * get_block_size(superblock)) / BYTES_PER_SECTOR + part->offset, get_block_size(superblock) / BYTES_PER_SECTOR);
 }
 
-int read_inode_contents(inode_t *inode, unsigned char buffer[], unsigned int length)
+int read_inode_contents(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length)
 {
+	unsigned int full_blocks = floor(length, get_block_size(superblock));
+	unsigned int offset = length % get_block_size(superblock);
+	unsigned int blocks_read = 0;
+	
+	while(full_blocks > 0 && blocks_read < 12)
+	{
+		memcpy(buffer + blocks_read * get_block_size(superblock), read_block(part, superblock, inode->direct_block[blocks_read]), get_block_size(superblock));
+		full_blocks--;
+		blocks_read++;
+	}
 	
 	return 0;
 }	
+
+struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned int number)
+{
+	unsigned int index = 0;
+	/* Temporary */
+	unsigned char *data = kmalloc(1024);
+	read_inode_contents(part, superblock, parent, data, 1024);
+	
+	while(index < number)
+	{
+		data += ((inode_dirent_t*) data)->size;
+		index++;
+	}
+	
+	struct dirent *dir = kmalloc(sizeof(struct dirent));
+	dir->inode = ((inode_dirent_t*) data)->inode;
+	dir->name = kmalloc(strlen(&((inode_dirent_t*) data)->name_start));
+	strcpy(dir->name, &((inode_dirent_t*) data)->name_start);
+	
+	return dir;
+}
+
+unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned char *name)
+{
+	/* Temporary */
+	unsigned char *data = kmalloc(1024);
+	read_inode_contents(part, superblock, parent, data, 1024);
+	int index;
+	
+	/* Temporary */
+	for(index = 0; index < 5; index++)
+	{
+		data += ((inode_dirent_t*) data)->size;
+		unsigned char *file_name = kmalloc(((inode_dirent_t*) data)->low_length + 1);
+		memcpy(file_name, &(((inode_dirent_t*) data)->name_start), ((inode_dirent_t*) data)->low_length);
+		
+		if(strequal(file_name, name))
+		{
+			return ((inode_dirent_t*) data)->inode;
+		}
+	}
+}
 
 superblock_t *read_superblock(partition_t *part)
 {
