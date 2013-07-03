@@ -205,8 +205,8 @@ header_t *split_chunk(heap_t *heap, header_t *chunk, uint32_t size)
 	kprintf("chunk1: 0x%08X\nchunk2: 0x%08X\n", chunk1, chunk2);
 
 	/* Create their footers */
-	footer_t *footer1 = (footer_t*) chunk1 + (chunk1->size - sizeof(footer_t));
-	footer_t *footer2 = (footer_t*) chunk2 + (chunk2->size - sizeof(footer_t));
+	footer_t *footer1 = (footer_t*) (((unsigned char*) chunk1) + (chunk1->size - sizeof(footer_t)));
+	footer_t *footer2 = (footer_t*) (((unsigned char*) chunk2) + (chunk2->size - sizeof(footer_t)));
 
 	kprintf("footer1: 0x%08X\nfooter2: 0x%08X\n", footer1, footer2);
 
