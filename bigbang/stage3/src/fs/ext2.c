@@ -45,17 +45,46 @@ unsigned char *read_block(partition_t *part, superblock_t *superblock, unsigned 
 	return lba28_sector_read_pio(part->drive, (block * get_block_size(superblock)) / BYTES_PER_SECTOR + part->offset, get_block_size(superblock) / BYTES_PER_SECTOR);
 }
 
+/* Note: returns the length that was read */
+unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock, unsigned int block, unsigned char buffer[], unsigned int length, unsigned char level, unsigned int offset)
+{
+	unsigned int trans;
+	if(length >= get_block_size(superblock))
+	{
+		trans = get_block_size(superblock);
+	}
+	else
+	{
+		trans = length;
+	}
+	if(level == 0)
+	{
+		memcpy(buffer + offset, read_block(part, superblock, block), trans);
+	}
+	else
+	{
+		unsigned char *block_data = read_block(part, superblock, block);
+	}
+	return trans;
+}
+
 int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length)
 {
-	unsigned int full_blocks = floor(length, get_block_size(superblock));
-	unsigned int offset = length % get_block_size(superblock);
 	unsigned int blocks_read = 0;
+	unsigned int bytes_left = length;
+	unsigned int transferred;
 	
-	while(full_blocks > 0 && blocks_read < 12)
+	/* First, use the 12 direct pointers */
+	while(bytes_left > 0 && blocks_read < 12)
 	{
-		memcpy(buffer + blocks_read * get_block_size(superblock), read_block(part, superblock, inode->direct_block[blocks_read]), get_block_size(superblock));
-		full_blocks--;
+		bytes_left -= ext2_read_block_pointer(part, superblock, inode->direct_block[blocks_read], buffer, bytes_left, 0, blocks_read * get_block_size(superblock));
 		blocks_read++;
+	}
+	
+	/* Then, if that's not enough, the single, the double, then the trouble */
+	if(bytes_left > 0)
+	{
+		bytes_left -= ext2_read_block_pointer(part, superblock, inode->single_block, buffer, bytes_left, 1, blocks_read * get_block_size(superblock));
 	}
 	
 	return 0;
