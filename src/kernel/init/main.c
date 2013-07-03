@@ -1,6 +1,7 @@
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <drivers/graphics/vga.h>
+#include <lib/libc/stdint.h>
 
 void kernel_main(struct multiboot *mboot_ptr)
 {
@@ -12,9 +13,6 @@ void kernel_main(struct multiboot *mboot_ptr)
 
 	/* Initialize the kernel heap */
 	init_kheap();
-
-	/* Kmalloc testing */
-	kprintf("0x%08X\n", kmalloc(4));
 
 	while(1);
 }
