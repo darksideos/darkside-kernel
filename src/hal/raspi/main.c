@@ -6,8 +6,8 @@
 #include <hal/raspi/vmm.h>
 #include <hal/raspi/systimer.h>
 #include <hal/raspi/interrupts.h>
-#include <drivers/raspi/gpio/gpio.h>
-#include <drivers/raspi/uart/uart.h>
+#include <drivers/serial/gpio/gpio.h>
+#include <drivers/serial/uart/uart.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/text_mode.h>
 #include <drivers/graphics/raspi/textutils.h>
