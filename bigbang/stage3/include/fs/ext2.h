@@ -139,7 +139,7 @@ typedef struct dirent
 /* Reading from the drive */
 inode_t *read_inode(partition_t *part, superblock_t *superblock, unsigned int inode);
 unsigned char *read_block(partition_t *part, superblock_t *superblock, unsigned int block);
-int read_inode_contents(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length);
+int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length);
 struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned int number);
 unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned char *name);
 superblock_t *read_superblock(partition_t *part);

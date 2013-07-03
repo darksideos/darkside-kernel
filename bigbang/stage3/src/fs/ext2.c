@@ -45,7 +45,7 @@ unsigned char *read_block(partition_t *part, superblock_t *superblock, unsigned 
 	return lba28_sector_read_pio(part->drive, (block * get_block_size(superblock)) / BYTES_PER_SECTOR + part->offset, get_block_size(superblock) / BYTES_PER_SECTOR);
 }
 
-int read_inode_contents(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length)
+int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length)
 {
 	unsigned int full_blocks = floor(length, get_block_size(superblock));
 	unsigned int offset = length % get_block_size(superblock);
@@ -66,7 +66,7 @@ struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t
 	unsigned int index = 0;
 	/* Temporary */
 	unsigned char *data = kmalloc(1024);
-	read_inode_contents(part, superblock, parent, data, 1024);
+	ext2_read(part, superblock, parent, data, 1024);
 	
 	while(index < number)
 	{
@@ -86,7 +86,7 @@ unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *
 {
 	/* Temporary */
 	unsigned char *data = kmalloc(1024);
-	read_inode_contents(part, superblock, parent, data, 1024);
+	ext2_read(part, superblock, parent, data, 1024);
 	int index;
 	
 	/* Temporary */
