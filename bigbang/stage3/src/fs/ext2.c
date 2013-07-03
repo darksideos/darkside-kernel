@@ -63,8 +63,30 @@ unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock
 	}
 	else
 	{
-		unsigned char *block_data = read_block(part, superblock, block);
+		unsigned int *block_data = (unsigned int*) read_block(part, superblock, block);
+		unsigned char sublevel = get_block_size(superblock) * pow(get_block_size(superblock) / 4, level - 1);
 		
+		if(length >= get_block_size(superblock) * pow(get_block_size(superblock) / 4, level))
+		{
+			trans = get_block_size(superblock) * pow(get_block_size(superblock) / 4, level);
+		}
+		else
+		{
+			trans = length;
+		}
+		
+		unsigned int bytes_left = length;
+		unsigned int blocks_read = 0;
+		
+		/* Call myself */
+		while(bytes_left > 0 && blocks_read < get_block_size(superblock) / 4)
+		{
+			kprintf("Reading 1 recursive block at level %d\n", level);
+			bytes_left -= ext2_read_block_pointer(part, superblock, block_data[blocks_read], buffer, length, level - 1, offset + blocks_read * get_block_size(superblock));
+			blocks_read++;
+		}
+		
+		return length - bytes_left;
 	}
 	return trans;
 }
@@ -78,17 +100,32 @@ int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode,  unsi
 	/* First, use the 12 direct pointers */
 	while(bytes_left > 0 && blocks_read < 12)
 	{
-		bytes_left -= ext2_read_block_pointer(part, superblock, inode->direct_block[blocks_read], buffer, bytes_left, 0, blocks_read * get_block_size(superblock));
+		bytes_left -= ext2_read_block_pointer(part, superblock, inode->direct_block[blocks_read], buffer, length, 0, blocks_read * get_block_size(superblock));
 		blocks_read++;
 	}
 	
-	/* Then, if that's not enough, the single, the double, then the trouble */
+	/* Then, if that's not enough, the single, the double, then the triple indirect pointers */
 	if(bytes_left > 0)
 	{
 		bytes_left -= ext2_read_block_pointer(part, superblock, inode->single_block, buffer, bytes_left, 1, blocks_read * get_block_size(superblock));
 	}
+	if(bytes_left > 0)
+	{
+		bytes_left -= ext2_read_block_pointer(part, superblock, inode->double_block, buffer, bytes_left, 2, blocks_read * get_block_size(superblock));
+	}
+	if(bytes_left > 0)
+	{
+		bytes_left -= ext2_read_block_pointer(part, superblock, inode->triple_block, buffer, bytes_left, 3, blocks_read * get_block_size(superblock));
+	}
 	
-	return 0;
+	if(bytes_left > 0)
+	{
+		return -1;
+	}
+	else
+	{
+		return 0;
+	}
 }	
 
 struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned int number)
