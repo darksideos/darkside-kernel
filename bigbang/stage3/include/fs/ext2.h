@@ -62,7 +62,7 @@ typedef struct superblock
 	unsigned short reserved_uid;
 	unsigned short reserved_gid;
 	unsigned char reserved[940];
-} superblock_t;
+} __attribute__ ((packed)) superblock_t;
 
 typedef struct extended_superblock
 {
@@ -83,7 +83,7 @@ typedef struct extended_superblock
 	unsigned int journal_inode;
 	unsigned int journal_device;
 	unsigned int orphan_inode_head;
-} extended_superblock_t;
+} __attribute__ ((packed)) extended_superblock_t;
 
 typedef struct block_group_desc
 {
@@ -94,7 +94,7 @@ typedef struct block_group_desc
 	unsigned short unallocated_inodes;
 	unsigned short directories;
 	unsigned char unused[14];
-} block_group_desc_t;
+} __attribute__ ((packed)) block_group_desc_t;
 
 typedef struct inode
 {
@@ -110,18 +110,7 @@ typedef struct inode
 	unsigned int sectors;
 	unsigned int flags;
 	unsigned int os1;
-	unsigned int block0;
-	unsigned int block1;
-	unsigned int block2;
-	unsigned int block3;
-	unsigned int block4;
-	unsigned int block5;
-	unsigned int block6;
-	unsigned int block7;
-	unsigned int block8;
-	unsigned int block9;
-	unsigned int block10;
-	unsigned int block11;
+	unsigned int direct_block[12];
 	unsigned int single_block;
 	unsigned int double_block;
 	unsigned int triple_block;
@@ -130,12 +119,29 @@ typedef struct inode
 	unsigned int upper_size_dir_acl;
 	unsigned int fragment;
 	unsigned char os2[12];
-} inode_t;
+} __attribute__ ((packed)) inode_t;
+
+typedef struct inode_dirent
+{
+	unsigned int inode;
+	unsigned short size;
+	unsigned char low_length;
+	unsigned char type;
+	unsigned char name_start;
+} __attribute__ ((packed)) inode_dirent_t;
+
+typedef struct dirent
+{
+	unsigned int inode;
+	unsigned char *name;
+} __attribute__ ((packed));
 
 /* Reading from the drive */
 inode_t *read_inode(partition_t *part, superblock_t *superblock, unsigned int inode);
 unsigned char *read_block(partition_t *part, superblock_t *superblock, unsigned int block);
-int read_inode_contents(inode_t *inode, unsigned char buffer[], unsigned int length);
+int read_inode_contents(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length);
+struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned int number);
+unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned char *name);
 superblock_t *read_superblock(partition_t *part);
 extended_superblock_t *get_extended_superblock(superblock_t *superblock);
 
