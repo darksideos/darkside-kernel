@@ -35,7 +35,7 @@ bool heap_gt_predicate(void *value, void *chunk)
 /* Create a heap */
 heap_t *create_heap(uint32_t start_address, uint32_t end_address, uint32_t min_address, uint32_t max_address, uint32_t index_size, bool user, bool global)
 {
-	/* First, map some pages in the kernel heap */
+	/* First, map some pages in the heap */
 	uint32_t address;
 	for (address = start_address; address < end_address; address += 0x1000)
 	{
@@ -279,9 +279,9 @@ void *heap_realloc(heap_t *heap, void *ptr, uint32_t size)
 	{
 		/* Find the header and footer of the memory and get its old size, not counting the size of the header or footer */
 		header_t *header = (header_t*) (ptr - sizeof(header_t));
-		footer_t *footer = (footer_t*) (header + header->size);
+		footer_t *footer = (footer_t*) (((unsigned char*)header) + header->size);
 
-		uint32_t old_size = header->size - sizeof(header_t) - sizeof(header_t);
+		uint32_t old_size = header->size - sizeof(header_t) - sizeof(footer_t);
 
 		/* See if we have enough space to our left, and if we do, use that */
 
