@@ -18,7 +18,7 @@ void main(unsigned int *os_info)
 	unsigned char *data = test_inode;
 		
 	unsigned char *test_data = kmalloc(1024);
-	read_inode_contents(part, superblock, test_inode, test_data, 1024);
+	ext2_read(part, superblock, test_inode, test_data, 1024);
 	
 	int index;
 	for(index = 0; index < test_inode->low_size; index++)
