@@ -192,7 +192,7 @@ header_t *split_chunk(heap_t *heap, header_t *chunk, uint32_t size)
 
 	/* Set up pointers to the chunks */
 	header_t *chunk1 = chunk;
-	header_t *chunk2 = chunk + size;
+	header_t *chunk2 = (header_t*) (((unsigned char*) chunk) + size);
 
 	/* Rewrite their headers */
 	chunk2->magic = HEAP_MAGIC;
@@ -202,13 +202,9 @@ header_t *split_chunk(heap_t *heap, header_t *chunk, uint32_t size)
 	chunk1->type = 1;
 	chunk1->size = size;
 
-	kprintf("chunk1: 0x%08X\nchunk2: 0x%08X\n", chunk1, chunk2);
-
 	/* Create their footers */
 	footer_t *footer1 = (footer_t*) (((unsigned char*) chunk1) + (chunk1->size - sizeof(footer_t)));
 	footer_t *footer2 = (footer_t*) (((unsigned char*) chunk2) + (chunk2->size - sizeof(footer_t)));
-
-	kprintf("footer1: 0x%08X\nfooter2: 0x%08X\n", footer1, footer2);
 
 	/* Fill out their footers */
 	footer1->magic = HEAP_MAGIC;
@@ -255,7 +251,7 @@ void *heap_malloc(heap_t *heap, uint32_t size)
 	/* If we found a chunk, return the address of the memory we found */
 	if (chunk != 0)
 	{
-		return (void*) ((uint32_t)chunk + sizeof(header_t));
+		return (void*) ((uint32_t) chunk + sizeof(header_t));
 	}
 	/* Otherwise, if we somehow reached here, return 0 */
 	else
