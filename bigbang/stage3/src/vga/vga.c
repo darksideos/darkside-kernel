@@ -1,5 +1,6 @@
 #include <vga/vga.h>
 #include <lib/libc/string.h>
+#include <init/bochs.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 unsigned short *textmemptr;
