@@ -16,9 +16,9 @@ void main(unsigned int *os_info)
 	unsigned int test = ext2_finddir(part, superblock, root_inode, "test.txt");
 	inode_t *test_inode = read_inode(part, superblock, test);
 	unsigned char *data = test_inode;
-		
-	unsigned char *test_data = kmalloc(1024);
-	ext2_read(part, superblock, test_inode, test_data, 1024);
+	unsigned char *test_data = kmalloc(test_inode->low_size);
+	kprintf("Size: %d\n", test_inode->low_size);
+	ext2_read(part, superblock, test_inode, test_data, test_inode->low_size);
 	
 	int index;
 	for(index = 0; index < test_inode->low_size; index++)
