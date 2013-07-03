@@ -64,6 +64,7 @@ unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock
 	else
 	{
 		unsigned char *block_data = read_block(part, superblock, block);
+		
 	}
 	return trans;
 }
