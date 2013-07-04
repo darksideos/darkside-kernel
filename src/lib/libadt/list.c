@@ -108,16 +108,16 @@ void remove_list(list_t list, uint32_t index)
 	if (element == list.start)
 	{
 		list.start = element->next;
-		goto free;
+		goto remove;
 	}
 	/* Are we at the end? */
 	else if (element == list.end)
 	{
 		list.end = element->prev;
-		goto free;
+		goto remove;
 	}
 
-free:
+remove:
 	/* If there's a previous element, set its next element to our next element */
 	if (element->prev)
 	{
