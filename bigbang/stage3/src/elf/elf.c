@@ -42,7 +42,7 @@ void elf_dump_symtab(elf_header_t *header)
 {
 	elf_section_header_t *symtab = elf_get_section_by_name(header, ".symtab");
 	unsigned int size = symtab->size/sizeof(elf_symbol_t);
-	elf_symbol_t *entry = ((elf_symbol_t*) header) + symtab->offset;
+	elf_symbol_t *entry = (elf_symbol_t*) (((unsigned char*) header) + symtab->offset);
 	kprintf("%d entries.\n", size);
 	kprintf("#\tType\tSize\tBind\tName\tSection\n");
 	
@@ -61,28 +61,28 @@ void elf_dump_symtab(elf_header_t *header)
 
 elf_section_header_t *elf_get_section(elf_header_t *header, unsigned int num)
 {
-	elf_section_header_t *entry = (elf_section_header_t*) header;
+	unsigned char *entry = (unsigned char*) header;
 	entry += header->section_header_offset;
 	entry += num * header->section_header_entry_size;
-	return entry;
+	return (elf_section_header_t*) entry;
 }
 
 elf_section_header_t *elf_get_section_by_type(elf_header_t *header, unsigned int type)
 {
-	elf_section_header_t *entry = (elf_section_header_t*) header;
+	unsigned char *entry = (unsigned char*) header;
 	entry += header->section_header_offset;
-	while(((elf_section_header_t*) entry)->type != type)
+	while (((elf_section_header_t*) entry)->type != type)
 	{
 		entry += header->section_header_entry_size;
 	}
-	return entry;
+	return (elf_section_header_t*) entry;
 }
 
 elf_section_header_t *elf_get_section_by_name(elf_header_t *header, unsigned char* name)
 {
-	elf_section_header_t *entry = (elf_section_header_t*) header;
+	unsigned char *entry = (unsigned char*) header;
 	entry += header->section_header_offset;
-	while(!strequal(elf_get_section_string(header, entry->name), name))
+	while(!strequal(elf_get_section_string(header, ((elf_section_header_t*) entry)->name), name))
 	{
 		entry += header->section_header_entry_size;
 	}
@@ -116,7 +116,7 @@ elf_symbol_t *elf_lookup_symbol(elf_header_t *header, unsigned char *name)
 {
 	elf_section_header_t *symtab = elf_get_section_by_type(header, ELF_SECTION_TYPE_SYMTAB);
 	unsigned int size = symtab->size/sizeof(elf_symbol_t);
-	elf_symbol_t *entry = ((elf_symbol_t*) header) + symtab->offset;
+	elf_symbol_t *entry = (elf_symbol_t*) (((unsigned char*) header) + symtab->offset);
 	
 	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
 	int index;
