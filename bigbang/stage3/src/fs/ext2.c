@@ -3,6 +3,7 @@
 #include <storage/partition.h>
 #include <lib/libc/string.h>
 #include <mm/placement.h>
+#include <init/bochs.h>
 
 unsigned int get_inode_size(superblock_t *superblock)
 {
@@ -81,7 +82,6 @@ unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock
 		/* Call myself */
 		while(bytes_left > 0 && blocks_read < get_block_size(superblock) / 4)
 		{
-			kprintf("Reading 1 recursive block at level %d\n", level);
 			bytes_left -= ext2_read_block_pointer(part, superblock, block_data[blocks_read], buffer, length, level - 1, offset + blocks_read * get_block_size(superblock));
 			blocks_read++;
 		}
@@ -131,9 +131,9 @@ int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode,  unsi
 struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned int number)
 {
 	unsigned int index = 0;
-	/* Temporary */
-	unsigned char *data = kmalloc(1024);
-	ext2_read(part, superblock, parent, data, 1024);
+	
+	unsigned char *data = kmalloc(parent->low_size);
+	ext2_read(part, superblock, parent, data, parent->low_size);
 	
 	while(index < number)
 	{
@@ -151,13 +151,11 @@ struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t
 
 unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned char *name)
 {
-	/* Temporary */
-	unsigned char *data = kmalloc(1024);
-	ext2_read(part, superblock, parent, data, 1024);
+	unsigned char *data = kmalloc(parent->low_size);
+	ext2_read(part, superblock, parent, data, parent->low_size);
 	int index;
 	
-	/* Temporary */
-	for(index = 0; index < 5; index++)
+	while(true)
 	{
 		data += ((inode_dirent_t*) data)->size;
 		unsigned char *file_name = kmalloc(((inode_dirent_t*) data)->low_length + 1);

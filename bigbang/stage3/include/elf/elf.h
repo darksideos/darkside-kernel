@@ -1,19 +1,20 @@
 #ifndef __ELF_H
 #define __ELF_H
 
-/* ELF program header and section header entry structure */
-typedef struct elf_program_header_segment
+/* ELF program header */
+typedef struct elf_program_header
 {
-	unsigned short program_header_segment_type;
-	unsigned int program_header_offset;
-	unsigned int program_header_virtual_address;
-	unsigned int program_header_physical_address;
-	unsigned int program_header_size;
-	unsigned int program_header_memsize;
-	unsigned int program_header_flags;
-	unsigned int program_header_align;
+	unsigned short type;
+	unsigned int offset;
+	unsigned int virtual_address;
+	unsigned int physical_address;
+	unsigned int file_size;
+	unsigned int mem_size;
+	unsigned int flags;
+	unsigned int align;
 } __attribute__((packed)) elf_program_header_segment_t;
 
+/* ELF section header */
 typedef struct elf_section_header
 {
 	unsigned int name;
@@ -45,7 +46,7 @@ typedef struct elf_header
 	unsigned int flags;
 	unsigned short header_size;
 	unsigned short program_header_entry_size;
-	unsigned short num_program_header_table_entries;
+	unsigned short num_program_header_entries;
 	unsigned short section_header_entry_size;
 	unsigned short num_section_header_entries;
 	unsigned short string_table_index;
