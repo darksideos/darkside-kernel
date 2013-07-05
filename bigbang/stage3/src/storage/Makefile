@@ -5,6 +5,6 @@ CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-point
 OBJFILES = ata.o mbr.o
 	
 .c.o:
-	i586-elf-gcc $(CFLAGS) -I$(ROOT)/include -o $(ROOT)/build/mm/$@ -c $<
+	i586-elf-gcc $(CFLAGS) -I$(ROOT)/include -o $(ROOT)/build/storage/$@ -c $<
 
 all: $(OBJFILES)
