@@ -1,10 +1,10 @@
-[ORG 0xA000]
+[ORG 0x1000]
 [BITS 16]
 
-mov	ax, 0x200			; destination segment
+mov	ax, 0x400			; destination segment
 mov	es, ax				; is stored in es
 mov	ah, 0x02			; function = 02h to read
-mov al, 64				; read 47 (for some reason this is the most that can be read)
+mov al, 64				; read 64 sectors
 mov	bx, 0				; track number 0
 mov	ch, bl				; in ch
 mov	bx, 7				; sector number 7
@@ -14,7 +14,7 @@ mov	dh,	0				; head number 0 goes in dh
 mov	dl, 0x80			; hard drive
 
 mov	bx, 0x0000			; offset goes in bx
-; stage3 will be stored at 0x2000
+; stage3 will be stored at 0x4000
 
 ; Call the BIOS to read the disk
 int	0x13
@@ -116,7 +116,7 @@ os_info:
 gdtr:
 	dw gdt_end - null_seg - 1	; last byte in table
 	dd null_seg					; start of table
- 
+
 null_seg					db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00	; entry 0 (null seg) is always unused
 code_seg					db 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x9A, 0xCF, 0x00	; entry 1 (code seg)
 data_seg					db 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x92, 0xCF, 0x00	; entry 2 (data seg)
@@ -133,4 +133,4 @@ reload_segs:
 	mov ss, ax
 	
 mov ebx, os_info	; Give stage3 the OS info struct
-jmp 0x2000			; Jump to stage3
+jmp 0x4000			; Jump to stage3

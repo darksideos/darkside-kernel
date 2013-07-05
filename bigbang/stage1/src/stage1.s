@@ -9,7 +9,7 @@ mov al, 0x03	; video mode 0x03
 mov ah, 0x00
 int 0x10
 
-mov	ax, 0xA00		; destination segment
+mov	ax, 0x100		; destination segment
 mov	es, ax			; is stored in es
 mov	ah, 0x02		; function = 02h to read
 mov al, 1			; read one sector
@@ -31,7 +31,7 @@ int	0x13
 jc error
 
 ; Otherwise, jump to our code
-jmp 0xA00:0x0000
+jmp 0x100:0x0000
 
 error:
 	mov ax, 0x00

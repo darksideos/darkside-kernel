@@ -1,6 +1,7 @@
 #include <mm/placement.h>
 
-unsigned int placement_address = 0xA000;
+extern unsigned int end;
+unsigned int placement_address = &end;
 
 unsigned int kmalloc(unsigned int size)
 {
