@@ -4,25 +4,27 @@ phys = 0x2000;
 
 SECTIONS
 {
-	.text phys : AT(phys)
+	. = 0x4000;
+	
+	.text : ALIGN(4096)
 	{
 		code = .;
 		*(.text)
 	}
 	
-	.rodata : AT(phys + (rodata - code))
+	.rodata : ALIGN(4096)
 	{
 		rodata = .;
 		*(.rodata)
 	}
 	
-	.data : AT(phys + (data - code))
+	.data : ALIGN(4096)
 	{
 		data = .;
 		*(.data)
 	}
 	
-	.bss : AT(phys + (bss - code))
+	.bss : ALIGN(4096)
 	{
 		bss = .;
 		*(.bss)
