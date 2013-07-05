@@ -13,7 +13,7 @@ void main(unsigned int *os_info)
 	
 	superblock_t *superblock = read_superblock(part);
 	inode_t *root_inode = read_inode(part, superblock, 2);
-	unsigned int test = ext2_finddir(part, superblock, root_inode, "test.txt");
+	unsigned int test = ext2_finddir(part, superblock, root_inode, "test_elf");
 	inode_t *test_inode = read_inode(part, superblock, test);
 	unsigned char *data = test_inode;
 	

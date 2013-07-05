@@ -5,6 +5,6 @@ CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-point
 OBJFILES = vga.o
 	
 .c.o:
-	i586-elf-gcc $(CFLAGS) -I$(ROOT)/include -o $(ROOT)/build/mm/$@ -c $<
+	i586-elf-gcc $(CFLAGS) -I$(ROOT)/include -o $(ROOT)/build/vga/$@ -c $<
 
 all: $(OBJFILES)
