@@ -5,9 +5,9 @@ CFLAGS	= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-point
 OBJFILES = uart.o
 
 .s.o:
-	$(CCBASE)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/drivers/raspi/uart/$@ $<
+	$(CCBASE)-as -mcpu=arm1176jzf-s -o $(ROOT)/build-raspi/drivers/serial/uart/$@ $<
  
 .c.o:
-	$(CCBASE)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/drivers/raspi/uart/$@ -c $<
+	$(CCBASE)-gcc -marm -mcpu=arm1176jzf-s $(CFLAGS) -o $(ROOT)/build-raspi/drivers/serial/uart/$@ -c $<
 	
 all: $(OBJFILES)

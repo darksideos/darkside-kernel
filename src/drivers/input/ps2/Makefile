@@ -1,4 +1,4 @@
-ROOT = ../../..
+ROOT = ../../../..
 
 CCBASE	?= i586-elf
 CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I$(ROOT)/include -L$(ROOT)/lib
@@ -6,6 +6,6 @@ CFLAGS	?= -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-poin
 OBJFILES = keyboard.o mouse.o
  
 .c.o:
-	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build-i386/drivers/ps2/$@ -c $<
+	$(CCBASE)-gcc $(CFLAGS) -o $(ROOT)/build-i386/drivers/input/ps2/$@ -c $<
 	
 all: $(OBJFILES)
