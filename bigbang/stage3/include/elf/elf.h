@@ -1,10 +1,20 @@
 #ifndef __ELF_H
 #define __ELF_H
 
+#define ELF_PT_NULL			0
+#define ELF_PT_LOAD			1
+#define ELF_PT_DYNAMIC		2
+#define ELF_PT_INTERP		3
+#define ELF_PT_NOTE			4
+#define ELF_PT_SHLIB		5
+#define ELF_PT_PHDR			6
+#define ELF_PT_LOPROC		0x70000000
+#define ELF_PT_HIPROC		0x7FFFFFFF
+
 /* ELF program header */
 typedef struct elf_program_header
 {
-	unsigned short type;
+	unsigned int type;
 	unsigned int offset;
 	unsigned int virtual_address;
 	unsigned int physical_address;
@@ -12,7 +22,7 @@ typedef struct elf_program_header
 	unsigned int mem_size;
 	unsigned int flags;
 	unsigned int align;
-} __attribute__((packed)) elf_program_header_segment_t;
+} __attribute__((packed)) elf_program_header_t;
 
 /* ELF section header */
 typedef struct elf_section_header
@@ -40,7 +50,7 @@ typedef struct elf_header
 	unsigned short type;
 	unsigned short machine;
 	unsigned int obj_file_version;
-	unsigned int virtual_address;			/* Entry point */
+	unsigned int entry_point;
 	unsigned int program_header_offset;
 	unsigned int section_header_offset;
 	unsigned int flags;
@@ -63,19 +73,9 @@ typedef struct elf_symbol
 	unsigned short section_index;
 } __attribute__((packed)) elf_symbol_t;
 
-/* ELF section header related stuff */
-unsigned char *elf_get_section_string(elf_header_t *header, unsigned int num);
-unsigned char *elf_get_string(elf_header_t *header, unsigned int num);
-elf_section_header_t *elf_get_section(elf_header_t *header, unsigned int num);
-elf_section_header_t *elf_get_section_by_type(elf_header_t *header, unsigned int type);
-elf_section_header_t *elf_get_section_by_name(elf_header_t *header, unsigned char *name);
-unsigned char *elf_get_section_data(elf_header_t *header, elf_section_header_t *section);
-unsigned char *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *sym);
-
 /* ELF reader functions */
 unsigned int check_elf_magic(elf_header_t *header);
 void elf_read_header(elf_header_t *header);
-void elf_dump_sections(elf_header_t *header);
-void elf_dump_symtab(elf_header_t *header);
+void elf_load_executable(elf_header_t *header);
 
 #endif
