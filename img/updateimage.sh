@@ -23,10 +23,9 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo losetup -d /dev/loop0
 fi
 
-
-if [[ "$(uname -s)" =~ CYGWIN* ]]
+if [[ "$(uname -s)" == CYGWIN* ]]
 	then
-		pause "Waiting for kernel-i386.elf to be copied into ext2.img"
+		read -p "Waiting for kernel-i386.elf to be copied into ext2.img [Press Enter to continue]..."
 fi
 
 dd if=ext2.img of=os.img bs=512 seek=2048 conv=notrunc
