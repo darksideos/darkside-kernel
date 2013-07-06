@@ -1,6 +1,6 @@
 .PHONY: all
 
-all: clean
+all:
 	cd ../stage1; make
 	cd ../stage2; make
 	cd ../stage3; make
@@ -15,6 +15,3 @@ all: clean
 
 transfer:
 	dd if=mbr.img of=../../img/os.img bs=512 count=2048 conv=notrunc
-	
-clean:
-	find .. -type f \( -name *.o -or -name *.bin -or -name *.elf \) -exec rm {} \;all:
