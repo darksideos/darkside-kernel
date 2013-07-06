@@ -43,4 +43,4 @@ raspi-install:
 	$(EJECT) $(MOUNT)
 
 i386: kernel-i386.elf
-	./updateimage.sh
+	./updateimage.py
