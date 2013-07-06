@@ -70,8 +70,8 @@ This is the directory layout:
 /apps						User applications
 /bin						Fundamental binaries
 /boot						Files related to boot
-/boot/loader				Boot configuration files
-/boot/modules				Drivers and other modules
+	/boot/loader			Boot configuration files
+	/boot/modules			Drivers and other modules
 /dev						Device tree
 /etc						System configuration
 /hdd						Mounted hard drives
