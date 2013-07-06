@@ -1,15 +1,13 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/ports.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/stream.h>
 #include <drivers/graphics/vga.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 uint16_t *textmemptr;
 int32_t attrib = 0x0F;
 int32_t csr_x = 0, csr_y = 0;
-
-console_t *vga_console;
 
 /* Scrolls the screen */
 void scroll()
@@ -168,22 +166,17 @@ uint32_t vga_write_error(uint8_t *buffer, uint32_t length)
 	attrib = old_attrib;
 }
 
+/* Set the text color */
 void settextcolor(uint8_t forecolor, uint8_t backcolor)
 {
     attrib = (backcolor << 4) | (forecolor & 0x0F);
 }
 
+/* Initialize the text mode driver */
 void init_text_mode(uint8_t forecolor, uint8_t backcolor)
 {
-	/* Set the address of our VGA framebuffer */
     textmemptr = (uint16_t*) 0xB8000;
 
-	/* Set the text color and clear the screen */
 	settextcolor(forecolor, backcolor);
     clear();
-    
-    vga_console = (console_t*) kmalloc(sizeof(console_t));
-    vga_console->in = (instream_t*) kmalloc(sizeof(instream_t));
-    vga_console->out = (outstream_t*) kmalloc(sizeof(outstream_t));
-    vga_console->err = (outstream_t*) kmalloc(sizeof(outstream_t));
 }
