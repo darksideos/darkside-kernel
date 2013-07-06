@@ -17,6 +17,7 @@ all:
 	echo "Please use target kernel-raspi.img or i386"
 
 kernel-i386.elf: clean
+	cd ../bigbang/img; make
 	cd ../src/hal/i386; make CCBASE=$(i386) 
 	cd ../src/kernel; make BLD_TARGET=i386 CCBASE=$(i386) CFLAGS="$(CFLAGS_i386)"
 	cd ../src/drivers/graphics/vga; make CCBASE=$(i386) 
