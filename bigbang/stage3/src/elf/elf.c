@@ -24,109 +24,35 @@ void elf_read_header(elf_header_t *header)
 	}
 }
 
-void elf_dump_sections(elf_header_t *header)
+/* Load an ELF executable */
+void elf_load_executable(elf_header_t *header)
 {
-	kprintf("# sections:\t%d\n\n", header->num_section_header_entries, header);
-	kprintf("#\t\tName\t\tSize");
-
+	elf_program_header_t *program_header = (elf_program_header_t*) (((unsigned char*) header) + header->program_header_offset);
 	int index;
-	for(index = 0; index < header->num_section_header_entries; index++)
-	{
-		elf_section_header_t *section = elf_get_section(header, index);
-		unsigned char *section_name = elf_get_section_string(header, section->name);
-		kprintf("%d\t\t%s\t\t%08X\n", index, section_name, section->size);
-	}
-}
-
-void elf_dump_symtab(elf_header_t *header)
-{
-	elf_section_header_t *symtab = elf_get_section_by_name(header, ".symtab");
-	unsigned int size = symtab->size/sizeof(elf_symbol_t);
-	elf_symbol_t *entry = (elf_symbol_t*) (((unsigned char*) header) + symtab->offset);
-	kprintf("%d entries.\n", size);
-	kprintf("#\tType\tSize\tBind\tName\tSection\n");
 	
-	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
-	int index;
-	for(index = 0; index < size; index++)
+	for(index = 0; index < header->num_program_header_entries; index++)
 	{
-		unsigned char *name = ((unsigned char*) header) + strtab->offset + entry->name;
-		kprintf("%d\t%s\t%d\t%s\t%s\n", index, elf_get_symbol_type(ELF32_ST_TYPE(entry->info)),
-			entry->size, elf_get_symbol_bind(ELF32_ST_BIND(entry->info)),
-			name,
-			elf_get_section_string(header, elf_get_section(header, entry->section_index)->name));
-		entry++;
-	}
-}
-
-elf_section_header_t *elf_get_section(elf_header_t *header, unsigned int num)
-{
-	unsigned char *entry = (unsigned char*) header;
-	entry += header->section_header_offset;
-	entry += num * header->section_header_entry_size;
-	return (elf_section_header_t*) entry;
-}
-
-elf_section_header_t *elf_get_section_by_type(elf_header_t *header, unsigned int type)
-{
-	unsigned char *entry = (unsigned char*) header;
-	entry += header->section_header_offset;
-	while (((elf_section_header_t*) entry)->type != type)
-	{
-		entry += header->section_header_entry_size;
-	}
-	return (elf_section_header_t*) entry;
-}
-
-elf_section_header_t *elf_get_section_by_name(elf_header_t *header, unsigned char* name)
-{
-	unsigned char *entry = (unsigned char*) header;
-	entry += header->section_header_offset;
-	while(!strequal(elf_get_section_string(header, ((elf_section_header_t*) entry)->name), name))
-	{
-		entry += header->section_header_entry_size;
-	}
-	return entry;
-}
-
-unsigned char *elf_get_section_string(elf_header_t *header, unsigned int num)
-{
-	return ((unsigned char*) header) + elf_get_section(header, header->string_table_index)->offset + num;
-}
-
-unsigned char *elf_get_string(elf_header_t *header, unsigned int num)
-{
-	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
-	return ((unsigned char*) header) + strtab->offset + num;
-}
-
-unsigned char *elf_get_section_data(elf_header_t *header, elf_section_header_t *section)
-{
-	return ((unsigned char*) header) + section->offset;
-}
-
-unsigned char *elf_get_symbol_address(elf_header_t *header, elf_symbol_t *sym)
-{
-	unsigned char *loc = elf_get_section_data(header, elf_get_section(header, sym->section_index));
-	loc += sym->value;
-	return loc;
-}
-
-elf_symbol_t *elf_lookup_symbol(elf_header_t *header, unsigned char *name)
-{
-	elf_section_header_t *symtab = elf_get_section_by_type(header, ELF_SECTION_TYPE_SYMTAB);
-	unsigned int size = symtab->size/sizeof(elf_symbol_t);
-	elf_symbol_t *entry = (elf_symbol_t*) (((unsigned char*) header) + symtab->offset);
-	
-	elf_section_header_t *strtab = elf_get_section_by_name(header, ".strtab");
-	int index;
-	for(index = 0; index < size; index++)
-	{
-		unsigned char *sym_name = ((unsigned char*) header) + strtab->offset + entry->name;
-		if(strequal(sym_name, name))
+		if(program_header->type == ELF_PT_LOAD)
 		{
-			return entry;
+			/* If the mem size is bigger than the file size, fill the extra space with zeroes */
+			if(program_header->mem_size > program_header->file_size)
+			{
+				memset(program_header->virtual_address + program_header->file_size, 0, program_header->mem_size - program_header->file_size);
+			}
+			
+			memcpy(program_header->virtual_address, ((unsigned char*) header) + program_header->offset, program_header->file_size);
+			
+			/* In the bootloader version, since the memory at 0x100000 is already free, we don't use pmm_alloc_page() */
 		}
-		entry++;
+		
+		program_header++;
 	}
+}
+
+/* Run an ELF executable */
+int elf_run_executable(elf_header_t *header)
+{
+	elf_load_executable(header);
+	int (*exec_run)() = header->entry_point;
+	return exec_run();
 }

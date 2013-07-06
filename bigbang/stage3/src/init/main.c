@@ -4,6 +4,7 @@
 #include <storage/mbr.h>
 #include <storage/partition.h>
 #include <fs/ext2.h>
+#include <elf/elf.h>
 
 extern unsigned int *pd;
 
@@ -16,15 +17,18 @@ void main(unsigned int *os_info)
 	superblock_t *superblock = read_superblock(part);
 	inode_t *root_inode = read_inode(part, superblock, 2);
 	
-	unsigned int test = ext2_finddir(part, superblock, root_inode, "test_elf");
-	inode_t *test_inode = read_inode(part, superblock, test);
-	unsigned char *test_data = kmalloc(test_inode->low_size);
-	ext2_read(part, superblock, test_inode, test_data, test_inode->low_size);
+	unsigned int boot = ext2_finddir(part, superblock, root_inode, "boot");
+	inode_t *boot_inode = read_inode(part, superblock, boot);
 	
-	unsigned int *blah = 0x50000000;
-	kprintf("Dat: %d\n", *blah);
+	unsigned int kernel = ext2_finddir(part, superblock, boot_inode, "kernel-i386.elf");
+	inode_t *kernel_inode = read_inode(part, superblock, kernel);
 	
-	elf_read_header(test_data);
+	elf_header_t *kernel_elf = kmalloc(kernel_inode->low_size);
+	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
+	
+	elf_read_header(kernel_elf);
+	
+	//elf_run_executable(test_data);
 	
 	while(1);
 }
