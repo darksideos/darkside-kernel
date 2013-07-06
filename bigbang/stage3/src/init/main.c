@@ -16,7 +16,6 @@ void main(unsigned int *os_info)
 	
 	superblock_t *superblock = read_superblock(part);
 	inode_t *root_inode = read_inode(part, superblock, 2);
-	
 	unsigned int boot = ext2_finddir(part, superblock, root_inode, "boot");
 	inode_t *boot_inode = read_inode(part, superblock, boot);
 	
@@ -28,7 +27,7 @@ void main(unsigned int *os_info)
 	
 	elf_read_header(kernel_elf);
 	
-	//elf_run_executable(test_data);
+	elf_run_executable(kernel_elf);
 	
 	while(1);
 }

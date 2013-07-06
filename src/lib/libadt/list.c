@@ -140,7 +140,6 @@ remove:
 /* Get an element in a list */
 void *get_list(list_t list, uint32_t index)
 {
-	kprintf("
 	/* Find the element in the list */
 	list_element_t *element = list.start;
 	uint32_t i;
