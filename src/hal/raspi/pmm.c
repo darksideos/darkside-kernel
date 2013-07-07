@@ -1,6 +1,6 @@
 #include <lib/libc/stdint.h>
 #include <hal/raspi/pmm.h>
-#include <kernel/debug/kprintf.h>
+#include <kernel/console/kprintf.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;
