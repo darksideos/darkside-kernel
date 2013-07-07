@@ -15,19 +15,5 @@ void kernel_main(struct multiboot *mboot_ptr)
 	/* Initialize the kernel heap */
 	init_kheap();
 
-	/* List test code */
-	list_t list = create_list();
-
-	append_list(list, 1);
-	append_list(list, 2);
-	append_list(list, 3);
-
-	uint32_t zero, one, two;
-	zero = get_list(list, 0);
-	one = get_list(list, 1);
-	two = get_list(list, 2);
-
-	kprintf("0 = %d, 1 = %d, 2 = %d\n", zero, one, two);
-
 	while(1);
 }
