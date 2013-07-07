@@ -80,6 +80,8 @@ uint32_t mem_v2p(uint32_t virtualaddr)
 /* Translation table 0 - covers the first 64 MB, for now
  * Needs to be aligned to its size (ie 64*4 bytes)
  */
+ 
+/* NOAH - now, we've decided that we want to unmap the 1st 64MB of memory.  We use translation table 1 for the upper 4GB-64MB, and use table 0 for the lower 64MB */
 uint32_t pagetable0[64]	__attribute__ ((aligned (256)));
 
 /* Initialise memory - actually, there's not much to do now, since initsys
@@ -91,6 +93,7 @@ void mem_init(void)
 	uint32_t x;
 	uint32_t pt0_addr;
 
+	/* NOAH - unmap the first 64 MB of memory */
 	/* Translation table 0 - covers the first 64 MB, for now
 	 * Currently nothing mapped in it.
 	 */
