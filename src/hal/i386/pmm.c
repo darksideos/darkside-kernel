@@ -76,7 +76,6 @@ void map_pmm_bitmap(uint32_t dir)
 /* Initialize the physical memory manager */
 void init_pmm(uint32_t size)
 {
-	kprintf("Memory size: %08X\n", size);
 	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
 	
