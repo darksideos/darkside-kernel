@@ -5,9 +5,31 @@
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/stream.h>
 
-/* Function prototypes */
-int32_t console_open(console_t *console, fs_node_t *in, fs_node_t *out, fs_node_t *err);
-int32_t console_close(console_t *console);
+/* Generic function to open a console */
+int32_t console_generic_open(console_t *console, fs_node_t *in, fs_node_t *out, fs_node_t *err)
+{
+	/* Create and open the input, output, and error streams */
+	console->in = instream_create();
+	instream_open(console->in, in);
+
+	console->out = outstream_create();
+	outstream_open(console->out, out);
+
+	console->err = outstream_create();
+	outstream_open(console->err, err);
+}
+
+/* Generic function to close a console */
+int32_t console_generic_close(console_t *console)
+{
+	/* Close the input, output, and error streams */
+	instream_close(console->in);
+	outstream_close(console->out);
+	outstream_close(console->err);
+
+	/* Free the console */
+	kfree(console);
+}
 
 /* Create a console */
 console_t *console_create()
@@ -17,8 +39,8 @@ console_t *console_create()
 	memset(console, 0, sizeof(console_t));
 
 	/* Fill out its open and close function pointers */
-	console->open = &console_open;
-	console->close = &console_close;
+	console->open = &console_generic_open;
+	console->close = &console_generic_close;
 
 	return console;
 }
@@ -26,43 +48,29 @@ console_t *console_create()
 /* Open a console */
 int32_t console_open(console_t *console, fs_node_t *in, fs_node_t *out, fs_node_t *err)
 {
-	/* Create and open the input, output, and error streams */
-	console->in = instream_create();
-	console->in->open(console->in, in);
-
-	console->out = outstream_create();
-	console->out->open(console->out, out);
-
-	console->err = outstream_create();
-	console->err->open(console->err, err);
+	return console->open(console, in, out, err);
 }
 
 /* Close a console */
 int32_t console_close(console_t *console)
 {
-	/* Close the input, output, and error streams */
-	console->in->close();
-	console->out->close();
-	console->err->close();
-
-	/* Free the console */
-	kfree(console);
+	return console->close(console);
 }
 
 /* Read from a console */
 uint32_t console_read(console_t *console, uint8_t *buffer, uint32_t length)
 {
-	return console->in->read(console->in, buffer, length);
+	return instream_read(console->in, buffer, length);
 }
 
 /* Write to a console */
 uint32_t console_write(console_t *console, uint8_t *buffer, uint32_t length)
 {
-	return console->out->write(console->out, buffer, length);
+	return outstream_write(console->out, buffer, length);
 }
 
 /* Write an error to a console */
 uint32_t console_error(console_t *console, uint8_t *buffer, uint32_t length)
 {
-	return console->err->write(console->err, buffer, length);
+	return outstream_write(console->err, buffer, length);
 }
