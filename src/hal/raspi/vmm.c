@@ -18,6 +18,7 @@ extern uint32_t _physbssend;
 /* Start of kernel in physical RAM */
 extern uint32_t _highkernelload;
 
+/* NOAH - this will need to be rewritten to use recursive page structures */
 /* Convert a virtual address to a physical one by following the page tables
  * Returns physical address, or 0xffffffff if the virtual address does not map
  * See ARM1176-TZJS technical reference manual, page 6-39 (6.11.2)
