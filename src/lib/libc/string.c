@@ -150,7 +150,7 @@ uint8_t *strcat(uint8_t *s1, uint8_t *s2)
 
 uint8_t *strncat(uint8_t *s1, uint8_t *s2, uint32_t size)
 {
-	return strncpy(s1 + strlen, s2, size);
+	return strncpy(s1 + strlen(s1), s2, size);
 }
 
 uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
