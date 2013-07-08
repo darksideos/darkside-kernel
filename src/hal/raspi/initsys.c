@@ -82,7 +82,7 @@ __attribute__((naked)) void initsys(void)
 			/* Map physical memory to virtual
 			 * Read/write for priviledged modes, no execute
 			 */
-			initpagetable[x] = (x - 2048) << 20 | PAGE_MODE_PRW_UNA | PAGE_MODE_XN | 2;
+			initpagetable[x] = (x - 2048) << 20 | PAGE_MODE_PRW_UNA | PAGE_MODE_XN;
 		}
 		else
 		{
@@ -98,7 +98,7 @@ __attribute__((naked)) void initsys(void)
 	 * Read/write for privileged mode only
 	 */
 	/* NOAH - Identity map the first megabyte, where the code is currently running.  We'll get rid of this later */
-	initpagetable[0] = 0 << 20 | PAGE_MODE_PRW_UNA | 2;
+	initpagetable[0] = 0 << 20 | PAGE_MODE_PRW_UNA | PAGE_MODE_XN;
 
 	/* Map 1MB at 0xf00000000-0xf00fffff to the kernel code in memory.
 	 * Typically, this is loaded at 0x9000, and appears in virtual memory
@@ -114,7 +114,7 @@ __attribute__((naked)) void initsys(void)
 	 * is minimal
 	 */
 	/* NOAH - map the kernel's code to 0xf0000000 */
-	initpagetable[3840] = 0 << 20 | PAGE_MODE_PRO_UNA | 2;
+	initpagetable[3840] = 0 << 20 | PAGE_MODE_PRO_UNA | PAGE_MODE_XN;
 
 	/* 0xc0000000-0xc00fffff is mapped to physical memory by a course
 	 * page table
@@ -149,7 +149,7 @@ __attribute__((naked)) void initsys(void)
 		 * more than that and this code will need rewriting...)
 		 */
 		if(x <= ((uint32_t) &_physbssend >> 12))
-			kerneldatatable[x] = ((uint32_t) &_physdatastart + (x << 12)) | PAGE_MODE_XN | 2;
+			kerneldatatable[x] = ((uint32_t) &_physdatastart + (x << 12)) | PAGE_MODE_XN;
 		else
 			kerneldatatable[x] = 0;
 	}
@@ -191,7 +191,8 @@ __attribute__((naked)) void initsys(void)
 	control |= (1<<23);
 	/* Write value back to control register */
 	asm volatile("mcr p15, 0, %[control], c1, c0, 0" : : [control] "r" (control));
-
+	while(1);
+	
 	/* Set the LR (R14) to the address of main(), then pop off r0-r2
 	 * before exiting this function (which doesn't store anything else
 	 * on the stack). The "mov lr" comes first as it's impossible to

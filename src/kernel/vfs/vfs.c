@@ -496,7 +496,7 @@ void init_vfs()
 	stdout->name = "stdout";
 	stdout->type = FS_CHARDEVICE;
 	stdout->isatty = true;
-	stdout->write = &screen_write;
+	//stdout->write = &screen_write;
 	stdout->filesystem = DEV_FS;
 
 	stderr = (fs_node_t*) kmalloc(sizeof(fs_node_t));
@@ -504,7 +504,7 @@ void init_vfs()
 	stderr->name = "stderr";
 	stdout->type = FS_CHARDEVICE;
 	stderr->isatty = true;
-	stderr->write = &error_screen_write;
+	//stderr->write = &error_screen_write;
 	stderr->filesystem = DEV_FS;
 	
 	/* Add them to dev */

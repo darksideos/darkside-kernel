@@ -7,8 +7,8 @@
 typedef struct console
 {
 	/* Function pointers */
-	int32_t (*open)(console_t *console, fs_node_t *in, fs_node_t *out, fs_node_t *err);
-	int32_t (*close)(console_t *console);
+	int32_t (*open)(struct console *console, fs_node_t *in, fs_node_t *out, fs_node_t *err);
+	int32_t (*close)(struct console *console);
 
 	/* Input, output, and error streams */
 	instream_t *in;
