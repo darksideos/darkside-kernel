@@ -20,7 +20,7 @@ void main(os_info_x86_t *os_info_x86)
 		e820_entry_t *entry = ((e820_entry_t*) os_info_x86->mem_map) + index;
 		kprintf("Base %08X, length %08X, type %08X\n", entry->base_low, entry->length_low, entry->type);
 	}
-	while(1);
+	//while(1);
 	
 	partition_t *part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
