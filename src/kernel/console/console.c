@@ -9,23 +9,23 @@
 int32_t console_generic_open(console_t *console, fs_node_t *in, fs_node_t *out, fs_node_t *err)
 {
 	/* Create and open the input, output, and error streams */
-	console->in = instream_create();
-	instream_open(console->in, in);
+	console->in = stream_create();
+	stream_open(console->in, in);
 
-	console->out = outstream_create();
-	outstream_open(console->out, out);
+	console->out = stream_create();
+	stream_open(console->out, out);
 
-	console->err = outstream_create();
-	outstream_open(console->err, err);
+	console->err = stream_create();
+	stream_open(console->err, err);
 }
 
 /* Generic function to close a console */
 int32_t console_generic_close(console_t *console)
 {
 	/* Close the input, output, and error streams */
-	instream_close(console->in);
-	outstream_close(console->out);
-	outstream_close(console->err);
+	stream_close(console->in);
+	stream_close(console->out);
+	stream_close(console->err);
 
 	/* Free the console */
 	kfree(console);
@@ -60,17 +60,17 @@ int32_t console_close(console_t *console)
 /* Read from a console */
 uint32_t console_read(console_t *console, uint8_t *buffer, uint32_t length)
 {
-	return instream_read(console->in, buffer, length);
+	return stream_read(console->in, buffer, length);
 }
 
 /* Write to a console */
 uint32_t console_write(console_t *console, uint8_t *buffer, uint32_t length)
 {
-	return outstream_write(console->out, buffer, length);
+	return stream_write(console->out, buffer, length);
 }
 
 /* Write an error to a console */
 uint32_t console_error(console_t *console, uint8_t *buffer, uint32_t length)
 {
-	return outstream_write(console->err, buffer, length);
+	return stream_write(console->err, buffer, length);
 }
