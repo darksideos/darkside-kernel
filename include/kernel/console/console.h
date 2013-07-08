@@ -6,14 +6,14 @@
 
 typedef struct console
 {
-	/* Function pointers */
+	/* Console functions */
 	int32_t (*open)(struct console *console, fs_node_t *in, fs_node_t *out, fs_node_t *err);
 	int32_t (*close)(struct console *console);
 
 	/* Input, output, and error streams */
-	instream_t *in;
-	outstream_t *out;
-	outstream_t *err;
+	stream_t *in;
+	stream_t *out;
+	stream_t *err;
 } console_t;
 
 /* Open, close, read from, write to, and write an error to a console */
