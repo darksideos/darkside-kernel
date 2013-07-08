@@ -109,9 +109,12 @@ eternal:
 	jmp eternal
 		
 os_info:
-	dw 0, 0x500	; BIOS memory map
-	dd 0		; Number of memory map entries
-	dw 0, 0		; VBE mode info
+bios_mem_map:
+	dw 0x0500, 0x0000	; BIOS memory map (stored at 0x00000500)
+mem_map_num_entries:
+	dw 0x00				; Number of memory map entries
+vbe_mode_info:
+	dw 0, 0				; VBE mode info
 
 gdtr:
 	dw gdt_end - null_seg - 1	; last byte in table
@@ -131,6 +134,9 @@ reload_segs:
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
-	
+
+; Set the value in the OS info struct
+mov word [mem_map_num_entries], bp
+
 mov ebx, os_info	; Give stage3 the OS info struct
 jmp 0x4000			; Jump to stage3

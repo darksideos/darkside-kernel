@@ -55,7 +55,6 @@ void uart_putch(uint8_t data) {
 
 void uart_puts(const int8_t *str) {
 	while (*str) uart_putch(*str++);
-
 }
 
 uint8_t uart_getch()
