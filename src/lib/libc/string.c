@@ -145,21 +145,12 @@ uint8_t *strupper(uint8_t *str)
 
 uint8_t *strcat(uint8_t *s1, uint8_t *s2)
 {
-	uint8_t *str = (uint8_t*) kmalloc(strlen(s1) + strlen(s2) + 1);
+	return strcpy(s1 + strlen(s1), s2);
+}
 
-	int32_t i;
-	for (i = 0; i < strlen(s1); i++)
-	{
-		str[i] = s1[i];
-	}
-
-	for (i = 0; i < strlen(s2); i++)
-	{
-		str[i+strlen(s1)] = s2[i];
-	}
-	
-	str[strlen(s1) + strlen(s2)] = '\0';
-	return str;
+uint8_t *strncat(uint8_t *s1, uint8_t *s2, uint32_t size)
+{
+	return strncpy(s1 + strlen, s2, size);
 }
 
 uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
@@ -170,6 +161,7 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 		*saveptr = str;
 	}
 	
+	/* End of string */
 	if (!(*saveptr))
 	{
 		return 0;
@@ -181,23 +173,22 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')
 		{
-			uint8_t *found_str = (uint8_t*) kmalloc(skipped + 1);
-			memcpy(found_str, *saveptr - skipped, skipped + 1);
-			
+			/* Get a pointer to the string and set saveptr to 0 */
+			unsigned char *retval = *saveptr - skipped;
 			*saveptr = 0;
 			
-			return found_str;
+			return retval;
 		}
 		skipped++;
 		(*saveptr)++;
 	}
 	
-	/* We've found it! */
-	uint8_t *found_str = (uint8_t*) kmalloc(skipped + 1);
-	memcpy(found_str, *saveptr - skipped, skipped);
-	found_str[skipped] = '\0';
-	
+	/* We've found the delimeter, so save the string */
+	unsigned char *retval = *saveptr - (skipped - 1);
+	retval[skipped] = '\0';
+
+	/* Increment saveptr by the length of the delimeter */
 	(*saveptr) += strlen(delimeter);
 	
-	return found_str;
+	return retval;
 }
