@@ -2,7 +2,7 @@
 #include <kernel/mm/heap.h>
 #include <drivers/graphics/vga.h>
 #include <lib/libc/stdint.h>
-#include <lib/libadt/list.h>
+#include <lib/libadt/string.h>
 
 void kernel_main(struct multiboot *mboot_ptr)
 {
@@ -14,6 +14,14 @@ void kernel_main(struct multiboot *mboot_ptr)
 
 	/* Initialize the kernel heap */
 	init_kheap();
+
+	uint8_t **saveptr;
+	unsigned char *ch = strtok("A/B/C", "/", saveptr);
+	while (ch)
+	{
+		kprintf("%s\n", ch);
+		ch = strtok(0, "/", saveptr);
+	}
 
 	while(1);
 }
