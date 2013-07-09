@@ -13,6 +13,7 @@
 #define E820_ACPI3_KEEP				0x01
 
 #define E820_SPEC_INVALID			0x01
+#define E820_SPEC_NONEXISTANT		0x02
 
 typedef struct e820_entry
 {

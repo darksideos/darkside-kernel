@@ -78,7 +78,7 @@ mem_map_entry_t* e820_convert_mem_map(os_info_x86_t *os_info, unsigned int *entr
 		linked = linked->next;
 	}
 	
-	/* Change unused type entries to reserved (2) */
+	/* Change unknown type entries to reserved (2) */
 	linked = first_linked;
 	while(linked != 0)
 	{
@@ -89,6 +89,49 @@ mem_map_entry_t* e820_convert_mem_map(os_info_x86_t *os_info, unsigned int *entr
 		}
 		
 		linked = linked->next;
+	}
+	
+	/* We want a contiguous map, so insert entries between non-contiguous entries */
+	linked = first_linked;
+	while(linked != 0)
+	{
+		if(linked->next)
+		{
+			/* If it's non-contiguous */
+			if(linked->base + linked->length < linked->next->base)
+			{
+				/* Insert an entry */
+				e820_linked_entry_t *new_entry = kmalloc(sizeof(e820_linked_entry_t));
+				new_entry->base = linked->base + linked->length;
+				new_entry->length = linked->next->base - (linked->base + linked->length);
+				new_entry->type = E820_RESERVED;
+				new_entry->spec_flags = E820_SPEC_NONEXISTANT;
+				
+				/* Link it into the chain */
+				linked->next->prev = new_entry;
+				new_entry->next = linked->next;
+				linked->next = new_entry;
+				new_entry->prev = linked;
+			}
+		}
+		
+		linked = linked->next;
+	}
+	
+	/* Make it contiguous from the beginning */
+	if(first_linked->base != 0x00)
+	{
+		e820_linked_entry_t *new_entry = kmalloc(sizeof(e820_linked_entry_t));
+		new_entry->base = 0;
+		new_entry->length = first_linked->base;
+		new_entry->type = E820_RESERVED;
+		new_entry->spec_flags = E820_SPEC_NONEXISTANT;
+				
+		/* Link it into the chain */
+		first_linked->prev = new_entry;
+		new_entry->next = first_linked;
+		
+		first_linked = new_entry;
 	}
 	
 	linked = first_linked;
