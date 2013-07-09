@@ -6,6 +6,7 @@
 #include <fs/ext2.h>
 #include <elf/elf.h>
 #include <mm/os_info_x86.h>
+#include <mm/os_info.h>
 
 extern unsigned int *pd;
 
@@ -13,14 +14,11 @@ void main(os_info_x86_t *os_info_x86)
 {
 	init_text_mode(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 	
-	kprintf("There are %04X entries at %08X\n", sizeof(e820_entry_t), os_info_x86->mem_map);
-	int index;
-	for(index = 0; index < os_info_x86->mem_map_num_entries; index++)
-	{
-		e820_entry_t *entry = ((e820_entry_t*) os_info_x86->mem_map) + index;
-		kprintf("Base %08X, length %08X, type %08X\n", entry->base_low, entry->length_low, entry->type);
-	}
-	//while(1);
+	os_info_t *os_info = kmalloc(sizeof(os_info_t));
+	
+	/* Translate the memory map */
+	os_info->mem_map = e820_convert_mem_map(os_info_x86, &os_info->mem_map_entries);
+	while(1);
 	
 	partition_t *part = get_mbr_partition(0, get_active_mbr_entry(0));
 	

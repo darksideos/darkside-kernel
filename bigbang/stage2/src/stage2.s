@@ -107,10 +107,14 @@ error_mem_map	db		'Error retrieving E820 memory map. Aborting...'
 
 eternal:
 	jmp eternal
-		
+
+map:
+	dw 0x100, 0x00, 0x00, 0x00, 0x7, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00
+	dw 0xFF, 0x00, 0x00, 0x00, 0x9, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00
+
 os_info:
 bios_mem_map:
-	dw 0x0500, 0x0000	; BIOS memory map (stored at 0x00000500)
+	dw map, 0x0000	; BIOS memory map (stored at 0x00000500)
 mem_map_num_entries:
 	dw 0x00				; Number of memory map entries
 vbe_mode_info:
@@ -136,7 +140,7 @@ reload_segs:
 	mov ss, ax
 
 ; Set the value in the OS info struct
-mov word [mem_map_num_entries], bp
+mov word [mem_map_num_entries], 2
 
 mov ebx, os_info	; Give stage3 the OS info struct
 jmp 0x4000			; Jump to stage3
