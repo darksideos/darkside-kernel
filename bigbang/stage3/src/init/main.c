@@ -7,6 +7,7 @@
 #include <elf/elf.h>
 #include <mm/os_info_x86.h>
 #include <mm/os_info.h>
+#include <init/bochs.h>
 
 extern unsigned int *pd;
 
@@ -18,7 +19,6 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Translate the memory map */
 	os_info->mem_map = e820_convert_mem_map(os_info_x86, &os_info->mem_map_entries);
-	while(1);
 	
 	partition_t *part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
@@ -33,7 +33,15 @@ void main(os_info_x86_t *os_info_x86)
 	elf_header_t *kernel_elf = kmalloc(kernel_inode->low_size);
 	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
-	elf_run_executable(kernel_elf);
+	elf_load_executable(kernel_elf);
+	bochs_break_e9();
+	int (*exec_run)() = kernel_elf->entry_point;
+	kprintf("Value: %08X\n", exec_run);
+	asm volatile("nop");
+	
+	/* We don't want to push any extra values, so use a push and a jmp */
+	asm volatile("push %0" :: "r"(os_info));
+	asm volatile("jmp %0" :: "r"(exec_run));
 	
 	while(1);
 }
