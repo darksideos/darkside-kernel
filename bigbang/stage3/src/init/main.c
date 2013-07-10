@@ -34,14 +34,13 @@ void main(os_info_x86_t *os_info_x86)
 	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
 	elf_load_executable(kernel_elf);
-	bochs_break_e9();
-	int (*exec_run)() = kernel_elf->entry_point;
-	kprintf("Value: %08X\n", exec_run);
-	asm volatile("nop");
+	void (*exec_run)(os_info_t*) = kernel_elf->entry_point;
 	
 	/* We don't want to push any extra values, so use a push and a jmp */
-	asm volatile("push %0" :: "r"(os_info));
-	asm volatile("jmp %0" :: "r"(exec_run));
+	asm ("push %0\n\tjmp *%1"
+	:
+	: "r" (os_info), "r"(kernel_elf->entry_point)
+	);
 	
 	while(1);
 }
