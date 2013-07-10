@@ -380,12 +380,10 @@ Disassembly of section .text:
 
 80000280 <start>:
 80000280:	5b                   	pop    %ebx
-
-80000281 <eternal>:
-80000281:	eb fe                	jmp    80000281 <eternal>
-80000283:	bc 00 a0 01 80       	mov    $0x8001a000,%esp
-80000288:	53                   	push   %ebx
-80000289:	e8 36 23 00 00       	call   800025c4 <kernel_main>
+80000281:	bc 00 a0 01 80       	mov    $0x8001a000,%esp
+80000286:	53                   	push   %ebx
+80000287:	e8 38 23 00 00       	call   800025c4 <kernel_main>
+8000028c:	66 90                	xchg   %ax,%ax
 8000028e:	66 90                	xchg   %ax,%ax
 
 80000290 <kernel_sysenter_entry>:

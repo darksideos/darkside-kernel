@@ -7,8 +7,6 @@ section .text
 global start
 start:
 	pop ebx						; Save the os_info pointer
-eternal:
-	jmp eternal
 	
 	mov esp, stack
     
