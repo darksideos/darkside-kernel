@@ -88,7 +88,7 @@ void init_pmm(os_info_t *os_info)
 	 * Note, however, that if there is for some reason reclaimable reserved memory at the top of the 4GB address space,
 	 * the PMM will ignore it.
 	*/
-	uint32_t size;
+	uint64_t size;
 	uint32_t index;
 	for(index = 0; index < os_info->mem_map_entries; index++)
 	{
@@ -96,7 +96,7 @@ void init_pmm(os_info_t *os_info)
 	}
 	
 	index = os_info->mem_map_entries - 1;
-	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && ((size - os_info->mem_map[index].length) < 0x100000000))
+	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && (size < 0x100000000))
 	{
 		size -= os_info->mem_map[index].length;
 		index--;
