@@ -8,6 +8,7 @@
 #include <kernel/console/log.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/mm/heap.h>
+#include <kernel/init/os_info.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;
@@ -74,8 +75,33 @@ void map_pmm_bitmap(uint32_t dir)
 }
 
 /* Initialize the physical memory manager */
-void init_pmm(uint32_t size)
+void init_pmm(os_info_t *os_info)
 {
+	/* Calculate the size of physical memory.
+	 * Here, we have to do a special check.  On systems <= 4GB of memory, there will be an entry
+	 * in the E820 map returned in the os_info struct for the BIOS and other assorted
+	 * CPU structures, which reside at 4GB - (size of structures).
+	 * This code here is responsible for filtering out said structures.
+	 * The technique we use to do this just discards any reserved memory at the top less than or equal to 4GB.
+	 * That way, if it turns out that the BIOS made an E820 error and returned, say, and entry in the map
+	 * that ends at 0xFFFFFFFE instead of 0xFFFFFFFF, this code will still catch it.
+	 * Note, however, that if there is for some reason reclaimable reserved memory at the top of the 4GB address space,
+	 * the PMM will ignore it.
+	*/
+	uint32_t size;
+	uint32_t index;
+	for(index = 0; index < os_info->mem_map_entries; index++)
+	{
+		size += os_info->mem_map[index].length;
+	}
+	
+	index = os_info->mem_map_entries - 1;
+	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && ((size - os_info->mem_map[index].length) < 0x100000000))
+	{
+		size -= os_info->mem_map[index].length;
+		index--;
+	}
+	kprintf("Size: %08X\n", size);
 	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
 	
@@ -109,10 +135,9 @@ void init_pmm(uint32_t size)
 
 	/* Claim pages in the first 1 MB of memory, the kernel, and the PMM bitmap */
 	/* Note: bitmap_page is 0x1000 greater than the last page allocated for the bitmap */
-	uint32_t i;
-	for (i = 0; i < phys_bitmap_page; i += 0x1000)
+	for (index = 0; index < phys_bitmap_page; index += 0x1000)
 	{
-		pmm_claim_page(i);
+		pmm_claim_page(index);
 	}
 
 	/* Print a log message */
