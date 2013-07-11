@@ -1,7 +1,7 @@
 #include <mm/placement.h>
 #include <mm/e820.h>
-#include <mm/os_info.h>
-#include <mm/os_info_x86.h>
+#include <init/os_info.h>
+#include <init/os_info_x86.h>
 
 /* This code will only work with physical addresses up to 4 GB */
 e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)

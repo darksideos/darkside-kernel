@@ -5,8 +5,8 @@
 #include <storage/partition.h>
 #include <fs/ext2.h>
 #include <elf/elf.h>
-#include <mm/os_info_x86.h>
-#include <mm/os_info.h>
+#include <init/os_info_x86.h>
+#include <init/os_info.h>
 #include <init/bochs.h>
 
 extern unsigned int *pd;

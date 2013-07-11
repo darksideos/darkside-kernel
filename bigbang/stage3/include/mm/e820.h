@@ -1,8 +1,8 @@
 #ifndef __E820_H
 #define __E820_H
 
-#include <mm/os_info.h>
-#include <mm/os_info_x86.h>
+#include <init/os_info.h>
+#include <init/os_info_x86.h>
 
 #define E820_FREE					1
 #define E820_RESERVED				2
