@@ -5,7 +5,7 @@
 #include <lib/libc/stdbool.h>
 #include <kernel/ipc/signal.h>
 #include <kernel/task/thread.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 
 /* Process states */
 #define PROCESS_READY     0x00

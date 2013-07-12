@@ -2,7 +2,7 @@
 #define __STREAM_H
 
 #include <lib/libc/stdint.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 
 typedef struct stream
 {

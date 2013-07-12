@@ -1,8 +1,8 @@
 #include <lib/libc/stdint.h>
 #include <kernel/console/kprintf.h>
 #include <kernel/mm/heap.h>
-#include <kernel/vfs/vfs.h>
-#include <kernel/vfs/vfs_utils.h>
+#include <kernel/vfs/old/vfs.h>
+#include <kernel/vfs/old/vfs_utils.h>
 
 void ls(fs_node_t *dir)
 {

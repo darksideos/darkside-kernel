@@ -1,7 +1,7 @@
 #ifndef __CONSOLE_H
 #define __CONSOLE_H
 
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 #include <kernel/vfs/stream.h>
 
 typedef struct console
