@@ -101,7 +101,7 @@ void init_pmm(os_info_t *os_info)
 		size -= os_info->mem_map[index].length;
 		index--;
 	}
-	kprintf("Size: %08X\n", size);
+	kprintf("This is the size: %08X\n", size);
 	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
 	

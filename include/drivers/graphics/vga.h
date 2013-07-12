@@ -2,7 +2,7 @@
 #define __VGA_H
 
 #include <lib/libc/stdint.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 
 #define VGA_COLOR_BLACK 0x00
 #define VGA_COLOR_BLUE 0x01
