@@ -3,6 +3,7 @@
 
 #include <lib/libc/stdint.h>
 #include <lib/libadt/list.h>
+#include <kernel/vfs/dircache.h>
 
 struct inode;
 
