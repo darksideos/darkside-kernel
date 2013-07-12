@@ -19,10 +19,10 @@ disk_t *disk_create()
 void disk_destroy(disk_t *disk)
 {
 	/* Destroy each partition on the disk */
-	uint32_t partition;
-	for (partition = 0; partition < disk->num_partitions; partition++)
+	uint32_t partnum;
+	for (partnum = 0; partnum < disk->num_partitions; partnum++)
 	{
-		partition_destroy(disk->partitions[partition]);
+		partition_destroy(disk->partitions[partnum]);
 	}
 
 	/* Destroy the block device */
@@ -44,21 +44,43 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 	disk->blockdev = blockdev;
 
 	/* Read the MBR signature */
-	unsigned char mbr_sig[2];
+	uint8_t mbr_sig[2];
 
-	uint64_t bytes_read = blockdev_read(blockdev, mbr_sig, 510, 2);
+	uint64_t bytes_read = blockdev_read(blockdev, &mbr_sig[0], 510, 2);
 	if (bytes_read != 2)
 	{
-		log("Error reading from block device\n");
+		log("Error reading MBR signature from device");
 		return;
 	}
 
 	/* Check to make sure the signature is 0x55AA */
 	if (signature[0] = 0x55 && signature[1] == 0xAA)
 	{
-		log("Block device contains valid MBR signature\n");
+		/* Try to read the GPT signature */
+		uint8_t gpt_sig[8];
 
-		/* Try
+		bytes_read = blockdev_read(blockdev, &gpt_sig[0], 512, 8);
+		if (bytes_read != 8)
+		{
+			log("Error reading GPT signature from device");
+			return;
+		}
+
+		/* Check to make sure the signature is "EFI PART" */
+		if (strequal(gpt_sig, "EFI PART"))
+		{
+			log("Device contains a GPT partition table");
+		}
+		else
+		{
+			log("Device contains a MBR partition table");
+			mbr_init_disk(disk);
+		}
+	}
+	else
+	{
+		log("Device contains no valid partition table");
+	}
 }
 
 /* Create a partition structure */
