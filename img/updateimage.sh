@@ -10,7 +10,9 @@
 if [ "$(uname -s)" == "Darwin" ]
 	then
 		sudo fuse-ext2 -o rw,force ext2.img /mnt/hdd
+		read -p "Waiting... "
 		sudo cp ../build-i386/kernel-i386.elf /mnt/hdd/boot
+		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
 
