@@ -1,7 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/math.h>
 
-uint32_t pow(uint32_t num, uint32_t exp)
+uint64_t pow(uint64_t num, uint64_t exp)
 {
 	if(exp == 0)
 	{
@@ -13,17 +13,17 @@ uint32_t pow(uint32_t num, uint32_t exp)
 	}
 }
 
-uint32_t ceil(uint32_t num, uint32_t div)
+uint64_t ceil(uint64_t num, uint64_t div)
 {
 	return (num % div == 0) ? num / div : ((num - num % div) / div + 1);
 }
 
-uint32_t floor(uint32_t num, uint32_t div)
+uint64_t floor(uint64_t num, uint64_t div)
 {
 	return (num % div == 0) ? num / div : ((num - num % div) / div);
 }
 
-uint32_t abs(uint32_t num)
+uint64_t abs(uint64_t num)
 {
 	return num > 0 ? num : -num;
 }
