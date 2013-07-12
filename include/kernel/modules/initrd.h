@@ -3,7 +3,7 @@
 
 #include <lib/libc/stdint.h>
 #include <kernel/modules/multiboot.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 
 #define INITRD_FS_DRIVER 0x00
 #define INITRD_FAT 0x00

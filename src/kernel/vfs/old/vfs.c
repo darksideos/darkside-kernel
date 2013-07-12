@@ -4,7 +4,7 @@
 #include <lib/libc/math.h>
 #include <kernel/mm/heap.h>
 #include <kernel/modules/initrd.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 #include <drivers/graphics/vga.h>
 #include <drivers/input/ps2/keyboard.h>
 
