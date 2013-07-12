@@ -88,12 +88,20 @@ void init_pmm(os_info_t *os_info)
 	 * Note, however, that if there is for some reason reclaimable reserved memory at the top of the 4GB address space,
 	 * the PMM will ignore it.
 	*/
-	uint64_t size;
+	uint64_t size = 0;
 	uint32_t index;
 	for(index = 0; index < os_info->mem_map_entries; index++)
 	{
 		size += os_info->mem_map[index].length;
+		kprintf("size: %08X\n", (unsigned int) size);
 	}
+	
+	/* Test code */
+	for(index = 0; index < os_info->mem_map_entries; index++)
+	{
+		kprintf("Length %08X flags %08X\n", (unsigned int) os_info->mem_map[index].length, os_info->mem_map[index].flags);
+	}
+	kprintf("Total size: %08X\n", (unsigned int) size);
 	
 	index = os_info->mem_map_entries - 1;
 	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && (size < 0x100000000))
@@ -101,7 +109,8 @@ void init_pmm(os_info_t *os_info)
 		size -= os_info->mem_map[index].length;
 		index--;
 	}
-	kprintf("This is the size: %08X\n", size);
+	kprintf("This is the size: %08X\n", (unsigned int) size);
+	
 	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
 	
@@ -141,5 +150,5 @@ void init_pmm(os_info_t *os_info)
 	}
 
 	/* Print a log message */
-	log("PMM initialized with a physical memory size of 0x%08X", size);
+	log("PMM initialized");
 }
