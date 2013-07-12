@@ -3,21 +3,20 @@
 
 #include <lib/libc/stdint.h>
 #include <lib/libadt/list.h>
-#include <kernel/vfs/dircache.h>
 
 struct inode;
 
 /* Filesystem structure */
 typedef struct filesystem
 {
+	/* Root of the filesystem */
+	struct inode *root;
+
 	/* Partition that the filesystem resides on */
 	void *partition;
 
 	/* Filesystem specific data */
 	void *data;
-
-	/* Open a file on the filesystem and fill out its information, returning -1 if the file doesn't exist */
-	int32_t (*open)(struct filesystem *fs, uint8_t *path, struct inode *node);
 
 	/* Read a specified amount of data at the given offset from a file into a buffer */
 	uint64_t (*read)(struct filesystem *fs, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
@@ -27,6 +26,9 @@ typedef struct filesystem
 
 	/* Return a list of directory entries in a directory */
 	list_t (*readdir)(struct filesystem *fs, struct inode *dir);
+
+	/* Get an inode by name, returning -1 if the directory entry doesn't exist */
+	int (*finddir)(struct filesystem *fs, struct inode *dir, uint8_t *name);
 
 	/* Create a new directory entry to an inode, returning -1 on failure */
 	int32_t (*link)(struct filesystem *fs, struct inode *node, uint8_t *newpath);
@@ -38,13 +40,13 @@ typedef struct filesystem
 	int32_t (*symlink)(struct filesystem *fs, struct inode *node, uint8_t *newpath);
 
 	/* Create a new inode, returning -1 on failure */
-	int32_t (*mknod)(struct filesystem *fs, uint8_t *path, int32_t mode, uint32_t dev, struct inode *node);
+	int32_t (*mknod)(struct filesystem *fs, uint8_t *path, int32_t mode, dev_t dev, struct inode *node);
 
 	/* Rename a directory entry, returning -1 on failure */
 	int32_t (*rename)(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath);
 
-	/* Fill out an inode with information about the root of the filesystem, returning -1 on failure */
-	int32_t (*get_root)(struct filesystem *fs, struct inode *node);
+	/* Issue a device specific request on an inode, returning -1 on failure */
+	int32_t (*ioctl)(struct filesystem *fs, struct inode *node, int32_t request, uint8_t *buffer, uint32_t length);
 } filesystem_t;
 
 /* Mountpoint structure */
@@ -81,6 +83,15 @@ typedef struct inode
 	uint64_t size;
 	int32_t mode, nlink, uid, gid;
 	uint64_t atime, mtime, ctime;
+
+	/* Write buffer */
+	uint8_t *write_buffer;
+
+	/* Number of times the inode is open */
+	unsigned handles;
+
+	/* Inode specific data */
+	void *data;
 } inode_t;
 
 /* Directory entry structure */
@@ -96,7 +107,8 @@ inode_t *vfs_open(uint8_t *path);
 void vfs_close(inode_t *node);
 uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
-list_t vfs_readdir(inode_t *node);
+list_t vfs_readdir(inode_t *dir);
+inode_t *vfs_finddir(inode_t *dir, uint8_t *name); 
 void vfs_link(inode_t *node, uint8_t *newpath);
 void vfs_unlink(uint8_t *path);
 void vfs_symlink(inode_t *node, uint8_t *newpath);
