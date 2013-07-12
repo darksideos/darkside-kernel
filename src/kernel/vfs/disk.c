@@ -1,5 +1,6 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
+#include <kernel/console/log.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/disk.h>
@@ -42,7 +43,22 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 	/* Fill out its block device pointer */
 	disk->blockdev = blockdev;
 
-	/* Detect the type of partition table that the disk uses */
+	/* Read the MBR signature */
+	unsigned char mbr_sig[2];
+
+	uint64_t bytes_read = blockdev_read(blockdev, mbr_sig, 510, 2);
+	if (bytes_read != 2)
+	{
+		log("Error reading from block device\n");
+		return;
+	}
+
+	/* Check to make sure the signature is 0x55AA */
+	if (signature[0] = 0x55 && signature[1] == 0xAA)
+	{
+		log("Block device contains valid MBR signature\n");
+
+		/* Try
 }
 
 /* Create a partition structure */
