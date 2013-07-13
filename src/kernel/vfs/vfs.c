@@ -131,6 +131,7 @@ void init_vfs()
 	vfs_root->mountpoint = 0;
 	vfs_root->type = INODE_TYPE_DIR;
 	vfs_root->parent = 0;
+	vfs_root->children = list_create(sizeof(inode_t), 4);
 
 	vfs_root->size = 0;
 	vfs_root->mode = 0777;
