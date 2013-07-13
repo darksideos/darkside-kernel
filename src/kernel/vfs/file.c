@@ -3,26 +3,7 @@
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/file.h>
-
-/* Generic way to open a file using a VFS node */
-int32_t file_generic_open(file_t *file, fs_node_t *file)
-{
-	/* Fill out it's read and seek function pointers */
-	file->read = file->read;
-	file->write = file->write;
-	file->seek = file->seek;
-
-	return 0;
-}
-
-/* Generic function to close a file */
-int32_t file_generic_close(file_t *file)
-{
-	/* Destroy the file */
-	kfree(file);
-
-	return 0;
-}
+#include <kernel/vfs/stat.h>
 
 /* Create a file */
 file_t *file_create()
@@ -31,39 +12,77 @@ file_t *file_create()
 	file_t *file = (file_t*) kmalloc(sizeof(file_t));
 	memset(file, 0, sizeof(file_t));
 
-	/* Fill out its open and close function pointers */
-	file->open = &file_generic_open;
-	file->close = &file_generic_close;
-
 	return file;
 }
 
 /* Open a file */
-int32_t file_open(file_t *file, fs_node_t *file)
+int32_t file_open(file_t *file, uint8_t *path, int32_t flags, mode_t mode)
 {
-	return file->open(file, file);
+	return file->open(file, path, flags, mode);
 }
 
 /* Close a file */
 int32_t file_close(file_t *file)
 {
-	return file->close(file);
+	/* Close the inode */
+	vfs_close(file->node);
+
+	/* Set its information to 0 */
+	file->node = 0;
+	file->flags = 0;
+	file->pos = 0;
+
+	/* Destroy the file */
+	kfree(file);
 }
 
 /* Read from a file */
-uint32_t file_read(file_t *file, uint8_t *buffer, uint32_t length)
+uint64_t file_read(file_t *file, uint8_t *buffer, uint64_t length)
 {
-	return file->read(file, buffer, length);
+	uint64_t ret = vfs_read(file->node, buffer, (uint64_t) file->pos, length);
+	file->pos += (off_t) length;
+
+	return ret;
 }
 
 /* Write to a file */
-uint32_t file_write(file_t *file, uint8_t *buffer, uint32_t length)
+uint64_t file_write(file_t *file, uint8_t *buffer, uint64_t length)
 {
-	return file->write(file, buffer, length);
+	uint64_t ret = vfs_write(file->node, buffer, (uint64_t) file->pos, length);
+	file->pos += (off_t) length;
+
+	return ret;
 }
 
 /* Seek a file */
-int32_t file_seek(file_t *file, uint32_t offset, int32_t origin)
+off_t file_seek(file_t *file, off_t offset, int32_t origin)
 {
-	return file->seek(file, offset, origin);
+	/* Beginning */
+	if (origin == 0)
+	{
+		file->pos = offset;
+		return file->pos;
+	}
+	/* Current position */
+	else if (origin == 1)
+	{
+		file->pos += offset;
+		return file->pos;
+	}
+	/* End */
+	else if (origin == 2)
+	{
+		file->pos = ((off_t) file->node->size) + off;
+		return file->pos;
+	}
+	else
+	{
+		return (off_t) -1;
+	}
+}
+
+/* Issue a device specific request to a file */
+int32_t file_ioctl(file_t *file, int32_t request, uint8_t *buffer, uint32_t length)
+{
+	return vfs_ioctl(file->node, request, buffer, length);
 }
