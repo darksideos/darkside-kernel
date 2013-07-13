@@ -41,6 +41,8 @@ void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_l
     asm volatile("mov %0, %%cr0" :: "r"(cr0));
 
 	/* Call kernel main */
-	asm volatile("push %0" :: "r"(os_info));
-	asm volatile("jmp *%0" :: "r"(&main));
+	asm ("push %0\n\tjmp *%1"
+	:
+	: "r" (os_info), "r"(&main)
+	);
 }

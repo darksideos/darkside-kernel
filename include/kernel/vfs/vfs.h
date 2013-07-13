@@ -2,157 +2,120 @@
 #define __VFS_H
 
 #include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libadt/list.h>
+#include <kernel/device/dev.h>
 
-/* Node flags */
-#define FS_FILE		   0x00
-#define FS_DIRECTORY   0x01
-#define FS_CHARDEVICE  0x03
-#define FS_BLOCKDEVICE 0x04
-#define FS_PIPE        0x05
-#define FS_SYMLINK     0x06
-#define FS_HARDLINK	   0x07
-#define FS_MOUNTPOINT  0x08
+struct inode;
 
-/* File attributes */
-#define ATTRIB_HIDDEN	   0x01
-#define ATTRIB_SYSTEM	   0x02
-#define ATTRIB_RDONLY	   0x04
-
-/* Types of filesystems */
-#define DEV_FS		0x00		// dev
-#define INITRD_FS	0x01		// Initrd
-#define FAT32_FS	0x02		// FAT32
-#define EXT2_FS		0x03		// EXT2
-#define NTFS_FS		0x04		// NTFS
-
-/* File modes */
-#define O_RDONLY 0x0000
-#define O_WRONLY 0x0001
-#define O_RDWR	 0x0002
-
-#define O_APPEND 0x0008
-#define O_CREAT  0x0200
-#define O_TRUNC	 0x0400
-#define O_EXCL	 0x0800
-#define O_SYNC	 0x2000
-
-/* VFS node */
-typedef struct fs_node
+/* Filesystem structure */
+typedef struct filesystem
 {
-	/* VFS node flags */
-	uint8_t *name;			// The filename
-	uint8_t *parent_path;		// Path to the file, but not including the file
-	uint32_t uid;				// User ID
-	uint32_t gid;				// Group ID
-	uint8_t type;				// Node type
-	uint8_t attributes;		// File attributes
-	int32_t mode;						// File mode
-	bool isatty;					// Is this node connected to a terminal?
+	/* Root of the filesystem */
+	struct inode *root;
 
-	unsigned long date_created;		// Date created
-	unsigned long date_accessed;	// Date accessed
-	unsigned long date_modified;	// Date modified
-	unsigned long date_status;		// Date of status change
+	/* Partition that the filesystem resides on */
+	void *partition;
 
-	/* Disk and filesystem flags */
-	uint8_t drive;			// Drive (0 - 3 are ATA, 4 - 7 are SATA, the rest are external drives)
-	uint8_t partition;		// Partition (0 - 3 are primary, the rest are logical partitions)
-	uint8_t filesystem;		// Type of filesystem
-	unsigned long inode;			// Inode number
-	uint32_t length;			// Size of the file in bytes
-	uint32_t blocksize;			// Block size
-	unsigned long pos;				// Current position of the file
+	/* Filesystem specific data */
+	void *data;
 
-	/* VFS functions */
-	int32_t (*close)(struct fs_node *file);
-	int32_t (*read)(struct fs_node *file, uint8_t *buffer, uint32_t size);
-	int32_t (*write)(struct fs_node *file, uint8_t *data, uint32_t size);
-	int32_t (*seek)(struct fs_node *file, int32_t where, int32_t whence);
-	int32_t (*symlink)(struct fs_node *file, uint8_t *old, uint8_t *new_node);
-	int32_t (*hardlink)(struct fs_node *file, uint8_t *old, uint8_t *new_node);
-	int32_t (*unlink)(uint8_t *name);
-	int32_t (*delete_node)(struct fs_node *file);
-	int32_t (*chown)(struct fs_node *file, uint32_t owner, uint32_t group);
+	/* Read a specified amount of data at the given offset from a file into a buffer */
+	uint64_t (*read)(struct filesystem *fs, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 
-	/* VFS node pointers */
-	struct fs_node **child_nodes;	// Pointer to child nodes
-	uint32_t num_child_nodes;	// Number of child nodes
-	struct fs_node *ptr;
-} fs_node_t;
+	/* Write a specified amount of data from a buffer into a file at the given offset */
+	uint64_t (*write)(struct filesystem *fs, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 
-/* Directory entry */
-struct dirent
+	/* Return a list of directory entries in a directory */
+	list_t (*readdir)(struct filesystem *fs, struct inode *dir);
+
+	/* Get an inode by name, returning -1 if the directory entry doesn't exist */
+	int (*finddir)(struct filesystem *fs, struct inode *dir, uint8_t *name);
+
+	/* Create a new directory entry to an inode, returning -1 on failure */
+	int32_t (*link)(struct filesystem *fs, struct inode *node, uint8_t *newpath);
+
+	/* Remove a directory entry, returning -1 on failure */
+	int32_t (*unlink)(struct filesystem *fs, uint8_t *path);
+
+	/* Create a new symbolic link to an inode, returning -1 on failure */
+	int32_t (*symlink)(struct filesystem *fs, struct inode *node, uint8_t *newpath);
+
+	/* Create a new inode, returning -1 on failure */
+	int32_t (*mknod)(struct filesystem *fs, uint8_t *path, int32_t mode, dev_t dev, struct inode *node);
+
+	/* Rename a directory entry, returning -1 on failure */
+	int32_t (*rename)(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath);
+
+	/* Issue a device specific request on an inode, returning -1 on failure */
+	int32_t (*ioctl)(struct filesystem *fs, struct inode *node, int32_t request, uint8_t *buffer, uint32_t length);
+} filesystem_t;
+
+/* Mountpoint structure */
+typedef struct mountpoint
 {
+	/* Inode and filesystem */
+	struct inode *node;
+	filesystem_t *fs;
+} mountpoint_t;
+
+/* Inode types */
+#define INODE_TYPE_FILE		0x00
+#define INODE_TYPE_DIR		0x01
+#define INODE_TYPE_CHARDEV	0x02
+#define INODE_TYPE_BLOCKDEV	0x03
+#define INODE_TYPE_FIFO		0x04
+#define INODE_TYPE_SOCKET	0x05
+#define INODE_TYPE_SYMLINK	0x06
+
+/* Inode structure */
+typedef struct inode
+{
+	/* Mountpoint the inode resides on */
+	mountpoint_t *mountpoint;
+
+	/* Inode type */
+	int32_t type;
+
+	/* Parent and child inodes */
+	struct inode *parent;
+	list_t children;
+
+	/* Inode information */
+	uint64_t size;
+	int32_t mode, nlink, uid, gid;
+	uint64_t atime, mtime, ctime;
+
+	/* Write buffer */
+	uint8_t *write_buffer;
+
+	/* Number of times the inode is open */
+	unsigned handles;
+
+	/* Device ID for block and character devices */
+	dev_t id;
+
+	/* Inode specific data */
+	void *data;
+} inode_t;
+
+/* Directory entry structure */
+typedef struct dirent
+{
+	/* Name and inode */
 	uint8_t *name;
-	uint32_t inode; // Inode number
-};
-
-/* File status structure */
-struct stat
-{
-	int32_t st_dev;
-	int32_t st_ino;
-	int32_t st_mode;
-	int32_t st_nlink;
-	int32_t st_uid;
-	int32_t st_gid;
-	int32_t st_rdev;
-	int32_t st_size;
-	int32_t st_blksize;
-	int32_t st_blocks;
-	long st_atime;
-	long st_mtime;
-	long st_ctime;
-};
-
-struct mount_pair
-{
-	uint8_t *mountpoint;
-	fs_node_t *mount_device;
-	struct mount_pair *next;
-};
-
-/* Return the root and dev nodes */
-fs_node_t *get_root();
-fs_node_t *get_dev();
+	inode_t *inode;
+} dirent_t;
 
 /* VFS functions */
-fs_node_t *create_fs(uint8_t *name, int32_t mode);
-fs_node_t *open_fs(uint8_t *name, int32_t flags, int32_t mode);
-int32_t close_fs(fs_node_t *file);
-int32_t read_fs(fs_node_t *file, uint8_t *buffer, uint32_t size);
-int32_t write_fs(fs_node_t *file, uint8_t *data, uint32_t size);
-int32_t seek_fs(fs_node_t *file, int32_t where, int32_t whence);
-struct dirent *readdir_fs(fs_node_t *file, uint32_t index);
-fs_node_t *finddir_fs(fs_node_t *file, uint8_t *name);
-int32_t symlink_fs(uint8_t *old, uint8_t *new_node);
-int32_t hardlink_fs(uint8_t *old, uint8_t *new_node);
-int32_t unlink_fs(uint8_t *name);
-int32_t rm_fs(fs_node_t *file);
-int32_t rmdir_fs(fs_node_t *file);
-int32_t rfrm_fs(fs_node_t *file);
-int32_t chown_fs(fs_node_t *file, uint32_t owner, uint32_t group);
-int32_t stat_fs(fs_node_t *file, struct stat *st);
-
-/* Mounting */
-int32_t mount_fs(uint8_t *mountpoint, fs_node_t *to_mount);
-int32_t umount_fs(uint8_t *mountpoint);
-bool check_mounted(uint8_t *mountpoint);
-
-/* Get the path name of a node */
-uint8_t *get_full_name(fs_node_t *file);
-
-/* Open an fs node */
-void open_file_fs(fs_node_t *file, fs_node_t *parent);
-
-/* Add a VFS node to dev */
-void add_dev_node(fs_node_t *file);
-
-/* Open a dev node */
-void dev_open(fs_node_t *file);
-
-/* Initialize the VFS */
-void init_vfs();
+inode_t *vfs_open(uint8_t *path);
+void vfs_close(inode_t *node);
+uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
+uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
+list_t vfs_readdir(inode_t *dir);
+inode_t *vfs_finddir(inode_t *dir, uint8_t *name); 
+void vfs_link(inode_t *node, uint8_t *newpath);
+void vfs_unlink(uint8_t *path);
+void vfs_symlink(inode_t *node, uint8_t *newpath);
+void vfs_rename(uint8_t *oldpath, uint8_t *newpath);
 
 #endif

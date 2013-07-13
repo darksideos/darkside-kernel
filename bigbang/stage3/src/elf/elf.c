@@ -37,12 +37,9 @@ void elf_load_executable(elf_header_t *header)
 			/* If the mem size is bigger than the file size, fill the extra space with zeroes */
 			if(program_header->mem_size > program_header->file_size)
 			{
-				kprintf("It overflowed, so using memset\n");
 				memset(program_header->virtual_address + program_header->file_size, 0, program_header->mem_size - program_header->file_size);
 			}
 			
-			kprintf("Copying data\n");
-			kprintf("%08X %08X %08X\n", program_header->virtual_address, ((unsigned char*) header) + program_header->offset, program_header->file_size);
 			memcpy(program_header->virtual_address, ((unsigned char*) header) + program_header->offset, program_header->file_size);
 			
 			/* In the bootloader version, since the memory at 0x100000 is already free, we don't use pmm_alloc_page() */
