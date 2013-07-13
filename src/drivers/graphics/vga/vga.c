@@ -1,7 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libc/string.h>
 #include <hal/i386/ports.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/stream.h>
 #include <drivers/graphics/vga.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
@@ -24,13 +24,13 @@ void scroll()
         temp = csr_y - 25 + 1;
         memcpy(textmemptr, textmemptr + temp * 80, (25 - temp) * 80 * 2);
 
-        /* Finally, we set the chunk of memory that occupies the last line of text to our 'blank' int8_tacter */
+        /* Finally, we set the chunk of memory that occupies the last line of text to our 'blank' character */
         memsetw(textmemptr + (25 - temp) * 80, blank, 80);
         csr_y = 25 - 1;
     }
 }
 
-/* Updates the hardware cursor: the little blinking line on the screen under the last int8_tacter pressed! */
+/* Updates the hardware cursor: the little blinking line on the screen under the last character pressed! */
 void move_csr()
 {
     unsigned temp;
@@ -67,7 +67,7 @@ void clear()
     move_csr();
 }
 
-/* Puts a single int8_tacter on the screen */
+/* Puts a single character on the screen */
 void putch(uint8_t c)
 {
     uint16_t *where;
@@ -100,7 +100,7 @@ void putch(uint8_t c)
         csr_x = 0;
         csr_y++;
     }
-    /* Any int8_tacter greater than and including a space, is a printable int8_tacter */
+    /* Any character greater than and including a space, is a printable character */
     else if(c >= ' ')
     {
         where = textmemptr + (csr_y * 80 + csr_x);
@@ -139,34 +139,44 @@ void error_puts(uint8_t *text)
 	attrib = old_attrib;
 }
 
-void screen_write(fs_node_t *file, uint8_t *text, uint32_t size)
+/* Write to the screen */
+uint32_t vga_write(uint8_t *buffer, uint32_t length)
 {
-	int32_t i;
-	for (i = 0; i < size; i++)
+	int32_t index;
+	
+	for (index = 0; index < length; index++)
 	{
-		putch(text[i]);
+		putch(buffer[index]);
 	}
 }
 
-void error_screen_write(fs_node_t *file, uint8_t *text, uint32_t size)
+/* Write an error to the screen */
+uint32_t vga_write_error(uint8_t *buffer, uint32_t length)
 {
 	uint8_t old_attrib = attrib;
 	settextcolor(VGA_COLOR_RED, VGA_COLOR_BLACK);
-	screen_write(file, text, size);
+	
+	int32_t index;
+	
+	for (index = 0; index < length; index++)
+	{
+		putch(buffer[index]);
+	}
+	
 	attrib = old_attrib;
 }
 
+/* Set the text color */
 void settextcolor(uint8_t forecolor, uint8_t backcolor)
 {
     attrib = (backcolor << 4) | (forecolor & 0x0F);
 }
 
+/* Initialize the text mode driver */
 void init_text_mode(uint8_t forecolor, uint8_t backcolor)
 {
-	/* Set the address of our VGA framebuffer */
     textmemptr = (uint16_t*) 0xB8000;
 
-	/* Set the text color and clear the screen */
 	settextcolor(forecolor, backcolor);
     clear();
 }

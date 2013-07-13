@@ -21,7 +21,7 @@ _start:
 	 * All stacks grow down; decrement then store
 	 *
 	 * Stack addresses are stored in the stack pointers as
-	 * 0x80000000+address, as this means the stack pointer doesn't have
+	 * 0x80000000+address, as this means the stack pointer does not have
 	 * to change when the MMU is turned on (before the MMU is on, accesses
 	 * to 0x80000000 go to 0x00000000, and so on). Eventually, the stacks
 	 * will be given a proper home
@@ -57,4 +57,3 @@ _start:
 
 	/* Jump to memory map initialisation code */
 	b initsys
-
