@@ -7,16 +7,17 @@
 typedef struct list
 {
 	void *data;
-	unsigned itemsz;
-	unsigned nitems;
+	uint32_t itemsz;
+	uint32_t nitems;
 } list_t;
 
-/* Create, destroy, append an item to, remove an item from, and get and set an item in a list */
+/* List functions */
 list_t list_create(unsigned itemsz, unsigned nitems);
 void list_destroy(list_t list);
 uint32_t list_append(list_t list, void *value);
 void list_remove(list_t list, uint32_t index);
 void *list_get(list_t list, uint32_t index);
 void list_set(list_t list, uint32_t index, void *value);
+uint32_t list_length(list_t list);
 
 #endif
