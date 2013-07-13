@@ -4,6 +4,7 @@
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
 #include <kernel/device/dev.h>
+#include <kernel/vfs/stat.h>
 
 struct inode;
 
@@ -82,8 +83,11 @@ typedef struct inode
 
 	/* Inode information */
 	uint64_t size;
-	int32_t mode, nlink, uid, gid;
-	uint64_t atime, mtime, ctime;
+	mode_t mode;
+	nlink_t nlink;
+	uid_t uid;
+	gid_t gid;
+	time_t atime, mtime, ctime;
 
 	/* Write buffer */
 	uint8_t *write_buffer;
