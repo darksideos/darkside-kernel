@@ -29,7 +29,7 @@ typedef struct filesystem
 	list_t (*readdir)(struct filesystem *fs, struct inode *dir);
 
 	/* Get an inode by name, returning -1 if the directory entry doesn't exist */
-	int (*finddir)(struct filesystem *fs, struct inode *dir, uint8_t *name);
+	int (*finddir)(struct filesystem *fs, struct inode *dir, uint8_t *name, struct inode *node);
 
 	/* Create a new directory entry to an inode, returning -1 on failure */
 	int32_t (*link)(struct filesystem *fs, struct inode *node, uint8_t *newpath);
