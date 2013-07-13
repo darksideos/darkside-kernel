@@ -14,7 +14,8 @@ extern unsigned int *pd;
 void main(os_info_x86_t *os_info_x86)
 {
 	init_text_mode(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-	
+
+	kprintf("Value: %08X\n", floor((unsigned long long) 10, (unsigned long long) 3));
 	os_info_t *os_info = kmalloc(sizeof(os_info_t));
 	
 	/* Translate the memory map */
