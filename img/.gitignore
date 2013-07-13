@@ -2,3 +2,4 @@
 *.elf
 *.o
 *.s
+map.txt

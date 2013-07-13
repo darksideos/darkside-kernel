@@ -3,7 +3,7 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
 #include <kernel/mm/heap.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 #include <drivers/input/ps2/keyboard.h>
 #include <drivers/graphics/vga.h>
 

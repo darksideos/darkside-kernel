@@ -2,7 +2,7 @@
 #define __FILE_H
 
 #include <lib/libc/stdint.h>
-#include <kernel/vfs/vfs.h>
+#include <kernel/vfs/old/vfs.h>
 
 /* Kernel mode file syscall implementations */
 int32_t create(const int8_t *name, int32_t mode);
