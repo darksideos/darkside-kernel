@@ -4,66 +4,66 @@
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/file.h>
 
-/* Generic way to open a stream using a VFS node */
-int32_t stream_generic_open(stream_t *stream, fs_node_t *file)
+/* Generic way to open a file using a VFS node */
+int32_t file_generic_open(file_t *file, fs_node_t *file)
 {
 	/* Fill out it's read and seek function pointers */
-	stream->read = file->read;
-	stream->write = file->write;
-	stream->seek = file->seek;
+	file->read = file->read;
+	file->write = file->write;
+	file->seek = file->seek;
 
 	return 0;
 }
 
-/* Generic function to close a stream */
-int32_t stream_generic_close(stream_t *stream)
+/* Generic function to close a file */
+int32_t file_generic_close(file_t *file)
 {
-	/* Destroy the stream */
-	kfree(stream);
+	/* Destroy the file */
+	kfree(file);
 
 	return 0;
 }
 
-/* Create a stream */
-stream_t *stream_create()
+/* Create a file */
+file_t *file_create()
 {
-	/* Create an input stream and make sure it's 0 */
-	stream_t *stream = (stream_t*) kmalloc(sizeof(stream_t));
-	memset(stream, 0, sizeof(stream_t));
+	/* Create an input file and make sure it's 0 */
+	file_t *file = (file_t*) kmalloc(sizeof(file_t));
+	memset(file, 0, sizeof(file_t));
 
 	/* Fill out its open and close function pointers */
-	stream->open = &stream_generic_open;
-	stream->close = &stream_generic_close;
+	file->open = &file_generic_open;
+	file->close = &file_generic_close;
 
-	return stream;
+	return file;
 }
 
-/* Open a stream */
-int32_t stream_open(stream_t *stream, fs_node_t *file)
+/* Open a file */
+int32_t file_open(file_t *file, fs_node_t *file)
 {
-	return stream->open(stream, file);
+	return file->open(file, file);
 }
 
-/* Close a stream */
-int32_t stream_close(stream_t *stream)
+/* Close a file */
+int32_t file_close(file_t *file)
 {
-	return stream->close(stream);
+	return file->close(file);
 }
 
-/* Read from a stream */
-uint32_t stream_read(stream_t *stream, uint8_t *buffer, uint32_t length)
+/* Read from a file */
+uint32_t file_read(file_t *file, uint8_t *buffer, uint32_t length)
 {
-	return stream->read(stream, buffer, length);
+	return file->read(file, buffer, length);
 }
 
-/* Write to a stream */
-uint32_t stream_write(stream_t *stream, uint8_t *buffer, uint32_t length)
+/* Write to a file */
+uint32_t file_write(file_t *file, uint8_t *buffer, uint32_t length)
 {
-	return stream->write(stream, buffer, length);
+	return file->write(file, buffer, length);
 }
 
-/* Seek a stream */
-int32_t stream_seek(stream_t *stream, uint32_t offset, int32_t origin)
+/* Seek a file */
+int32_t file_seek(file_t *file, uint32_t offset, int32_t origin)
 {
-	return stream->seek(stream, offset, origin);
+	return file->seek(file, offset, origin);
 }

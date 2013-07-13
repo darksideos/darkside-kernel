@@ -7,9 +7,9 @@
 typedef uint32_t dev_t;
 
 /* Manipulate device IDs */
-#define MAKEDEV(unsigned major, unsigned minor) (((major & 0xFFFF) << 16) | (minor & 0xFFFF))
-#define MAJOR(dev_t id) ((id >> 16) & 0xFFFF)
-#define MINOR(dev_t id) (id & 0xFFFF)
+#define MAKEDEV(major, minor) (((major & 0xFFFF) << 16) | (minor & 0xFFFF))
+#define MAJOR(id) ((id >> 16) & 0xFFFF)
+#define MINOR(id) (id & 0xFFFF)
 
 /* Block device structure */
 typedef struct blockdev
@@ -31,7 +31,7 @@ typedef struct blockdev
 } blockdev_t;
 
 /* Create, destroy, initialize, read from, and write to a block device structure */
-blockdev *blockdev_create();
+blockdev_t *blockdev_create();
 void blockdev_destroy(blockdev_t *blockdev);
 void blockdev_init(blockdev_t *blockdev);
 uint64_t blockdev_read(blockdev_t *blockdev, uint8_t *buffer, uint64_t offset, uint64_t length);
