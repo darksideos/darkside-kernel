@@ -1,8 +1,7 @@
 #ifndef __PMM_H
 #define __PMM_H
 
-#include <lib/libc/stdint.h>
-#include <hal/i386/vmm.h>
+#include <lib/libc/types.h>
 #include <kernel/mm/address_space.h>
 #include <kernel/init/os_info.h>
 

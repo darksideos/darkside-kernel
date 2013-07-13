@@ -1,7 +1,7 @@
 #ifndef __MMIO_H
 #define __MMIO_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Byte MMIO */
 uint8_t inmemb(uint32_t address);

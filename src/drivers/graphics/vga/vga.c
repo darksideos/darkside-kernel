@@ -1,7 +1,6 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <hal/i386/ports.h>
-#include <kernel/vfs/stream.h>
 #include <drivers/graphics/vga.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
@@ -136,33 +135,6 @@ void error_puts(uint8_t *text)
 	uint8_t old_attrib = attrib;
 	settextcolor(VGA_COLOR_RED, VGA_COLOR_BLACK);
 	puts(text);
-	attrib = old_attrib;
-}
-
-/* Write to the screen */
-uint32_t vga_write(uint8_t *buffer, uint32_t length)
-{
-	int32_t index;
-	
-	for (index = 0; index < length; index++)
-	{
-		putch(buffer[index]);
-	}
-}
-
-/* Write an error to the screen */
-uint32_t vga_write_error(uint8_t *buffer, uint32_t length)
-{
-	uint8_t old_attrib = attrib;
-	settextcolor(VGA_COLOR_RED, VGA_COLOR_BLACK);
-	
-	int32_t index;
-	
-	for (index = 0; index < length; index++)
-	{
-		putch(buffer[index]);
-	}
-	
 	attrib = old_attrib;
 }
 

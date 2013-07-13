@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/math.h>
 
 extern uint64_t __udivdi3(uint64_t num, uint64_t div);

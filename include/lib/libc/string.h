@@ -1,8 +1,7 @@
 #ifndef __STRING_H
 #define __STRING_H
 
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libc/types.h>
 
 /* Memory functions */
 uint8_t *memcpy(void *dest, void *src, int32_t count);

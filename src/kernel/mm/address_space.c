@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/address_space.h>
 

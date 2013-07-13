@@ -1,6 +1,7 @@
 #ifndef __DISK_H
 #define __DISK_H
 
+#include <lib/libc/types.h>
 #include <kernel/device/dev.h>
 
 struct partition;

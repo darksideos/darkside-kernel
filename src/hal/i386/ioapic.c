@@ -1,5 +1,4 @@
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libc/types.h>
 #include <hal/i386/ioapic.h>
 
 /* The I/O APIC base address */

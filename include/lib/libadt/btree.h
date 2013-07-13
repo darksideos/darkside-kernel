@@ -1,8 +1,7 @@
 #ifndef __BTREE_H
 #define __BTREE_H
 
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libc/types.h>
 
 /* Define a predicate */
 typedef bool (*predicate_t)(void *a, void *b);

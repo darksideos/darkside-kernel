@@ -1,9 +1,7 @@
 #include <kernel/init/hal.h>
+#include <kernel/init/os_info.h>
 #include <kernel/mm/heap.h>
 #include <drivers/graphics/vga.h>
-#include <lib/libc/stdint.h>
-#include <lib/libc/string.h>
-#include <kernel/init/os_info.h>
 
 void kernel_main(os_info_t *os_info)
 {

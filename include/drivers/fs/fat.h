@@ -1,7 +1,7 @@
 #ifndef __FAT_H
 #define __FAT_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 typedef struct fat_extBS_32
 {

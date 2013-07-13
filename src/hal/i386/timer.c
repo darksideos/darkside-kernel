@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <hal/i386/pit.h>
 #include <hal/i386/lapic.h>
 #include <hal/i386/timer.h>

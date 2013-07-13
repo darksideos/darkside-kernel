@@ -1,7 +1,7 @@
 #ifndef __MBR_H
 #define __MBR_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* MBR partition table entry structure */
 typedef struct mbr_partition_entry

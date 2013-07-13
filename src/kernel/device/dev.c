@@ -1,7 +1,8 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
+#include <kernel/vfs/stat.h>
 
 /* Dev filesystem */
 filesystem_t *vfs_dev;
@@ -160,7 +161,7 @@ void dev_init()
 	vfs_root->gid = 0;
 	vfs_root->atime = vfs_root->mtime = vfs_root->ctime = 0;
 
-	/* Fill out its information */
+	/* Fill out the dev filesystem's information */
 	vfs_dev->root = root;
 	vfs_dev->partition = 0;
 	vfs_dev->data = 0;
@@ -177,4 +178,5 @@ void dev_init()
 	vfs_dev->ioctl = &dev_ioctl;
 
 	/* Register the dev filesystem */
+	register_filesystem(vfs_dev, "devfs");
 }
