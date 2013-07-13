@@ -70,8 +70,8 @@ typedef struct mountpoint
 /* Inode structure */
 typedef struct inode
 {
-	/* Mountpoint the inode resides on */
-	mountpoint_t *mountpoint;
+	/* Filesystem the inode resides on */
+	filesystem_t *fs;
 
 	/* Inode type */
 	int32_t type;
@@ -106,6 +106,14 @@ typedef struct dirent
 	inode_t *inode;
 } dirent_t;
 
+/* Register and unregister a filesystem */
+int32_t register_filesystem(filesystem_t *fs, uint8_t *name);
+int32_t unregister_filesystem(uint8_t *name);
+
+/* Mount and unmount a filesystem */
+int32_t vfs_mount(uint8_t *name, inode_t *node);
+int32_t vfs_unmount(inode_t *node);
+
 /* VFS functions */
 inode_t *vfs_open(uint8_t *path);
 void vfs_close(inode_t *node);
@@ -117,5 +125,6 @@ void vfs_link(inode_t *node, uint8_t *newpath);
 void vfs_unlink(uint8_t *path);
 void vfs_symlink(inode_t *node, uint8_t *newpath);
 void vfs_rename(uint8_t *oldpath, uint8_t *newpath);
+int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t length);
 
 #endif

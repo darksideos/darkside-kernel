@@ -57,25 +57,14 @@ int32_t blockdev_ioctl(blockdev_t *blockdev, int32_t request, uint8_t *buffer, u
 /* Register a block device */
 void register_blockdev(blockdev_t *blockdev, uint8_t *name)
 {
-	/* Allocate space to hold the full filename */
-	uint8_t *path = (uint8_t*) kmalloc(5 + strlen(name) + 1);
-
-	/* Copy the null terminated string '/dev' into the path */
-	strcpy(path, "/dev/");
-
-	/* Concatenate the path with the name of the new dev node */
-	strcat(path, name);
-
 	/* Create a new dev node for the block device */
 	inode_t *node = (inode_t*) kmalloc(sizeof(inode_t));
-	int result = vfs_dev->mknod(vfs_dev, path, S_IFBLK | S_IWUSR | S_IWGRP, blockdev->id, inode);
+	int result = vfs_dev->mknod(vfs_dev, name, S_IFBLK | S_IFBLK | S_IWUSR | S_IWGRP, blockdev->id, inode);
 
 	if (result == -1)
 	{
-		log("Failed to register block device");
+		log("Failed to register block device (unable to create inode for device)");
 	}
-
-	/* Fill out the mountpoint for the device */
 
 	/* Set the inode specific data to the block device */
 	node->data = (void*) blockdev;
@@ -91,29 +80,23 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 	if (result == -1)
 	{
 		log("Failed to unregister block device (unable to find dev entry)");
+		return;
 	}
 
 	/* Make sure it matches with the block device */
 	if (node->data == blockdev && node->id == blockdev->id)
 	{
-		/* Allocate space to hold the full filename */
-		uint8_t *path = (uint8_t*) kmalloc(5 + strlen(name) + 1);
-
-		/* Copy the null terminated string '/dev' into the path */
-		strcpy(path, "/dev/");
-
-		/* Concatenate the path with the name of the new dev node */
-		strcat(path, name);
-
 		/* Unlink the node from the dev directory */
-		result = vfs_dev->unlink(vfs_dev, path);
+		result = vfs_dev->unlink(vfs_dev, name);
 		if (result == -1)
 		{
 			log("Failed to unregister block device (unable to unlink inode)");
+			return;
 		}
 	}
 
 	log("Failed to unregister block device (inode and block device do not match)");
+}
 
 /* Read from a device in dev */
 uint64_t dev_read(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
@@ -171,7 +154,7 @@ void dev_init()
 	root->parent = 0;
 
 	vfs_root->size = 0;
-	vfs_root->mode = 0777;
+	vfs_root->mode = S_IRWXU | S_IRWXG | S_IRWXO;
 	vfs_root->nlink = 0;
 	vfs_root->uid = 0;
 	vfs_root->gid = 0;
