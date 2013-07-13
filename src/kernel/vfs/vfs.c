@@ -7,7 +7,7 @@
 /* Filesystems and mountpoints */
 list_t filesystems, mountpoints;
 
-/* Root and dev of the VFS */
+/* Root of the VFS */
 inode_t *vfs_root;
 
 /* Register a filesystem */
@@ -21,46 +21,104 @@ inode_t *vfs_root;
 /* Open a file */
 inode_t *vfs_open(uint8_t *path)
 {
+	/* Begin at the root of the VFS */
+	inode_t *node = vfs_root;
+
+	/* If we found the node, increment its open count and return */
+	if (node)
+	{
+		node->handles++;
+		return node;
+	}
 }
 
 /* Close a file */
 void vfs_close(inode_t *node)
 {
+	if (node->handles > 0)
+	{
+		node->handles--;
+	}
 }
 
 /* Read data from a file */
 uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
+	if (node->type != INODE_TYPE_DIR)
+	{
+		return node->mountpoint->fs->read(node->mountpoint->fs, node, buffer, offset, length);
+	}
+
+	return 0;
 }
 
 /* Write data to a file */
 uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
+	if (node->type != INODE_TYPE_DIR)
+	{
+		return node->mountpoint->fs->write(node->mountpoint->fs, node, buffer, offset, length);
+	}
+
+	return 0;
 }
 
 /* Return a list of directory entries in a directory */
-list_t vfs_readdir(inode_t *node)
+list_t vfs_readdir(inode_t *dir)
 {
+	if (node->type == INODE_TYPE_DIR)
+	{
+		return node->mountpoint->fs->readdir(node->mountpoint->fs, dir);
+	}
+}
+
+/* Return an inode by name */
+inode_t *vfs_finddir(inode_t *dir, uint8_t *name)
+{
+	if (node->type == INODE_TYPE_DIR)
+	{
+		return node->mountpoint->fs->finddir(node->mountpoint->fs, dir, name);
+	}
+
+	return 0;
 }
 
 /* Create a new directory entry to a file */
-void vfs_link(inode_t *node, uint8_t *newpath)
+int32_t vfs_link(inode_t *node, uint8_t *newpath)
 {
+	if (node->type != INODE_TYPE_DIR)
+	{
+		return node->mountpoint->fs->link(node->mountpoint->fs, node, newpath);
+	}
 }
 
 /* Remove a directory entry */
-void vfs_unlink(uint8_t *path)
+int32_t vfs_unlink(uint8_t *path)
 {
+	return node->mountpoint->fs->unlink(node->mountpoint->fs, path);
 }
 
 /* Create a new symbolic link to a file */
-void vfs_symlink(inode_t *node, uint8_t *newpath)
+int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
 {
+	return node->mountpoint->fs->symlink(node->mountpoint->fs, node, newpath);
 }
 
 /* Rename a directory entry */
-void vfs_rename(uint8_t *oldpath, uint8_t *newpath)
+int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath)
 {
+	return node->mountpoint->fs->rename(node->mountpoint->fs, oldpath, newpath);
+}
+
+/* Issue a device specific request */
+int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t length)
+{
+	if (node->mountpoint->fs->ioctl)
+	{
+		return node->mountpoint->fs->ioctl(node->mountpoint->fs, node, request, buffer, length);
+	}
+
+	return -1;
 }
 
 /* Initialize the VFS */
@@ -73,6 +131,7 @@ void init_vfs()
 	vfs_root->mountpoint = 0;
 	vfs_root->type = INODE_TYPE_DIR;
 	vfs_root->parent = 0;
+	vfs_root->children = list_create(sizeof(inode_t), 4);
 
 	vfs_root->size = 0;
 	vfs_root->mode = 0777;

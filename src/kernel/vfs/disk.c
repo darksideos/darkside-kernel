@@ -4,6 +4,7 @@
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/disk.h>
+#include <kernel/vfs/mbr.h>
 
 /* Create a disk structure */
 disk_t *disk_create()
