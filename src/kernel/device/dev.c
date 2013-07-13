@@ -6,16 +6,6 @@
 /* Dev filesystem */
 filesystem_t *vfs_dev;
 
-/* Dev filesystem structure */
-typedef struct dev_filesystem
-{
-	/* Block devices */
-	blockdev_t **blockdevs;
-	uint32_t num_blockdevs;
-
-	/* Character devices */
-} dev_filesystem_t;
-
 /* Create a block device structure */
 blockdev_t *blockdev_create()
 {
@@ -64,30 +54,18 @@ int32_t blockdev_ioctl(blockdev_t *blockdev, int32_t request, uint8_t *buffer, u
 	return blockdev->ioctl(blockdev, request, buffer, length);
 }
 
+/* Register a block device */
+void register_blockdev(blockdev_t *blockdev, uint8_t *name)
+
 /* Read from a device in dev */
 uint64_t dev_read(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
-	/* Cast the filesystem specific data to a dev filesystem */
-	dev_filesystem_t *dev = (dev_filesystem_t*) vfs_dev->data;
-
-	/* Get the device ID */
-	dev_t id = (dev_t) node->data;
-
 	/* Block device */
 	if (inode->type == INODE_TYPE_BLOCKDEV)
 	{
-		/* Find which device corresponds to the inode */
-		uint32_t devnum;
-		for (devnum = 0; devnum < dev->num_blockdevs; devnum++)
-		{
-			if (dev->blockdevs[devnum]->id == id)
-			{
-				blockdev_t *blockdev = dev->blocksdevs[devnum;
-				return blockdev->read(blockdev, buffer, offset, length);
-			}
-		}
-
-		return 0;
+		/* Cast the inode specific data to a block device and read from it */
+		blockdev_t *blockdev = (blockdev_t*) node->data;
+		return blockdev->read(blockdev, buffer, offset, length);
 	}
 
 	return 0;
@@ -96,59 +74,29 @@ uint64_t dev_read(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t off
 /* Write to a device in dev */
 uint64_t dev_write(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
-	/* Cast the filesystem specific data to a dev filesystem */
-	dev_filesystem_t *dev = (dev_filesystem_t*) vfs_dev->data;
-
-	/* Get the device ID */
-	dev_t id = (dev_t) node->data;
-
 	/* Block device */
 	if (inode->type == INODE_TYPE_BLOCKDEV)
 	{
-		/* Find which device corresponds to the inode */
-		uint32_t devnum;
-		for (devnum = 0; devnum < dev->num_blockdevs; devnum++)
-		{
-			if (dev->blockdevs[devnum]->id == id)
-			{
-				blockdev_t *blockdev = dev->blocksdevs[devnum;
-				return blockdev->write(blockdev, buffer, offset, length);
-			}
-		}
-
-		return 0;
+		/* Cast the inode specific data to a block device and write to it */
+		blockdev_t *blockdev = (blockdev_t*) node->data;
+		return blockdev->write(blockdev, buffer, offset, length);
 	}
 
 	return 0;
 }
 
-/* Write to a device in dev */
-uint64_t dev_ioctl(filesystem_t *fs, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
+/* Issue a device specfic request to a node in dev */
+int32_t dev_ioctl(filesystem_t *fs, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
 {
-	/* Cast the filesystem specific data to a dev filesystem */
-	dev_filesystem_t *dev = (dev_filesystem_t*) vfs_dev->data;
-
-	/* Get the device ID */
-	dev_t id = (dev_t) node->data;
-
 	/* Block device */
 	if (inode->type == INODE_TYPE_BLOCKDEV)
 	{
-		/* Find which device corresponds to the inode */
-		uint32_t devnum;
-		for (devnum = 0; devnum < dev->num_blockdevs; devnum++)
-		{
-			if (dev->blockdevs[devnum]->id == id)
-			{
-				blockdev_t *blockdev = dev->blocksdevs[devnum;
-				return blockdev->ioctl(blockdev, request, buffer, length);
-			}
-		}
-
-		return 0;
+		/* Cast the inode specific data to a block device and issue the request */
+		blockdev_t *blockdev = (blockdev_t*) node->data;
+		return blockdev->ioctl(blockdev, request, buffer, length);
 	}
 
-	return 0;
+	return -1;
 }
 
 /* Initialize dev */
@@ -171,16 +119,10 @@ void dev_init()
 	vfs_root->gid = 0;
 	vfs_root->atime = vfs_root->mtime = vfs_root->ctime = 0;
 
-	/* Create the dev filesystem specific structure and fill out its information */
-	dev_filesystem_t *dev = (dev_filesystem_t*) kmalloc(sizeof(dev_filesystem_t));
-	
-	dev->blockdevs = (blockdev_t**) kmalloc(sizeof(blockdev_t) * 64);
-	memset(dev->blockdevs, 0, sizeof(blockdev_t) * 64);
-
 	/* Fill out its information */
-	vfs_dev->root = dev;
+	vfs_dev->root = root;
 	vfs_dev->partition = 0;
-	vfs_dev->data = (void*) dev;
+	vfs_dev->data = 0;
 
 	vfs_dev->read = &dev_read;
 	vfs_dev->write = &dev_write;
