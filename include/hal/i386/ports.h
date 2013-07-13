@@ -1,7 +1,7 @@
 #ifndef __PORTS_H
 #define __PORTS_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Byte Port I/O */
 uint8_t inportb(uint32_t port);

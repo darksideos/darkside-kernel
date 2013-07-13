@@ -1,7 +1,7 @@
 #ifndef __ATA_H
 #define __ATA_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Read and write sectors from and to an ATA drive in PIO mode */
 uint8_t *lba28_sector_read_pio(uint8_t drive, uint32_t addr, uint32_t numsectors);

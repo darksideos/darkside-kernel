@@ -1,7 +1,7 @@
 #ifndef __INITRD_H
 #define __INITRD_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/modules/multiboot.h>
 #include <kernel/vfs/old/vfs.h>
 

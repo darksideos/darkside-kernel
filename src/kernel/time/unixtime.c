@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/time/ostime.h>
 #include <kernel/time/unixtime.h>
 

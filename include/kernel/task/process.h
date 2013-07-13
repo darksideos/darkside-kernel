@@ -1,8 +1,7 @@
 #ifndef __PROCESS_H
 #define __PROCESS_H
 
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libc/types.h>
 #include <kernel/ipc/signal.h>
 #include <kernel/task/thread.h>
 #include <kernel/vfs/old/vfs.h>

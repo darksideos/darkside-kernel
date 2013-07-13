@@ -1,7 +1,7 @@
 #ifndef __TIMER_H
 #define __TIMER_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Get the number of elapsed seconds since boot */
 uint32_t get_time();

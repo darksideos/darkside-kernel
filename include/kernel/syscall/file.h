@@ -1,7 +1,7 @@
 #ifndef __FILE_H
 #define __FILE_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/vfs/old/vfs.h>
 
 /* Kernel mode file syscall implementations */

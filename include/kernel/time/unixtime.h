@@ -1,7 +1,7 @@
 #ifndef __UNIX_H
 #define __UNIX_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/time/ostime.h>
 
 /* The epoch */

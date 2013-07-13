@@ -1,7 +1,7 @@
 #ifndef __ADDRESS_SPACE_H
 #define __ADDRESS_SPACE_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 extern uint32_t end;
 

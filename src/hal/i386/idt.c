@@ -1,7 +1,24 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <hal/i386/idt.h>
 #include <kernel/console/log.h>
+
+/* IDT entry structure */
+struct idt_entry
+{
+    uint16_t base_lo;
+    uint16_t sel;
+    uint8_t always0;
+    uint8_t flags;
+    uint16_t base_hi;
+} __attribute__((packed));
+
+/* IDT pointer structure */
+struct idt_ptr
+{
+    uint16_t limit;
+    uint32_t base;
+} __attribute__((packed));
 
 /* IDT and IDT Pointer */
 struct idt_entry idt[256];

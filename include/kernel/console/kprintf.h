@@ -1,7 +1,7 @@
 #ifndef __KPRINTF_H
 #define __KPRINTF_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/stdarg.h>
 
 /* Create formatted data and place it in a buffer */

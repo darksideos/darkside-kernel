@@ -1,11 +1,12 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/isrs.h>
 #include <hal/i386/irq.h>
 #include <kernel/mm/heap.h>
-#include <kernel/vfs/old/vfs.h>
 #include <drivers/input/ps2/keyboard.h>
-#include <drivers/graphics/vga.h>
+
+/* Function prototype */
+void set_leds(uint8_t state);
 
 uint8_t kbdus[128] = 
 {
@@ -96,7 +97,7 @@ volatile unsigned function = 0;
 volatile unsigned fn[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* The current key in the buffer */
-volatile uint8_t key_int8_t;
+volatile uint8_t key_char;
 
 /* Handle the keyboard interrupt */
 void keyboard_handler(struct i386_regs *r)
@@ -152,20 +153,20 @@ void keyboard_handler(struct i386_regs *r)
 			{
 				if (caps_lock)
 				{
-					key_int8_t = kbdus[scancode];
+					key_char = kbdus[scancode];
 				}
 				else
 				{
-					key_int8_t = kbdus_shift[scancode];
+					key_char = kbdus_shift[scancode];
 				}
 			}
 			else if (caps_lock)
 			{
-				key_int8_t = kbdus_shift[scancode];
+				key_char = kbdus_shift[scancode];
 			}
 			else
 			{
-				key_int8_t = kbdus[scancode];
+				key_char = kbdus[scancode];
 			}
 		}
 	}
@@ -177,68 +178,14 @@ uint8_t getch()
 	volatile uint8_t result = 0;
 
 	do {
-		result = key_int8_t;
+		result = key_char;
 		if (result != 0)
 		{
 			putch(result);
-			key_int8_t = 0;
+			key_char = 0;
 			return result;
 		}
 	} while(1);
-}
-
-/* Get a string from the keyboard */
-uint8_t *gets()
-{
-	uint8_t *str = (uint8_t*) kmalloc(64);
-	uint32_t buffer_length = 64;
-	uint32_t num_int8_tacters = 0;
-
-	uint8_t int8_tacter = getch();
-	while (int8_tacter != '\n')
-	{
-		if (int8_tacter != '\b')
-		{
-			*str = int8_tacter;
-			*str++;
-			num_int8_tacters++;
-		}
-		else if(num_int8_tacters != 0)
-		{
-			*str--;
-			num_int8_tacters--;
-		}
-		int8_tacter = getch();
-
-		/* If the buffer is out of space, give it more memory */
-		if (num_int8_tacters == buffer_length - 1)
-		{
-			buffer_length += 16;
-			str = (uint8_t*) krealloc(str - num_int8_tacters, buffer_length);
-		}
-	}
-	*str = '\0';
-	
-	str -= num_int8_tacters;
-
-	/* Finally, resize the buffer to the amount of int8_tacters read and return it */
-	return (uint8_t*) krealloc(str, num_int8_tacters + 1);
-}
-
-/* Read a specified amount of int8_tacters from the keyboard */
-uint8_t *keyboard_read(fs_node_t *file, uint8_t *str, uint32_t size)
-{
-	uint8_t int8_tacter = getch();
-	while (size > 0)
-	{
-		*str = int8_tacter;
-		*str++;
-		size--;
-		int8_tacter = getch();
-	}
-	*str = '\0';
-
-	return str;
 }
 
 /* Set the keyboard LEDs */

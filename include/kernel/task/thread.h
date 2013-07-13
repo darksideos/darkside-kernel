@@ -1,7 +1,7 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/task/process.h>
 
 /* Default size of the user and kernel stack */

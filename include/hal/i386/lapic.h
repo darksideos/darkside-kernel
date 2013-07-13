@@ -1,7 +1,7 @@
 #ifndef __APIC_H
 #define __APIC_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Send an EOI to the Local APIC */
 void lapic_eoi();

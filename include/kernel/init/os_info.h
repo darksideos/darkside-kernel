@@ -15,7 +15,7 @@ typedef struct mem_map_entry
 
 typedef struct os_info
 {
-	mem_map_entry_t* mem_map;
+	mem_map_entry_t *mem_map;
 	unsigned int mem_map_entries;
 } __attribute__ ((packed)) os_info_t;
 

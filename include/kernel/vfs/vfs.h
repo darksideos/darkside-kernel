@@ -1,7 +1,7 @@
 #ifndef __VFS_H
 #define __VFS_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libadt/list.h>
 #include <kernel/device/dev.h>
 

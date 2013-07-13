@@ -1,7 +1,7 @@
 #ifndef __PIC_H
 #define __PIC_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Remap the PIC */
 void pic_remap(uint8_t master_vector, uint8_t slave_vector);

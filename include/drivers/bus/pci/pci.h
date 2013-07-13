@@ -1,7 +1,7 @@
 #ifndef __PCI_H
 #define __PCI_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Read data from the PCI configuration space */
 uint8_t pci_read_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset);

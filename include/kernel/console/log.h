@@ -1,7 +1,7 @@
 #ifndef __LOG_H
 #define __LOG_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Add a log message to the debug console */
 void log(const int8_t *fmt, ...);

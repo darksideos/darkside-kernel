@@ -1,18 +1,7 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/ctype.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
-
-/* THIS IS A RASPI TEMPORARY FIX */
-
-#ifdef __arm__
-
-void* kmalloc(uint32_t sz)
-{
-	return 0;
-}
-
-#endif
 
 uint8_t *memcpy(void *dest, void *src, int32_t count)
 {

@@ -1,7 +1,7 @@
 #ifndef __MSR_H
 #define __MSR_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 #define MSR_IA32_SYSENTER_CS			0x174
 #define MSR_IA32_SYSENTER_ESP			0x175
