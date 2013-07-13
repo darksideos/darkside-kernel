@@ -3,6 +3,7 @@
 
 #include <lib/libc/stdint.h>
 #include <lib/libadt/list.h>
+#include <kernel/device/dev.h>
 
 struct inode;
 
@@ -62,7 +63,7 @@ typedef struct mountpoint
 #define INODE_TYPE_DIR		0x01
 #define INODE_TYPE_CHARDEV	0x02
 #define INODE_TYPE_BLOCKDEV	0x03
-#define INODE_TYPE_PIPE		0x04
+#define INODE_TYPE_FIFO		0x04
 #define INODE_TYPE_SOCKET	0x05
 #define INODE_TYPE_SYMLINK	0x06
 
@@ -89,6 +90,9 @@ typedef struct inode
 
 	/* Number of times the inode is open */
 	unsigned handles;
+
+	/* Device ID for block and character devices */
+	dev_t id;
 
 	/* Inode specific data */
 	void *data;
