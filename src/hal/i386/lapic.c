@@ -66,7 +66,7 @@ void lapic_eoi()
 void lapic_timer_handler(struct i386_regs *r)
 {
 	lapic_timer_ticks++;
-	switch_tasks_roundrobin(r);
+	//switch_tasks_roundrobin(r);
 }
 
 /* Wait for a specified amount of Local APIC timer ticks */

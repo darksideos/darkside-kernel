@@ -17,7 +17,7 @@ void syscalls_install()
 {
 	/* Set up the values of the SYSENTER MSRs */
 	wrmsr(MSR_IA32_SYSENTER_CS, 0x08, 0);
-	wrmsr(MSR_IA32_SYSENTER_ESP, getthread()->kernel_stack, 0);
+	wrmsr(MSR_IA32_SYSENTER_ESP, /*getthread()->kernel_stack*/ 0, 0);
 	wrmsr(MSR_IA32_SYSENTER_EIP, (uint32_t) &kernel_sysenter_entry, 0);
 }
 
