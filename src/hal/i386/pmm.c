@@ -93,23 +93,14 @@ void init_pmm(os_info_t *os_info)
 	for(index = 0; index < os_info->mem_map_entries; index++)
 	{
 		size += os_info->mem_map[index].length;
-		kprintf("size: %08X\n", (unsigned int) size);
 	}
-	
-	/* Test code */
-	for(index = 0; index < os_info->mem_map_entries; index++)
-	{
-		kprintf("Length %08X flags %08X\n", (unsigned int) os_info->mem_map[index].length, os_info->mem_map[index].flags);
-	}
-	kprintf("Total size: %08X\n", (unsigned int) size);
 	
 	index = os_info->mem_map_entries - 1;
-	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && (size < 0x100000000))
+	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && (size <= 0x100000000))
 	{
 		size -= os_info->mem_map[index].length;
 		index--;
 	}
-	kprintf("This is the size: %08X\n", (unsigned int) size);
 	
 	/* Total number of pages in physical memory the PMM manages */
 	num_pmm_pages = ceil(size, 0x1000);
@@ -150,5 +141,5 @@ void init_pmm(os_info_t *os_info)
 	}
 
 	/* Print a log message */
-	log("PMM initialized");
+	log("PMM initialized, bitmap covering 0x%08X pages", num_bitmap_pages);
 }

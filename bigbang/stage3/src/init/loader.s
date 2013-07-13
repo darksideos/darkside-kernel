@@ -8,7 +8,7 @@ global start
 start:
 	cli
 	
-    mov esp, stack 		    ; This points the stack to our new stack area
+    mov esp, stack 					    ; This points the stack to our new stack area
     
     mov eax, pd
     mov ecx, pt_lower
@@ -20,17 +20,17 @@ start:
     push ecx
     push eax
 	
-	push ebx		; Push the OS info structure
+	push ebx							; Push the OS info structure
 	
 	extern load_higherhalf				; Tell NASM that our higher half function is in another file
 	mov ecx, load_higherhalf			; Convert to physical address
-	call ecx   ; Call our higher half function
+	call ecx   							; Jump to our higher half function
 
 eternal:
 	jmp eternal
 
 section .bss
-	resb 4096               ; This reserves 4KBytes of memory here
+	resb 4096           			    ; This reserves 4KBytes of memory here
 stack:
 
 ; Initial page structures
