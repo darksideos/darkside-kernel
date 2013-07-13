@@ -1,18 +1,18 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/task/thread.h>
 
 /* Semaphore and mutex structures */
 typedef struct semaphore
 {
-	uint8_t *name;		// Name of the semaphore
+	uint8_t *name;			// Name of the semaphore
 
 	uint32_t count;			// Current semaphore count
 	uint32_t max_count;		// Maximum semaphore count
 
-	thread_t **owners;			// Semaphore owners
+	thread_t **owners;		// Semaphore owners
 	uint32_t num_owners;	// Number of owners
 } semaphore_t;
 

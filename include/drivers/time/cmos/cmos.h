@@ -1,7 +1,7 @@
 #ifndef __CMOS_H
 #define __CMOS_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Time structure */
 typedef struct time

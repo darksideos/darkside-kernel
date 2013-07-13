@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <hal/i386/lock.h>
 #include <kernel/mm/heap.h>
 

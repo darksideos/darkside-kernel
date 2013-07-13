@@ -1,8 +1,7 @@
 #ifndef __SYSCALL_H
 #define __SYSCALL_H
 
-#include <lib/libc/stdint.h>
-#include <hal/i386/isrs.h>
+#include <lib/libc/types.h>
 
 /* Install syscalls */
 void syscalls_install();

@@ -1,8 +1,8 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
-#include <kernel/vfs/stream.h>
+#include <kernel/vfs/file.h>
 
 /* Generic way to open a stream using a VFS node */
 int32_t stream_generic_open(stream_t *stream, fs_node_t *file)

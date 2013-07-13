@@ -1,8 +1,7 @@
 #ifndef __ISRS_H
 #define __ISRS_H
 
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libc/types.h>
 
 /* The structure of the stack after an interrupt */
 struct i386_regs

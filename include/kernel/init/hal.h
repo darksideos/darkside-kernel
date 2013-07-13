@@ -1,15 +1,14 @@
 #ifndef __HAL_H
 #define __HAL_H
 
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
-#include <kernel/modules/multiboot.h>
+#include <lib/libc/types.h>
+#include <kernel/init/os_info.h>
 
 /* Define spinlock_t */
 typedef uint32_t spinlock_t;
 
 /* HAL main */
-void hal_main(struct multiboot *mboot_ptr);
+void hal_main(os_info_t *os_info);
 
 /* Port I/O */
 uint8_t inportb(uint32_t port);

@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/mm/heap.h>
 #include <kernel/syscall/syscall.h>
 #include <kernel/syscall/file.h>

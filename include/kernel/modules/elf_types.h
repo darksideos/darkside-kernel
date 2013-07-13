@@ -1,7 +1,7 @@
 #ifndef __ELF_TYPES_H
 #define __ELF_TYPES_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 #define ELF_CLASS_32						1
 #define ELF_CLASS_64						2

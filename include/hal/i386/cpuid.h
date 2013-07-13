@@ -1,7 +1,7 @@
 #ifndef __CPUID_H
 #define __CPUID_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Intel CPUID features */
 enum {

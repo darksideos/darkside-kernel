@@ -1,4 +1,4 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <kernel/modules/elf_types.h>
 
 uint8_t *elf_get_symbol_type(uint8_t type)

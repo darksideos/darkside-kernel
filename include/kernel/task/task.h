@@ -1,7 +1,7 @@
 #ifndef __TASK_H
 #define __TASK_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 #define MODE_FLAGS_USER		0x01
 #define MODE_FLAGS_TASKING	0x02

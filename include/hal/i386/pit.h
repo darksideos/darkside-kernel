@@ -1,7 +1,7 @@
 #ifndef __PIT_H
 #define __PIT_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Get the number of elapsed seconds since boot using the PIT */
 uint32_t pit_get_time();

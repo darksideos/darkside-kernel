@@ -1,5 +1,4 @@
-#include <lib/libc/stdint.h>
-#include <lib/libc/stdbool.h>
+#include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <lib/libadt/btree.h>
 #include <kernel/init/hal.h>

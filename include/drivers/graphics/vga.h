@@ -1,8 +1,7 @@
 #ifndef __VGA_H
 #define __VGA_H
 
-#include <lib/libc/stdint.h>
-#include <kernel/vfs/old/vfs.h>
+#include <lib/libc/types.h>
 
 #define VGA_COLOR_BLACK 0x00
 #define VGA_COLOR_BLUE 0x01
@@ -25,8 +24,6 @@ void clear();
 void putch(uint8_t c);
 void puts(uint8_t *str);
 void error_puts(uint8_t *str);
-void screen_write(fs_node_t *file, uint8_t *text, uint32_t size);
-void error_screen_write(fs_node_t *file, uint8_t *text, uint32_t size);
 void settextcolor(uint8_t forecolor, uint8_t backcolor);
 void init_text_mode(uint8_t forecolor, uint8_t backcolor);
 

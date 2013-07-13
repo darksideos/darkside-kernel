@@ -1,9 +1,9 @@
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <kernel/console/console.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/old/vfs.h>
-#include <kernel/vfs/stream.h>
+#include <kernel/vfs/file.h>
 
 ///* Generic function to open a console */
 //int32_t console_generic_open(console_t *console, fs_node_t *in, fs_node_t *out, fs_node_t *err)

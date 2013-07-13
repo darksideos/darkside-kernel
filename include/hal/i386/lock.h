@@ -1,7 +1,7 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* Define spinlock_t */
 typedef uint32_t spinlock_t;

@@ -1,7 +1,7 @@
 #ifndef __LIST_H
 #define __LIST_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
 /* List structure */
 typedef struct list
