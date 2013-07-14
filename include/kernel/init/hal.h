@@ -63,4 +63,7 @@ void switch_cpu_context(void *context);
 /* Syscalls */
 void syscall_install_handler(int32_t syscall, void *handler);
 
+/* Atomic operations */
+uint32_t atomic_compare_and_swap(volatile uint32_t *ptr, uint32_t oldval, uint32_t newval);
+
 #endif
