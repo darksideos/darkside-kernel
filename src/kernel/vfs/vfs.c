@@ -133,6 +133,32 @@ inode_t *vfs_open(uint8_t *path)
 	}
 }
 
+/* Create a file */
+inode_t *vfs_create(uint8_t *path, mode_t mode)
+{
+	/* Try to open the file */
+	inode_t *node = vfs_open(path);
+
+	/* If it suceeded, return the file */
+	if (node)
+	{
+		return node;
+	}
+	/* Otherwise, create it */
+	else
+	{
+		int32_t result = vfs_mknod(path, INODE_TYPE_FILE, 0);
+
+		if (result == 0)
+		{
+			node = vfs_open(path);
+			return node;
+		}
+
+		return 0;
+	}
+}
+
 /* Close a file */
 void vfs_close(inode_t *node)
 {
@@ -203,6 +229,15 @@ int32_t vfs_unlink(uint8_t *path)
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
 {
 	return node->fs->symlink(node->fs, node, newpath);
+}
+
+/* Create a new VFS node at the specified path */
+int32_t vfs_mknod(uint8_t *path, int32_t type, dev_t dev)
+{
+	/* Begin at the root of the VFS */
+	inode_t *node = vfs_root;
+
+	return 0;
 }
 
 /* Rename a directory entry */

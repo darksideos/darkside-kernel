@@ -1,4 +1,5 @@
 #include <lib/libc/types.h>
+#include <kernel/console/log.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
@@ -64,7 +65,7 @@ void register_blockdev(blockdev_t *blockdev, uint8_t *name)
 
 	if (result == -1)
 	{
-		log("Failed to register block device (unable to create inode for device)");
+		panic("Failed to register block device (unable to create inode for device)");
 	}
 
 	/* Set the inode specific data to the block device */
@@ -80,7 +81,7 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 
 	if (result == -1)
 	{
-		log("Failed to unregister block device (unable to find dev entry)");
+		panic("Failed to unregister block device (unable to find dev entry)");
 		return;
 	}
 
@@ -91,12 +92,12 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 		result = vfs_dev->unlink(vfs_dev, name);
 		if (result == -1)
 		{
-			log("Failed to unregister block device (unable to unlink inode)");
+			panic("Failed to unregister block device (unable to unlink inode)");
 			return;
 		}
 	}
 
-	log("Failed to unregister block device (inode and block device do not match)");
+	panic("Failed to unregister block device (inode and block device do not match)");
 }
 
 /* Read from a device in dev */
@@ -150,7 +151,7 @@ void dev_init()
 	/* Create the root of the dev filesystem and fill out its information */
 	inode_t *root = (inode_t*) kmalloc(sizeof(inode_t));
 
-	root->mountpoint = 0;
+	root->filesystem = vfs_dev;
 	root->type = INODE_TYPE_DIR;
 	root->parent = 0;
 

@@ -5,6 +5,13 @@
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/stat.h>
 
+/* File flags */
+#define FILE_READ	0x01
+#define FILE_WRITE	0x02
+#define FILE_RW		(FILE_READ | FILE_WRITE)
+#define FILE_APPEND	0x04
+#define FILE_CREATE	0x08
+
 /* File structure */
 typedef struct file
 {

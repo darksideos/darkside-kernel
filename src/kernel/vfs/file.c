@@ -18,7 +18,27 @@ file_t *file_create()
 /* Open a file */
 int32_t file_open(file_t *file, uint8_t *path, int32_t flags, mode_t mode)
 {
-	return file->open(file, path, flags, mode);
+	/* Try to open the file */
+	inode_t *node = vfs_open(path);
+
+	/* It didn't suceed */
+	if (!node)
+	{
+		/* We can create the file */
+		if (flags & FILE_CREATE)
+		{
+			node = vfs_create(path, mode);
+		}
+		/* We cannot create the file */
+		else
+		{
+			return -1;
+		}
+	}
+
+	/* Set the file structure's information */
+	file->node = node;
+	file->flags = flags;
 }
 
 /* Close a file */
