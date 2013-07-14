@@ -60,7 +60,7 @@ void register_blockdev(blockdev_t *blockdev, uint8_t *name)
 {
 	/* Create a new dev node for the block device */
 	inode_t *node = (inode_t*) kmalloc(sizeof(inode_t));
-	int result = vfs_dev->mknod(vfs_dev, name, S_IFBLK | S_IFBLK | S_IWUSR | S_IWGRP, blockdev->id, inode);
+	int result = vfs_dev->mknod(vfs_dev, name, INODE_TYPE_BLOCKDEV, blockdev->id, inode);
 
 	if (result == -1)
 	{

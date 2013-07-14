@@ -4,9 +4,6 @@
 #include <lib/libc/types.h>
 #include <kernel/init/os_info.h>
 
-/* Define spinlock_t */
-typedef uint32_t spinlock_t;
-
 /* HAL main */
 void hal_main(os_info_t *os_info);
 
@@ -34,8 +31,11 @@ void copy_registers(void *dest, void *src);
 void irq_install_handler(int32_t irq, void *handler);
 void irq_uninstall_handler(int32_t irq);
 
-void cli();
-void sti();
+/* Interrupt state */
+void disable_interrupts();
+void enable_interrupts();
+uint32_t get_interrupt_state();
+void set_interrupt_state(uint32_t state);
 
 /* Timer */
 uint32_t get_time();
@@ -49,24 +49,18 @@ uint32_t pmm_alloc_page();
 void pmm_free_page(uint32_t address);
 
 /* Virtual memory manager */
+uint32_t get_mapping(uint32_t, uint32_t virtual_address);
 void map_page(uint32_t, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user, bool global);
-void unmap_page(uint32_t dir, uint32_t virtual_address);
-void map_kernel(uint32_t dir);
+void unmap_page(uint32_t, uint32_t virtual_address);
 uint32_t create_address_space();
-void switch_address_space(uint32_t dir);
+void switch_address_space(uint32_t);
 uint32_t page_align(uint32_t address);
 
 /* Multitasking */
 void set_kernel_stack(uint32_t stack);
-void task_switch_stub(void *context);
+void switch_cpu_context(void *context);
 
 /* Syscalls */
 void syscall_install_handler(int32_t syscall, void *handler);
-
-/* Spinlocks */
-spinlock_t *create_lock();
-int32_t delete_lock(spinlock_t *lock);
-int32_t acquire_lock(spinlock_t *lock, uint16_t timeout);
-int32_t release_lock(spinlock_t *lock);
 
 #endif
