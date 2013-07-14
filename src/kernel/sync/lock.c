@@ -31,7 +31,7 @@ void spinlock_acquire(spinlock_t *lock)
 	uint32_t interrupts = get_interrupt_state();
 
 	disable_interrupts();
-	while (__sync_bool_compare_and_swap(&lock->value, 0, 1) == 0);
+	while (atomic_compare_and_swap(&lock->value, 0, 1) == 0);
 
 	lock->interrupts = interrupts;
 }
@@ -39,6 +39,6 @@ void spinlock_acquire(spinlock_t *lock)
 /* Release a spinlock */
 void spinlock_release(spinlock_t *lock)
 {
-	while (__sync_bool_compare_and_swap(&lock->value, 1, 0) == 0);
+	while (atomic_compare_and_swap(&lock->value, 1, 0) == 0);
 	set_interrupt_state(lock->interrupts);
 }
