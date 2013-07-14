@@ -26,7 +26,7 @@ void log(const int8_t *fmt, ...)
 
 void panic(const int8_t *fmt, ...)
 {
-	error_kprintf("[ %d ] PANIC ", get_time());
+	error_kprintf("[ %d ] ", get_time());
 	
 	int8_t buf[1024];
 

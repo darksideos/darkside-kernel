@@ -50,7 +50,7 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 	uint64_t bytes_read = blockdev_read(blockdev, &mbr_sig[0], 510, 2);
 	if (bytes_read != 2)
 	{
-		log("Error reading MBR signature from device");
+		panic("Error reading MBR signature from device");
 		return;
 	}
 
@@ -63,24 +63,24 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 		bytes_read = blockdev_read(blockdev, &gpt_sig[0], 512, 8);
 		if (bytes_read != 8)
 		{
-			log("Error reading GPT signature from device");
+			panic("Error reading GPT signature from device");
 			return;
 		}
 
 		/* Check to make sure the signature is "EFI PART" */
 		if (strequal(gpt_sig, "EFI PART"))
 		{
-			log("Device contains a GPT partition table");
+			panic("Device contains a GPT partition table");
 		}
 		else
 		{
-			log("Device contains a MBR partition table");
+			panic("Device contains a MBR partition table");
 			mbr_init_disk(disk);
 		}
 	}
 	else
 	{
-		log("Device contains no valid partition table");
+		panic("Device contains no valid partition table");
 	}
 }
 
