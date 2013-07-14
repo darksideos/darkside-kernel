@@ -19,12 +19,6 @@ volatile process_t **processes;
 volatile uint32_t current_pid = 0;
 volatile uint32_t num_processes = 0;
 
-/* Current page directory */
-extern uint32_t *current_directory;
-
-/* Switch the current CPU context */
-extern void task_switch_stub(void*);
-
 /* Initialize processes */
 void init_processes()
 {
@@ -237,7 +231,7 @@ void switchpid(uint32_t pid, uint32_t tid)
 	set_kernel_stack(processes[pid]->threads[tid]->kernel_stack);
 	
 	/* Finally, switch to the new thread's context */
-	task_switch_stub(new_context);
+	switch_cpu_context(new_context);
 }
 
 /* Return the current PID */
