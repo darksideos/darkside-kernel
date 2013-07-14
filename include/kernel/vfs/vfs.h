@@ -120,15 +120,17 @@ int32_t vfs_unmount(inode_t *node);
 
 /* VFS functions */
 inode_t *vfs_open(uint8_t *path);
+inode_t *vfs_create(uint8_t *path, mode_t mode);
 void vfs_close(inode_t *node);
 uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 list_t vfs_readdir(inode_t *dir);
 inode_t *vfs_finddir(inode_t *dir, uint8_t *name); 
-void vfs_link(inode_t *node, uint8_t *newpath);
-void vfs_unlink(uint8_t *path);
-void vfs_symlink(inode_t *node, uint8_t *newpath);
-void vfs_rename(uint8_t *oldpath, uint8_t *newpath);
+int32_t vfs_link(inode_t *node, uint8_t *newpath);
+int32_t vfs_unlink(uint8_t *path);
+int32_t vfs_symlink(inode_t *node, uint8_t *newpath);
+int32_t vfs_mknod(uint8_t *path, int32_t type, dev_t dev);
+int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath);
 int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t length);
 
 #endif
