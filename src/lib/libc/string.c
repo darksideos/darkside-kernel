@@ -3,29 +3,48 @@
 #include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
 
-uint8_t *memcpy(void *dest, void *src, int32_t count)
+void *memcpy(void *dest, void *src, size_t count)
 {
-    const int8_t *sp = (const int8_t*) src;
-    int8_t *dp = (int8_t*) dest;
+    const uint8_t *sp = (const uint8_t*) src;
+    uint8_t *dp = (uint8_t*) dest;
     for(; count != 0; count--) *dp++ = *sp++;
     return dest;
 }
 
-uint8_t *memset(void *dest, uint8_t val, int32_t count)
+void *memmove(void *dest, void *src, size_t count)
 {
-    int8_t *temp = (int8_t*) dest;
+	const uint8_t *sp = (const uint8_t*) src;
+	uint8_t *dp = (uint8_t*) dest;
+
+	if (dest < src)
+	{
+		return memcpy(dest, src, count);
+	}
+	else
+	{
+		sp += count;
+		dp += count;
+		for (; count != 0; count--) *--dp = *--sp;
+
+		return dest;
+	}
+}
+
+void *memset(void *dest, uint8_t val, size_t count)
+{
+    uint8_t *temp = (uint8_t*) dest;
     for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-uint16_t *memsetw(uint16_t *dest, uint16_t val, int32_t count)
+void *memsetw(uint16_t *dest, uint16_t val, size_t count)
 {
     uint16_t *temp = (uint16_t*) dest;
     for(; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-bool memequal(void *ptr1, void *ptr2, uint32_t count)
+bool memequal(void *ptr1, void *ptr2, size_t count)
 {
 	uint8_t *temp1 = (uint8_t*) ptr1;
 	uint8_t *temp2 = (uint8_t*) ptr2;
@@ -76,7 +95,7 @@ uint8_t *strcpy(uint8_t *dest, uint8_t *src)
 	return (uint8_t*) memcpy(dest, (void*) src, strlen(src) + 1);
 }
 
-uint8_t *strncpy(uint8_t *dest, uint8_t *src, uint32_t size)
+uint8_t *strncpy(uint8_t *dest, uint8_t *src, size_t size)
 {
 	return (uint8_t*) memcpy(dest, (void*) src, size + 1);
 }
@@ -98,7 +117,7 @@ bool strequal(uint8_t *s1, uint8_t *s2)
 	return ret;
 }
 
-bool strnequal(uint8_t *s1, uint8_t *s2, uint32_t num)
+bool strnequal(uint8_t *s1, uint8_t *s2, size_t num)
 {
 	int32_t ret = true;
 	int32_t index = 0;
@@ -137,7 +156,7 @@ uint8_t *strcat(uint8_t *s1, uint8_t *s2)
 	return strcpy(s1 + strlen(s1), s2);
 }
 
-uint8_t *strncat(uint8_t *s1, uint8_t *s2, uint32_t size)
+uint8_t *strncat(uint8_t *s1, uint8_t *s2, size_t size)
 {
 	return strncpy(s1 + strlen(s1), s2, size);
 }
