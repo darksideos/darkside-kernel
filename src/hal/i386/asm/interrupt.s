@@ -407,13 +407,14 @@ irq_common_stub:
     add esp, 8
     iret
 
-global task_switch_stub
-task_switch_stub:
-	mov eax, [ebp+8]
-	mov esp, eax	; Move the new task's context into ESP
+global switch_cpu_context	; Allow the C code to link to this
+extern eoi					; Our EOI function is in another file
+
+switch_cpu_context:
+	mov eax, [ebp+8]		; Get the CPU context
+	mov esp, eax			; Move the CPU context into ESP
 	
-	mov al, 0x20
-	out 0x20, al	; Acknowledge the timer IRQ
+	call eoi				; Acknowledge the timer interrupt
 	
 	pop gs
 	pop fs

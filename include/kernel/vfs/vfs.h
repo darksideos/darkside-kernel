@@ -42,7 +42,7 @@ typedef struct filesystem
 	int32_t (*symlink)(struct filesystem *fs, struct inode *node, uint8_t *newpath);
 
 	/* Create a new inode, returning -1 on failure */
-	int32_t (*mknod)(struct filesystem *fs, uint8_t *path, int32_t mode, dev_t dev, struct inode *node);
+	int32_t (*mknod)(struct filesystem *fs, uint8_t *path, int32_t type, dev_t dev, struct inode *node);
 
 	/* Rename a directory entry, returning -1 on failure */
 	int32_t (*rename)(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath);

@@ -14,7 +14,11 @@ void irq_install_handler(int32_t irq, void (*handler)(struct i386_regs *r));
 void irq_uninstall_handler(int32_t irq);
 
 /* Disable and enable IRQs */
-void hal_cli();
-void hal_sti();
+void disable_interrupts();
+void enable_interrupts();
+
+/* Get and set the interrupt state */
+uint32_t get_interrupt_state();
+void set_interrupt_state(uint32_t state);
 
 #endif
