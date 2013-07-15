@@ -40,7 +40,7 @@ int32_t unregister_filesystem(uint8_t *name)
 	for (i = 0; i < list_length(filesystems); i++)
 	{
 		/* Get the filesystem identification */
-		fs_info_t *fsi = list_get(filesystems, i);
+		fs_info_t *fsi = (fs_info_t*) list_get(filesystems, i);
 
 		/* Is its name the one we're looking for? */
 		if (strequal(fsi->name, name))
