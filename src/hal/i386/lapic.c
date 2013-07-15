@@ -54,7 +54,7 @@ void lapic_set_base(uint32_t *virt_addr, uint32_t phys_addr)
 	uint32_t eax = page_align(phys_addr) | MSR_IA32_APIC_BASE_ENABLE;
 
 	wrmsr(MSR_IA32_APIC_BASE, eax, edx);
-	phys_lapic_base = (uint32_t) page_align((uint32_t) lapic);
+	phys_lapic_base = (uint32_t) page_align((uint32_t) phys_addr);
 
 	/* Map its virtual address */
 }
@@ -62,13 +62,13 @@ void lapic_set_base(uint32_t *virt_addr, uint32_t phys_addr)
 /* Read a Local APIC register */
 uint32_t lapic_read_register(uint32_t reg)
 {
-	return lapic_virt_base[reg >> 4];
+	return virt_lapic_base[reg >> 4];
 }
 
 /* Write a Local APIC register */
 void lapic_write_register(uint32_t reg, uint32_t val)
 {
-	lapic_virt_base[reg >> 4] = val;
+	virt_lapic_base[reg >> 4] = val;
 }
 
 /* Send an EOI to the Local APIC */

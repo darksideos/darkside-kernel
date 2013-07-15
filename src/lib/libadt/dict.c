@@ -1,4 +1,5 @@
 #include <lib/libc/types.h>
+#include <lib/libc/string.h>
 #include <lib/libadt/list.h>
 #include <lib/libadt/dict.h>
 #include <kernel/mm/heap.h>
@@ -16,22 +17,28 @@ typedef struct hash_bucket
 /* Create a dictionary */
 dict_t dict_create()
 {
-	/* Declare a dictionary structure, create its hash bucket list, and return it */
+	/* Declare a dictionary structure */
 	dict_t dict;
-	dict.buckets = list_create(sizeof(hash_bucket_t), 4);
 
+	/* Create its hash bucket list */
+	list_t bucket_list = list_create(sizeof(hash_bucket_t), 4);
+
+	dict.buckets = (list_t*) kmalloc(sizeof(list_t));
+	memcpy(dict.buckets, &bucket_list, sizeof(list_t));
+
+	/* Return the dictionary */
 	return dict;
 }
 
 /* Destroy a dictionary */
-void dict_destroy(dict_t dict)
+void dict_destroy(dict_t *dict)
 {
 	/* Destroy the hash bucket list */
-	list_destroy(dict.buckets);
+	list_destroy(dict->buckets);
 }
 
 /* Append an item to a dictionary */
-void dict_append(dict_t dict, uint8_t *key, void *item)
+void dict_append(dict_t *dict, uint8_t *key, void *item)
 {
 	/* Hash the key */
 	uint64_t hash_key = dict_hash_key(key);
@@ -43,46 +50,45 @@ void dict_append(dict_t dict, uint8_t *key, void *item)
 	bucket.data = item;
 
 	/* Add the hash bucket to the hash bucket list */
-	list_append(dict.buckets, &bucket);
+	list_append(dict->buckets, &bucket);
 }
 
 /* Remove an item from a dictionary */
-void dict_remove(dict_t dict, uint8_t *key)
+int32_t dict_remove(dict_t *dict, uint8_t *key)
 {
 	/* Hash the key */
 	uint64_t hash_key = dict_hash_key(key);
 
 	/* Find the hash bucket containing the key */
 	uint32_t i;
-	for (i = 0; i < list_length(dict.buckets); i++)
+	for (i = 0; i < list_length(dict->buckets); i++)
 	{
 		/* Get the hash bucket */
-		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict.buckets, i);
+		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict->buckets, i);
 
 		/* Is the hash the one we're looking for? */
 		if (bucket->key == hash_key)
 		{
 			/* Remove it from the list */
-			list_remove(dict.buckets, i);
-			return;
+			list_remove(dict->buckets, i);
+			return 0;
 		}
 	}
-
-	return;
+	return -1;
 }
 
 /* Get an item in a dictionary */
-void *dict_get(dict_t dict, uint8_t *key)
+void *dict_get(dict_t *dict, uint8_t *key)
 {
 	/* Hash the key */
 	uint64_t hash_key = dict_hash_key(key);
 
 	/* Find the hash bucket containing the key */
 	uint32_t i;
-	for (i = 0; i < list_length(dict.buckets); i++)
+	for (i = 0; i < list_length(dict->buckets); i++)
 	{
 		/* Get the hash bucket */
-		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict.buckets, i);
+		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict->buckets, i);
 
 		/* Is the hash the one we're looking for? */
 		if (bucket->key == hash_key)
@@ -91,43 +97,69 @@ void *dict_get(dict_t dict, uint8_t *key)
 			return bucket->data;
 		}
 	}
-
 	return 0;
 }
 
 /* Set an item in a dictionary */
-void *dict_set(dict_t dict, uint8_t *key, void *item)
+int32_t dict_set(dict_t *dict, uint8_t *key, void *item)
 {
 	/* Hash the key */
 	uint64_t hash_key = dict_hash_key(key);
 
 	/* Find the hash bucket containing the key */
 	uint32_t i;
-	for (i = 0; i < list_length(dict.buckets); i++)
+	for (i = 0; i < list_length(dict->buckets); i++)
 	{
 		/* Get the hash bucket */
-		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict.buckets, i);
+		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict->buckets, i);
 
 		/* Is the hash the one we're looking for? */
 		if (bucket->key == hash_key)
 		{
 			/* Set the value and return */
 			bucket->data = item;
-			return;
+			return 0;
 		}
 	}
+	return -1;
+}
+
+/* Rename a key in a dictionary */
+int32_t dict_rename_key(dict_t *dict, uint8_t *oldkey, uint8_t *newkey)
+{
+	/* Hash the old and new keys */
+	uint64_t hash_oldkey = dict_hash_key(oldkey);
+
+	/* Find the hash bucket containing the key */
+	uint32_t i;
+	for (i = 0; i < list_length(dict->buckets); i++)
+	{
+		/* Get the hash bucket */
+		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict->buckets, i);
+
+		/* Is the hash the one we're looking for? */
+		if (bucket->key == hash_oldkey)
+		{
+			/* Rename the key and return */
+			bucket->key = dict_hash_key(newkey);
+			return 0;
+		}
+	}
+	return -1;
 }
 
 /* Hash a dictionary key */
 uint64_t dict_hash_key(uint8_t *key)
 {
-	uint64_t hash_key;
+	uint64_t hash_key = 0;
 
 	while (*key)
 	{
-		ret *= 0x1F;
-		ret += *key;
+		hash_key *= 0x1F;
+		hash_key += *key;
 
 		key++;
 	}
+
+	return hash_key;
 }
