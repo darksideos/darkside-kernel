@@ -27,7 +27,7 @@ int32_t register_filesystem(filesystem_t *fs, uint8_t *name)
 	fsi.fs = fs;
 
 	/* Add it to the list of filesystems */
-	list_append(filesystems, &fsi);
+	list_append(&filesystems, &fsi);
 
 	return 0;
 }
@@ -37,16 +37,16 @@ int32_t unregister_filesystem(uint8_t *name)
 {
 	/* Go through each registered filesystem */
 	uint32_t i;
-	for (i = 0; i < list_length(filesystems); i++)
+	for (i = 0; i < list_length(&filesystems); i++)
 	{
 		/* Get the filesystem identification */
-		fs_info_t *fsi = (fs_info_t*) list_get(filesystems, i);
+		fs_info_t *fsi = (fs_info_t*) list_get(&filesystems, i);
 
 		/* Is its name the one we're looking for? */
 		if (strequal(fsi->name, name))
 		{
 			/* Remove it from the list */
-			list_remove(filesystems, i);
+			list_remove(&filesystems, i);
 			return 0;
 		}
 	}
@@ -58,10 +58,10 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 {
 	/* Is the filesystem already mounted? */
 	uint32_t i;
-	for (i = 0; i < list_length(mountpoints); i++)
+	for (i = 0; i < list_length(&mountpoints); i++)
 	{
 		/* Get the mountpoint */
-		mountpoint_t *mp = *(mountpoint_t**) list_get(mountpoints, i);
+		mountpoint_t *mp = *(mountpoint_t**) list_get(&mountpoints, i);
 
 		/* Does the node match */
 		if (mp->node == node)
@@ -74,10 +74,10 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 	mountpoint_t *mp = kmalloc(sizeof(mountpoint_t));
 
 	/* Go through each registered filesystem */
-	for (i = 0; i < list_length(filesystems); i++)
+	for (i = 0; i < list_length(&filesystems); i++)
 	{
 		/* Get the filesystem identification */
-		fs_info_t *fsi = list_get(filesystems, i);
+		fs_info_t *fsi = list_get(&filesystems, i);
 
 		/* Is its name the one we're looking for? */
 		if (strequal(fsi->name, name))
@@ -87,7 +87,7 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 			mp->fs = fsi->fs;
 
 			/* Add it to the list */
-			list_append(mountpoints, &mp);
+			list_append(&mountpoints, &mp);
 		}
 	}
 	kfree(mp);
@@ -99,16 +99,16 @@ int32_t vfs_unmount(inode_t *node)
 {
 	/* Is the filesystem mounted? */
 	uint32_t i;
-	for (i = 0; i < list_length(mountpoints); i++)
+	for (i = 0; i < list_length(&mountpoints); i++)
 	{
 		/* Get the mountpoint */
-		mountpoint_t *mp = *(mountpoint_t**) list_get(mountpoints, i);
+		mountpoint_t *mp = *(mountpoint_t**) list_get(&mountpoints, i);
 
 		/* Does the node match */
 		if (mp->node == node)
 		{
 			/* Remove the mountpoint from the list */
-			list_remove(mountpoints, i);
+			list_remove(&mountpoints, i);
 
 			/* Free the mountpoint's memory */
 			kfree(mp);

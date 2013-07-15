@@ -1,4 +1,5 @@
 #include <lib/libc/types.h>
+#include <lib/libadt/dict.h>
 #include <kernel/console/log.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
@@ -128,6 +129,11 @@ uint64_t dev_write(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t of
 	return 0;
 }
 
+/* Rename a directory entry */
+int32_t dev_rename(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath)
+{
+}
+
 /* Issue a device specfic request to a node in dev */
 int32_t dev_ioctl(filesystem_t *fs, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
 {
@@ -162,10 +168,16 @@ void dev_init()
 	vfs_root->gid = 0;
 	vfs_root->atime = vfs_root->mtime = vfs_root->ctime = 0;
 
+	/* Create the dictionary of directory entries */
+	dict_t dirent_dict = dict_create();
+
+	dict_t *dirents = (dict_t*) kmalloc(sizeof(dict_t));
+	memcpy(dirents, &dirent_dict, sizeof(dict_t));
+
 	/* Fill out the dev filesystem's information */
 	vfs_dev->root = root;
 	vfs_dev->partition = 0;
-	vfs_dev->data = 0;
+	vfs_dev->data = (void*) dirents;
 
 	vfs_dev->read = &dev_read;
 	vfs_dev->write = &dev_write;
