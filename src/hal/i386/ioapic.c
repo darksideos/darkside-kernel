@@ -25,13 +25,13 @@ void ioapic_write_register(uint8_t reg, uint32_t val)
 }
 
 /* Configure an IRQ in the I/O APIC */
-void ioapic_configure_irq(uint8_t irq, uint8_t vector, uint8_t delivery_mode, uint8_t destination_mode, bool mask, uint8_t destination)
+void ioapic_configure_irq(uint32_t irq, uint8_t vector, uint8_t destination, uint8_t destination_mode, uint8_t delivery_mode, bool mask)
 {
 	/* Find the register base for the IRQ */
 	uint8_t reg_base = 0x10 + (irq * 2);
 
 	/* Create the data that will sent out to each register */
-	uint32_t reg1_value = (uint32_t)(vector | (delivery_mode << 8) | (destination_mode << 11));
+	uint32_t reg1_value = (uint32_t)(vector | (delivery_mode << 8) | (1 << 11));
 	uint32_t reg2_value = (uint32_t)(mask | (destination << 50));
 
 	/* Now output the values into the registers */
@@ -42,21 +42,4 @@ void ioapic_configure_irq(uint8_t irq, uint8_t vector, uint8_t delivery_mode, ui
 /* Install the I/O APIC */
 void ioapic_install()
 {
-	/* Set the I/O APIC base address */
-	ioapic_base = (uint32_t*) 0xFEC00000;
-
-	/* Configure the first 16 IRQs on the I/O APIC by mapping them to the ISA interrupts */
-	int32_t i;
-	for (i = 0; i < 16; i++)
-	{
-
-	}
-
-	/* Forward PCI IRQs to the IRQs on the I/O APIC */
-
-	/* Disable IRQs 20-23 */
-	for (i = 20; i < 24; i++)
-	{
-		ioapic_configure_irq(i, 0, 0, 0, true, 0);
-	}
 }
