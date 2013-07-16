@@ -4,9 +4,7 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/console/log.h>
 #include <kernel/mm/address_space.h>
-#include <kernel/mm/heap.h>
 
 /* Kernel and current page directory */
 uint32_t kernel_directory = 0;
@@ -259,5 +257,5 @@ void init_vmm()
 	switch_address_space(kernel_directory);
 
 	/* Print a log message */
-	log("VMM initialized");
+	kprintf(LOG_INFO, "VMM initialized\n");
 }

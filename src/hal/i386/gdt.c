@@ -2,7 +2,7 @@
 #include <lib/libc/string.h>
 #include <hal/i386/gdt.h>
 #include <hal/i386/msr.h>
-#include <kernel/console/log.h>
+#include <kernel/console/kprintf.h>
 
 /* GDT entry structure */
 struct gdt_entry
@@ -125,5 +125,5 @@ void gdt_install()
 	tss_flush();
 
 	/* Print a log message */
-	log("GDT installed");
+	kprintf(LOG_INFO, "GDT installed\n");
 }

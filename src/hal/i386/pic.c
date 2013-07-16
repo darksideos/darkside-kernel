@@ -1,6 +1,7 @@
 #include <lib/libc/types.h>
 #include <hal/i386/ports.h>
 #include <hal/i386/pic.h>
+#include <kernel/console/kprintf.h>
 
 /* Remap the PIC */
 void pic_remap(uint8_t master_vector, uint8_t slave_vector)
@@ -64,6 +65,9 @@ void pic_install()
 {
 	/* Remap the PIC to use interrupts 32-47 */
 	pic_remap(0x20, 0x28);
+
+	/* Print a log message */
+	kprintf(LOG_INFO, "PIC installed\n");
 }
 
 /* Uninstall the PIC */

@@ -4,7 +4,7 @@
 #include <hal/i386/pic.h>
 #include <hal/i386/lapic.h>
 #include <hal/i386/irq.h>
-#include <kernel/console/log.h>
+#include <kernel/console/kprintf.h>
 
 extern void irq0();
 extern void irq1();
@@ -59,7 +59,7 @@ void irq_install()
     idt_set_gate(47, (unsigned) irq15);
 
 	/* Print a log message */
-	log("IRQs installed in the IDT");
+	kprintf(LOG_INFO, "IRQs installed in the IDT\n");
 }
 
 /* Install an IRQ handler */
