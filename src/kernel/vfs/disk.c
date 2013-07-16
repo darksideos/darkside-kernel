@@ -1,5 +1,6 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/console/log.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
@@ -70,11 +71,11 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 		/* Check to make sure the signature is "EFI PART" */
 		if (strequal(gpt_sig, "EFI PART"))
 		{
-			panic("Device contains a GPT partition table");
+			kprintf("Device contains a GPT partition table");
 		}
 		else
 		{
-			panic("Device contains a MBR partition table");
+			kprintf("Device contains a MBR partition table");
 			mbr_init_disk(disk);
 		}
 	}
