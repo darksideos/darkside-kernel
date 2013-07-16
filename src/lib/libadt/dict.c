@@ -11,6 +11,7 @@ uint64_t dict_hash_key(uint8_t *key);
 typedef struct hash_bucket
 {
 	uint64_t key;
+	uint8_t *key_str;
 	void *data;
 } hash_bucket_t;
 
@@ -122,6 +123,26 @@ int32_t dict_set(dict_t *dict, uint8_t *key, void *item)
 		}
 	}
 	return -1;
+}
+
+/* Get the keys in a dictionary */
+list_t dict_keys(dict_t *dict)
+{
+	/* Get the length of the hash bucket list */
+	uint32_t num_buckets = list_length(dict->buckets);
+
+	/* Create a list of the keys */
+	list_t keys = list_create(sizeof(uint8_t*), num_buckets);
+
+	/* Copy each key string into the list */
+	uint32_t i;
+	for (i = 0; i < num_buckets; i++)
+	{
+		list_append(&keys, (uint8_t*) list_get(dict->buckets, i));
+	}
+
+	/* Return the list of keys */
+	return keys;
 }
 
 /* Rename a key in a dictionary */

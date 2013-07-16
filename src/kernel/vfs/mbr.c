@@ -5,6 +5,9 @@
 #include <kernel/vfs/disk.h>
 #include <kernel/vfs/mbr.h>
 
+/* Sector size */
+#define SECTOR_SIZE	0x200
+
 /* Initialize a disk structure with an MBR partition table */
 void mbr_disk_init(disk_t *disk)
 {
@@ -26,6 +29,9 @@ void mbr_disk_init(disk_t *disk)
 	uint32_t partnum;
 	for (partnum = 0; partnum < 3; partnum++)
 	{
+		/* Save the partition's start address */
+		uint32_t part_start = primary[partnum].start_lba * SECTOR_SIZE;
+
 		/* The partition is extended with LBA support */
 		if (primary[partnum].system_id == 0x0F)
 		{
@@ -33,7 +39,7 @@ void mbr_disk_init(disk_t *disk)
 			mbr_partition_entry_t logical[2];
 
 			/* Read the 2 logical partitions into memory */
-			bytes_read = blockdev_read(disk->blockdev, (uint8_t*) &logical[0], primary[partnum].start_lba, sizeof(mbr_partition_entry_t) * 2);
+			bytes_read = blockdev_read(disk->blockdev, (uint8_t*) &logical[0], part_start, sizeof(mbr_partition_entry_t) * 2);
 			if (bytes_read != sizeof(mbr_partition_entry_t) * 2)
 			{
 				log("Error reading EBR partition table");
@@ -46,13 +52,13 @@ void mbr_disk_init(disk_t *disk)
 			{
 				/* Create a partition structure and initialize it */
 				partition_t *partition = partition_create();
-				partition_init(partition, (uint64_t) primary[partnum].start_lba + logical[0].start_lba, (uint64_t) logical[0].length);
+				partition_init(partition, (uint64_t) part_start + (logical[0].start_lba * SECTOR_SIZE), (uint64_t) logical[0].length * SECTOR_SIZE);
 
 				/* Add it to the disk's partition list */
 				disk->partitions[partnum + num_logical] = partition;
 
 				/* Read the 2 next logical partitions into memory */
-				bytes_read = blockdev_read(disk->blockdev, (uint8_t*) &logical[0], primary[partnum].start_lba, sizeof(mbr_partition_entry_t) * 2);
+				bytes_read = blockdev_read(disk->blockdev, (uint8_t*) &logical[0], part_start, sizeof(mbr_partition_entry_t) * 2);
 				if (bytes_read != sizeof(mbr_partition_entry_t) * 2)
 				{
 					log("Error reading EBR partition table");
@@ -79,7 +85,7 @@ void mbr_disk_init(disk_t *disk)
 		{
 			/* Create a partition structure and initialize it */
 			partition_t *partition = partition_create();
-			partition_init(partition, (uint64_t) primary[partnum].start_lba, (uint64_t) primary[partnum].length);
+			partition_init(partition, (uint64_t) part_start, (uint64_t) primary[partnum].length * SECTOR_SIZE);
 
 			/* Add it to the disk's partition list */
 			disk->partitions[partnum] = partition;
