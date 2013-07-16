@@ -132,6 +132,8 @@ uint64_t dev_write(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t of
 /* Rename a directory entry */
 int32_t dev_rename(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath)
 {
+	/* Rename the dictionary key */
+	return dict_rename_key((dict_t*) fs->data, oldpath, newpath);
 }
 
 /* Issue a device specfic request to a node in dev */
@@ -187,7 +189,7 @@ void dev_init()
 	vfs_dev->unlink = 0;
 	vfs_dev->symlink = 0;
 	vfs_dev->mknod = 0;
-	vfs_dev->rename = 0;
+	vfs_dev->rename = &dev_rename;
 	vfs_dev->ioctl = &dev_ioctl;
 
 	/* Register the dev filesystem */
