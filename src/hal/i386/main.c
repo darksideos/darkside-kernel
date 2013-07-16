@@ -5,14 +5,14 @@
 #include <hal/i386/timer.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
-#include <kernel/console/log.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/init/os_info.h>
 
 /* Initialize the HAL */
 void hal_main(os_info_t *os_info)
 {
 	/* Print a log message */
-	log("Initializing HAL");
+	kprintf(LOG_INFO, "Initializing HAL\n");
 
 	/* Install segmentation and interrupts */
 	gdt_install();
@@ -26,5 +26,5 @@ void hal_main(os_info_t *os_info)
  	init_vmm();
 
 	/* Print a log message */
-	log("HAL Initialized\n");
+	kprintf(LOG_INFO, "HAL Initialized\n\n");
 }

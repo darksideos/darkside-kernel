@@ -4,7 +4,6 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/exception.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/console/log.h>
 #include <kernel/mm/heap.h>
 
 /* The ISRs */
@@ -129,7 +128,7 @@ void isrs_install()
 	isr_install_handler(14, page_fault_handler);
 
 	/* Print a log message */
-	log("Exception ISRs installed in the IDT");
+	kprintf(LOG_INFO, "Exception ISRs installed in the IDT\n");
 }
 
 /* Install an ISR handler */
@@ -162,7 +161,7 @@ extern void fault_handler(struct i386_regs *r)
 		/* Otherwise, just display an error message, dump the registers, and halt the processor */
 		else
 		{
-			panic("Unhandled %s Exception at %08x\n", exceptions[r->int_no], r->eip);
+			kprintf(LOG_PANIC, "Unhandled %s Exception at %08x\n", exceptions[r->int_no], r->eip);
 			dump_registers(r);
 			while(1);
 		}
@@ -209,12 +208,12 @@ void copy_registers(void *dest, void *src)
 /* Dump the CPU registers */
 void dump_registers(struct i386_regs *r)
 {
-	kprintf("Register Dump\n\n");
- 	kprintf("EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n", r->eax, r->ebx, r->ecx, r->edx);
- 	kprintf("ESI: %08x EDI: %08x ESP: %08x EBP: %08x\n", r->esi, r->edi, r->useresp, r->ebp);
- 	kprintf("CS:  %08x DS:  %08x ES:  %08x\n", r->cs, r->ds, r->es);
- 	kprintf("FS:  %08x GS:  %08x SS:  %08x\n", r->fs, r->gs, r->ss);
-	kprintf("EIP: %08x EFLAGS: %08x\n", r->eip, r->eflags);
+	kprintf(LOG_INFO, "Register Dump\n\n");
+ 	kprintf(LOG_INFO, "EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n", r->eax, r->ebx, r->ecx, r->edx);
+ 	kprintf(LOG_INFO, "ESI: %08x EDI: %08x ESP: %08x EBP: %08x\n", r->esi, r->edi, r->useresp, r->ebp);
+ 	kprintf(LOG_INFO, "CS:  %08x DS:  %08x ES:  %08x\n", r->cs, r->ds, r->es);
+ 	kprintf(LOG_INFO, "FS:  %08x GS:  %08x SS:  %08x\n", r->fs, r->gs, r->ss);
+	kprintf(LOG_INFO, "EIP: %08x EFLAGS: %08x\n", r->eip, r->eflags);
 
 	uint32_t cr0, cr2, cr3, cr4;
 	asm volatile("mov %%cr0, %0" : "=r" (cr0));
@@ -222,5 +221,5 @@ void dump_registers(struct i386_regs *r)
 	asm volatile("mov %%cr3, %0" : "=r" (cr3));
 	asm volatile("mov %%cr4, %0" : "=r" (cr4));
 
-	kprintf("CR0: %08x CR2: %08x CR3: %08x CR4: %08x\n", cr0, cr2, cr3, cr4);
+	kprintf(LOG_INFO, "CR0: %08x CR2: %08x CR3: %08x CR4: %08x\n", cr0, cr2, cr3, cr4);
 }

@@ -1,7 +1,7 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <hal/i386/idt.h>
-#include <kernel/console/log.h>
+#include <kernel/console/kprintf.h>
 
 /* IDT entry structure */
 struct idt_entry
@@ -54,5 +54,5 @@ void idt_install()
     idt_load();
 
 	/* Print a log message */
-	log("IDT installed");
+	kprintf(LOG_INFO, "IDT installed\n");
 }

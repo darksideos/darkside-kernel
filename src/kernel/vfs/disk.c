@@ -1,7 +1,6 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/console/log.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/disk.h>
@@ -51,7 +50,7 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 	uint64_t bytes_read = blockdev_read(blockdev, &mbr_sig[0], 510, 2);
 	if (bytes_read != 2)
 	{
-		panic("Error reading MBR signature from device");
+		kprintf(LOG_ERROR, "Error reading MBR signature from device");
 		return;
 	}
 
@@ -64,24 +63,24 @@ void disk_init(disk_t *disk, blockdev_t *blockdev)
 		bytes_read = blockdev_read(blockdev, &gpt_sig[0], 512, 8);
 		if (bytes_read != 8)
 		{
-			panic("Error reading GPT signature from device");
+			kprintf(LOG_ERROR, "Error reading GPT signature from device");
 			return;
 		}
 
 		/* Check to make sure the signature is "EFI PART" */
 		if (strequal(gpt_sig, "EFI PART"))
 		{
-			kprintf("Device contains a GPT partition table");
+			kprintf(LOG_INFO, "Device contains a GPT partition table");
 		}
 		else
 		{
-			kprintf("Device contains a MBR partition table");
+			kprintf(LOG_INFO, "Device contains a MBR partition table");
 			mbr_init_disk(disk);
 		}
 	}
 	else
 	{
-		panic("Device contains no valid partition table");
+		kprintf(LOG_ERROR, "Device contains no valid partition table");
 	}
 }
 

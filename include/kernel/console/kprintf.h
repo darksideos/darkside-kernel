@@ -4,11 +4,15 @@
 #include <lib/libc/types.h>
 #include <lib/libc/stdarg.h>
 
-/* Create formatted data and place it in a buffer */
-int32_t vsprintf(int8_t *buf, const int8_t *fmt, va_list args);
+/* Log levels */
+#define LOG_DEBUG	0x05
+#define LOG_INFO	0x04
+#define LOG_WARNING	0x03
+#define LOG_ERROR	0x02
+#define LOG_ALERT	0x01
+#define LOG_PANIC	0x00
 
 /* Print formatted data to the console */
-void kprintf(const int8_t *fmt, ...);
-void error_kprintf(const int8_t *fmt, ...);
+void kprintf(int32_t loglevel, const int8_t *fmt, ...);
 
 #endif
