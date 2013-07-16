@@ -22,14 +22,14 @@ void gpf_handler(struct i386_regs *r)
 		/* If an invalid opcode was encountered, kill the VM86 task, which is the current task */
 		else
 		{
-			panic("Invalid VM86 opcode\n");
+			kprintf(LOG_ERROR, "Invalid VM86 opcode\n");
 			//exit(-1);
 		}
 	}
 	/* Otherwise, display an error message and kill the current task */
 	else
 	{
-		panic("Unhandled General Protection Fault Exception at 0x%08x\n", r->eip);
+		kprintf(LOG_ALERT, "Unhandled General Protection Fault Exception at 0x%08x\n", r->eip);
 		//exit(-1);
 	}
 }
@@ -42,7 +42,7 @@ void page_fault_handler(struct i386_regs *r)
 	asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
 
 	/* Print the exception information */
-	panic("Unhandled Page Fault Exception at 0x%08x, error code 0x%08x\nPresent: %s, Access: %s, Mode: %s\n", faulting_address, r->err_code, r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
+	kprintf(LOG_ALERT, "Unhandled Page Fault Exception at 0x%08x, error code 0x%08x\nPresent: %s, Access: %s, Mode: %s\n", faulting_address, r->err_code, r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
 
 	dump_registers(r);
 

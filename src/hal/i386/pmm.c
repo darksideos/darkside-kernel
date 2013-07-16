@@ -4,10 +4,9 @@
 #include <hal/i386/bios.h>
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
-#include <kernel/console/log.h>
-#include <kernel/mm/address_space.h>
-#include <kernel/mm/heap.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/init/os_info.h>
+#include <kernel/mm/address_space.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;
@@ -140,5 +139,5 @@ void init_pmm(os_info_t *os_info)
 	}
 
 	/* Print a log message */
-	log("PMM initialized, bitmap covering 0x%08X pages", num_bitmap_pages);
+	kprintf(LOG_INFO, "PMM initialized, bitmap covering 0x%08X pages\n", num_bitmap_pages);
 }

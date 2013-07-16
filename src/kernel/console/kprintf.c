@@ -233,7 +233,7 @@ int32_t vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
         return str-buf;
 }
 
-void kprintf(const int8_t *fmt, ...)
+void kprintf(int32_t loglevel, const int8_t *fmt, ...)
 {
 	int8_t buf[1024];
 
@@ -245,20 +245,5 @@ void kprintf(const int8_t *fmt, ...)
 
 	buf[i] = '\0';
 
-	puts(buf);
-}
-
-void error_kprintf(const int8_t *fmt, ...)
-{
-	int8_t buf[1024];
-
-	va_list args;
-	int32_t i;
-
-	va_start(args, fmt);
-	i = vsprintf(buf, fmt, args);
-
-	buf[i] = '\0';
-	
 	puts(buf);
 }

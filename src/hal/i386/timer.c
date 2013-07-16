@@ -2,6 +2,7 @@
 #include <hal/i386/pit.h>
 #include <hal/i386/lapic.h>
 #include <hal/i386/timer.h>
+#include <kernel/console/kprintf.h>
 
 /* The timer we are using */
 uint8_t current_timer = 0;
@@ -42,5 +43,5 @@ void timer_install(int32_t hz)
 	current_timer = 0;
 
 	/* Print a log message */
-	log("Timer installed with a frequency of %d hz", hz);
+	kprintf(LOG_INFO, "Timer installed with a frequency of %d hz\n", hz);
 }
