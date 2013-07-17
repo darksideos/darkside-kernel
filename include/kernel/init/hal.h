@@ -64,6 +64,18 @@ void switch_cpu_context(void *context);
 void syscall_install_handler(int32_t syscall, void *handler);
 
 /* Atomic operations */
-uint32_t atomic_compare_and_swap(volatile uint32_t *ptr, uint32_t oldval, uint32_t newval);
+typedef struct
+{
+	volatile uint32_t counter;
+} atomic_t;
+
+uint32_t atomic_read(atomic_t *v);
+void atomic_set(atomic_t *v, uint32_t val);
+void atomic_add(atomic_t *v, uint32_t val);
+void atomic_sub(atomic_t *v, uint32_t val);
+void atomic_inc(atomic_t *v);
+void atomic_dec(atomic_t *v);
+uint32_t atomic_xchg(atomic_t *v, uint32_t newval);
+uint32_t atomic_cmpxchg(atomic_t *v, uint32_t oldval, uint32_t newval);
 
 #endif
