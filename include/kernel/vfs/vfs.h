@@ -4,7 +4,7 @@
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
 #include <kernel/device/dev.h>
-#include <kernel/vfs/stat.h>
+#include <kernel/sync/rwlock.h>
 
 struct inode;
 
@@ -83,14 +83,14 @@ typedef struct inode
 
 	/* Inode information */
 	uint64_t size;
-	mode_t mode;
-	nlink_t nlink;
-	uid_t uid;
-	gid_t gid;
-	time_t atime, mtime, ctime;
+	int mode, nlink, uid, gid;
+	uint64_t atime, mtime, ctime;
 
-	/* Write buffer */
-	uint8_t *write_buffer;
+	/* Readers/writer lock */
+	rwlock_t rwlock;
+
+	/* Read and write buffers */
+	uint8_t *readbuf, *writebuf;
 
 	/* Number of times the inode is open */
 	unsigned handles;
@@ -131,6 +131,6 @@ int32_t vfs_unlink(uint8_t *path);
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath);
 int32_t vfs_mknod(uint8_t *path, int32_t type, dev_t dev);
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath);
-int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t length);
+int32_t vfs_ioctl(inode_t *node, int32_t request, uint8_t *buffer, uint32_t length);
 
 #endif
