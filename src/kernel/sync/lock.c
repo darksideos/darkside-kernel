@@ -30,7 +30,7 @@ void spinlock_acquire(spinlock_t *lock)
 	uint32_t interrupts = get_interrupt_state();
 
 	disable_interrupts();
-	while (atomic_cmpxchg(&lock->value, 0, 1) == 0);
+	while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
 
 	lock->interrupts = interrupts;
 }
@@ -38,6 +38,6 @@ void spinlock_acquire(spinlock_t *lock)
 /* Release a spinlock */
 void spinlock_release(spinlock_t *lock)
 {
-	while (atomic_cmpxchg(&lock->value, 1, 0) == 0);
+	while (atomic_cmpxchg(&lock->value, 1, 0) == 1);	// Does not seem right: Come back to this
 	set_interrupt_state(lock->interrupts);
 }
