@@ -4,7 +4,7 @@
 #include <kernel/sync/semaphore.h>
 
 /* Create a semaphore and initialize its values */
-semaphore_t *semaphore_create()
+semaphore_t *semaphore_create(uint32_t initial_units)
 {
 	semaphore_t *sem = (semaphore_t*) kmalloc(sizeof(semaphore_t));
 	semaphore_init(sem);
@@ -12,9 +12,9 @@ semaphore_t *semaphore_create()
 }
 
 /* Initialize a semaphore's values */
-void semaphore_init(semaphore_t *sem)
+void semaphore_init(semaphore_t *sem, uint32_t initial_units)
 {
-	atomic_set(sem->value, 0);
+	atomic_set(sem->value, initial_units);
 }
 
 /* Delete a semaphore */
