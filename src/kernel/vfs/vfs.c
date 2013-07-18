@@ -2,11 +2,13 @@
 #include <lib/libc/string.h>
 #include <lib/libadt/list.h>
 #include <kernel/mm/heap.h>
+#include <kernel/sync/mutex.h>
+#include <kernel/sync/rwlock.h>
 #include <kernel/vfs/vfs.h>
-#include <kernel/vfs/stat.h>
 
 /* Filesystems and mountpoints */
 list_t filesystems, mountpoints;
+mutex_t filesystems_lock, mountpoints_lock;
 
 /* Root of the VFS */
 inode_t *vfs_root;
@@ -27,7 +29,9 @@ int32_t register_filesystem(filesystem_t *fs, uint8_t *name)
 	fsi.fs = fs;
 
 	/* Add it to the list of filesystems */
+	mutex_acquire(&filesystems_lock);
 	list_append(&filesystems, &fsi);
+	mutex_release(&filesystems_lock);
 
 	return 0;
 }
@@ -36,8 +40,8 @@ int32_t register_filesystem(filesystem_t *fs, uint8_t *name)
 int32_t unregister_filesystem(uint8_t *name)
 {
 	/* Go through each registered filesystem */
-	uint32_t i;
-	for (i = 0; i < list_length(&filesystems); i++)
+	mutex_acquire(&filesystems_lock);
+	for (uint32_t i = 0; i < list_length(&filesystems); i++)
 	{
 		/* Get the filesystem identification */
 		fs_info_t *fsi = (fs_info_t*) list_get(&filesystems, i);
@@ -47,9 +51,11 @@ int32_t unregister_filesystem(uint8_t *name)
 		{
 			/* Remove it from the list */
 			list_remove(&filesystems, i);
+			mutex_release(&filesystems_lock);
 			return 0;
 		}
 	}
+	mutex_release(&filesystems_lock);
 	return 1;
 }
 
@@ -57,8 +63,8 @@ int32_t unregister_filesystem(uint8_t *name)
 int32_t vfs_mount(uint8_t *name, inode_t *node)
 {
 	/* Is the filesystem already mounted? */
-	uint32_t i;
-	for (i = 0; i < list_length(&mountpoints); i++)
+	mutex_acquire(&mountpoints_lock);
+	for (uint32_t i = 0; i < list_length(&mountpoints); i++)
 	{
 		/* Get the mountpoint */
 		mountpoint_t *mp = *(mountpoint_t**) list_get(&mountpoints, i);
@@ -66,6 +72,7 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 		/* Does the node match */
 		if (mp->node == node)
 		{
+			mutex_release(&mountpoints_lock);
 			return 1;
 		}
 	}
@@ -74,7 +81,7 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 	mountpoint_t *mp = kmalloc(sizeof(mountpoint_t));
 
 	/* Go through each registered filesystem */
-	for (i = 0; i < list_length(&filesystems); i++)
+	for (uint32_t i = 0; i < list_length(&filesystems); i++)
 	{
 		/* Get the filesystem identification */
 		fs_info_t *fsi = list_get(&filesystems, i);
@@ -88,8 +95,12 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 
 			/* Add it to the list */
 			list_append(&mountpoints, &mp);
+
+			mutex_release(&mountpoints_lock);
+			return 0;
 		}
 	}
+	mutex_release(&mountpoints_lock);
 	kfree(mp);
 	return 1;
 }
@@ -98,8 +109,8 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 int32_t vfs_unmount(inode_t *node)
 {
 	/* Is the filesystem mounted? */
-	uint32_t i;
-	for (i = 0; i < list_length(&mountpoints); i++)
+	mutex_acquire(&mountpoints_lock);
+	for (uint32_t i = 0; i < list_length(&mountpoints); i++)
 	{
 		/* Get the mountpoint */
 		mountpoint_t *mp = *(mountpoint_t**) list_get(&mountpoints, i);
@@ -113,9 +124,11 @@ int32_t vfs_unmount(inode_t *node)
 			/* Free the mountpoint's memory */
 			kfree(mp);
 
+			mutex_release(&mountpoints_lock);
 			return 0;
 		}
 	}
+	mutex_release(&mountpoints_lock);
 	return 0;
 }
 
@@ -274,7 +287,7 @@ void init_vfs()
 	vfs_root->children = list_create(sizeof(inode_t), 4);
 
 	vfs_root->size = 0;
-	vfs_root->mode = S_IRWXU | S_IRWXG | S_IRWXO;
+	vfs_root->mode = 0777;
 	vfs_root->nlink = 0;
 	vfs_root->uid = 0;
 	vfs_root->gid = 0;

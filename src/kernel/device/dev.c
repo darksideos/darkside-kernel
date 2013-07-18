@@ -4,7 +4,6 @@
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
-#include <kernel/vfs/stat.h>
 
 /* Dev filesystem */
 filesystem_t *vfs_dev;
@@ -66,7 +65,7 @@ void register_blockdev(blockdev_t *blockdev, uint8_t *name)
 
 	if (result == -1)
 	{
-		panic("Failed to register block device (unable to create inode for device)");
+		kprintf(LOG_ERROR, "Failed to register block device (unable to create inode for device)");
 	}
 
 	/* Set the inode specific data to the block device */
@@ -82,7 +81,7 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 
 	if (result == -1)
 	{
-		panic("Failed to unregister block device (unable to find dev entry)");
+		kprintf(LOG_ERROR, "Failed to unregister block device (unable to find dev entry)");
 		return;
 	}
 
@@ -93,12 +92,12 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 		result = vfs_dev->unlink(vfs_dev, name);
 		if (result == -1)
 		{
-			panic("Failed to unregister block device (unable to unlink inode)");
+			kprintf(LOG_ERROR, "Failed to unregister block device (unable to unlink inode)");
 			return;
 		}
 	}
 
-	panic("Failed to unregister block device (inode and block device do not match)");
+	kprintf(LOG_ERROR, "Failed to unregister block device (inode and block device do not match)");
 }
 
 /* Read from a device in dev */
@@ -132,8 +131,6 @@ uint64_t dev_write(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t of
 /* Rename a directory entry */
 int32_t dev_rename(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath)
 {
-	/* Rename the dictionary key */
-	return dict_rename_key((dict_t*) fs->data, oldpath, newpath);
 }
 
 /* Issue a device specfic request to a node in dev */
@@ -164,7 +161,7 @@ void dev_init()
 	root->parent = 0;
 
 	vfs_root->size = 0;
-	vfs_root->mode = S_IRWXU | S_IRWXG | S_IRWXO;
+	vfs_root->mode = 0777;
 	vfs_root->nlink = 0;
 	vfs_root->uid = 0;
 	vfs_root->gid = 0;
