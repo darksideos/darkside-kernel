@@ -125,50 +125,6 @@ int32_t dict_set(dict_t *dict, uint8_t *key, void *item)
 	return -1;
 }
 
-/* Get the keys in a dictionary */
-list_t dict_keys(dict_t *dict)
-{
-	/* Get the length of the hash bucket list */
-	uint32_t num_buckets = list_length(dict->buckets);
-
-	/* Create a list of the keys */
-	list_t keys = list_create(sizeof(uint8_t*), num_buckets);
-
-	/* Copy each key string into the list */
-	uint32_t i;
-	for (i = 0; i < num_buckets; i++)
-	{
-		list_append(&keys, (uint8_t*) list_get(dict->buckets, i));
-	}
-
-	/* Return the list of keys */
-	return keys;
-}
-
-/* Rename a key in a dictionary */
-int32_t dict_rename_key(dict_t *dict, uint8_t *oldkey, uint8_t *newkey)
-{
-	/* Hash the old and new keys */
-	uint64_t hash_oldkey = dict_hash_key(oldkey);
-
-	/* Find the hash bucket containing the key */
-	uint32_t i;
-	for (i = 0; i < list_length(dict->buckets); i++)
-	{
-		/* Get the hash bucket */
-		hash_bucket_t *bucket = (hash_bucket_t*) list_get(dict->buckets, i);
-
-		/* Is the hash the one we're looking for? */
-		if (bucket->key == hash_oldkey)
-		{
-			/* Rename the key and return */
-			bucket->key = dict_hash_key(newkey);
-			return 0;
-		}
-	}
-	return -1;
-}
-
 /* Hash a dictionary key */
 uint64_t dict_hash_key(uint8_t *key)
 {
