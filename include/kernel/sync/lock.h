@@ -1,7 +1,6 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
-#include <lib/libc/types.h>
 #include <kernel/init/hal.h>
 
 /* Spinlock structure */
