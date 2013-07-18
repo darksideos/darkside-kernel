@@ -16,8 +16,8 @@ rwlock_t *rwlock_create()
 /* Initialize a readers/writer lock's values */
 void rwlock_init(rwlock_t *rwlock)
 {
-	semaphore_init(&rwlock->r);
-	semaphore_init(&rwlock->w);
+	semaphore_init(&rwlock->r, 1);
+	semaphore_init(&rwlock->w, 1);
 	spinlock_init(&rwlock->lock);
 	atomic_set(rwlock->readcount, 0);
 	atomic_set(rwlock->writecount, 0);
@@ -30,9 +30,33 @@ void rwlock_delete(rwlock_t *rwlock)
 }
 
 /* Acquire a readers/writer lock for reading */
+void rwlock_read_acquire(rwlock_t *rwlock)
+{
+	spinlock_acquire(&rwlock->lock);
+
+	spinlock_release(&rwlock->lock);
+}
 
 /* Release a readers/writer lock for reading */
+void rwlock_read_release(rwlock_t *rwlock)
+{
+	spinlock_acquire(&rwlock->lock);
+
+	spinlock_release(&rwlock->lock);
+}
 
 /* Acquire a readers/writer lock for writing */
+void rwlock_write_acquire(rwlock_t *rwlock)
+{
+	spinlock_acquire(&rwlock->lock);
+
+	spinlock_release(&rwlock->lock);
+}
 
 /* Release a readers/writer lock for writing */
+void rwlock_write_release(rwlock_t *rwlock)
+{
+	spinlock_acquire(&rwlock->lock);
+
+	spinlock_release(&rwlock->lock);
+}
