@@ -13,16 +13,32 @@ void atomic_set(atomic_t *v, uint32_t val)
 	v->counter = val;
 }
 
-/* Atomically add 'val' to 'v->counter' */
-void atomic_add(atomic_t *v, uint32_t val)
+/* Atomically add 'incr' to 'v->counter' */
+void atomic_add(atomic_t *v, uint32_t incr)
 {
-	asm volatile("lock addl %1, %0" : "+m" (v->counter) : "ir" (val));
+	asm volatile("lock addl %1, %0" : "+m" (v->counter) : "ir" (incr));
 }
 
-/* Atomically subtract 'val' from 'v->counter' */
-void atomic_sub(atomic_t *v, uint32_t val)
+/* Atomically subtract 'decr' from 'v->counter' */
+void atomic_sub(atomic_t *v, uint32_t decr)
 {
-	asm volatile("lock subl %1, %0" : "+m" (v->counter) : "ir" (val));
+	asm volatile("lock subl %1, %0" : "+m" (v->counter) : "ir" (decr));
+}
+
+/* Atomically add 'incr' to 'v->counter' and return the original value of 'v->counter' */
+uint32_t atomic_xadd(atomic_t *v, uint32_t incr)
+{
+	uint32_t ret;
+	asm volatile("lock xadd %0, %1" : "=r"(ret), "=m"(v->counter): "0"(incr), "m"(v->counter) : "memory");
+	return ret;
+}
+
+/* Atomically subtract 'decr' from 'v->counter' and return the original value of 'v->counter' */
+uint32_t atomic_xsub(atomic_t *v, uint32_t decr)
+{
+	uint32_t ret;
+	asm volatile("lock xadd %0, %1" : "=r"(ret), "=m"(v->counter): "0"(-decr), "m"(v->counter) : "memory");
+	return ret;
 }
 
 /* Atomically increment 'v->counter' */

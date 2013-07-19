@@ -19,8 +19,8 @@ void rwlock_init(rwlock_t *rwlock)
 	semaphore_init(&rwlock->r, 1);
 	semaphore_init(&rwlock->w, 1);
 	spinlock_init(&rwlock->lock);
-	atomic_set(rwlock->readcount, 0);
-	atomic_set(rwlock->writecount, 0);
+	atomic_set(&rwlock->readcount, 0);
+	atomic_set(&rwlock->writecount, 0);
 }
 
 /* Delete a readers/writer lock */

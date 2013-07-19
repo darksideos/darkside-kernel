@@ -12,8 +12,10 @@ typedef struct
 /* Atomic operations */
 uint32_t atomic_read(atomic_t *v);
 void atomic_set(atomic_t *v, uint32_t val);
-void atomic_add(atomic_t *v, uint32_t val);
-void atomic_sub(atomic_t *v, uint32_t val);
+void atomic_add(atomic_t *v, uint32_t incr);
+void atomic_sub(atomic_t *v, uint32_t decr);
+uint32_t atomic_xadd(atomic_t *v, uint32_t incr);
+uint32_t atomic_xsub(atomic_t *v, uint32_t decr);
 void atomic_inc(atomic_t *v);
 void atomic_dec(atomic_t *v);
 uint32_t atomic_xchg(atomic_t *v, uint32_t newval);
