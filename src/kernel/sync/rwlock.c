@@ -34,6 +34,18 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 {
 	spinlock_acquire(&rwlock->lock);
 
+	/* Wait for the reading semaphore */
+	semaphore_wait(&rwlock->r);
+
+	/* If there were no readers, allow a writer to get the lock */
+	if (atomic_xadd(&rwlock->readcount, 1) == 0)
+	{
+		semaphore_signal(&rwlock->w);
+	}
+
+	/* Allow another reader to get the lock */
+	semaphore_signal(&rwlock->r);
+
 	spinlock_release(&rwlock->lock);
 }
 
@@ -41,6 +53,12 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 void rwlock_read_release(rwlock_t *rwlock)
 {
 	spinlock_acquire(&rwlock->lock);
+
+	/* If we were the last reader, allow a writer to get the lock */
+	if (atomic_xsub(&rwlock->readcount, 1) == 1)
+	{
+		semaphore_signal(&rwlock->w);
+	}
 
 	spinlock_release(&rwlock->lock);
 }
@@ -50,6 +68,15 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 {
 	spinlock_acquire(&rwlock->lock);
 
+	/* If there were no writers, wait for all readers to release the reading semaphore */
+	if (atomic_xadd(&rwlock->writecount, 1) == 0)
+	{
+		semaphore_wait(&rwlock->r);
+	}
+
+	/* Wait for the writing semaphore */
+	semaphore_wait(&rwlock->w);
+
 	spinlock_release(&rwlock->lock);
 }
 
@@ -57,6 +84,15 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 void rwlock_write_release(rwlock_t *rwlock)
 {
 	spinlock_acquire(&rwlock->lock);
+
+	/* Allow another writer to get the lock */
+	semaphore_signal(&rwlock->w);
+
+	/* If we were the last writer, allow a reader to get the lock */
+	if (atomic_xsub(&rwlock->writecount, 1) == 1)
+	{
+		semaphore_signal(&rwlock->r);
+	}
 
 	spinlock_release(&rwlock->lock);
 }
