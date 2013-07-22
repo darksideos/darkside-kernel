@@ -1,0 +1,37 @@
+i386 HALs
+------------------------------------------------------------------------
+	acpi - Power Management, Bus Detection, and Multiple Processors
+	apic - Local APIC, I/O APIC, APIC Timer
+	apm - Power Management
+	common - GDT, IDT, ISRS, IRQs, Paging*, Syscalls
+	mp - AP Startup, MP Specification**
+	pae
+	up - 8259A PIC***, PIT****
+
+*Can be overridden by PAE
+**Can be overridden by ACPI's Multiprocessor functions
+***Can be overriden by APIC
+****Can be overriden by APIC Timer
+
+Uniprocessor Machine with no ACPI, APIC, or PAE
+	common, up
+Uniprocessor Machine with APIC but no ACPI or PAE
+	common, up, apic
+Uniprocessor Machine with ACPI and APIC but no PAE
+	common, up, acpi, apic
+Uniprocessor Machine with APIC and PAE but no ACPI
+	common, up, apic, pae
+Uniprocessor Machine with ACPI and PAE but no APIC
+	common, up, acpi, pae
+Uniprocessor Machine with ACPI, APIC, and PAE
+	common, up, acpi, apic, pae
+
+
+Multiprocessor Machine with no ACPI or PAE
+	common, mp, apic
+Multiprocessor Machine with ACPI but no PAE
+	common, mp, acpi, apic
+Multiprocessor Machine with PAE but no ACPI
+	common, mp, apic, pae
+Multiprocessor Machine with ACPI and PAE
+	common, mp, acpi, apic, pae
