@@ -1,0 +1,170 @@
+The following document has guidelines for coding DarkSide OS. These must be followed by everyone working on the kernel.
+
+NOTE FROM GEORGE: Since I just came up with these guidelines, I am sometimes guilty of breaking some of them. I'm working on getting the code up to standard.
+
+Brace Placement
+==============================================================
+Code must be indented like this:
+
+void function(int a, int b)
+{
+	if (a < b)
+	{
+		printf("a is less than b\n");
+	}
+	else if (a > b)
+	{
+		printf("a is greater than b\n");
+	}
+	else
+	{
+		printf("a equals b\n");
+	}
+}
+
+The following style is NOT okay:
+
+void function(int a, int b) {
+	if (a < b) {
+		printf("a is less than b\n");
+	} else if (a > b) {
+		printf("a is greater than b\n");
+	} else {
+		printf("a equals b\n");
+	}
+}
+
+Naming
+==============================================================
+All variables and functions will use lowercase names, with each world separated by underscores:
+
+uint32_t current_directory;
+void flush_tlb();
+
+When defining new types, suffix the type name with a '_t':
+
+typedef struct inode
+{
+	<snip>
+} inode_t;
+
+inode_t vfs_root;
+
+The style for naming functions depends on the type of function you have. For functions that do work on data types,
+prefix the action with the data type:
+
+list_t list_create();
+
+For a function that performs an action, but not directly on a data type, you would flip the data type and action:
+
+uint64_t get_time();
+
+Comments
+==============================================================
+It's incredibly important to comment code in the kernel. Comments must use /* */ style, not // style.
+
+Comments should be descriptive, explaining what a certain section of code does, and for complex algorithms, how it does it.
+
+If there is an algorithm taking several blocks of code, use one comment to explain the entire block of code.
+
+Even though comments are important, don't be overly descriptive:
+
+/* Get the time */
+uint64_t time = get_time();
+
+That's just useless, and wastes space.
+
+Macros
+==============================================================
+For macros defining constants, all macro names must be CAPITALIZED. If a macro is defining a function, capitalized names are appreciated, but lowercase names
+can be used as well.
+
+When defining macros that contain expressions, it's important to surround the statement is parentheses. Otherwise, the code can break in a complex statement.
+
+Encapsulation
+==============================================================
+If possible, structures should be properly encapsulated. That means that the implementation is hidden, and the only
+way to access the structure's data is through accessor functions.
+
+Since we're programming in C, and can't use public/private, we use a more primitive method. In the public interface,
+which is the header file, we only declare the structure, and don't define it. Then we create function prototypes for
+each public function, using pointers to the structure as arguments:
+
+Header File
+--------------------------------------------------------------
+typedef struct data data_t;
+
+data_t *data_create();
+void data_destroy(data_t *data);
+uint32_t data_get(data_t *data);
+void data_set(data_t *data, uint32_t value);
+
+Source File
+--------------------------------------------------------------
+typedef struct data
+{
+	uint32_t value;
+} data_t;
+
+data_t *data_create()
+{
+	return (data_t*) kmalloc(sizeof(data_t));
+}
+
+void data_destroy(data_t *data)
+{
+	kfree(data);
+}
+
+uint32_t data_get(data_t *data)
+{
+	return data->value;
+}
+
+void data_set(data_t *data, uint32_t value)
+{
+	data->value = value;
+}
+
+However, there are some times when encapsulation can't be used. One of those times is when a structure isn't just
+used in one source file. For example, many device drivers will define a block device structure. Therefore, that 
+structure must remain inside of a header file.
+
+Another time encapsulation can't be used is when you need to declare variables that are static, global, on the stack,
+or dynamically allocated in source files besides the one where the structure is defined. Because we just declare the
+structure (not define it), we can only use a pointer to the structure.
+
+Just like data types should be encapsulated when possible, so should macros. If a certain macro is only relevant to
+one source file, there's no need to expose it publicly.
+
+Usage of the HAL
+==============================================================
+The Hardware Abstraction Layer (HAL) is a layer between the kernel and the hardware. It provides platform-specific functions, and allows the kernel to be
+easily ported to another architecture, since the only code that needs to be changed is the HAL.
+
+When adding a function to the HAL, consider a few things. First of all, is the function really platform-specific? If it can be done outside of the HAL, then
+implement it outside of the HAL. 
+
+Second, can the function be implemented on every architecture? The HAL is supposed to provide an abstraction, so the functions should be general enough to be
+implemented on all of the supported architectures. Don't break compatibility just to achieve an easy solution.
+
+Third, make sure that the function hasn't been implemented already. Check the HAL Documentation on the website.
+
+As a general guide, these functions should go in the HAL:
+-Initialization
+-Port I/O and MMIO
+-Hardware Interrupts
+-Timer
+-Paging
+-System Calls (only the ability to register and dispatch them, not the calls themselves)
+-Atomic Operations
+
+Any other function should be able to be implemented outside of the HAL, either on its own or with the support of existing HAL functions.
+
+To ensure portability, no part of the kernel should directly access hardware. All platform-specific functions must go through the HAL.
+
+For the most part, drivers should also use the HAL in order to use I/O and Hardware Interrupts. This means that instead of directly calling 'inb' through
+inline assembly or directly reading a byte from memory, use inportb() and inmemb() in the HAL.
+
+However, there are some exceptions to this rule. On drivers that are guarenteed to only run on one architecture and need maximum speed, it may be okay to
+directly do I/O. Despite that exception, it's preferred to use the HAL.
