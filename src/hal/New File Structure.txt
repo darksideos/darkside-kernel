@@ -41,5 +41,5 @@ Multiprocessor Machine with ACPI and PAE
 
 64 bit options
 -------------------------------------------------------------------------
-64 bit HAL
-	common, amd64, acpi, apic, mp 
+Machine
+	common, amd64, mp, acpi, apic
