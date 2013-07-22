@@ -1,18 +1,21 @@
-i386 HALs
-------------------------------------------------------------------------
+x86 HAL
+========================================================================
 	acpi - Power Management, Bus Detection, and Multiple Processors
+	amd64 - GDT, IDT, Paging (64 bit)
 	apic - Local APIC, I/O APIC, APIC Timer
-	apm - Power Management
-	common - GDT, IDT, ISRS, IRQs, Paging*, Syscalls
-	mp - AP Startup, MP Specification**
+	common - GDT*, IDT*, Paging**, ISRS, IRQs, Syscalls, I/O
+	mp - AP Startup, MP Specification***
 	pae
-	up - 8259A PIC***, PIT****
+	up - 8259A PIC****, PIT*****
 
-*Can be overridden by PAE
-**Can be overridden by ACPI's Multiprocessor functions
-***Can be overriden by APIC
-****Can be overriden by APIC Timer
+*Can be overridden by 64 bit GDT and IDT
+**Can be overridden by PAE or 64 bit paging
+***Can be overridden by ACPI's Multiprocessor functions
+****Can be overriden by APIC
+*****Can be overriden by APIC Timer
 
+32 bit options
+------------------------------------------------------------------------
 Uniprocessor Machine with no ACPI, APIC, or PAE
 	common, up
 Uniprocessor Machine with APIC but no ACPI or PAE
@@ -35,3 +38,8 @@ Multiprocessor Machine with PAE but no ACPI
 	common, mp, apic, pae
 Multiprocessor Machine with ACPI and PAE
 	common, mp, acpi, apic, pae
+
+64 bit options
+-------------------------------------------------------------------------
+64 bit HAL
+	common, amd64, acpi, apic, mp 
