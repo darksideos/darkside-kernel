@@ -1,6 +1,6 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
-#include <kernel/console/log.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/disk.h>
 #include <kernel/vfs/mbr.h>
@@ -18,7 +18,7 @@ void mbr_disk_init(disk_t *disk)
 	uint64_t bytes_read = blockdev_read(disk->blockdev, (uint8_t*) &primary[0], 446, sizeof(mbr_partition_entry_t) * 4);
 	if (bytes_read != sizeof(mbr_partition_entry_t) * 4)
 	{
-		panic(LOG_ERROR, "Error reading MBR partition table");
+		kprintf(LOG_ERROR, "Error reading MBR partition table");
 		return;
 	}
 
