@@ -3,7 +3,7 @@ x86 HAL
 	acpi - Power Management, Bus Detection, and Multiple Processors
 	amd64 - GDT, IDT, Paging (64 bit)
 	apic - Local APIC, I/O APIC, APIC Timer
-	common - GDT*, IDT*, Paging**, ISRS, IRQs, Syscalls, I/O
+	common - GDT*, IDT*, Exceptions, IRQs, Syscalls, Paging**, I/O
 	mp - AP Startup, MP Specification***
 	pae
 	up - 8259A PIC****, PIT*****
@@ -43,3 +43,8 @@ Multiprocessor Machine with ACPI and PAE
 -------------------------------------------------------------------------
 Machine
 	common, amd64, mp, acpi, apic
+
+ARM HAL
+========================================================================
+	bcm2835 - Timer
+	common - Exceptions, IRQs, Syscalls, Paging, I/O
