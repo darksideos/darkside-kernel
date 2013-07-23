@@ -124,7 +124,7 @@ ioapic_t *get_ioapic(int32_t irq)
 	return 0;
 }
 
-/* Get an I/O APIC entry */
+/* Get an I/O APIC entry for a given IRQ */
 ioapic_entry_t *get_ioapic_entry(int32_t irq)
 {
 	/* Number of IRQs we've gone through */
@@ -157,8 +157,25 @@ void ioapics_install()
 }
 
 /* Configure an IRQ in the I/O APICs */
-void ioapics_configure_irq(int32_t irq, uint8_t vector)
+void ioapics_configure_irq(int32_t irq, uint8_t vector, uint32_t destination, uint8_t trigger_mode, uint8_t pin_polarity)
 {
+	/* Get the I/O APIC and I/O APIC entry */
+	ioapic_t *ioapic = get_ioapic_irq);
+	ioapic_entry_t *entry = get_ioapic_entry(irq);
+
+	/* Set the entry's fields and write it to the I/O APIC */
+	entry->vector = vector;
+	entry->delivery_mode = 1;			// Lowest priority
+	entry->destination_mode = 1;		// Logical destination
+	entry->delivery_status = 0;			// Ready
+	entry->pin_polarity = pin_polarity;
+	entry->remote_irr = 0;				// TODO: Figure this out
+	entry->trigger_mode = trigger_mode;
+	entry->mask = false;
+	entry->unused = 0;
+	entry->destination = destination;
+
+	ioapic_write_entry(ioapic, irq);
 }
 
 /* Mask an IRQ in the I/O APICs */
