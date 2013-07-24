@@ -1,13 +1,21 @@
 This document contains a basic overview of the design of DarkSide OS.
 
+-----------------------------------BOOTLOADER-----------------------------------
+On i386 systems, the kernel uses a bootloader known as bigbang. There are 4 variants, bigbang32, bigbang64, bigbangefi32, and bigbangefi64, running on BIOS IA-32, BIOS AMD64, EFI IA-32, and EFI AMD64 systems, respectively.
+
+On the BIOS version of bigbang, the first stage of the bootloader is located in the MBR. It only loads stage2 from the reserved sectors on the disk. stage2 collects information about the system using the BIOS, such as the memory map, storing it in a structure. stage3 is loaded from later reserved sectors, and then protected mode or long mode is enabled, and control is passed to stage3.
+
+stage3 is the most important part of the bootloader. Its responsibility is to load the kernel from an EXT2 partition. stage3 sets up higher half paging for the kernel, sanitizes the BIOS memory map, collects more information about the system such as the ACPI RSDP, reads the kernel from the disk, and finally loads and executes the kernel. When the kernel is loaded, it is also loaded with a HAL and motherboard driver. The HAL and motherboard driver are chosen based on what the system supports. bigbang dynamically links the kernel, HAL, and motherboard driver together, and jumps to the kernel. It passes an OS information structure containing system information.
+
+The EFI version of bigbang is much different. It only consists of stage3, because EFI is able to load it in protected mode and long mode. EFI also passes information such as the ACPI RSDP and BIOS memory map. From that point on, stage3 proceeds the same way as in the BIOS version of bigbang.
+
 ---------------------------HARDWARE ABSTRACTION LAYER---------------------------
 The Hardware Abstraction Layer abstracts away the hardware and provides a common interface for the kernel to run on. It is a set of several architecture dependent functions that are used in the kernel. That way, the only thing that needs to be done to port the OS is writing a new HAL.
 
 The HAL contains these functions:
 
 =================================INITIALIZATION=================================
--void hal_init_cpu(struct multiboot *mboot_ptr);
--bus_t **hal_init_system(struct multiboot *mboot_ptr);
+-void hal_init_bsp(os_info_t *os_info);
 
 ======================================I/O=======================================
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Port I/O>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -26,13 +34,29 @@ The HAL contains these functions:
 -unsigned long inmeml(uint32_t address);
 -void outmeml(uint32_t address, unsigned long data);
 
+===================================REGISTERS====================================
+-void *create_registers(void (*function)(), bool user);
+-void copy_registers(void *dest, void *src);
+
 ===================================INTERRUPTS===================================
 -void irq_install_handler(int32_t irq, void *handler);
 -void irq_uninstall_handler(int32_t irq);
 
+================================INTERRUPT STATE=================================
+-void disable_interrupts();
+-void enable_interrupts();
+-uint32_t get_interrupt_state();
+-void set_interrupt_state(uint32_t state);
+
+=====================================TIMER======================================
+-uint32_t get_time();
+-void sleep(int32_t sec);
+
+====================================SPEAKER=====================================
+-void speaker_beep(int32_t frequency);
+
 ===========================PHYSICAL MEMORY MANAGEMENT===========================
 -uint32_t pmm_alloc_page();
--void pmm_claim_page(uint32_t address);
 -void pmm_free_page(uint32_t address);
 
 ===========================VIRTUAL MEMORY MANAGEMENT============================
@@ -42,10 +66,26 @@ The HAL contains these functions:
 -void map_kernel(uint32_t dir);
 -uint32_t create_address_space();
 -void switch_address_space(uint32_t dir);
+-uint32_t page_align(uint32_t address);
+
+==================================MULTITASKING==================================
+void set_kernel_stack(uint32_t stack);
+void switch_cpu_context(void *context);
 
 ====================================SYSCALLS====================================
--void init_syscalls();
 -void syscall_install_handler(int32_t syscall, void *handler);
+
+===============================ATOMIC OPERATIONS================================
+-uint32_t atomic_read(atomic_t *v);
+-void atomic_set(atomic_t *v, uint32_t val);
+-void atomic_add(atomic_t *v, uint32_t incr);
+-void atomic_sub(atomic_t *v, uint32_t decr);
+-uint32_t atomic_xadd(atomic_t *v, uint32_t incr);
+-uint32_t atomic_xsub(atomic_t *v, uint32_t decr);
+-void atomic_inc(atomic_t *v);
+-void atomic_dec(atomic_t *v);
+-uint32_t atomic_xchg(atomic_t *v, uint32_t newval);
+-uint32_t atomic_cmpxchg(atomic_t *v, uint32_t oldval, uint32_t newval);
 
 -------------------------------------KERNEL-------------------------------------
 The kernel is the central component of DarkSide OS (and all operating systems).  It provides the basic system functionality that all applications, libraries, and drivers need to interface with the hardware, such as memory management, a file manager, processes and threads, and device management.
@@ -53,7 +93,7 @@ The kernel is the central component of DarkSide OS (and all operating systems). 
 =================================MEMORY MANAGER==================================
 The kernel’s memory manager is responsible for creating address spaces for processes. It also provides a kernel heap for data structures to be allocated on.
 
-This is the layout of every process’s address space on a 32 bit system:
+This is the layout of every process’s address space on an IA-32 system:
 
 0x80000000 – 0x8FFFFFFF		Kernel code and data
 0x90000000					Kernel heap (grows upwards)
@@ -63,7 +103,7 @@ This is the layout of every process’s address space on a 32 bit system:
 0xF4000000 – 0xFFFFFFFF		Paging structures
 
 ==============================VIRTUAL FILE SYSTEM===============================
-The kernel’s VFS provides a filesystem abstraction. It uses a node tree with currently opened files cached in memory, but a mountpoint list is also used.
+The kernel’s VFS provides a filesystem abstraction. It uses a node tree with currently opened files cached in memory, but a mountpoint list is also used. Filesystems can be registered in the VFS, and then volumes can be mounted with a certain registered filesystem.
 
 This is the directory layout:
 
@@ -88,12 +128,16 @@ This is the directory layout:
 The kernel provides multitasking with processes and threads. Processes are self contained tasks with their own threads, address space, and files. Threads are parts of processes that have their own execution path, registers, and stacks, but run in the same address space as every other thread in their parent process. Each process contains at least one executing thread.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<SCHEDULER>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Processes and threads can be preemptively multitasked using a powerful scheduler. In the scheduler, there are several priority queues. The queues are run in priority order. Each priority queue has a set of threads waiting to be executed, and the threads are executed in order. With this algorithm, a process’s priority determines whether it is run first. The priority is set by how often the task is run and whether it is important to the system.
+Processes and threads can be preemptively multitasked using a powerful scheduler. In the scheduler, there are several priority queues. Threads on the queues are run in priority order. Each priority queue has a set of threads waiting to be executed, and the threads are executed in order. With this algorithm, a process’s priority determines whether it is run first. The priority is set by how often the task is run and whether it is important to the system.
 
-Tasks also get timeslices, which controls how much time they execute for. Finally, a variation of the above uses priority queues and timeslices, but for each priority queue, it also determines what order the tasks should run in.
+Tasks also get timeslices, which controls how much time they execute for.
+
+There is also a queue of tasks for each CPU, which contains tasks that are ready to run on a certain CPU. When a thread in a priority queue becomes ready to run, one of two things may happen. If a thread has an affinity for one specific CPU, it gets pushed onto that CPU's queue immediately. Otherwise, it is pushed onto the queue for the CPU that is the least busy.
+
+When one thread's timeslice expires, the scheduler finds a new task. If there are threads ready on the CPU's queue, those are run. Otherwise, a new task is selected using the algorithm above.
 
 ==========================INTER-PROCESS COMMUNICATION===========================
-The kernel provides a few methods of IPC. These are messages, shared memory, signals, pipes, semaphores, and mutexes. Spinlocks are implemented in the HAL. They are used in the kernel for multiprocessor synchronization.
+The kernel provides a few methods of IPC. These are messages, shared memory, signals, pipes, semaphores, mutexes, and readers/writer locks. Spinlocks are implemented in the kernel, using atomic operations in the HAL. They are used in the kernel for multiprocessor synchronization.
 
 ====================================SYSCALLS====================================
 The kernel exposes the user mode API using syscalls. On i386, the syscalls will be exposed through SYSENTER. The user mode API contains functions that directly call kernel functions.
@@ -106,13 +150,15 @@ These are the function categories for syscalls:
 -Memory syscalls
 -Time and date syscalls
 
-These syscalls may be used directly or through libraries provided by the operating system.
+These syscalls are used through libraries provided by the operating system.
 
 ==============================EXECUTABLE BINARIES===============================
 The kernel can execute ELF or PE binaries. When a new program is executed, the code and data from its executable binary is loaded into the process’s address space. Any user libraries that are linked with the kernel are then mapped into the address space as well. The executable binary is dynamically linked with these libraries, and relocated if needed.
 
+The kernel has support for ELF, a.out, flat binary, and script files by default. In order to make the kernel extensible, executable formats can be registered by device drivers. That way, executable formats can be easily added to the kernel.
+
 ====================================MODULES=====================================
-The kernel can also load ELF or PE modules. Kernel modules are dynamically linked with the kernel. They can be dynamically loaded or unloaded. Modules are stored in /boot/modules, and can be loaded from the initrd or the hard drive. The initrd contains only video, input, hard drive, and filesystem drivers, which are the bare minimum drivers required to get the system running. Modules are loaded to the kernel’s module area. The module area is a special heap.
+The kernel can also load ELF modules. Kernel modules are dynamically linked with the kernel. They can be dynamically loaded or unloaded. Modules are stored in /boot/modules, and can be loaded from the initrd or the hard drive. The initrd contains only video, input, hard drive, and filesystem drivers, which are the bare minimum drivers required to get the system running. Modules are loaded to the kernel’s module area. The module area is a special heap.
 
 =================================DEVICE MANAGER=================================
 The kernel has a device manager that can detect devices, load and unload drivers, and provide an API for the devices to be used. When the device manager is started, the bus drivers for the system are first loaded. The device manager uses the bus drivers to detect devices on the system and load their drivers. Devices are part of the device tree on /dev, and can be accessed through normal file syscalls or the ioctl syscall, which allows the driver to have special functions.
@@ -120,13 +166,17 @@ The kernel has a device manager that can detect devices, load and unload drivers
 Drivers are loaded through the device manager. Drivers are normally kernel mode modules, but some are in user mode. There are three types of drivers, which are at different levels. Drivers run on top of lower level drivers in a tree structure. When drivers are unloaded, all of the drivers in that depend on it are recursively unloaded.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<LOW-LEVEL DRIVERS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Low level drivers are the lowest level drivers in the tree. They are bus drivers, which allow the device manager to detect devices on the system. Bus drivers interface directly with the hardware, and provide an interface for other drivers to access the hardware. The bus drivers are loaded on i386 by ACPI, which provides a list of the system buses in the DSDT. Examples of bus drivers are PCI, PCI Express, and USB drivers.
+Low level drivers are the lowest level drivers in the tree. They are bus drivers, which allow the device manager to detect devices on the system. Bus drivers interface directly with the hardware, and provide an interface for other drivers to access the hardware. Examples of bus drivers are PCI, PCI Express, and USB drivers.
+
+One special type of low level driver is a motherboard driver. Motherboard drivers are used by the HAL to provide bus detection, multiprocessor information, and power management.
+
+On i386, the bootloader attempts to load a bus driver specific to the motherboard. If it can't find one, it falls back on a generic motherboard driver, such as ACPI or a legacy motherboard driver. The ACPI driver is implemented using ACPICA. A legacy motherboard driver uses several services together to provide system information. For multiprocessor information, the MP information table is used. If the table is not present, it can be assumed that the system is uniprocessor. On systems with the MP table, the table is also used for bus detection. On systems without it, services such as BIOS32 or BIOS Interrupt 0x1A are used for bus detection instead. If none of those exist, the system is considered unable to boot.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<MID-LEVEL DRIVERS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Middle level drivers are drivers that control devices found on a bus. They sit between bus drivers and high level drivers that use software protocols. Middle level drivers work with raw data, and don’t worry about the format of the data. Examples of middle level drivers are video card drivers, storage device drivers, and network card drivers. Some devices, such as input devices, don’t use a middle level driver, and have a high level driver on top of the bus driver.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<HIGH-LEVEL DRIVERS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-High level drivers are the highest level of drivers in the tree. They control software protocols that are part of devices. They run on top of either low level drivers or high level drivers, depending on the type of device. Graphics drivers, filesystem drivers, and networking drivers run on top of middle level drivers, because they are drivers for software protocols that run on top of middle level drivers that deal with raw data. Input drivers, such as keyboard and mouse drivers, are high level drivers that directly implement software protocols, and don’t use middle level drivers. Instead, they run directly on top of low level drivers.
+High level drivers are the highest level of drivers in the tree. They control software protocols that are part of devices. They run on top of either low level drivers or middle level drivers, depending on the type of device. Graphics drivers, filesystem drivers, and networking drivers run on top of middle level drivers, because they are drivers for software protocols that run on top of middle level drivers that deal with raw data. Input drivers, such as keyboard and mouse drivers, are high level drivers that directly implement software protocols, and don’t use middle level drivers. Instead, they run directly on top of low level drivers.
 
 -----------------------------------USER MODE------------------------------------
 User mode is the part of the OS that users interface with. It runs on top of the kernel, which provides user mode with the OS API and a device driver tree. This allows user mode to access the system, but this access is still managed by the kernel. User mode is responsible for applications, the shell, and users.
