@@ -153,7 +153,7 @@ These are the function categories for syscalls:
 These syscalls are used through libraries provided by the operating system.
 
 ==============================EXECUTABLE BINARIES===============================
-The kernel can execute ELF or PE binaries. When a new program is executed, the code and data from its executable binary is loaded into the process’s address space. Any user libraries that are linked with the kernel are then mapped into the address space as well. The executable binary is dynamically linked with these libraries, and relocated if needed.
+The kernel can execute several executable binary formats. When a new program is executed, the code and data from its executable binary is loaded into the process’s address space. Any user libraries that are linked with the binary are mapped into the address space as well. The executable binary is dynamically linked with these libraries, and relocated if needed.
 
 The kernel has support for ELF, a.out, flat binary, and script files by default. In order to make the kernel extensible, executable formats can be registered by device drivers. That way, executable formats can be easily added to the kernel.
 
