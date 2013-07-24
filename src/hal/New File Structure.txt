@@ -1,50 +1,48 @@
 x86 HAL
-========================================================================
-	acpi - Power Management, Bus Detection, and Multiple Processors
+------------------------------------------------------------------------
 	amd64 - GDT, IDT, Paging (64 bit)
 	apic - Local APIC, I/O APIC, APIC Timer
 	common - GDT*, IDT*, Exceptions, IRQs, Syscalls, Paging**, I/O
-	mp - AP Startup, MP Specification***
+	mp - AP Startup
 	pae
-	up - 8259A PIC****, PIT*****
+	up - 8259A PIC***, PIT****
 
 *Can be overridden by 64 bit GDT and IDT
 **Can be overridden by PAE or 64 bit paging
-***Can be overridden by ACPI's Multiprocessor functions
-****Can be overriden by APIC
-*****Can be overriden by APIC Timer
+***Can be overriden by APIC
+****Can be overriden by APIC Timer
+
+Motherboard drivers
+========================================================================
+generic
+	acpi - ACPI
+	legacy - APM, MP Specification
+native
+	<Each motherboard driver goes here>
 
 32 bit options
-------------------------------------------------------------------------
-Uniprocessor Machine with no ACPI, APIC, or PAE
+========================================================================
+Uniprocessor Machine with no APIC, or PAE
 	common, up
-Uniprocessor Machine with APIC but no ACPI or PAE
+Uniprocessor Machine with APIC but no PAE
 	common, up, apic
-Uniprocessor Machine with ACPI and APIC but no PAE
-	common, up, acpi, apic
-Uniprocessor Machine with APIC and PAE but no ACPI
+Uniprocessor Machine with PAE but no APIC
+	common, up, pae
+Uniprocessor Machine with APIC and PAE
 	common, up, apic, pae
-Uniprocessor Machine with ACPI and PAE but no APIC
-	common, up, acpi, pae
-Uniprocessor Machine with ACPI, APIC, and PAE
-	common, up, acpi, apic, pae
 
 
-Multiprocessor Machine with no ACPI or PAE
+Multiprocessor Machine with no PAE
 	common, mp, apic
-Multiprocessor Machine with ACPI but no PAE
-	common, mp, acpi, apic
-Multiprocessor Machine with PAE but no ACPI
+Multiprocessor Machine with PAE
 	common, mp, apic, pae
-Multiprocessor Machine with ACPI and PAE
-	common, mp, acpi, apic, pae
 
 64 bit options
--------------------------------------------------------------------------
+========================================================================
 Machine
 	common, amd64, mp, acpi, apic
 
 ARM HAL
-========================================================================
+------------------------------------------------------------------------
 	bcm2835 - Timer
 	common - Exceptions, IRQs, Syscalls, Paging, I/O
