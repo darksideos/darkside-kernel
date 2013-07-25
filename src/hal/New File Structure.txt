@@ -42,6 +42,106 @@ Multiprocessor Machine with PAE
 Machine
 	common, amd64, mp, acpi, apic
 
+HAL selection (32 bit)
+========================================================================
+bool pae, apic;
+
+/* Try to find multiple processors or APICs with ACPI */
+rsdp_t *rsdp = acpi_find_rsdp();
+if (rsdp)
+{
+	<Parse the MADT>
+	if (There are multiple processors and APICs)
+	{
+		goto mp;
+	}
+	else if (There is an APIC, but not multiple processors)
+	{
+		apic = true;
+		goto up;
+	}
+}
+
+/* Try to find multiple processors or APICs with the MP tables */
+mp_table_ptr_t *mp_table_ptr = mp_find_table_ptr();
+<Parse the MP tables>
+if (There are multiple processors and APICs)
+{
+	goto mp;
+}
+else if (There is an APIC, but not multiple processors)
+{
+	apic = true;
+	goto up;
+}
+
+/* If there's no ACPI or MP tables, use CPUID to detect a Local APIC */
+<Detect a Local APIC>
+if (There is a Local APIC)
+{
+	apic = true;
+}
+
+/* Uniprocessor HAL */
+up:
+	if (apic && pae)
+	{
+		<Load the Uniprocessor APIC and PAE HAL>
+	}
+	else if (apic)
+	{
+		<Load the Uniprocessor APIC HAL>
+	}
+	else if (pae)
+	{
+		<Load the Uniprocessor PAE HAL>
+	}
+	else
+	{
+		<Load the Uniprocessor HAL>
+	}
+
+	return;
+
+mp:
+	if (pae)
+	{
+		
+		<Load the Multiprocessor PAE HAL>
+	}
+	else
+	{
+		<Load the Multiprocessor HAL>
+	}
+
+	return;
+
+HAL selection (64 bit)
+========================================================================
+<Load the 64 bit machine HAL, and make sure to read the RSDP>
+
+Motherboard driver selection
+========================================================================
+/* Try to load a native motherboard driver */
+if (There is a driver for the current motherboard)
+{
+	<Load the native motherboard driver>
+}
+/* Try to load a generic motherboard driver */
+else
+{
+	/* If ACPI is present, load it (rsdp is in the HAL selection code) */
+	if (rsdp)
+	{
+		<Load ACPI motherboard driver>
+	}
+	/* Otherwise, load the legacy motherboard driver (APM, MP Specification) */
+	else
+	{
+		<Load legacy motherboard driver>
+	}
+}
+
 ARM HAL
 ------------------------------------------------------------------------
 	bcm2835 - Timer
