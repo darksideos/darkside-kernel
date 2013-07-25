@@ -60,7 +60,7 @@ void clear()
         memsetw(textmemptr + i * 80, blank, 80);
 	}
 
-    /* Update out virtual cursor, and then move the hardware cursor */
+    /* Update our virtual cursor, and then move the hardware cursor */
     csr_x = 0;
     csr_y = 0;
     move_csr();
