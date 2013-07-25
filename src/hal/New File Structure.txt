@@ -46,6 +46,12 @@ HAL selection (32 bit)
 ========================================================================
 bool pae, apic;
 
+/* Use CPUID to detect PAE */
+if (CPU supports PAE)
+{
+	pae = true;
+}
+
 /* Try to find multiple processors or APICs with ACPI */
 rsdp_t *rsdp = acpi_find_rsdp();
 if (rsdp)

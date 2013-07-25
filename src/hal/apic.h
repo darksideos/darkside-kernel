@@ -42,8 +42,7 @@ typedef struct ioapic
 } ioapic_t;
 
 /* I/O APIC list */
-ioapic_t **ioapics;
-uint32_t num_ioapics;
+list_t ioapics;
 
 /* Read an IRQ entry from an I/O APIC */
 void ioapic_read_entry(ioapic_t *ioapic, int32_t irq)
@@ -100,12 +99,8 @@ void ioapic_init(ioapic_t *ioapic, uint32_t phys_start, uint64_t virt_start, uin
 	/* Create the IRQ list */
 	ioapic->irqs = (ioapic_entry_t**) kmalloc(sizeof(ioapic_entry_t*) * ioapic->num_irqs);
 
-	/* Set all IRQs to masked and write them to memory */
-	for (int32_t irq = 0; irq < ioapic->num_irqs; irq++)
-	{
-		ioapic->irqs[irq]->mask = true;
-		ioapic_write_entry(ioapic, irq);
-	}
+	/* Add the I/O APIC to the list */
+	list_append(&ioapics, ioapic);
 }
 
 /* Get the I/O APIC that contains a given IRQ */
@@ -154,10 +149,16 @@ ioapic_entry_t *get_ioapic_entry(int32_t irq)
 /* Install the I/O APICs */
 void ioapics_install()
 {
+	/* Create the list of I/O APICs */
+	ioapics = list_create(sizeof(ioapic_t*), 2);
+
+	/* Call the motherboard to initialize the I/O APICs */
+
+	/* Set up the I/O APIC entries and mask them */
 }
 
 /* Configure an IRQ in the I/O APICs */
-void ioapics_configure_irq(int32_t irq, uint8_t vector, uint32_t destination, uint8_t trigger_mode, uint8_t pin_polarity)
+void ioapics_configure_irq(int32_t irq, uint8_t vector, uint32_t destination, uint8_t trigger_mode, uint8_t pin_polarity, bool mask)
 {
 	/* Get the I/O APIC and I/O APIC entry */
 	ioapic_t *ioapic = get_ioapic(irq);
@@ -171,7 +172,7 @@ void ioapics_configure_irq(int32_t irq, uint8_t vector, uint32_t destination, ui
 	entry->pin_polarity = pin_polarity;
 	entry->remote_irr = 0;				// TODO: Figure this out
 	entry->trigger_mode = trigger_mode;
-	entry->mask = false;
+	entry->mask = mask;
 	entry->unused = 0;
 	entry->destination = destination;
 
