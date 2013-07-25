@@ -160,7 +160,7 @@ void ioapics_install()
 void ioapics_configure_irq(int32_t irq, uint8_t vector, uint32_t destination, uint8_t trigger_mode, uint8_t pin_polarity)
 {
 	/* Get the I/O APIC and I/O APIC entry */
-	ioapic_t *ioapic = get_ioapic_irq);
+	ioapic_t *ioapic = get_ioapic(irq);
 	ioapic_entry_t *entry = get_ioapic_entry(irq);
 
 	/* Set the entry's fields and write it to the I/O APIC */
