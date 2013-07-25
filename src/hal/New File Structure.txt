@@ -9,7 +9,7 @@ x86 HAL
 
 *Can be overridden by 64 bit GDT and IDT
 **Can be overridden by PAE or 64 bit paging
-***Can be overriden by APIC
+***Can be overriden by APIC (If the I/O APIC doesn't exist, but the Local APIC does, the 8259A will be used with the Local APIC)
 ****Can be overriden by APIC Timer
 
 Motherboard drivers
