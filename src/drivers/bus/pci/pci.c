@@ -1,9 +1,15 @@
 #include <lib/libc/types.h>
-#include <hal/i386/ports.h>
+#include <kernel/init/hal.h>
 #include <drivers/bus/pci/pci.h>
 
+/* PCI configuration I/O ports */
 #define CONFIG_ADDRESS 0xCF8
 #define CONFIG_DATA	   0xCFC
+
+/* Function prototypes */
+void pci_check_bus(uint16_t bus);
+void pci_check_device(uint16_t bus, uint16_t slot);
+void pci_check_function(uint16_t bus, uint16_t slot, uint16_t function);
 
 /* Read a byte from the PCI configuration space */
 uint8_t pci_read_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset)
@@ -14,7 +20,7 @@ uint8_t pci_read_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uin
 	unsigned long lfunction = (unsigned long) function;
 
 	/* Create the PCI configuration space address */
-	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t) 0x80000000));
 
 	/* Write it to the PCI configuration space address port */
 	outportl(CONFIG_ADDRESS, address);
@@ -32,7 +38,7 @@ uint16_t pci_read_config_word(uint16_t bus, uint16_t slot, uint16_t function, ui
 	unsigned long lfunction = (unsigned long) function;
 
 	/* Create the PCI configuration space address */
-	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t) 0x80000000));
 
 	/* Write it to the PCI configuration space address port */
 	outportl(CONFIG_ADDRESS, address);
@@ -50,7 +56,7 @@ unsigned long pci_read_config_dword(uint16_t bus, uint16_t slot, uint16_t functi
 	unsigned long lfunction = (unsigned long) function;
 
 	/* Create the PCI configuration space address */
-	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t) 0x80000000));
 
 	/* Write it to the PCI configuration space address port */
 	outportl(CONFIG_ADDRESS, address);
@@ -68,7 +74,7 @@ void pci_write_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint1
 	unsigned long lfunction = (unsigned long) function;
 
 	/* Create the PCI configuration space address */
-	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t) 0x80000000));
 
 	/* Write it to the PCI configuration space address port */
 	outportl(CONFIG_ADDRESS, address);
@@ -86,7 +92,7 @@ void pci_write_config_word(uint16_t bus, uint16_t slot, uint16_t function, uint1
 	unsigned long lfunction = (unsigned long) function;
 
 	/* Create the PCI configuration space address */
-	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t) 0x80000000));
 
 	/* Write it to the PCI configuration space address port */
 	outportl(CONFIG_ADDRESS, address);
@@ -104,7 +110,7 @@ void pci_write_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint1
 	unsigned long lfunction = (unsigned long) function;
 
 	/* Create the PCI configuration space address */
-	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	address = (unsigned long)((lbus << 16) | (lslot << 11) | (lfunc << 8) | (offset & 0xFC) | ((uint32_t) 0x80000000));
 
 	/* Write it to the PCI configuration space address port */
 	outportl(CONFIG_ADDRESS, address);
@@ -113,37 +119,42 @@ void pci_write_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint1
 	outportl(CONFIG_DATA, data);
 }
 
-/* Check a function on the PCI bus */
-void check_function(uint16_t bus, uint16_t slot, uint16_t function)
+/* Read the vendor ID of a PCI device */
+uint16_t pci_read_vendor(uint16_t bus, uint16_t slot, uint16_t function)
 {
-	uint8_t class_code;
-	uint8_t subclass;
-	uint8_t secondary_bus;
+	return pci_read_config_word(bus, slot, function, 2);
+}
 
-	class_code = pci_read_config_byte(bus, slot, function. 8);
-	subclass = pci_read_config_byte(bus, slot, function, 9);
+/* Read the device ID of a PCI device */
+uint16_t pci_read_device(uint16_t bus, uint16_t slot, uint16_t function)
+{
+	return pci_read_config_word(bus, slot, function, 0);
+}
 
-	/* Handle secondary buses */
-	if ((class_code == 0x06) && (subclass == 0x04))
+/* Check a PCI bus */
+void pci_check_bus(uint16_t bus)
+{
+	uint16_t slot;
+
+	for (slot = 0; slot < 32; slot++)
 	{
-		secondary_bus = pci_read_config_byte(bus, slot, function, 25);
-		check_bus((uint16_t)secondary_bus); */
+		pci_check_device(bus, slot);
 	}
 }
 
 /* Check a device on the PCI bus */
-void check_device(uint16_t bus, uint16_t slot)
+void pci_check_device(uint16_t bus, uint16_t slot)
 {
 	uint16_t function = 0;
 
 	/* If the vendor is 0xFFFF, the device doesn't exist, so return */
-	if (pci_read_config_word(bus, slot, function, 2) == 0xFFFF)
+	if (pci_read_vendor(bus, slot, function) == 0xFFFF)
 	{
 		return;
 	}
 
 	/* Check the first function of the device */
-	check_function(bus, slot, function);
+	pci_check_function(bus, slot, function);
 
 	/* Read the header type of the device */
 	uint8_t header_type = pci_read_config_byte(bus, slot, function, 13);
@@ -154,27 +165,34 @@ void check_device(uint16_t bus, uint16_t slot)
 		for (function = 1; function < 8; function++)
 		{
 			/* If the function exists, check it */
-			if (pci_read_config_word(bus, slot, function, 2) != 0xFFFF)
+			if (pci_read_vendor(bus, slot, function) != 0xFFFF)
 			{
-				check_function(bus, slot, function);
+				pci_check_function(bus, slot, function);
 			}
 		}
 	}
 }
 
-/* Check a PCI bus */
-void check_bus(uint16_t bus)
+/* Check a function on the PCI bus */
+void pci_check_function(uint16_t bus, uint16_t slot, uint16_t function)
 {
-	uint16_t slot;
+	uint8_t class_code;
+	uint8_t subclass;
+	uint8_t secondary_bus;
 
-	for (slot = 0; slot < 32; slot++)
+	class_code = pci_read_config_byte(bus, slot, function. 8);
+	subclass = pci_read_config_byte(bus, slot, function, 9);
+
+	/* Handle PCI-to-PCI bridges */
+	if ((class_code == PCI_CLASS_BRIDGE) && (subclass == PCI_SUBCLASS_PCIBRIDGE))
 	{
-		check_device(bus, slot);
+		secondary_bus = pci_read_config_byte(bus, slot, function, 25);
+		pci_check_bus((uint16_t) secondary_bus);
 	}
 }
 
-/* Check all PCI buses */
-void check_all_buses()
+/* Enumerate the PCI bus */
+void pci_enumerate()
 {
 	uint16_t bus;
 	uint16_t function;
@@ -190,18 +208,11 @@ void check_all_buses()
 	{
 		for (function = 0; function < 8; function++)
 		{
-			if (pci_read_config_word(bus, slot, function, 2) != 0xFFFF)
+			if (pci_read_vendor(bus, slot, function) != 0xFFFF)
 			{
 				bus = function;
 				check_bus(bus);
 			}
 		}
 	}
-}
-
-/* Initialize the PCI bus */
-void init_pci()
-{
-	/* Check all the PCI buses */
-	check_all_buses();
 }
