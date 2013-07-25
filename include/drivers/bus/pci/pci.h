@@ -9,14 +9,28 @@
 #define PCI_SUBCLASS_SCSI			0x00
 #define PCI_SUBCLASS_IDE			0x01
 #define PCI_SUBCLASS_FLOPPY			0x02
+
 #define PCI_SUBCLASS_ATA			0x05
+#define PCI_PROGIF_ATA_SINGLE_DMA	0x20
+#define PCI_PROGIF_ATA_CHAINED_DMA	0x30
+
 #define PCI_SUBCLASS_SATA			0x06
 
 /* PCI network device class */
 #define PCI_CLASS_NETWORK			0x02
 
+#define PCI_SUBCLASS_ETHERNET		0x00
+#define PCI_SUBCLASS_ISDN			0x04
+
 /* PCI display device class */
 #define PCI_CLASS_DISPLAY			0x03
+
+#define PCI_SUBCLASS_VGA_COMPATIBLE	0x00
+#define PCI_PROGIF_VGA_COMPATIBLE	0x00
+#define PCI_PROGIF_8512_COMPATIBLE	0x01
+
+#define PCI_SUBCLASS_XGA			0x01
+#define PCI_SUBCLASS_3D				0x02
 
 /* PCI multimedia device class */
 #define PCI_CLASS_MULTIMEDIA		0x04
@@ -60,14 +74,46 @@
 /* PCI input device class */
 #define PCI_CLASS_INPUT				0x09
 
+#define PCI_SUBCLASS_KEYBOARD		0x00
+#define PCI_SUBCLASS_MOUSE			0x02
+#define PCI_SUBCLASS_SCANNER		0x03
+
+#define PCI_SUBCLASS_GAME			0x04
+#define PCI_PROGIF_GAME_GENERIC		0x00
+#define PCI_PROGIF_GAME_LEGACY		0x10
+
 /* PCI processor device class */
 #define PCI_CLASS_PROCESSOR			0x0B
+
+#define PCI_SUBCLASS_386			0x00
+#define PCI_SUBCLASS_486			0x01
+#define PCI_SUBCLASS_PENTIUM		0x02
+#define PCI_SUBCLASS_ALPHA			0x10
+#define PCI_SUBCLASS_POWERPC		0x20
+#define PCI_SUBCLASS_MIPS			0x30
+#define PCI_SUBCLASS_COPROCESSOR	0x40
 
 /* PCI serial device class */
 #define PCI_CLASS_SERIAL			0x0C
 
+#define PCI_SUBCLASS_FIREWIRE		0x00
+#define PCI_PROGIF_FIREWIRE			0x00
+#define PCI_PROGIF_1394_OHCI		0x10
+
+#define PCI_SUBCLASS_USB			0x03
+#define PCI_PROGIF_UHCI				0x00
+#define PCI_PROGIF_OHCI				0x10
+#define PCI_PROGIF_EHCI				0x20
+
 /* PCI wireless device class */
 #define PCI_CLASS_WIRELESS			0x0D
+
+#define PCI_SUBCLASS_IRDA			0x00
+#define PCI_SUBCLASS_IR				0x01
+#define PCI_SUBCLASS_BLUETOOTH		0x11
+#define PCI_SUBCLASS_BROADBAND		0x12
+#define PCI_SUBCLASS_WIFI_80211A	0x20
+#define PCI_SUBCLASS_WIFI_80211B	0x21
 
 /* Read data from the PCI configuration space */
 uint8_t pci_read_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset);
