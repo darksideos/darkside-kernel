@@ -1,4 +1,6 @@
 #include <lib/libc/types.h>
+#include <lib/libc/string.h>
+#include <lib/libadt/list.h>
 
 /* MP table pointer structure */
 typedef struct mp_table_ptr
@@ -183,6 +185,10 @@ typedef struct mp_lapic_irq_entry
 	uint8_t dest_lapic_irq;
 } mp_lapic_irq_entry_t;
 
+/* MP table signatures */
+#define MP_TABLE_PTR_SIG			"_MP_"
+#define MP_TABLE_SIG				"PCMP"
+
 /* MP table entry types */
 #define MP_ENTRY_TYPE_CPU			0
 #define MP_ENTRY_TYPE_BUS			1
@@ -195,3 +201,126 @@ typedef struct mp_lapic_irq_entry
 #define MP_BUS_TYPE_ISA				"ISA"
 #define MP_BUS_TYPE_PCI				"PCI"
 #define MP_BUS_TYPE_PCMCIA			"PCMCIA"
+
+/* MP table interrupt types */
+
+/* MP table entries */
+list_t mp_cpu_entries;
+list_t mp_bus_entries;
+list_t mp_ioapic_entries;
+list_t mp_ioapic_irq_entries;
+list_t mp_lapic_irq_entries;
+
+/* Read the MP table pointer and get the MP table */
+void mp_read_table_ptr(mp_table_ptr_t *table_ptr)
+{
+	/* Make sure the signature is '_MP_' */
+	if (!strnequal(&table_ptr->signature[0], MP_TABLE_PTR_SIG, 4))
+	{
+		kprintf(LOG_ERROR, "MP table pointer signature invalid\n");
+		return;
+	}
+
+	/* Do a checksum of the table and verify that it sums to 0 */
+	uint8_t checksum;
+	for (uint32_t i = 0; i < table_ptr->length * 16; i++)
+	{
+		checksum += ((uint8_t*) table_ptr)[i];
+	}
+
+	if (checksum != 0)
+	{
+		kprintf(LOG_ERROR, "MP table pointer checksum invalid\n");
+		return;
+	}
+
+	/* Find out if there is a default configuration, and if so, use it */
+	if (table_ptr->feature_bytes[0] != 0)
+	{
+		mp_read_default_config(table_ptr);
+	}
+
+	/* Get a pointer to the MP table and read it */
+	if (table_ptr->mp_table)
+	{
+		mp_read_table((mp_table_t*) table_ptr->mp_table);
+	}
+
+	/* If the MP table was 0, print an error and return */
+	kprintf(LOG_ERROR, "MP table pointer invalid");
+}
+
+/* Read the MP table and all of its entries */
+void mp_read_table(mp_table_t *table)
+{
+	/* Make sure the signature is '_MP_' */
+	if (!strnequal(&table->signature[0], MP_TABLE_SIG, 4))
+	{
+		kprintf(LOG_ERROR, "MP table signature invalid\n");
+		return;
+	}
+
+	/* Do a checksum of the table and verify that it sums to 0 */
+	uint8_t checksum;
+	for (uint32_t i = 0; i < table->length; i++)
+	{
+		checksum += ((uint8_t*) table)[i];
+	}
+
+	if (checksum != 0)
+	{
+		kprintf(LOG_ERROR, "MP table checksum invalid\n");
+		return;
+	}
+
+	/* Read each entry in the table */
+	uint8_t *entry_ptr = ((uint8_t*) table) + sizeof(mp_table_t);
+
+	uint32_t entry_num = 0;
+	while (entry_num < table->entry_count)
+	{
+		uint8_t entry_type = *entry_ptr;
+
+		switch (entry_type)
+		{
+		case 0:
+			list_append(mp_cpu_entries, (mp_cpu_entry_t*) entry_ptr);
+			entry_ptr += 20;
+			break;
+		case 1:
+			list_append(mp_bus_entries, (mp_bus_entry_t*) entry_ptr);
+			entry_ptr += 8;
+			break;
+		case 2:
+			list_append(mp_ioapic_entries, (mp_ioapic_entry_t*) entry_ptr);
+			entry_ptr += 8;
+			break;
+		case 3:
+			list_append(mp_ioapic_irq_entries, (mp_ioapic_irq_entry_t*) entry_ptr);
+			entry_ptr += 8;
+			break;
+		case 4:
+			list_append(mp_lapic_irq_entries, (mp_lapic_irq_entry_t*) entry_ptr);
+			entry_ptr += 8;
+			break;
+		}
+	}
+}
+
+/* Read an MP default configuration */
+void mp_read_default_config(mp_table_ptr_t *table_ptr)
+{
+	/* Find out which default configuration is used */
+	switch (table_ptr->feature_bytes[0])
+	{
+	/* ISA and PCI */
+	case 5:
+		break;
+	/* EISA and PCI */
+	case 6:
+		break;
+	default:
+		kprintf(LOG_ERROR, "Invalid MP default configuartion type\n");
+		return;
+	}
+}
