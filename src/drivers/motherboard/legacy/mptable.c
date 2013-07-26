@@ -191,7 +191,7 @@ typedef struct mp_lapic_irq_entry
 #define MP_ENTRY_TYPE_LAPIC_IRQ		4
 
 /* MP table bus types */
-#define MP_BUS_TYPE_EISA	"EISA"
-#define MP_BUS_TYPE_ISA		"ISA"
-#define MP_BUS_TYPE_PCI		"PCI"
-#define MP_BUS_TYPE_PCMCIA	"PCMCIA"
+#define MP_BUS_TYPE_EISA			"EISA"
+#define MP_BUS_TYPE_ISA				"ISA"
+#define MP_BUS_TYPE_PCI				"PCI"
+#define MP_BUS_TYPE_PCMCIA			"PCMCIA"
