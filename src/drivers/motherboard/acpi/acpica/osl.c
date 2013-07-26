@@ -126,46 +126,8 @@
 #include "acparser.h"
 #include "acdebug.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <semaphore.h>
-#include <pthread.h>
-#include <errno.h>
-
 #define _COMPONENT          ACPI_OS_SERVICES
         ACPI_MODULE_NAME    ("osunixxf")
-
-
-extern FILE                    *AcpiGbl_DebugFile;
-FILE                           *AcpiGbl_OutputFile;
-
-
-/* Upcalls to AcpiExec */
-
-ACPI_PHYSICAL_ADDRESS
-AeLocalGetRootPointer (
-    void);
-
-void
-AeTableOverride (
-    ACPI_TABLE_HEADER       *ExistingTable,
-    ACPI_TABLE_HEADER       **NewTable);
-
-typedef void* (*PTHREAD_CALLBACK) (void *);
-
-/* Buffer used by AcpiOsVprintf */
-
-#define ACPI_VPRINTF_BUFFER_SIZE        512
-
-/* Apple-specific */
-
-#ifdef __APPLE__
-#define sem_destroy         sem_close
-#endif
-
 
 /******************************************************************************
  *
