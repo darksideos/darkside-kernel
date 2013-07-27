@@ -5,8 +5,8 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/init/os_info.h>
 #include <kernel/mm/addresses.h>
+#include <kernel/mm/range.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;
@@ -73,7 +73,7 @@ void map_pmm_bitmap(uint32_t dir)
 }
 
 /* Initialize the physical memory manager */
-void init_pmm(os_info_t *os_info)
+void init_pmm(range_t *ranges, uint32 num_ranges)
 {
 	/* Calculate the size of physical memory.
 	 * Here, we have to do a special check.  On systems <= 4GB of memory, there will be an entry
@@ -88,15 +88,15 @@ void init_pmm(os_info_t *os_info)
 	*/
 	uint64_t size = 0;
 	uint32_t index;
-	for(index = 0; index < os_info->mem_map_entries; index++)
+	for(index = 0; index < num_ranges; index++)
 	{
-		size += os_info->mem_map[index].length;
+		size += ranges[index].length;
 	}
 	
-	index = os_info->mem_map_entries - 1;
-	while(!(os_info->mem_map[index].flags & MEM_MAP_FLAG_FREE) && (size <= 0x100000000))
+	index = num_ranges - 1;
+	while(!(ranges[index].flags & RANGE_FLAG_FREE) && (size <= 0x100000000))
 	{
-		size -= os_info->mem_map[index].length;
+		size -= ranges[index].length;
 		index--;
 	}
 	
