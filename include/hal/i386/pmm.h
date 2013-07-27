@@ -5,6 +5,7 @@
 #include <kernel/init/os_info.h>
 #include <kernel/mm/addresses.h>
 
+/* Physical and virtual start of the PMM bitmap */
 #define PMM_BITMAP_PHYSICAL_START		(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE)
 #define PMM_BITMAP_VIRTUAL_START		((KERNEL_VIRTUAL_START + KERNEL_VIRTUAL_SIZE) - 0x200000)
 
@@ -23,6 +24,6 @@ void pmm_free_page(uint32_t address);
 void map_pmm_bitmap(uint32_t dir);
 
 /* Initialize the physical memory manager */
-void init_pmm(os_info_t *os_info);
+void init_pmm(range_t *ranges, uint32 num_ranges);
 
 #endif

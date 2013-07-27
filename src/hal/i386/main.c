@@ -22,7 +22,7 @@ void hal_main(os_info_t *os_info)
 	timer_install(100);
 
 	/* Initialize the PMM and VMM */
- 	init_pmm(os_info);
+ 	init_pmm(os_info->ranges, os_info->num_ranges);
  	init_vmm();
 
 	/* Print a log message */
