@@ -32,7 +32,7 @@ void pic_eoi(int32_t irq)
 }
 
 /* Set and clear an IRQ mask on the PIC */
-void pic_set_irq_mask(int32_t irq)
+void pic_mask(int32_t irq)
 {
 	/* If the IRQ is less than 8, set the mask on the master PIC */
 	if (irq < 8)
@@ -46,7 +46,7 @@ void pic_set_irq_mask(int32_t irq)
 	}
 }
 
-void pic_clear_irq_mask(int32_t irq)
+void pic_unmask(int32_t irq)
 {
 	/* If the IRQ is less than 8, clear the mask on the master PIC */
 	if (irq < 8)
