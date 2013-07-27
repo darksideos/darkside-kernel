@@ -42,7 +42,7 @@ typedef struct device
 	uint32_t vendor_id, device_id;
 
 	/* Class and subclass */
-	uint8_t class, subclass;
+	uint8_t class_code, subclass;
 
 	/* I/O Addresses */
 	bar_t *io_addrs;
@@ -64,12 +64,54 @@ typedef struct device
 
 typedef struct bus
 {
-	/* Parent bus */
-	bus_t *parent;
-
-	/* Get a device by bus, device, and function number, returning -1 on failure */
-	int32_t get_device(struct bus *bus, uint32_t bus, uint32_t device, uint32_t function, device_t *device);
+	/* Child buses and devices */
+	struct bus **buses;
+	device_t **devices;
+	
+	/* Enumerate the bus, returning -1 on failure */
+	int32_t enumerate(struct bus *bus);
 
 	/* Perform a DMA transfer, returning -1 on failure */
 	int32_t dma(struct bus *bus, uint64_t dma_addr, uint64_t buf_addr, uint64_t buf_length);
 } bus_t;
+
+/*****************************************************************************************************************************************/
+
+/* The dictionary of buses */
+dict_t buses;
+
+/* Create a bus structure and initialize it */
+void bus_create()
+{
+	bus_t *bus = (bus_t*) kmalloc(sizeof(bus_t));
+	bus_init(bus);
+}
+
+/* Initialize a bus structure's values */
+void bus_init(bus_t *bus)
+{
+}
+
+/* Enumerate a bus */
+int32_t bus_enumerate(bus_t *bus)
+{
+	return bus->enumerate(bus);
+}
+
+/* Perform a DMA transfer, returning -1 on failure */
+int32_t bus_dma(bus_t *bus, uint64_t dma_addr, uint64_t buf_addr, uint64_t buf_length)
+{
+	return bus->dma(bus, dma_addr, buf_addr, buf_length);
+}
+
+/* Register a bus */
+void register_bus(uint8_t *name, bus_t *bus)
+{
+	dict_append(&buses, name, bus);
+}
+
+/* Unregister a bus */
+void unregister_bus(uint8_t *name, bus_t *bus)
+{
+	dict_remove(&buses, name);
+}
