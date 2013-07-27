@@ -1,6 +1,8 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <lib/libadt/list.h>
+#include <kernel/console/kprintf.h>
+#include <drivers/motherboard/legacy/mptable.h>
 
 /* MP table pointer structure */
 typedef struct mp_table_ptr
@@ -203,6 +205,10 @@ typedef struct mp_lapic_irq_entry
 #define MP_BUS_TYPE_PCMCIA			"PCMCIA"
 
 /* MP table interrupt types */
+#define MP_IRQ_TYPE_INT				0
+#define MP_IRQ_TYPE_NMI				1
+#define MP_IRQ_TYPE_SMI				2
+#define MP_IRQ_TYPE_EXTINT			3
 
 /* Local APIC base address for every CPU */
 uint32_t lapic_phys_start;
@@ -313,48 +319,12 @@ void mp_read_table(mp_table_t *table)
 /* Read an MP default configuration */
 void mp_read_default_config(mp_table_ptr_t *table_ptr)
 {
-	/* Add 2 CPU entries */
-	mp_cpu_entry_t cpu_entry1, cpu_entry2;
+	kprintf(LOG_ERROR, "MP default configurations not supported\n");
+}
 
-	cpu_entry1.lapic_id = 0;
-	cpu_entry1.usable = 1;
-	cpu_entry1.bsp = 1;
-
-	cpu_entry2.lapic_id = 1;
-	cpu_entry2.usable = 1;
-	cpu_entry2.bsp = 0;
-
-	list_append(mp_cpu_entries, &cpu_entry1);
-	list_append(mp_cpu_entries, &cpu_entry2);
-
-	/* Set the Local APIC base address */
-	lapic_phys_base = 0xFEE00000;
-
-	/* Add an I/O APIC entry */
-	mp_ioapic_entry_t ioapic_entry;
-
-	ioapic_entry.ioapic_phys_base = 0xFEC00000;
-
-	list_append(mp_ioapic_entries, &ioapic_entry);
-
-	/* Find out which default configuration is used */
-	switch (table_ptr->feature_bytes[0])
-	{
-	/* ISA and PCI */
-	case 5:
-		/* Add 2 bus entries */
-		mp_bus_entry_t bus_isa, bus_pci;
-
-		strncpy(&bus_isa.bus_type[0], MP_BUS_TYPE_ISA, 4);
-		
-		break;
-	/* EISA and PCI */
-	case 6:
-		/* Add 2 bus entries */
-
-		break;
-	default:
-		kprintf(LOG_ERROR, "Invalid MP default configuartion type\n");
-		return;
-	}
+/* Initialize the MP table */
+void mp_table_init(mp_table_ptr_t *table_ptr)
+{
+	/* Parse the MP table */
+	mp_read_table_ptr(table_ptr);
 }
