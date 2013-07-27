@@ -2,8 +2,8 @@
 #define __PMM_H
 
 #include <lib/libc/types.h>
-#include <kernel/mm/address_space.h>
 #include <kernel/init/os_info.h>
+#include <kernel/mm/addresses.h>
 
 #define PMM_BITMAP_PHYSICAL_START		(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE)
 #define PMM_BITMAP_VIRTUAL_START		((KERNEL_VIRTUAL_START + KERNEL_VIRTUAL_SIZE) - 0x200000)
