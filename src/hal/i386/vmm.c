@@ -4,7 +4,7 @@
 #include <hal/i386/pmm.h>
 #include <hal/i386/vmm.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/mm/address_space.h>
+#include <kernel/mm/addresses.h>
 
 /* Kernel and current page directory */
 uint32_t kernel_directory = 0;
