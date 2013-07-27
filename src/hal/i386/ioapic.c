@@ -13,7 +13,7 @@
 #define IOREDTBL	0x10
 
 /* The I/O APIC base address */
-uint32_t *ioapic_base;
+uint32_t ioapic_base;
 
 /* Read from an I/O APIC register */
 uint32_t ioapic_read_register(uint8_t reg)

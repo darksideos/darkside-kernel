@@ -2,7 +2,7 @@
 #include <lib/libc/string.h>
 #include <lib/libadt/btree.h>
 #include <kernel/init/hal.h>
-#include <kernel/mm/address_space.h>
+#include <kernel/mm/addresses.h>
 #include <kernel/mm/heap.h>
 
 /* The kernel heap */

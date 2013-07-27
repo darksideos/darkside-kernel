@@ -6,7 +6,7 @@
 #include <hal/i386/vmm.h>
 #include <kernel/console/kprintf.h>
 #include <kernel/init/os_info.h>
-#include <kernel/mm/address_space.h>
+#include <kernel/mm/addresses.h>
 
 /* A bitmap of used and free pages */
 uint32_t *pmm_pages;
