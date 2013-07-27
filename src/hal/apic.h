@@ -1,3 +1,39 @@
+typedef struct irq_chip
+{
+	/* IRQ chip specific data */
+	void *data;
+
+	/* Install the IRQ chip */
+	void (*install)(struct irq_chip *chip);
+
+	/* Uninstall the IRQ chip */
+	void (*uninstall)(struct irq_chip *chip);
+
+	/* Install a handler for the given IRQ */
+	void (*install_handler)(struct irq_chip *chip, int32_t irq, void *handler);
+
+	/* Uninstall a handler for the given IRQ */
+	void (*uninstall_handler)(struct irq_chip *chip, int32_t irq);
+
+	/* Mask a given IRQ */
+	void (*mask)(struct irq_chip *chip, int32_t irq);
+
+	/* Unmask a given IRQ */
+	void (*unmask)(struct irq_chip *chip, int32_t irq);
+
+	/* Send an EOI */
+	void (*eoi)(struct irq_chip *chip, int32_t irq);
+} irq_chip_t;
+
+typedef struct pic
+{
+	/* Master and slave vectors */
+	uint8_t master_vector, slave_vector;
+
+	/* Array of IRQ handlers */
+	void *handlers[16];
+} pic_t;
+
 typedef struct lapic
 {
 	/* Physical and virtual start */
@@ -41,6 +77,7 @@ typedef struct ioapic
 	uint32_t base_irq, num_irqs;
 } ioapic_t;
 
+/************************************************************ I/O APIC code ****************************************************************/
 /* I/O APIC list */
 list_t ioapics;
 
