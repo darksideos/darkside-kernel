@@ -3,117 +3,85 @@
 
 #include <lib/libc/types.h>
 
-/* PCI mass storage device class */
+/* PCI device classes */
 #define PCI_CLASS_STORAGE			0x01
-
-#define PCI_SUBCLASS_SCSI			0x00
-#define PCI_SUBCLASS_IDE			0x01
-#define PCI_SUBCLASS_FLOPPY			0x02
-
-#define PCI_SUBCLASS_ATA			0x05
-#define PCI_PROGIF_ATA_SINGLE_DMA	0x20
-#define PCI_PROGIF_ATA_CHAINED_DMA	0x30
-
-#define PCI_SUBCLASS_SATA			0x06
-
-/* PCI network device class */
 #define PCI_CLASS_NETWORK			0x02
-
-#define PCI_SUBCLASS_ETHERNET		0x00
-#define PCI_SUBCLASS_ISDN			0x04
-
-/* PCI display device class */
 #define PCI_CLASS_DISPLAY			0x03
-
-#define PCI_SUBCLASS_VGA_COMPATIBLE	0x00
-#define PCI_PROGIF_VGA_COMPATIBLE	0x00
-#define PCI_PROGIF_8512_COMPATIBLE	0x01
-
-#define PCI_SUBCLASS_XGA			0x01
-#define PCI_SUBCLASS_3D				0x02
-
-/* PCI multimedia device class */
 #define PCI_CLASS_MULTIMEDIA		0x04
-
-/* PCI bridge device class */
 #define PCI_CLASS_BRIDGE			0x06
-
-#define PCI_SUBCLASS_HOSTBRIDGE		0x00
-#define PCI_SUBCLASS_ISABRIDGE		0x01
-#define PCI_SUBCLASS_EISABRIDGE		0x02
-#define PCI_SUBCLASS_PCIBRIDGE		0x04
-#define PCI_SUBCLASS_PCMCIABRIDGE	0x05
-#define PCI_SUBCLASS_CARDBUSBRIDGE	0x07
-
-/* PCI communication device class */
-#define PCI_CLASS_COMM				0x07
-
-/* PCI system device class */
+#define PCI_CLASS_COMMUNICATION		0x07
 #define PCI_CLASS_SYSTEM			0x08
-
-#define PCI_SUBCLASS_PIC			0x00
-#define PCI_PROGIF_8259_PIC			0x00
-#define PCI_PROGIF_ISA_PIC			0x01
-#define PCI_PROGIF_EISA_PIC			0x02
-#define PCI_PROGIF_IOAPIC			0x10
-
-#define PCI_SUBCLASS_DMA			0x01
-#define PCI_PROGIF_8237_DMA			0x00
-#define PCI_PROGIF_ISA_DMA			0x01
-#define PCI_PROGIF_EISA_DMA			0x02
-
-#define PCI_SUBCLASS_TIMER			0x02
-#define PCI_PROGIF_8254_TIMER		0x00
-#define PCI_PROGIF_ISA_TIMER		0x01
-#define PCI_PROGIF_EISA_TIMER		0x02
-
-#define PCI_SUBCLASS_RTC			0x03
-#define PCI_PROGIF_GENERIC_RTC		0x00
-#define PCI_PROGIF_ISA_RTC			0x01
-
-/* PCI input device class */
 #define PCI_CLASS_INPUT				0x09
-
-#define PCI_SUBCLASS_KEYBOARD		0x00
-#define PCI_SUBCLASS_MOUSE			0x02
-#define PCI_SUBCLASS_SCANNER		0x03
-
-#define PCI_SUBCLASS_GAME			0x04
-#define PCI_PROGIF_GAME_GENERIC		0x00
-#define PCI_PROGIF_GAME_LEGACY		0x10
-
-/* PCI processor device class */
 #define PCI_CLASS_PROCESSOR			0x0B
-
-#define PCI_SUBCLASS_386			0x00
-#define PCI_SUBCLASS_486			0x01
-#define PCI_SUBCLASS_PENTIUM		0x02
-#define PCI_SUBCLASS_ALPHA			0x10
-#define PCI_SUBCLASS_POWERPC		0x20
-#define PCI_SUBCLASS_MIPS			0x30
-#define PCI_SUBCLASS_COPROCESSOR	0x40
-
-/* PCI serial device class */
-#define PCI_CLASS_SERIAL			0x0C
-
-#define PCI_SUBCLASS_FIREWIRE		0x00
-#define PCI_PROGIF_FIREWIRE			0x00
-#define PCI_PROGIF_1394_OHCI		0x10
-
-#define PCI_SUBCLASS_USB			0x03
-#define PCI_PROGIF_UHCI				0x00
-#define PCI_PROGIF_OHCI				0x10
-#define PCI_PROGIF_EHCI				0x20
-
-/* PCI wireless device class */
+#define PCI_CLASS_SERIAL_BUS		0x0C
 #define PCI_CLASS_WIRELESS			0x0D
 
-#define PCI_SUBCLASS_IRDA			0x00
-#define PCI_SUBCLASS_IR				0x01
-#define PCI_SUBCLASS_BLUETOOTH		0x11
-#define PCI_SUBCLASS_BROADBAND		0x12
-#define PCI_SUBCLASS_WIFI_80211A	0x20
-#define PCI_SUBCLASS_WIFI_80211B	0x21
+/* Mass storage controller */
+#define PCI_STORAGE_SCSI			0x0100
+#define PCI_STORAGE_IDE				0x0101
+#define PCI_STORAGE_FLOPPY			0x0102
+#define PCI_STORAGE_ATA				0x0105
+#define PCI_STORAGE_SATA			0x0106
+
+/* Network controller */
+#define PCI_SUBCLASS_ETHERNET		0x0200
+#define PCI_SUBCLASS_ISDN			0x0204
+
+/* Display devices */
+#define PCI_DISPLAY_VGA				0x0300
+#define PCI_DISPLAY_XGA				0x0301
+#define PCI_DISPLAY_3D				0x0302
+
+/* Multimedia device */
+
+/* Bridge device */
+#define PCI_BRIDGE_HOST				0x0600
+#define PCI_BRIDGE_ISA				0x0601
+#define PCI_BRIDGE_EISA				0x0602
+#define PCI_BRIDGE_PCI				0x0604
+#define PCI_BRIDGE_PCMCIA			0x0605
+#define PCI_BRIDGE_CARDBUS			0x0607
+
+/* Communication device */
+
+/* Base system peripherals */
+#define PCI_SYSTEM_PIC				0x0800
+#define PCI_SYSTEM_DMA				0x0801
+#define PCI_SYSTEM_TIMER			0x0802
+#define PCI_SYSTEM_RTC				0x0803
+
+/* Input devices */
+#define PCI_INPUT_KEYBOARD			0x0900
+#define PCI_INPUT_MOUSE				0x0902
+#define PCI_INPUT_SCANNER			0x0903
+#define PCI_INPUT_GAMEPORT			0x0904
+
+/* Processors */
+#define PCI_PROCESSOR_386			0x0B00
+#define PCI_PROCESSOR_486			0x0B01
+#define PCI_PROCESSOR_PENTIUM		0x0B02
+#define PCI_PROCESSOR_ALPHA			0x0B10
+#define PCI_PROCESSOR_POWERPC		0x0B20
+#define PCI_PROCESSOR_MIPS			0x0B30
+#define PCI_PROCESSOR_CO			0x0B40
+
+/* Serial bus controllers */
+#define PCI_SERIAL_FIREWIRE			0x0C00
+#define PCI_SERIAL_USB				0x0C03
+
+#define PCI_SERIAL_USB_UHCI			0x00
+#define PCI_SERIAL_USB_OHCI			0x10
+#define PCI_SERIAL_USB_EHCI			0x20
+#define PCI_SERIAL_USB_XHCI			0x30
+
+/* Wireless controllers */
+#define PCI_WIRELESS_IRDA			0x0D00
+#define PCI_WIRELESS_IR				0x0D01
+#define PCI_WIRELESS_RF				0x0D10
+#define PCI_WIRELESS_BLUETOOTH		0x0D11
+#define PCI_WIRELESS_BROADBAND		0x0D12
+#define PCI_WIRELESS_WIFI_A			0x0D20
+#define PCI_WIRELESS_WIFI_B			0x0D21
 
 /* Read data from the PCI configuration space */
 uint8_t pci_read_config_byte(uint16_t bus, uint16_t slot, uint16_t function, uint16_t offset);
