@@ -43,6 +43,9 @@ raspi-install:
 	cp kernel-raspi.img $(MOUNT)/kernel.img
 	$(EJECT) $(MOUNT)
 
+raspi-upload: kernel-raspi.img
+	sx -vv kernel-raspi.img < /dev/ttyUSB0 > /dev/ttyUSB0
+
 i386: kernel-i386.elf
 	cd ../bigbang/img; make
 	./updateimage.sh
