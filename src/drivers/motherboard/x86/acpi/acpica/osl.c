@@ -126,6 +126,12 @@
 #include "acparser.h"
 #include "acdebug.h"
 
+#include <kernel/init/hal.h>
+#include <kernel/mm/heap.h>
+#include <kernel/sync/spinlock.h>
+#include <kernel/sync/semaphore.h>
+#include <kernel/sync/mutex.h>
+
 #define _COMPONENT          ACPI_OS_SERVICES
         ACPI_MODULE_NAME    ("osunixxf")
 
@@ -146,7 +152,6 @@ AcpiOsInitialize (
     void)
 {
 
-    AcpiGbl_OutputFile = stdout;
     return (AE_OK);
 }
 
@@ -176,7 +181,6 @@ ACPI_PHYSICAL_ADDRESS
 AcpiOsGetRootPointer (
     void)
 {
-
     return (AeLocalGetRootPointer ());
 }
 
@@ -200,7 +204,6 @@ AcpiOsPredefinedOverride (
     const ACPI_PREDEFINED_NAMES *InitVal,
     ACPI_STRING                 *NewVal)
 {
-
     if (!InitVal || !NewVal)
     {
         return (AE_BAD_PARAMETER);
@@ -231,7 +234,6 @@ AcpiOsTableOverride (
     ACPI_TABLE_HEADER       *ExistingTable,
     ACPI_TABLE_HEADER       **NewTable)
 {
-
     if (!ExistingTable || !NewTable)
     {
         return (AE_BAD_PARAMETER);
@@ -239,14 +241,7 @@ AcpiOsTableOverride (
 
     *NewTable = NULL;
 
-#ifdef ACPI_EXEC_APP
-
-    AeTableOverride (ExistingTable, NewTable);
-    return (AE_OK);
-#else
-
     return (AE_NO_ACPI_TABLES);
-#endif
 }
 
 
@@ -272,7 +267,6 @@ AcpiOsPhysicalTableOverride (
     ACPI_PHYSICAL_ADDRESS   *NewAddress,
     UINT32                  *NewTableLength)
 {
-
     return (AE_SUPPORT);
 }
 
@@ -293,7 +287,6 @@ void
 AcpiOsRedirectOutput (
     void                    *Destination)
 {
-
     AcpiGbl_OutputFile = Destination;
 }
 
@@ -512,7 +505,6 @@ AcpiOsUnmapMemory (
     void                    *where,
     ACPI_SIZE               length)
 {
-
     return;
 }
 
@@ -533,11 +525,7 @@ void *
 AcpiOsAllocate (
     ACPI_SIZE               size)
 {
-    void                    *Mem;
-
-
-    Mem = (void *) malloc ((size_t) size);
-    return (Mem);
+    return kmalloc(size);
 }
 
 
@@ -557,57 +545,10 @@ void
 AcpiOsFree (
     void                    *mem)
 {
-
-    free (mem);
+    kfree(mem);
 }
 
 
-#ifdef ACPI_SINGLE_THREADED
-/******************************************************************************
- *
- * FUNCTION:    Semaphore stub functions
- *
- * DESCRIPTION: Stub functions used for single-thread applications that do
- *              not require semaphore synchronization. Full implementations
- *              of these functions appear after the stubs.
- *
- *****************************************************************************/
-
-ACPI_STATUS
-AcpiOsCreateSemaphore (
-    UINT32              MaxUnits,
-    UINT32              InitialUnits,
-    ACPI_HANDLE         *OutHandle)
-{
-    *OutHandle = (ACPI_HANDLE) 1;
-    return (AE_OK);
-}
-
-ACPI_STATUS
-AcpiOsDeleteSemaphore (
-    ACPI_HANDLE         Handle)
-{
-    return (AE_OK);
-}
-
-ACPI_STATUS
-AcpiOsWaitSemaphore (
-    ACPI_HANDLE         Handle,
-    UINT32              Units,
-    UINT16              Timeout)
-{
-    return (AE_OK);
-}
-
-ACPI_STATUS
-AcpiOsSignalSemaphore (
-    ACPI_HANDLE         Handle,
-    UINT32              Units)
-{
-    return (AE_OK);
-}
-
-#else
 /******************************************************************************
  *
  * FUNCTION:    AcpiOsCreateSemaphore
@@ -627,41 +568,13 @@ AcpiOsCreateSemaphore (
     UINT32              InitialUnits,
     ACPI_HANDLE         *OutHandle)
 {
-    sem_t               *Sem;
-
-
-    if (!OutHandle)
-    {
-        return (AE_BAD_PARAMETER);
-    }
-
-#ifdef __APPLE__
-    {
-        char            *SemaphoreName = tmpnam (NULL);
-
-        Sem = sem_open (SemaphoreName, O_EXCL|O_CREAT, 0755, InitialUnits);
-        if (!Sem)
-        {
-            return (AE_NO_MEMORY);
-        }
-        sem_unlink (SemaphoreName); /* This just deletes the name */
-    }
-
-#else
-    Sem = AcpiOsAllocate (sizeof (sem_t));
-    if (!Sem)
+	semaphore_t *sem = semaphore_create(initial_units);
+    if (!sem)
     {
         return (AE_NO_MEMORY);
     }
 
-    if (sem_init (Sem, 0, InitialUnits) == -1)
-    {
-        AcpiOsFree (Sem);
-        return (AE_BAD_PARAMETER);
-    }
-#endif
-
-    *OutHandle = (ACPI_HANDLE) Sem;
+    *OutHandle = (ACPI_HANDLE) sem;
     return (AE_OK);
 }
 
@@ -682,19 +595,13 @@ ACPI_STATUS
 AcpiOsDeleteSemaphore (
     ACPI_HANDLE         Handle)
 {
-    sem_t               *Sem = (sem_t *) Handle;
-
-
-    if (!Sem)
+    semaphore_t *sem = (semaphore_t*) Handle;
+    if (!sem)
     {
         return (AE_BAD_PARAMETER);
     }
 
-    if (sem_destroy (Sem) == -1)
-    {
-        return (AE_BAD_PARAMETER);
-    }
-
+    semaphore_delete(sem);
     return (AE_OK);
 }
 
@@ -719,14 +626,9 @@ AcpiOsWaitSemaphore (
     UINT32              Units,
     UINT16              MsecTimeout)
 {
-    ACPI_STATUS         Status = AE_OK;
-    sem_t               *Sem = (sem_t *) Handle;
-#ifndef ACPI_USE_ALTERNATE_TIMEOUT
-    struct timespec     Time;
-    int                 RetVal;
-#endif
+    ACPI_STATUS Status = AE_OK;
 
-
+    semaphore_t *sem = (sem_t*) Handle;
     if (!Sem)
     {
         return (AE_BAD_PARAMETER);
@@ -762,33 +664,6 @@ AcpiOsWaitSemaphore (
     /* Wait with MsecTimeout */
 
     default:
-
-#ifdef ACPI_USE_ALTERNATE_TIMEOUT
-        /*
-         * Alternate timeout mechanism for environments where
-         * sem_timedwait is not available or does not work properly.
-         */
-        while (MsecTimeout)
-        {
-            if (sem_trywait (Sem) == 0)
-            {
-                /* Got the semaphore */
-                return (AE_OK);
-            }
-
-            if (MsecTimeout >= 10)
-            {
-                MsecTimeout -= 10;
-                usleep (10 * ACPI_USEC_PER_MSEC); /* ten milliseconds */
-            }
-            else
-            {
-                MsecTimeout--;
-                usleep (ACPI_USEC_PER_MSEC); /* one millisecond */
-            }
-        }
-        Status = (AE_TIME);
-#else
         /*
          * The interface to sem_timedwait is an absolute time, so we need to
          * get the current time, then add in the millisecond Timeout value.
@@ -823,7 +698,6 @@ AcpiOsWaitSemaphore (
             }
             Status = (AE_TIME);
         }
-#endif
         break;
     }
 
@@ -849,23 +723,15 @@ AcpiOsSignalSemaphore (
     ACPI_HANDLE         Handle,
     UINT32              Units)
 {
-    sem_t               *Sem = (sem_t *)Handle;
-
-
+    sem_t *sem = (sem_t*) Handle;
     if (!Sem)
     {
         return (AE_BAD_PARAMETER);
     }
 
-    if (sem_post (Sem) == -1)
-    {
-        return (AE_LIMIT);
-    }
-
+    semaphore_signal(sem);
     return (AE_OK);
 }
-
-#endif /* ACPI_SINGLE_THREADED */
 
 
 /******************************************************************************
@@ -880,8 +746,8 @@ ACPI_STATUS
 AcpiOsCreateLock (
     ACPI_SPINLOCK           *OutHandle)
 {
-
-    return (AcpiOsCreateSemaphore (1, 1, OutHandle));
+    *OutHandle = (ACPI_SPINLOCK) spinlock_create();
+	return (AE_OK);
 }
 
 
@@ -889,7 +755,8 @@ void
 AcpiOsDeleteLock (
     ACPI_SPINLOCK           Handle)
 {
-    AcpiOsDeleteSemaphore (Handle);
+    spinlock_t *lock = (spinlock_t*) Handle;
+	spinlock_delete(lock);
 }
 
 
@@ -897,7 +764,8 @@ ACPI_CPU_FLAGS
 AcpiOsAcquireLock (
     ACPI_HANDLE             Handle)
 {
-    AcpiOsWaitSemaphore (Handle, 1, 0xFFFF);
+    spinlock_t *lock = (spinlock_t*) Handle;
+	spinlock_acquire(lock);
     return (0);
 }
 
@@ -907,7 +775,8 @@ AcpiOsReleaseLock (
     ACPI_SPINLOCK           Handle,
     ACPI_CPU_FLAGS          Flags)
 {
-    AcpiOsSignalSemaphore (Handle, 1);
+    spinlock_t *lock = (spinlock_t*) Handle;
+	spinlock_release(lock);
 }
 
 
@@ -932,7 +801,6 @@ AcpiOsInstallInterruptHandler (
     ACPI_OSD_HANDLER        ServiceRoutine,
     void                    *Context)
 {
-
     return (AE_OK);
 }
 
@@ -954,7 +822,7 @@ AcpiOsRemoveInterruptHandler (
     UINT32                  InterruptNumber,
     ACPI_OSD_HANDLER        ServiceRoutine)
 {
-
+	irq_uninstall_handler(InterruptNumber);
     return (AE_OK);
 }
 
@@ -975,7 +843,6 @@ void
 AcpiOsStall (
     UINT32                  microseconds)
 {
-
     if (microseconds)
     {
         usleep (microseconds);
@@ -1064,7 +931,6 @@ AcpiOsReadPciConfiguration (
     UINT64                  *Value,
     UINT32                  Width)
 {
-
     return (AE_OK);
 }
 
@@ -1091,7 +957,6 @@ AcpiOsWritePciConfiguration (
     UINT64                  Value,
     UINT32                  Width)
 {
-
     return (AE_OK);
 }
 
@@ -1116,19 +981,18 @@ AcpiOsReadPort (
     UINT32                  *Value,
     UINT32                  Width)
 {
-
     switch (Width)
     {
     case 8:
-        *Value = 0xFF;
+        *Value = inportb(Address);
         break;
 
     case 16:
-        *Value = 0xFFFF;
+        *Value = inportw(Address);
         break;
 
     case 32:
-        *Value = 0xFFFFFFFF;
+        *Value = inportl(Address);
         break;
 
     default:
@@ -1159,6 +1023,23 @@ AcpiOsWritePort (
     UINT32                  Value,
     UINT32                  Width)
 {
+    switch (Width)
+    {
+    case 8:
+        *Value = outportb(Address, (uint8_t) Value);
+        break;
+
+    case 16:
+        *Value = outportw(Address, (uint16_t) Value);
+        break;
+
+    case 32:
+        *Value = outportl(Address, Value);
+        break;
+
+    default:
+        return (AE_BAD_PARAMETER);
+    }
 
     return (AE_OK);
 }
@@ -1185,7 +1066,6 @@ AcpiOsReadMemory (
     UINT64                  *Value,
     UINT32                  Width)
 {
-
     switch (Width)
     {
     case 8:
@@ -1222,7 +1102,6 @@ AcpiOsWriteMemory (
     UINT64                  Value,
     UINT32                  Width)
 {
-
     return (AE_OK);
 }
 
@@ -1245,7 +1124,6 @@ AcpiOsReadable (
     void                    *Pointer,
     ACPI_SIZE               Length)
 {
-
     return (TRUE);
 }
 
@@ -1268,7 +1146,6 @@ AcpiOsWritable (
     void                    *Pointer,
     ACPI_SIZE               Length)
 {
-
     return (TRUE);
 }
 
@@ -1307,9 +1184,7 @@ AcpiOsSignal (
     return (AE_OK);
 }
 
-/* Optional multi-thread support */
 
-#ifndef ACPI_SINGLE_THREADED
 /******************************************************************************
  *
  * FUNCTION:    AcpiOsGetThreadId
@@ -1365,8 +1240,6 @@ AcpiOsExecute (
     }
     return (0);
 }
-
-#endif /* ACPI_SINGLE_THREADED */
 
 
 /******************************************************************************
