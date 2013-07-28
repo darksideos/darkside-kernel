@@ -14,11 +14,9 @@ x86 HAL
 
 Motherboard drivers
 ========================================================================
-generic
 	acpi - ACPI
 	legacy - APM, MP Specification
-native
-	<Each motherboard driver goes here>
+	<Each native motherboard driver goes here>
 
 32 bit options
 ========================================================================

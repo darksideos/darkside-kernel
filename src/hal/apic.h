@@ -159,9 +159,6 @@ ioapic_t *get_ioapic(int32_t irq)
 /* Get an I/O APIC entry for a given IRQ */
 ioapic_entry_t *get_ioapic_entry(int32_t irq)
 {
-	/* Number of IRQs we've gone through */
-	int32_t num_irqs = 0;
-
 	/* Loop through each I/O APIC */
 	for (uint32_t i = 0; i < num_ioapics; i++)
 	{
@@ -170,9 +167,7 @@ ioapic_entry_t *get_ioapic_entry(int32_t irq)
 		/* Loop through each IRQ entry in the I/O APIC */
 		for (int32_t j = 0; j < ioapic->num_irqs; j++)
 		{
-			num_irqs++;
-
-			if (irq == num_irqs)
+			if (irq == ioapic->base_irq + j)
 			{
 				return ioapic->irqs[j];
 			}
