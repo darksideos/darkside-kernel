@@ -38,6 +38,8 @@ void spinlock_acquire(spinlock_t *lock)
 /* Release a spinlock */
 void spinlock_release(spinlock_t *lock)
 {
-	while (atomic_cmpxchg(&lock->value, 1, 0) == 1);	// Does not seem right: Come back to this
-	set_interrupt_state(lock->interrupts);
+	if (atomic_cmpxchg(&lock->value, 1, 0) == 1)
+	{
+		set_interrupt_state(lock->interrupts);
+	}
 }
