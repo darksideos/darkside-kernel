@@ -3,7 +3,7 @@
 
 #include <lib/libc/types.h>
 
-/* Declare a memory range */
+/* Structure declarations */
 typedef struct range range_t;
 
 /* OS information structure */
@@ -12,6 +12,11 @@ typedef struct os_info
 	/* Physical memory map */
 	range_t *ranges;
 	uint32_t num_ranges;
+
+	/* ACPI RSDP */
+	uint64_t rsdp;
+
+	/* Loaded modules */
 } __attribute__ ((packed)) os_info_t;
 
 #endif
