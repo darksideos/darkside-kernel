@@ -1,5 +1,6 @@
 #include <lib/libc/types.h>
 #include <hal/raspi/vmm.h>
+#include <kernel/console/kprintf.h>
 
 /* Kernel and current page table */
 uint32_t kernel_page_table;
@@ -21,6 +22,16 @@ void map_page(uint32_t table, uint32_t virtual_address, uint32_t physical_addres
 	if (present)
 	{
 		flags |= PAGE_FLAG_PRESENT;
+	}
+
+	if (rw)
+	{
+		flags |= PAGE_FLAG_RW;
+	}
+
+	if (!user)
+	{
+		flags |= PAGE_FLAG_NOTUSER;
 	}
 
 	if (!global)
@@ -52,8 +63,24 @@ void unmap_page(uint32_t table, uint32_t virtual_address)
 }
 
 /* Create a new blank page table */
+uint32_t create_address_space()
+{
+}
 
 /* Switch the current page table to a new one */
+void switch_address_space(uint32_t table)
+{
+	current_page_table = table;
+	asm volatile("mcr p15, 0, %[addr], c2, c0, 0" : : [addr] "r" (table));
+	
+	flush_tlb();
+}
+
+/* Flush the entire TLB */
+void flush_tlb()
+{
+	asm volatile("mcr p15, 0, %[data], c8, c7, 0" : : [data] "r" (0));
+}
 
 /* Page align an address */
 uint32_t page_align(uint32_t address)
@@ -78,9 +105,13 @@ void init_vmm()
 
 	/* Map our kernel into the kernel page table */
 
+	/* Use 4 KiB page table boundaries */
+	asm volatile("mcr p15, 0, %[n], c2, c0, 2" : : [n] "r" (6));
+
 	/* Switch to the kernel page table */
 
 	/* Print a log message */
+	kprintf(LOG_INFO, "VMM initialized\n");
 }
 
 
