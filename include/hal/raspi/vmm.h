@@ -3,6 +3,8 @@
 
 /* Page flags */
 #define PAGE_FLAG_PRESENT		0x02
+#define PAGE_FLAG_RW			0x30
+#define PAGE_FLAG_NOTUSER		0x10
 #define PAGE_FLAG_NOTGLOBAL		0x800
 
 /* Page structure - 4 bytes */
@@ -46,6 +48,9 @@ uint32_t create_address_space();
 
 /* Switch the current page directory to a new one */
 void switch_address_space(uint32_t dir);
+
+/* Flush the entire TLB */
+void flush_tlb();
 
 /* Page align an address */
 uint32_t page_align(uint32_t address);
