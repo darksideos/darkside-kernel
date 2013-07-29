@@ -2,7 +2,6 @@
 #include <hal/raspi/atags.h>
 #include <hal/raspi/barrier.h>
 #include <hal/raspi/interrupts.h>
-#include <hal/raspi/mailbox.h>
 #include <hal/raspi/vmm.h>
 #include <hal/raspi/systimer.h>
 #include <hal/raspi/interrupts.h>
@@ -10,7 +9,6 @@
 #include <drivers/serial/uart/uart.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/text_mode.h>
-#include <drivers/graphics/raspi/textutils.h>
 
 
 /* Location of the initial page table in RAM */
