@@ -1,118 +1,117 @@
-#include <lib/libc/types.h>
+#include <lib/libc/stdint.h>
 #include <hal/raspi/vmm.h>
-#include <kernel/console/kprintf.h>
 
-/* Kernel and current page table */
-uint32_t kernel_page_table;
-uint32_t current_page_table;
+/* Virtual memory layout
+ *ha
+ * 0x00000000 - 0x7fffffff (0-2GB) = user process memory
+ * 0x80000000 - 0xa0ffffff = physical memory
+ * 	includes peripherals at 0x20000000 - 0x20ffffff
+ * 0xc0000000 - 0xefffffff = kernel data
+ * 0xf0000000 - 0xffffffff = kernel code
+ */
 
-/* Page size */
-uint32_t page_size = 0x1000;
+/* Need to access the page table, etc as physical memory */
+static uint32_t *pagetable = (uint32_t*) mem_p2v(0x4000); /* 16k */
 
-/* Get a page */
+/* Last used location in physical RAM */
+extern uint32_t _physbssend;
+/* Start of kernel in physical RAM */
+extern uint32_t _highkernelload;
 
-/* Get the physical address mapping of a virtual address */
-
-/* Map a virtual address to a physical address */
-void map_page(uint32_t table, uint32_t virtual_address, uint32_t physical_address, bool present, bool rw, bool user, bool global)
+/* NOAH - this will need to be rewritten to use recursive page structures */
+/* Convert a virtual address to a physical one by following the page tables
+ * Returns physical address, or 0xffffffff if the virtual address does not map
+ * See ARM1176-TZJS technical reference manual, page 6-39 (6.11.2)
+ */
+uint32_t mem_v2p(uint32_t virtualaddr)
 {
-	/* Construct the page flags */
-	uint32_t flags;
+	uint32_t pt_data = pagetable[virtualaddr >> 20];
+	uint32_t cpt_data, physaddr;
 
-	if (present)
+	if((pt_data & 3) == 0 || (pt_data & 3) == 3)
 	{
-		flags |= PAGE_FLAG_PRESENT;
+		/* Nothing mapped */
+		return 0xffffffff;
 	}
 
-	if (rw)
+	if((pt_data & 3) == 2)
 	{
-		flags |= PAGE_FLAG_RW;
+		/* (Super)Section */
+
+		physaddr = pt_data & 0xfff00000;
+
+		if(pt_data & (1 << 18))
+		{
+			/* 16MB Supersection */
+			physaddr += virtualaddr & 0x00ffffff;
+		}
+		else
+		{
+			/* 1MB Section */
+			physaddr += virtualaddr & 0x000fffff;
+		}
+
+		return physaddr;
 	}
 
-	if (!user)
+	/* Coarse page table */
+	cpt_data = ((uint32_t*) (0x80000000 + (pt_data & 0xfffffc00)))[(virtualaddr >> 12) & 0xff] ;
+
+	if((cpt_data & 3) == 0)
 	{
-		flags |= PAGE_FLAG_NOTUSER;
+		/* Nothing mapped */
+		return 0xffffffff;
 	}
 
-	if (!global)
+	if(cpt_data & 2)
 	{
-		flags |= PAGE_FLAG_NOTGLOBAL;
+		/* Small (4k) page */
+		return (cpt_data & 0xfffff000) + (virtualaddr & 0xfff);
 	}
 
-	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
-	page_t *page = get_page(table, virtual_address, true);
-
-	/* Map the page in the table to the physical address */
-	*((uint32_t*) page) = physical_address | flags;
+	/* Large (64k) page */
+	return (cpt_data & 0xffff0000) + (virtualaddr & 0xffff);
 }
 
-/* Unmap a virtual address */
-void unmap_page(uint32_t table, uint32_t virtual_address)
-{
-	/* Return the page that corresponds to the virtual address */
-	page_t *page = get_page(table, virtual_address, false);
+/* mem_p2v is a simple macro defined in memory.h which adds 0x80000000 to an
+ * address, to put the physical memory address (0x00000000-0x20ffffff) into
+ * the corresponding mapped area of virtual memory (0x80000000-0xa0ffffff)
+ */
 
-	/* If the page already does not exist, return */
-	if (!page)
+/* Translation table 0 - covers the first 64 MB, for now
+ * Needs to be aligned to its size (ie 64*4 bytes)
+ */
+ 
+/* NOAH - now, we've decided that we want to unmap the 1st 64MB of memory.  We use translation table 1 for the upper 4GB-64MB, and use table 0 for the lower 64MB */
+uint32_t pagetable0[64]	__attribute__ ((aligned (256)));
+
+/* Initialise memory - actually, there's not much to do now, since initsys
+ * covers most of it. It just sets up a pagetable for the first 64MB of RAM
+ * (all unmapped)
+ */
+void mem_init(void)
+{
+	uint32_t x;
+	uint32_t pt0_addr;
+
+	/* NOAH - unmap the first 64 MB of memory */
+	/* Translation table 0 - covers the first 64 MB, for now
+	 * Currently nothing mapped in it.
+	 */
+	for(x=0; x<64; x++)
 	{
-		return;
+		pagetable0[x] = 0;
 	}
 
-	/* Set the page to not present */
-	*((uint32_t*)page) = 0;
-}
+	/* Get physical address of pagetable0 */
+	pt0_addr = mem_v2p((uint32_t) &pagetable0);
 
-/* Create a new blank page table */
-uint32_t create_address_space()
-{
-}
-
-/* Switch the current page table to a new one */
-void switch_address_space(uint32_t table)
-{
-	current_page_table = table;
-	asm volatile("mcr p15, 0, %[addr], c2, c0, 0" : : [addr] "r" (table));
-	
-	flush_tlb();
-}
-
-/* Flush the entire TLB */
-void flush_tlb()
-{
+	/* Use translation table 0 up to 64MB */
+	asm volatile("mcr p15, 0, %[n], c2, c0, 2" : : [n] "r" (6));
+	/* Translation table 0 - ARM1176JZF-S manual, 3-57 */
+	asm volatile("mcr p15, 0, %[addr], c2, c0, 0" : : [addr] "r" (pt0_addr));
+	/* Invalidate the translation lookaside buffer (TLB)
+	 * ARM1176JZF-S manual, p. 3-86
+	 */
 	asm volatile("mcr p15, 0, %[data], c8, c7, 0" : : [data] "r" (0));
 }
-
-/* Page align an address */
-uint32_t page_align(uint32_t address)
-{
-	if (address & (page_size - 1))
-	{
-		return (address & ~(page_size - 1)) + 0x1000;
-	}
-	else
-	{
-		return address;
-	}
-}
-
-/* Initialize paging */
-void init_vmm()
-{
-	/* Set the address of the current page table */
-
-	/* Create the kernel page table */
-	kernel_page_table = create_address_space();
-
-	/* Map our kernel into the kernel page table */
-
-	/* Use 4 KiB page table boundaries */
-	asm volatile("mcr p15, 0, %[n], c2, c0, 2" : : [n] "r" (6));
-
-	/* Switch to the kernel page table */
-
-	/* Print a log message */
-	kprintf(LOG_INFO, "VMM initialized\n");
-}
-
-
-
