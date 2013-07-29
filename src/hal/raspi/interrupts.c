@@ -4,7 +4,6 @@
 #include <drivers/serial/gpio/gpio.h>
 #include <hal/raspi/vmm.h>
 #include <hal/raspi/registers.h>
-#include <drivers/graphics/raspi/textutils.h>
 #include <drivers/graphics/raspi/framebuffer.h>
 #include <drivers/graphics/raspi/text_mode.h>
 
@@ -43,9 +42,9 @@ __attribute__ ((interrupt ("SWI"))) void interrupt_swi(void)
 	swi_no = *((uint32_t*) addr) & 0x00ffffff;
 
 	puts("SWI call. Address: 0x");
-	puts(tohex(addr, 4));
+//	puts(tohex(addr, 4));
 	puts("  SWI number ");
-	puts(todec(swi_no, 0));
+//	puts(todec(swi_no, 0));
 	puts("\n");
 }
 
@@ -69,10 +68,10 @@ __attribute__ ((interrupt ("ABORT"))) void interrupt_data_abort(void)
 	 * sub lr, lr, #4
 	 * lr = address of aborted instruction, plus 8
 	 */
-	puts(tohex(addr-4, 4));
+//	puts(tohex(addr-4, 4));
 
 	puts("  fault address: 0x");
-	puts(tohex(far, 4));
+//	puts(tohex(far, 4));
 	puts("\n");
 
 	/* Routine terminates by returning to LR-4, which is the instruction
@@ -93,7 +92,7 @@ __attribute__ ((interrupt ("ABORT"))) void interrupt_prefetch_abort(void)
 	 * addr = lr, but the very start of the abort routine does
 	 * sub lr, lr, #4
 	 */
-	puts(tohex(addr, 4));
+//	puts(tohex(addr, 4));
 	puts("\n");
 
 	while(1);

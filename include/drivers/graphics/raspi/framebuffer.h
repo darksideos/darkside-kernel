@@ -28,4 +28,7 @@ uint32_t get_width();
 uint32_t get_height();
 uint32_t get_pitch();
 
+extern uint32_t read_mailbox(uint32_t channel);
+extern void write_mailbox(uint32_t channel, uint32_t data);
+
 #endif	/* FRAMEBUFFER_H */
