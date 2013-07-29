@@ -1,6 +1,10 @@
 #ifndef __VMM_H
 #define __VMM_H
 
+/* Page flags */
+#define PAGE_FLAG_PRESENT		0x02
+#define PAGE_FLAG_NOTGLOBAL		0x800
+
 /* Page structure - 4 bytes */
 typedef struct page
 {
