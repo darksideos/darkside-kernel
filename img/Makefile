@@ -2,6 +2,7 @@ i386	?= i586-elf
 ARM	?= arm-none-eabi
 MOUNT ?= /media/$(shell whoami)/RASPI
 EJECT ?= sudo eject
+PORT ?= /dev/ttyUSB0
 
 OS = $(shell uname -s)
 
@@ -43,8 +44,9 @@ raspi-install:
 	cp kernel-raspi.img $(MOUNT)/kernel.img
 	$(EJECT) $(MOUNT)
 
-raspi-upload: kernel-raspi.img
-	sx -vv kernel-raspi.img < /dev/ttyUSB0 > /dev/ttyUSB0
+raspi-upload:
+	stty -F $(PORT) 115200	
+	sx -vv kernel-raspi.img < $(PORT) > $(PORT)
 
 i386: kernel-i386.elf
 	cd ../bigbang/img; make
