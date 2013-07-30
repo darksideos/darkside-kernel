@@ -26,13 +26,13 @@ typedef struct page
 typedef struct page_table1
 {
 	page_t pages[256];
-} page_table2_t;
+} page_table1_t;
 
 /* First level page table structure - 16 KiB */
 typedef struct page_table0
 {
 	uint32_t tables[4096];
-} page_table1_t;
+} page_table0_t;
 
 /* Get the physical address mapping of a virtual address */
 uint32_t get_mapping(uint32_t tbl, uint32_t virtual_address);
