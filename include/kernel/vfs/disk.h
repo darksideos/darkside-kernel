@@ -29,15 +29,18 @@ typedef struct partition
 } partition_t;
 
 /* Create, destroy, and initialize a disk structure */
-disk_t *disk_create();
+disk_t *disk_create(blockdev_t *blockdev);
 void disk_destroy(disk_t *disk);
 void disk_init(disk_t *disk, blockdev_t *blockdev);
 
 /* Create, destroy, initialize, read from, and write to a partition structure */
-partition_t *partition_create();
+partition_t *partition_create(uint64_t offset, uint64_t size);
 void partition_destroy(partition_t *partition);
 void partition_init(partition_t *partition, uint64_t offset, uint64_t size);
 uint64_t partition_read(partition_t *partition, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t partition_write(partition_t *partition, uint8_t *buffer, uint64_t offset, uint64_t length);
+
+/* Register a partition table */
+void register_partition_table(bool (*probe)(disk_t *disk), void (*init)(disk_t *disk));
 
 #endif
