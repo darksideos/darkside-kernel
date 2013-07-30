@@ -5,6 +5,7 @@
 #include <lib/libadt/list.h>
 #include <kernel/device/dev.h>
 #include <kernel/sync/rwlock.h>
+#include <kernel/vfs/disk.h>
 
 struct inode;
 
@@ -13,9 +14,6 @@ typedef struct filesystem
 {
 	/* Root of the filesystem */
 	struct inode *root;
-
-	/* Partition that the filesystem resides on */
-	void *partition;
 
 	/* Filesystem specific data */
 	void *data;
@@ -54,8 +52,9 @@ typedef struct filesystem
 /* Mountpoint structure */
 typedef struct mountpoint
 {
-	/* Inode and filesystem */
+	/* Inode, partition, and filesystem */
 	struct inode *node;
+	partition_t *partition;
 	filesystem_t *fs;
 } mountpoint_t;
 
@@ -115,7 +114,7 @@ int32_t register_filesystem(filesystem_t *fs, uint8_t *name);
 int32_t unregister_filesystem(uint8_t *name);
 
 /* Mount and unmount a filesystem */
-int32_t vfs_mount(uint8_t *name, inode_t *node);
+int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name);
 int32_t vfs_unmount(inode_t *node);
 
 /* VFS functions */
