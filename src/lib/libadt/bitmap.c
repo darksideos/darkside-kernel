@@ -26,11 +26,26 @@ void bitmap_clear(bitmap_t *bitmap, uint32_t index)
 }
 
 /* Find the first clear bit in a bitmap */
-int32_t bitmap_first_clear(bitmap_t *bitmap)
+uint32_t bitmap_first_clear(bitmap_t *bitmap)
 {
 	uint32_t offset;
 	for (offset = 0; offset < bitmap->max_bits / 8; offset++)
 	{
+		uint8_t byte = bitmap->data[offset];
+
+		/* Find the first clear bit */
+		uint8_t bit = 0;
+		while ((byte & 1) == 1)
+		{
+			bit++;
+			byte >>= 1;
+		}
+
+		/* If we didn't go past the MSB, return the bit we found */
+		if (bit != 8)
+		{
+			return (offset * 8) + bit;
+		}
 	}
 
 	return -1;
