@@ -23,13 +23,13 @@ typedef struct page
 } page_t;
 
 /* Second level page table structure - 1 KiB */
-typedef struct page_table2
+typedef struct page_table1
 {
 	page_t pages[256];
 } page_table2_t;
 
 /* First level page table structure - 16 KiB */
-typedef struct page_table1
+typedef struct page_table0
 {
 	uint32_t tables[4096];
 } page_table1_t;
