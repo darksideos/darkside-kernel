@@ -1,4 +1,5 @@
 #include <lib/libc/types.h>
+#include <hal/raspi/pmm.h>
 #include <hal/raspi/vmmnew.h>
 #include <kernel/console/kprintf.h>
 
@@ -83,10 +84,10 @@ uint32_t create_address_space()
 	uint32_t tbl = 0;
 
 	/* Choose the page table */
-	page_table1_t *table = (page_table1_t*) tbl;
+	page_table0_t *table = (page_table0_t*) tbl;
 
 	/* Clear the page table */
-	memset(table, 0, sizeof(page_table1_t));
+	memset(table, 0, sizeof(page_table0_t));
 
 	/* Return the physical address of the page table */
 	return tbl;
