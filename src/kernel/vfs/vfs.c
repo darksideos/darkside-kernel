@@ -60,7 +60,7 @@ int32_t unregister_filesystem(uint8_t *name)
 }
 
 /* Mount a filesystem */
-int32_t vfs_mount(uint8_t *name, inode_t *node)
+int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name)
 {
 	/* Is the filesystem already mounted? */
 	mutex_acquire(&mountpoints_lock);
@@ -87,10 +87,11 @@ int32_t vfs_mount(uint8_t *name, inode_t *node)
 		fs_info_t *fsi = list_get(&filesystems, i);
 
 		/* Is its name the one we're looking for? */
-		if (strequal(fsi->name, name))
+		if (strequal(fsi->name, fs_name))
 		{
 			/* Set up the mountpoint */
 			mp->node = node;
+			mp->partition = partition;
 			mp->fs = fsi->fs;
 
 			/* Add it to the list */
