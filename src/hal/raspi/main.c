@@ -39,7 +39,7 @@ void raspi_main(uint32_t r0, uint32_t machtype, uint32_t atagsaddr)
 	asm volatile("mcr p15, 0, %[data], c8, c7, 1" : : [data] "r" (0x00000000));
 	
 	/* Initialise stuff */
-	mem_init();
+//	mem_init();
 	uart_init();
 	interrupts_init();
 	init_text_mode(0xFFFF, 0x0000);
