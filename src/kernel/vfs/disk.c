@@ -1,18 +1,30 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
+#include <lib/libadt/list.h>
 #include <kernel/console/kprintf.h>
 #include <kernel/device/dev.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/disk.h>
 #include <kernel/vfs/mbr.h>
 
-/* Create a disk structure */
-disk_t *disk_create()
-{
-	/* Create a disk structure and make sure it's 0 */
-	disk_t *disk = (disk_t*) kmalloc(sizeof(disk_t));
-	memset(disk, 0, sizeof(disk_t));
+/* Registered partition tables */
+list_t partition_tables;
 
+/* Partition table structure */
+typedef struct partition_table
+{
+	/* Probe the disk to see if it has the partition table */
+	bool (*probe)(disk_t *disk);
+
+	/* Initialize a disk structure with the partition table */
+	void (*init)(disk_t *disk);
+} partition_table_t;
+
+/* Create a disk structure and initialize its values */
+disk_t *disk_create(blockdev_t *blockdev)
+{
+	disk_t *disk = (disk_t*) kmalloc(sizeof(disk_t));
+	disk_init(disk, blockdev);
 	return disk;
 }
 
@@ -38,59 +50,37 @@ void disk_destroy(disk_t *disk)
 	kfree(disk);
 }
 
-/* Initialize a disk structure */
+/* Initialize a disk structure's values */
 void disk_init(disk_t *disk, blockdev_t *blockdev)
 {
 	/* Fill out its block device pointer */
 	disk->blockdev = blockdev;
 
-	/* Read the MBR signature */
-	uint8_t mbr_sig[2];
-
-	uint64_t bytes_read = blockdev_read(blockdev, &mbr_sig[0], 510, 2);
-	if (bytes_read != 2)
+	/* Go through each registered partition table */
+	for (uint32_t i = 0; i < list_length(&partition_tables); i++)
 	{
-		kprintf(LOG_ERROR, "Error reading MBR signature from device");
-		return;
-	}
+		/* Get the partition table */
+		partition_table_t *table = (partition_table_t*) list_get(&partition_tables, i);
 
-	/* Check to make sure the signature is 0x55AA */
-	if (signature[0] = 0x55 && signature[1] == 0xAA)
-	{
-		/* Try to read the GPT signature */
-		uint8_t gpt_sig[8];
+		/* Probe the disk for that partition table */
+		bool match = table->probe(disk);
 
-		bytes_read = blockdev_read(blockdev, &gpt_sig[0], 512, 8);
-		if (bytes_read != 8)
+		/* If there's a match, initialize the disk with that partition table */
+		if (match)
 		{
-			kprintf(LOG_ERROR, "Error reading GPT signature from device");
+			table->init(disk);
 			return;
 		}
+	}
 
-		/* Check to make sure the signature is "EFI PART" */
-		if (strequal(gpt_sig, "EFI PART"))
-		{
-			kprintf(LOG_INFO, "Device contains a GPT partition table");
-		}
-		else
-		{
-			kprintf(LOG_INFO, "Device contains a MBR partition table");
-			mbr_init_disk(disk);
-		}
-	}
-	else
-	{
-		kprintf(LOG_ERROR, "Device contains no valid partition table");
-	}
+	/* If we didn't find a match, do something: Should I assume the disk is unpartitioned or give an error message? */
 }
 
-/* Create a partition structure */
-partition_t *partition_create()
+/* Create a partition structure and initialize its values */
+partition_t *partition_create(uint64_t offset, uint64_t size)
 {
-	/* Create a partition structure and make sure it's 0 */
 	partition_t *partition = (partition_t*) kmalloc(sizeof(partition_t));
-	memset(partition, 0, sizeof(partition_t));
-
+	partition_init(partition, offset, size);
 	return partition;
 }
 
@@ -125,4 +115,17 @@ uint64_t partition_write(partition_t *partition, uint8_t *buffer, uint64_t offse
 {
 	/* Write the data to the block device */
 	return blockdev_write(partition->disk->blockdev, buffer, partition->offset + offset, length);
+}
+
+/* Register a partition table */
+void register_partition_table(bool (*probe)(disk_t *disk), void (*init)(disk_t *disk))
+{
+	/* Create a partition table structure */
+	partition_table_t table;
+
+	table.probe = probe;
+	table.init = init;
+
+	/* Add it to the list of partition tables */
+	list_append(&partition_tables, &table);
 }
