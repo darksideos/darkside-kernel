@@ -18,8 +18,8 @@ extern uint32_t mem_v2p(uint32_t);
 /* Convert a physical address to a virtual one - essentially, just add
  * 0x80000000 to it
  */
-#define mem_p2v(X) (X+0x80000000)
-//#define mem_p2v(X) (X)
+//define mem_p2v(X) (X+0x80000000)
+#define mem_p2v(X) (X)
 
 extern void mem_init(void);
 
