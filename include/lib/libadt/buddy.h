@@ -1,6 +1,9 @@
 #ifndef __BUDDY_H
 #define __BUDDY_H
 
+#include <lib/libc/types.h>
+#include <lib/libadt/bitmap.h>
+
 /* log2 of the minimum and maximum buddy node size */
 #define MIN_BUDDY_SIZE_LOG2		12	/* 2**12 = 4KiB */
 #define MAX_BUDDY_SIZE_LOG2		22	/* 2**28 = 4MiB */
