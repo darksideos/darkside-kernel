@@ -56,7 +56,7 @@ int32_t unregister_filesystem(uint8_t *name)
 		}
 	}
 	mutex_release(&filesystems_lock);
-	return 1;
+	return -1;
 }
 
 /* Mount a filesystem */
@@ -73,7 +73,7 @@ int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name)
 		if (mp->node == node)
 		{
 			mutex_release(&mountpoints_lock);
-			return 1;
+			return -1;
 		}
 	}
 
@@ -103,7 +103,7 @@ int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name)
 	}
 	mutex_release(&mountpoints_lock);
 	kfree(mp);
-	return 1;
+	return -1;
 }
 
 /* Unmount a filesystem */
@@ -130,7 +130,7 @@ int32_t vfs_unmount(inode_t *node)
 		}
 	}
 	mutex_release(&mountpoints_lock);
-	return 0;
+	return -1;
 }
 
 /* Open a file */
@@ -145,32 +145,17 @@ inode_t *vfs_open(uint8_t *path)
 		node->handles++;
 		return node;
 	}
+
+	return 0;
 }
 
 /* Create a file */
 inode_t *vfs_create(uint8_t *path, mode_t mode)
 {
-	/* Try to open the file */
-	inode_t *node = vfs_open(path);
+	/* Begin at the root of the VFS */
+	inode_t *node = vfs_root;
 
-	/* If it suceeded, return the file */
-	if (node)
-	{
-		return node;
-	}
-	/* Otherwise, create it */
-	else
-	{
-		int32_t result = vfs_mknod(path, INODE_TYPE_FILE, 0);
-
-		if (result == 0)
-		{
-			node = vfs_open(path);
-			return node;
-		}
-
-		return 0;
-	}
+	return 0;
 }
 
 /* Close a file */
@@ -187,7 +172,7 @@ uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t leng
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->fs->read(node->fs, node, buffer, offset, length);
+		return node->mp->fs->read(node->mp->fs, node->mp->partition, node, buffer, offset, length);
 	}
 
 	return 0;
@@ -198,7 +183,7 @@ uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t len
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->fs->write(node->fs, node, buffer, offset, length);
+		return node->mp->fs->write(node->mp->fs, node->mp->partition, node, buffer, offset, length);
 	}
 
 	return 0;
@@ -209,7 +194,7 @@ list_t vfs_readdir(inode_t *dir)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
-		return node->fs->readdir(node->fs, dir);
+		return node->mp->fs->readdir(node->mp->fs, node->mp->partition, dir);
 	}
 }
 
@@ -218,7 +203,7 @@ inode_t *vfs_finddir(inode_t *dir, uint8_t *name)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
-		return node->fs->finddir(node->fs, dir, name);
+		return node->mp->fs->finddir(node->mp->fs, node->mp->partition, dir, name);
 	}
 
 	return 0;
@@ -229,43 +214,34 @@ int32_t vfs_link(inode_t *node, uint8_t *newpath)
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->fs->link(node->fs, node, newpath);
+		return node->mp->fs->link(node->mp->fs, node->mp->partition, node, newpath);
 	}
 }
 
 /* Remove a directory entry */
 int32_t vfs_unlink(uint8_t *path)
 {
-	return node->fs->unlink(node->fs, path);
+	return node->mp->fs->unlink(node->mp->fs, node->mp->partition, path);
 }
 
 /* Create a new symbolic link to a file */
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
 {
-	return node->fs->symlink(node->fs, node, newpath);
-}
-
-/* Create a new VFS node at the specified path */
-int32_t vfs_mknod(uint8_t *path, int32_t type, dev_t dev)
-{
-	/* Begin at the root of the VFS */
-	inode_t *node = vfs_root;
-
-	return 0;
+	return node->mp->fs->symlink(node->mp->fs, node->mp->partition, node, newpath);
 }
 
 /* Rename a directory entry */
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath)
 {
-	return node->fs->rename(node->fs, oldpath, newpath);
+	return node->mp->fs->rename(node->mp->fs, node->mp->partition, oldpath, newpath);
 }
 
 /* Issue a device specific request */
 int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t length)
 {
-	if (node->fs->ioctl)
+	if (node->mp->fs->ioctl)
 	{
-		return node->fs->ioctl(node->fs, node, request, buffer, length);
+		return node->mp->fs->ioctl(node->mp->fs, node, request, buffer, length);
 	}
 
 	return -1;
@@ -282,7 +258,7 @@ void init_vfs()
 	vfs_root = (inode_t*) kmalloc(sizeof(inode_t));
 
 	/* Fill out it's information */
-	vfs_root->filesystem = 0;
+	vfs_root->mp = 0;
 	vfs_root->type = INODE_TYPE_DIR;
 	vfs_root->parent = 0;
 	vfs_root->children = list_create(sizeof(inode_t), 4);
