@@ -85,11 +85,8 @@ typedef struct inode
 	/* Readers/writer lock */
 	rwlock_t rwlock;
 
-	/* Read and write buffers */
-	uint8_t *readbuf, *writebuf;
-
 	/* Number of times the inode is open */
-	unsigned handles;
+	uint32_t handles;
 
 	/* Device ID for block and character devices */
 	dev_t id;
