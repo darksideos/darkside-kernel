@@ -192,8 +192,15 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 }
 
 /* Read from a device in dev */
-uint64_t dev_read(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
+uint64_t dev_read(filesystem_t *fs, partition_t *partition, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
+	/* Character device */
+	if (inode->type == INODE_TYPE_CHARDEV)
+	{
+		/* Cast the inode specific data to a character device and read from it */
+		blockdev_t *chardev = (chardev_t*) node->data;
+		return chardev->read(chardev, buffer, offset, length);
+	}
 	/* Block device */
 	if (inode->type == INODE_TYPE_BLOCKDEV)
 	{
@@ -206,33 +213,56 @@ uint64_t dev_read(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t off
 }
 
 /* Write to a device in dev */
-uint64_t dev_write(filesystem_t *fs, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
+uint64_t dev_write(filesystem_t *fs, partition_t *partition, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
+	/* Character device */
+	if (inode->type == INODE_TYPE_CHARDEV)
+	{
+		/* Cast the inode specific data to a character device and read from it */
+		blockdev_t *chardev = (chardev_t*) node->data;
+		return chardev->write(chardev, buffer, offset, length);
+	}
 	/* Block device */
 	if (inode->type == INODE_TYPE_BLOCKDEV)
 	{
-		/* Cast the inode specific data to a block device and write to it */
+		/* Cast the inode specific data to a block device and read from it */
 		blockdev_t *blockdev = (blockdev_t*) node->data;
 		return blockdev->write(blockdev, buffer, offset, length);
 	}
-
 	return 0;
 }
 
-/* Rename a directory entry */
-int32_t dev_rename(struct filesystem *fs, uint8_t *oldpath, uint8_t *newpath)
+/* Return a list of directory entries in a directory in dev */
+
+/* Create a new directory entry to an inode in dev */
+
+/* Remove directory entry in dev */
+
+/* Create a new symbolic link to an inode in dev */
+
+/* Create a new inode in dev */
+
+/* Rename a directory entry in dev */
+int32_t dev_rename(struct filesystem *fs, partition_t *partition, uint8_t *oldpath, uint8_t *newpath)
 {
 }
 
 /* Issue a device specfic request to a node in dev */
-int32_t dev_ioctl(filesystem_t *fs, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
+int32_t dev_ioctl(filesystem_t *fs, partition_t *partition, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
 {
+	/* Character device */
+	if (inode->type == INODE_TYPE_CHARDEV)
+	{
+		/* Cast the inode specific data to a character device and read from it */
+		blockdev_t *chardev = (chardev_t*) node->data;
+		return chardev->ioctl(chardev, request, buffer, length);
+	}
 	/* Block device */
 	if (inode->type == INODE_TYPE_BLOCKDEV)
 	{
-		/* Cast the inode specific data to a block device and issue the request */
+		/* Cast the inode specific data to a block device and read from it */
 		blockdev_t *blockdev = (blockdev_t*) node->data;
-		return blockdev->ioctl(blockdev, request, buffer, length);
+		return blockdev->read(blockdev, request, buffer, length);
 	}
 
 	return -1;
@@ -266,7 +296,6 @@ void dev_init()
 	vfs_dev->read = &dev_read;
 	vfs_dev->write = &dev_write;
 	vfs_dev->readdir = 0;
-	vfs_dev->finddir = 0;
 	vfs_dev->link = 0;
 	vfs_dev->unlink = 0;
 	vfs_dev->symlink = 0;

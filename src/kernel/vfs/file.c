@@ -5,7 +5,7 @@
 #include <kernel/vfs/file.h>
 #include <kernel/vfs/stat.h>
 
-/* Create a file */
+/* Create a file structure */
 file_t *file_create()
 {
 	/* Create an input file and make sure it's 0 */
