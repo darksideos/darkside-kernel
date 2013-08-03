@@ -7,11 +7,11 @@
 #include <kernel/vfs/vfs.h>
 
 /* Filesystems and mountpoints */
-list_t filesystems, mountpoints;
-mutex_t filesystems_lock, mountpoints_lock;
+static list_t filesystems, mountpoints;
+static mutex_t filesystems_lock, mountpoints_lock;
 
 /* Root of the VFS */
-inode_t *vfs_root;
+static inode_t *vfs_root;
 
 /* Filesystem information structure */
 typedef struct fs_info
@@ -203,7 +203,7 @@ inode_t *vfs_finddir(inode_t *dir, uint8_t *name)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
-		return node->mp->fs->finddir(node->mp->fs, node->mp->partition, dir, name);
+		return 0;
 	}
 
 	return 0;
