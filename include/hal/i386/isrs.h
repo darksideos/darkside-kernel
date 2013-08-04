@@ -22,10 +22,6 @@ void isr_install_handler(int32_t isr, void (*handler)(struct i386_regs *r));
 /* Uninstall an ISR handler */
 void isr_uninstall_handler(int32_t isr);
 
-/* Create and copy a CPU register context */
-void *create_registers(void (*function)(), bool user);
-void copy_registers(void *dest, void *src);
-
 /* Dump the CPU registers */
 void dump_registers(struct i386_regs *r);
 
