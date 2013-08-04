@@ -176,7 +176,7 @@ void *create_cpu_context(void (*fn)(void *arg), bool user)
 	
 	context->eflags = 0x202;				// Interrupts enabled
 	context->cs = 0x08;						// Kernel mode code segment
-	context->eip = (uint32_t) function;		// Instruction pointer
+	context->eip = (uint32_t) fn;			// Instruction pointer
 
 	context->edi = context->esi = context->ebp = context->esp = context->ebx = context->edx = context->ecx = context->eax = 0;	// GPRs
 
