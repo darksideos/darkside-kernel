@@ -5,42 +5,41 @@
 #include <lib/libadt/list.h>
 #include <kernel/device/dev.h>
 #include <kernel/sync/rwlock.h>
-#include <kernel/vfs/disk.h>
 
 struct inode;
 
 /* Filesystem structure */
 typedef struct filesystem
 {
-	/* Root of the filesystem */
-	struct inode *root;
+	/* Get the root of the filesystem */
+	void (*get_root)(struct filesystem *fs, dev_t dev, struct inode *node);
 
-	/* Filesystem specific data */
-	void *data;
+	/* Destroy the filesystem */
+	void (*destroy)(struct filesystem *fs, dev_t dev);
 
 	/* Read a specified amount of data at the given offset from a file into a buffer */
-	uint64_t (*read)(struct filesystem *fs, partition_t *partition, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
+	uint64_t (*read)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 
 	/* Write a specified amount of data from a buffer into a file at the given offset */
-	uint64_t (*write)(struct filesystem *fs, partition_t *partition, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
+	uint64_t (*write)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 
 	/* Return a list of directory entries in a directory */
-	list_t (*readdir)(struct filesystem *fs, partition_t *partition, struct inode *dir);
+	list_t (*readdir)(struct filesystem *fs, dev_t dev, struct inode *dir);
 
 	/* Create a new directory entry to an inode, returning -1 on failure */
-	int32_t (*link)(struct filesystem *fs, partition_t *partition, struct inode *node, uint8_t *newpath);
+	int32_t (*link)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *newpath);
 
 	/* Remove a directory entry, returning -1 on failure */
-	int32_t (*unlink)(struct filesystem *fs, partition_t *partition, uint8_t *path);
+	int32_t (*unlink)(struct filesystem *fs, dev_t dev, uint8_t *path);
 
 	/* Create a new symbolic link to an inode, returning -1 on failure */
-	int32_t (*symlink)(struct filesystem *fs, partition_t *partition, struct inode *node, uint8_t *newpath);
+	int32_t (*symlink)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *newpath);
 
 	/* Create a new inode, returning -1 on failure */
-	int32_t (*mknod)(struct filesystem *fs, partition_t *partition, uint8_t *path, int32_t type, dev_t dev, struct inode *node);
+	int32_t (*mknod)(struct filesystem *fs, dev_t dev, uint8_t *path, int32_t type, dev_t dev, struct inode *node);
 
 	/* Rename a directory entry, returning -1 on failure */
-	int32_t (*rename)(struct filesystem *fs, partition_t *partition, uint8_t *oldpath, uint8_t *newpath);
+	int32_t (*rename)(struct filesystem *fs, dev_t dev, uint8_t *oldpath, uint8_t *newpath);
 
 	/* Issue a device specific request on an inode, returning -1 on failure */
 	int32_t (*ioctl)(struct filesystem *fs, struct inode *node, int32_t request, uint8_t *buffer, uint32_t length);
@@ -49,9 +48,9 @@ typedef struct filesystem
 /* Mountpoint structure */
 typedef struct mountpoint
 {
-	/* Inode, partition, and filesystem */
+	/* Inode, device, and filesystem */
 	struct inode *node;
-	partition_t *partition;
+	dev_t dev;
 	filesystem_t *fs;
 } mountpoint_t;
 
@@ -108,7 +107,7 @@ int32_t register_filesystem(filesystem_t *fs, uint8_t *name);
 int32_t unregister_filesystem(uint8_t *name);
 
 /* Mount and unmount a filesystem */
-int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name);
+int32_t vfs_mount(inode_t *node, dev_t dev, uint8_t *fs_name);
 int32_t vfs_unmount(inode_t *node);
 
 /* VFS functions */
