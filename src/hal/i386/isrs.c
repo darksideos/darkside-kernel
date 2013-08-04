@@ -169,7 +169,7 @@ extern void fault_handler(struct i386_regs *r)
 }
 
 /* Create a CPU register context */
-void *create_registers(void (*function)(), bool user)
+void *create_cpu_context(void (*fn)(void *arg), bool user)
 {
 	/* Create and fill out the register context */
 	struct i386_regs *context = (struct i386_regs*) kmalloc(sizeof(struct i386_regs));
@@ -197,12 +197,6 @@ void *create_registers(void (*function)(), bool user)
 	}
 
 	return context;
-}
-
-/* Copy a CPU register context */
-void copy_registers(void *dest, void *src)
-{
-	memcpy(dest, src, sizeof(struct i386_regs));
 }
 
 /* Dump the CPU registers */

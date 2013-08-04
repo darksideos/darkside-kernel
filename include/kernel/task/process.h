@@ -14,11 +14,22 @@ typedef struct process
 	/* User and group ID */
 	int32_t uid, gid;
 
+	/* Threads */
+	list_t threads;
+
 	/* Address space */
 	uint32_t address_space;
 
 	/* Files opened by the process */
 	list_t files;
+
+	/* Child threads */
 } process_t;
+
+/* Create, destroy, kill, and stop a process */
+process_t *process_create(uint8_t *name, void (*fn)(void *arg), void *arg);
+void process_destroy(process_t *process);
+void process_kill(process_t *process, int32_t status);
+void process_stop(process_t *process);
 
 #endif

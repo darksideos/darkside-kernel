@@ -23,10 +23,6 @@ void outmemw(uint32_t address, uint16_t data);
 unsigned long inmeml(uint32_t address);
 void outmeml(uint32_t address, unsigned long data);
 
-/* Registers */
-void *create_registers(void (*function)(), bool user);
-void copy_registers(void *dest, void *src);
-
 /* IRQs */
 void irq_install_handler(int32_t irq, void *handler);
 void irq_uninstall_handler(int32_t irq);
@@ -57,8 +53,9 @@ void switch_address_space(uint32_t);
 uint32_t page_align(uint32_t address);
 
 /* Multitasking */
-void set_kernel_stack(uint32_t stack);
+void *create_cpu_context(void (*fn)(void *arg), bool user);
 void switch_cpu_context(void *context);
+void set_kernel_stack(uint32_t stack);
 
 /* Syscalls */
 void syscall_install_handler(int32_t syscall, void *handler);
