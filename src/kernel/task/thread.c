@@ -50,16 +50,6 @@ void thread_destroy(thread_t *thread)
 {
 }
 
-/* Kill a thread */
-void thread_kill(thread_t *thread)
-{
-}
-
-/* Stop a thread */
-void thread_stop(thread_t *thread)
-{
-}
-
 /* Run a thread on the current CPU */
 void thread_run(thread_t *thread)
 {
@@ -77,4 +67,55 @@ void thread_run(thread_t *thread)
 
 	/* Switch to the new thread's register context */
 	switch_cpu_context(thread->context);
+}
+
+/* Put the current thread to sleep */
+void thread_sleep()
+{
+	/* Get the current thread */
+	thread_t *current_thread = thread_current();
+
+	/* Set the thread's state to sleeping */
+	current_thread->state = THREAD_SLEEP;
+
+	/* Yield the current thread */
+	thread_yield();
+}
+
+/* Wake up a thread */
+void thread_wake(thread_t *thread)
+{
+	/* Set the thread's state to ready */
+	thread->state = THREAD_READY;
+
+	/* Enqueue the thread in the scheduler */
+	scheduler_enqueue(thread);
+}
+
+/* Yield the current thread */
+void thread_yield()
+{
+	/* Get the current thread */
+	thread_t *current_thread = thread_current();
+
+	/* Save the thread's register context */
+
+	/* If the sleep wasn't put to sleep or killed, enqueue it */
+	if (current_thread->state == THREAD_RUN)
+	{
+		scheduler_enqueue(current_thread);
+	}
+
+	/* Run the scheduler */
+	scheduler_run(current_thread->context);
+}
+
+/* Kill a thread */
+void thread_kill(thread_t *thread)
+{
+}
+
+/* Stop a thread */
+void thread_stop(thread_t *thread)
+{
 }
