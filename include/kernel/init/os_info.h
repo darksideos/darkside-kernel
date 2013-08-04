@@ -2,9 +2,7 @@
 #define __OS_INFO_H
 
 #include <lib/libc/types.h>
-
-/* Structure declarations */
-typedef struct range range_t;
+#include <kernel/mm/range.h>
 
 /* OS information structure */
 typedef struct os_info
