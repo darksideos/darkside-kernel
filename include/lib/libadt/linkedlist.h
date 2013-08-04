@@ -27,6 +27,6 @@ void *linkedlist_peep_tail(linkedlist_t *list);
 void linkedlist_insert(linkedlist_t *list, uint32_t index, void *value);
 void linkedlist_remove(linkedlist_t *list, uint32_t index);
 void linkedlist_set(linkedlist_t *list, uint32_t index, void *value);
-void *linkedlist_get(linkedlist_t *list, uint32_t);
+void *linkedlist_get(linkedlist_t *list, uint32_t index);
 
 #endif
