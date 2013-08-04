@@ -73,7 +73,7 @@ void map_pmm_bitmap(uint32_t dir)
 }
 
 /* Initialize the physical memory manager */
-void init_pmm(range_t *ranges, uint32 num_ranges)
+void init_pmm(range_t *ranges, uint32_t num_ranges)
 {
 	/* Calculate the size of physical memory.
 	 * Here, we have to do a special check.  On systems <= 4GB of memory, there will be an entry
