@@ -4,8 +4,8 @@
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
 
-/* Dev filesystem */
-filesystem_t *vfs_dev;
+/* Root of the dev filesystem */
+static inode_t devfs_root;
 
 /* Create a character device structure */
 chardev_t *chardev_create()
@@ -191,8 +191,19 @@ void unregister_blockdev(blockdev_t *blockdev, uint8_t *name)
 	kprintf(LOG_ERROR, "Failed to unregister block device (inode and block device do not match)");
 }
 
+/* Get the root inode of the dev filesystem */
+static void devfs_get_root(filesystem_t *fs, dev_t dev, inode_t *node)
+{
+	memcpy(node, &devfs_root, sizeof(inode_t));
+}
+
+/* Destroy the dev filesystem */
+static void devfs_destroy(filesystem_t *fs, dev_t dev)
+{
+}
+
 /* Read from a device in dev */
-uint64_t dev_read(filesystem_t *fs, partition_t *partition, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
+static uint64_t devfs_read(filesystem_t *fs, dev_t dev, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
 	/* Character device */
 	if (inode->type == INODE_TYPE_CHARDEV)
@@ -213,7 +224,7 @@ uint64_t dev_read(filesystem_t *fs, partition_t *partition, inode_t *node, uint8
 }
 
 /* Write to a device in dev */
-uint64_t dev_write(filesystem_t *fs, partition_t *partition, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
+static uint64_t devfs_write(filesystem_t *fs, dev_t dev, inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
 	/* Character device */
 	if (inode->type == INODE_TYPE_CHARDEV)
@@ -243,12 +254,12 @@ uint64_t dev_write(filesystem_t *fs, partition_t *partition, inode_t *node, uint
 /* Create a new inode in dev */
 
 /* Rename a directory entry in dev */
-int32_t dev_rename(struct filesystem *fs, partition_t *partition, uint8_t *oldpath, uint8_t *newpath)
+static int32_t devfs_rename(struct filesystem *fs, dev_t dev, uint8_t *oldpath, uint8_t *newpath)
 {
 }
 
 /* Issue a device specfic request to a node in dev */
-int32_t dev_ioctl(filesystem_t *fs, partition_t *partition, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
+static int32_t devfs_ioctl(filesystem_t *fs, dev_t dev, inode_t *node, int32_t request, uint8_t *buffer, uint32_t length)
 {
 	/* Character device */
 	if (inode->type == INODE_TYPE_CHARDEV)
@@ -268,41 +279,36 @@ int32_t dev_ioctl(filesystem_t *fs, partition_t *partition, inode_t *node, int32
 	return -1;
 }
 
-/* Initialize dev */
-void dev_init()
+/* Initialize the dev filesystem */
+void devfs_init()
 {
-	/* Create the dev filesystem */
-	vfs_dev = (filesystem_t*) kmalloc(sizeof(filesystem_t));
+	/* Create the dev filesystem and fill out its information */
+	filesystem_t *devfs = (filesystem_t*) kmalloc(sizeof(filesystem_t));
 
-	/* Create the root of the dev filesystem and fill out its information */
-	inode_t *root = (inode_t*) kmalloc(sizeof(inode_t));
+	devfs->get_root = &devfs_get_root;
+	devfs->destroy = &devfs_destroy;
+	devfs->read = &devfs_read;
+	devfs->write = &devfs_write;
+	devfs->readdir = 0;
+	devfs->link = 0;
+	devfs->unlink = 0;
+	devfs->symlink = 0;
+	devfs->mknod = 0;
+	devfs->rename = &devfs_rename;
+	devfs->ioctl = &devfs_ioctl;
 
-	root->filesystem = vfs_dev;
-	root->type = INODE_TYPE_DIR;
-	root->parent = 0;
+	/* Fill out the root of the dev filesystem */
+	devfs_root->mp = 0;
+	devfs_root->type = INODE_TYPE_DIR;
+	devfs_root->parent = 0;
 
-	vfs_root->size = 0;
-	vfs_root->mode = 0777;
-	vfs_root->nlink = 0;
-	vfs_root->uid = 0;
-	vfs_root->gid = 0;
-	vfs_root->atime = vfs_root->mtime = vfs_root->ctime = 0;
-
-	/* Fill out the dev filesystem's information */
-	vfs_dev->root = root;
-	vfs_dev->partition = 0;
-	vfs_dev->data = 0;
-
-	vfs_dev->read = &dev_read;
-	vfs_dev->write = &dev_write;
-	vfs_dev->readdir = 0;
-	vfs_dev->link = 0;
-	vfs_dev->unlink = 0;
-	vfs_dev->symlink = 0;
-	vfs_dev->mknod = 0;
-	vfs_dev->rename = &dev_rename;
-	vfs_dev->ioctl = &dev_ioctl;
+	devfs_root->size = 0;
+	devfs_root->mode = 0777;
+	devfs_root->nlink = 0;
+	devfs_root->uid = 0;
+	devfs_root->gid = 0;
+	devfs_root->atime = devfs_root->mtime = devfs_root->ctime = 0;
 
 	/* Register the dev filesystem */
-	register_filesystem(vfs_dev, "devfs");
+	register_filesystem(devfs, "devfs");
 }
