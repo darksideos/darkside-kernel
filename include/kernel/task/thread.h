@@ -1,5 +1,5 @@
-#ifndef __PROCESS_H
-#define __PROCESS_H
+#ifndef __THREAD_H
+#define __THREAD_H
 
 #include <lib/libc/types.h>
 #include <kernel/task/process.h>
