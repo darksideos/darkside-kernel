@@ -4,6 +4,7 @@
 #include <lib/libc/types.h>
 #include <kernel/init/os_info.h>
 #include <kernel/mm/addresses.h>
+#include <kernel/mm/range.h>
 
 /* Physical and virtual start of the PMM bitmap */
 #define PMM_BITMAP_PHYSICAL_START		(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE)
