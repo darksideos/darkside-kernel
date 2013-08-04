@@ -24,6 +24,6 @@ void pmm_free_page(uint32_t address);
 void map_pmm_bitmap(uint32_t dir);
 
 /* Initialize the physical memory manager */
-void init_pmm(range_t *ranges, uint32 num_ranges);
+void init_pmm(range_t *ranges, uint32_t num_ranges);
 
 #endif

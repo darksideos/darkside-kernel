@@ -8,7 +8,7 @@
 #include <hal/i386/vmm.h>
 #include <hal/i386/cpuid.h>
 #include <hal/i386/msr.h>
-#include <kernel/task/task.h>
+#include <kernel/task/scheduler.h>
 
 /* Local APIC registers */
 #define LAPIC_APICID		0x020
