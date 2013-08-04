@@ -172,7 +172,7 @@ uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t leng
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->read(node->mp->fs, node->mp->partition, node, buffer, offset, length);
+		return node->mp->fs->read(node->mp->fs, node->mp->dev, node, buffer, offset, length);
 	}
 
 	return 0;
@@ -183,7 +183,7 @@ uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t len
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->write(node->mp->fs, node->mp->partition, node, buffer, offset, length);
+		return node->mp->fs->write(node->mp->fs, node->mp->dev, node, buffer, offset, length);
 	}
 
 	return 0;
@@ -194,7 +194,7 @@ list_t vfs_readdir(inode_t *dir)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
-		return node->mp->fs->readdir(node->mp->fs, node->mp->partition, dir);
+		return node->mp->fs->readdir(node->mp->fs, node->mp->dev, dir);
 	}
 }
 
@@ -214,26 +214,26 @@ int32_t vfs_link(inode_t *node, uint8_t *newpath)
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->link(node->mp->fs, node->mp->partition, node, newpath);
+		return node->mp->fs->link(node->mp->fs, node->mp->dev, node, newpath);
 	}
 }
 
 /* Remove a directory entry */
 int32_t vfs_unlink(uint8_t *path)
 {
-	return node->mp->fs->unlink(node->mp->fs, node->mp->partition, path);
+	return node->mp->fs->unlink(node->mp->fs, node->mp->dev, path);
 }
 
 /* Create a new symbolic link to a file */
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
 {
-	return node->mp->fs->symlink(node->mp->fs, node->mp->partition, node, newpath);
+	return node->mp->fs->symlink(node->mp->fs, node->mp->dev, node, newpath);
 }
 
 /* Rename a directory entry */
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath)
 {
-	return node->mp->fs->rename(node->mp->fs, node->mp->partition, oldpath, newpath);
+	return node->mp->fs->rename(node->mp->fs, node->mp->dev, oldpath, newpath);
 }
 
 /* Issue a device specific request */
