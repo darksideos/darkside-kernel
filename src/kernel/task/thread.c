@@ -1,8 +1,10 @@
 #include <lib/libc/types.h>
+#include <lib/libadt/list.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
+#include <kernel/task/scheduler.h>
 
 /* Find the first available TID */
 uint32_t find_first_tid()
