@@ -2,6 +2,7 @@
 *.elf
 *.img
 *.a
+*.bin
 .DS_Store
 .DS_Store?
 ._*
