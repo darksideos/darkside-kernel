@@ -1,5 +1,5 @@
-#include <lib/libadt/linkedlist.h>
 #include <lib/libc/stdint.h>
+#include <lib/libadt/linkedlist.h>
 #include <kernel/mm/heap.h>
 
 linkedlist_t *create_linkedlist()
@@ -25,7 +25,7 @@ void linkedlist_push_head(linkedlist_t *list, void *value)
 		head->next->prev = head;
 	}
 	else
-	}
+	{
 		list->tail = head;
 	}
 	
@@ -46,7 +46,7 @@ void linkedlist_push_tail(linkedlist_t *list, void *value)
 		tail->prev->next = tail;
 	}
 	else
-	}
+	{
 		list->head = tail;
 	}
 	
