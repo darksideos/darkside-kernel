@@ -65,6 +65,6 @@ uint32_t atomic_xchg(atomic_t *v, uint32_t newval)
 uint32_t atomic_cmpxchg(atomic_t *v, uint32_t oldval, uint32_t newval)
 {
 	uint32_t ret;
-	asm volatile("lock cmpxchgl %2,%1" : "=a" (ret), "+m" (&(v->counter)) : "r" (newval), "0" (oldval) : "memory");
+	asm volatile("lock cmpxchgl %2,%1" : "=a" (ret), "+m" (v->counter) : "r" (newval), "0" (oldval) : "memory");
 	return ret;
 }
