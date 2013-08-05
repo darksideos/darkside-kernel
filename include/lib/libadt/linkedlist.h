@@ -3,19 +3,19 @@
 
 #include <lib/libc/stdint.h>
 
+typedef struct linkedlist_entry
+{
+	struct linkedlist_entry *next;
+	struct linkedlist_entry *prev;
+	void *value;
+} linkedlist_entry_t;
+
 typedef struct linkedlist
 {
 	linkedlist_entry_t *head;
 	linkedlist_entry_t *tail;
 	uint32_t length;
 } linkedlist_t;
-
-typedef struct linkedlist_entry
-{
-	linkedlist_entry_t *next;
-	linkedlist_entry_t *prev;
-	void *value;
-} linkedlist_entry_t;
 
 linkedlist_t *create_linkedlist();
 void linkedlist_push_head(linkedlist_t *list, void *value);
