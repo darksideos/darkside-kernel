@@ -28,5 +28,6 @@ void linkedlist_insert(linkedlist_t *list, uint32_t index, void *value);
 void linkedlist_remove(linkedlist_t *list, uint32_t index);
 void linkedlist_set(linkedlist_t *list, uint32_t index, void *value);
 void *linkedlist_get(linkedlist_t *list, uint32_t index);
+uint32_t linkedlist_length(linkedlist_t *list);
 
 #endif

@@ -39,15 +39,15 @@ void linkedlist_push_tail(linkedlist_t *list, void *value)
 	tail->prev = list->tail;
 	tail->next = 0;
 	tail->value = value;
-	list->prev = tail;
+	list->tail = tail;
 	
 	if(tail->prev)
 	{
-		tail->prev->next = head;
+		tail->prev->next = tail;
 	}
 	else
 	}
-		list->tail = head;
+		list->head = tail;
 	}
 	
 	list->length++;
@@ -84,4 +84,9 @@ void *linkedlist_get(linkedlist_t *list, uint32_t index)
 	}
 	
 	return head->value;
+}
+
+uint32_t linkedlist_length(linkedlist_t *list)
+{
+	return list->length;
 }
