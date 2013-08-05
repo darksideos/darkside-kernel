@@ -3,7 +3,6 @@
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/file.h>
-#include <kernel/vfs/stat.h>
 
 /* Create a file structure */
 file_t *file_create()
@@ -16,7 +15,7 @@ file_t *file_create()
 }
 
 /* Open a file */
-int32_t file_open(file_t *file, uint8_t *path, int32_t flags, mode_t mode)
+int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode)
 {
 	/* Try to open the file */
 	inode_t *node = vfs_open(path);
