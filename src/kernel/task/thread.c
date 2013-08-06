@@ -100,14 +100,8 @@ void thread_yield()
 
 	/* Save the thread's register context */
 
-	/* If the sleep wasn't put to sleep or killed, enqueue it */
-	if (current_thread->state == THREAD_RUN)
-	{
-		scheduler_enqueue(current_thread);
-	}
-
 	/* Run the scheduler */
-	scheduler_run(current_thread->context);
+	scheduler_run(current_thread->context, 1);
 }
 
 /* Kill a thread */
