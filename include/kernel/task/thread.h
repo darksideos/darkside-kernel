@@ -40,6 +40,9 @@ typedef struct thread
 	/* Thread priority and state */
 	uint8_t priority;
 	uint8_t state;
+
+	/* NUMA domain and CPU affinity */
+	uint8_t numa_domain;
 } thread_t;
 
 /* Create, destroy, run on the current CPU, put to sleep the current, wake up a, and yield the current, kill, and stop a thread */
