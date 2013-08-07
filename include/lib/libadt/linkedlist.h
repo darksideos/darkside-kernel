@@ -17,7 +17,7 @@ typedef struct linkedlist
 	uint32_t length;
 } linkedlist_t;
 
-linkedlist_t *linkedlist_create();
+linkedlist_t linkedlist_create();
 void linkedlist_insert_head(linkedlist_t *list, void *value);
 void linkedlist_insert_tail(linkedlist_t *list, void *value);
 void *linkedlist_remove_head(linkedlist_t *list);

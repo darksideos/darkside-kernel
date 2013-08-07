@@ -150,7 +150,7 @@ inode_t *vfs_open(uint8_t *path)
 }
 
 /* Create a file */
-inode_t *vfs_create(uint8_t *path, mode_t mode)
+inode_t *vfs_create(uint8_t *path, int32_t mode)
 {
 	/* Begin at the root of the VFS */
 	inode_t *node = vfs_root;

@@ -2,20 +2,20 @@
 #include <lib/libadt/linkedlist.h>
 #include <kernel/mm/heap.h>
 
-linkedlist_t *linkedlist_create()
+linkedlist_t linkedlist_create()
 {
-	linkedlist_t *linkedlist = kmalloc(sizeof(linkedlist_t));
+	linkedlist_t linkedlist;
 	
-	linkedlist->head = 0;
-	linkedlist->tail = 0;
-	linkedlist->length = 0;
+	linkedlist.head = 0;
+	linkedlist.tail = 0;
+	linkedlist.length = 0;
 	
 	return linkedlist;
 }
 
 void linkedlist_insert_head(linkedlist_t *list, void *value)
 {
-	linkedlist_entry_t *head = kmalloc(sizeof(linkedlist_entry_t));
+	linkedlist_entry_t *head = (linkedlist_entry_t*) kmalloc(sizeof(linkedlist_entry_t));
 	
 	head->next = list->head;
 	head->prev = 0;
@@ -36,7 +36,7 @@ void linkedlist_insert_head(linkedlist_t *list, void *value)
 
 void linkedlist_insert_tail(linkedlist_t *list, void *value)
 {
-	linkedlist_entry_t *tail = kmalloc(sizeof(linkedlist_entry_t));
+	linkedlist_entry_t *tail = (linkedlist_entry_t*) kmalloc(sizeof(linkedlist_entry_t));
 	
 	tail->prev = list->tail;
 	tail->next = 0;
