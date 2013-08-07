@@ -1,6 +1,7 @@
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
 #include <lib/libadt/queue.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <kernel/sync/lock.h>
@@ -63,9 +64,13 @@ void scheduler_run(void *context, uint32_t cpu)
 	{
 		if (queue_length(&cpu_queue->priorities[priority]) > 0)
 		{
+			kprintf(LOG_DEBUG, "Queue length: 0x%08X\n", queue_length(&cpu_queue->priorities[priority]));
 			break;
 		}
 	}
+
+	kprintf(LOG_DEBUG, "0x%08X\n", priority);
+	return;
 
 	/* Get a thread off the priority queue */
 	spinlock_acquire(&cpu_queue->locks[priority]);
