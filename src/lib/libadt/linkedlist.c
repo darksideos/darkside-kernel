@@ -2,16 +2,18 @@
 #include <lib/libadt/linkedlist.h>
 #include <kernel/mm/heap.h>
 
-linkedlist_t *create_linkedlist()
+linkedlist_t *linkedlist_create()
 {
 	linkedlist_t *linkedlist = kmalloc(sizeof(linkedlist_t));
 	
 	linkedlist->head = 0;
 	linkedlist->tail = 0;
 	linkedlist->length = 0;
+	
+	return linkedlist;
 }
 
-void linkedlist_push_head(linkedlist_t *list, void *value)
+void linkedlist_insert_head(linkedlist_t *list, void *value)
 {
 	linkedlist_entry_t *head = kmalloc(sizeof(linkedlist_entry_t));
 	
@@ -32,7 +34,7 @@ void linkedlist_push_head(linkedlist_t *list, void *value)
 	list->length++;
 }
 
-void linkedlist_push_tail(linkedlist_t *list, void *value)
+void linkedlist_insert_tail(linkedlist_t *list, void *value)
 {
 	linkedlist_entry_t *tail = kmalloc(sizeof(linkedlist_entry_t));
 	
@@ -53,10 +55,60 @@ void linkedlist_push_tail(linkedlist_t *list, void *value)
 	list->length++;
 }
 
-void *linkedlist_pop_head(linkedlist_t *list);
-void *linkedlist_pop_tail(linkedlist_t *list);
-void *linkedlist_peep_head(linkedlist_t *list);
-void *linkedlist_peep_tail(linkedlist_t *list);
+void *linkedlist_remove_head(linkedlist_t *list)
+{
+	if(list->head->next)
+	{
+		list->head->next->prev = 0;
+	}
+	else
+	{
+		list->tail = 0;
+	}
+	
+	void *value = list->head->value;
+	linkedlist_entry_t *head = list->head;
+	list->head = list->head->next;
+	
+	kfree(head);
+	
+	list->length--;
+	
+	return value;
+}
+
+void *linkedlist_remove_tail(linkedlist_t *list)
+{
+	if(list->tail->prev)
+	{
+		list->tail->prev->next = 0;
+	}
+	else
+	{
+		list->head = 0;
+	}
+	
+	void *value = list->tail->value;
+	linkedlist_entry_t *tail = list->tail;
+	list->tail = list->tail->prev;
+	
+	kfree(tail);
+	
+	list->length--;
+	
+	return value;
+}
+
+void *linkedlist_peek_head(linkedlist_t *list)
+{
+	return list->head->value;
+}
+
+void *linkedlist_peek_tail(linkedlist_t *list)
+{
+	return list->tail->value;
+}
+
 void linkedlist_insert(linkedlist_t *list, uint32_t index, void *value);
 void linkedlist_remove(linkedlist_t *list, uint32_t index);
 
