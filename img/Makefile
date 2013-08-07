@@ -49,5 +49,6 @@ raspi-upload:
 	sx -vv kernel-raspi.img < $(PORT) > $(PORT)
 
 i386: kernel-i386.elf
+	./baseimage.sh
 	cd ../bigbang/img; make
 	./updateimage.sh
