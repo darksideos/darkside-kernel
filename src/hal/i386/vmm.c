@@ -141,7 +141,7 @@ void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address,
 	page_t *page = get_page(dir, virtual_address, true, present, rw, user, global);
 
 	/* Map the page in the table to the physical address */
-	*((uint32_t*) page) = physical_address | flags;	// Page fault here
+	*((uint32_t*) page) = physical_address | flags;
 
 	/* Invalidate the TLB entry */
 	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
