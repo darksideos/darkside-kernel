@@ -3,7 +3,10 @@
 #include <kernel/mm/heap.h>
 #include <drivers/graphics/vga.h>
 #include <lib/libadt/queue.h>
+
 #include <kernel/console/kprintf.h>
+
+#include <kernel/task/scheduler.h>
 
 void kernel_main(os_info_t *os_info)
 {
@@ -15,6 +18,9 @@ void kernel_main(os_info_t *os_info)
 
 	/* Initialize the kernel heap */
 	init_kheap();
+
+	/* Sched test code */
+	scheduler_run(0, 0);
 
 	while(1);
 }
