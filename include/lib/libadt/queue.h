@@ -6,10 +6,10 @@
 
 typedef linkedlist_t queue_t;
 
-queue_t queue_create();
-void queue_enqueue(queue_t queue, void *value);
-void *queue_dequeue(queue_t queue);
-void *queue_peek(queue_t queue);
-uint32_t queue_length(queue_t queue);
+queue_t *queue_create();
+void queue_enqueue(queue_t *queue, void *value);
+void *queue_dequeue(queue_t *queue);
+void *queue_peek(queue_t *queue);
+uint32_t queue_length(queue_t *queue);
 
 #endif
