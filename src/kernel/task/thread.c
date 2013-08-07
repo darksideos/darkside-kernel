@@ -105,7 +105,7 @@ void thread_yield()
 }
 
 /* Kill a thread */
-void thread_kill(thread_t *thread)
+void thread_kill(thread_t *thread, int32_t status)
 {
 }
 
