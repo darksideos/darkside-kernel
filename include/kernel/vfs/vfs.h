@@ -36,7 +36,7 @@ typedef struct filesystem
 	int32_t (*symlink)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *newpath);
 
 	/* Create a new inode, returning -1 on failure */
-	int32_t (*mknod)(struct filesystem *fs, dev_t dev, uint8_t *path, int32_t type, dev_t dev, struct inode *node);
+	int32_t (*mknod)(struct filesystem *fs, dev_t dev, uint8_t *path, int32_t type, dev_t id, struct inode *node);
 
 	/* Rename a directory entry, returning -1 on failure */
 	int32_t (*rename)(struct filesystem *fs, dev_t dev, uint8_t *oldpath, uint8_t *newpath);
@@ -112,7 +112,7 @@ int32_t vfs_unmount(inode_t *node);
 
 /* VFS functions */
 inode_t *vfs_open(uint8_t *path);
-inode_t *vfs_create(uint8_t *path, mode_t mode);
+inode_t *vfs_create(uint8_t *path, int32_t mode);
 void vfs_close(inode_t *node);
 uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);

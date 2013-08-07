@@ -55,7 +55,7 @@ void process_destroy(process_t *process)
 }
 
 /* Kill a process */
-void process_kill(process_t *process)
+void process_kill(process_t *process, int32_t status)
 {
 }
 

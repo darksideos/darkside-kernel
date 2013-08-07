@@ -21,13 +21,13 @@ typedef struct chardev
 	void *data;
 
 	/* Read a specified amount of data at the given offset from a block device into a buffer */
-	uint64_t (*read)(struct blockdev *blockdev, uint8_t *buffer, uint64_t length);
+	uint64_t (*read)(struct chardev *chardev, uint8_t *buffer, uint64_t length);
 
 	/* Write a specified amount of data from a buffer into a block device at the given offset */
-	uint64_t (*write)(struct blockdev *blockdev, uint8_t *buffer, uint64_t length);
+	uint64_t (*write)(struct chardev *chardev, uint8_t *buffer, uint64_t length);
 
 	/* Issue a device specific request */
-	int32_t (*ioctl)(struct blockdev *blockdev, int32_t request, uint32_t length);
+	int32_t (*ioctl)(struct chardev *chardev, int32_t request, uint32_t length);
 } chardev_t;
 
 /* Block device structure */

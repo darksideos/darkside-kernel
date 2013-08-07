@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-OBJFILES = btree.o dict.o linkedlist.o list.o queue.o
+OBJFILES = list.o dict.o linkedlist.o queue.o btree.o
 
 .c.o:
 	$(CCBASE)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/lib/libadt/$@ -c $<

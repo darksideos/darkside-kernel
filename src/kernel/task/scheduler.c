@@ -1,7 +1,9 @@
 #include <lib/libc/types.h>
+#include <lib/libadt/list.h>
+#include <lib/libadt/queue.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
-#include <kernel/sync/spinlock.h>
+#include <kernel/sync/lock.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
@@ -28,13 +30,14 @@ cpu_queue_t *cpu_queue_create()
 {
 	cpu_queue_t *queue = (cpu_queue_t*) kmalloc(sizeof(cpu_queue_t));
 
-	for (uint32_t i = 0; i < THREAD_NUM_PRIORITIES; i++)
+	uint32_t priority;
+	for (priority = 0; priority < THREAD_NUM_PRIORITIES; priority++)
 	{
-		queue->priorities[i] = queue_create();
-		spinlock_init(&queue->locks[i]);
+		queue->priorities[priority] = queue_create();
+		spinlock_init(&queue->locks[priority]);
 	}
 
-	queue->num_threads = 0;
+	atomic_set(&queue->num_threads, 0);
 
 	return queue;
 }
@@ -56,7 +59,7 @@ void scheduler_run(void *context, uint32_t cpu)
 
 	/* Find the highest priority queue containing threads */
 	uint32_t priority;
-	for (uint32_t priority = 31; priority >= 0; priority--)
+	for (priority = 31; priority >= 0; priority--)
 	{
 		if (queue_length(&cpu_queue->priorities[priority]) > 0)
 		{
@@ -85,7 +88,9 @@ void scheduler_enqueue(thread_t *thread)
 
 	uint32_t least_loaded_cpu = 0;
 	uint32_t min_num_threads = 0xFFFFFFFF;
-	for (uint32_t cpu = 0; cpu < NUM_CPUS; i++)
+
+	uint32_t cpu;
+	for (cpu = 0; cpu < NUM_CPUS; cpu++)
 	{
 		cpu_queue = (cpu_queue_t*) list_get(&cpu_queues, cpu);
 
@@ -102,9 +107,9 @@ void scheduler_enqueue(thread_t *thread)
 	}
 
 	/* Add the thread to the priority queue */
-	spinlock_acquire(&cpu_queue->locks[priority]);
-	queue_enqueue(&cpu_queue->priorities[priority], thread);
-	spinlock_release(&cpu_queue->locks[priority]);
+	spinlock_acquire(&cpu_queue->locks[thread->priority]);
+	queue_enqueue(&cpu_queue->priorities[thread->priority], thread);
+	spinlock_release(&cpu_queue->locks[thread->priority]);
 }
 
 /* Get the current process */
@@ -133,7 +138,8 @@ void init_scheduler()
 	cpu_queues = list_create(sizeof(cpu_queue_t*), NUM_CPUS);
 
 	/* Create the CPU queues */
-	for (uint32_t i = 0; i < NUM_CPUS; i++)
+	uint32_t cpu;
+	for (cpu = 0; cpu < NUM_CPUS; cpu++)
 	{
 		list_append(&cpu_queues, cpu_queue_create());
 	}
