@@ -64,15 +64,13 @@ void scheduler_run(void *context, uint32_t cpu)
 	{
 		if (queue_length(&cpu_queue->priorities[priority]) > 0)
 		{
-			kprintf(LOG_DEBUG, "Priority: %d\n", priority);
-			kprintf(LOG_DEBUG, "%08X\n", &cpu_queue->priorities[priority]);
-			kprintf(LOG_DEBUG, "Queue length: 0x%08X\n", queue_length(&cpu_queue->priorities[priority]));
-			break;
+			goto run_thread;
 		}
 	}
 
 	return;
 
+run_thread:
 	/* Get a thread off the priority queue */
 	spinlock_acquire(&cpu_queue->locks[priority]);
 	thread_t *thread = (thread_t*) queue_dequeue(&cpu_queue->priorities[priority]);
