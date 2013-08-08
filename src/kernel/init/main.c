@@ -19,9 +19,8 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the kernel heap */
 	init_kheap();
 
-	init_scheduler();
-
  	/* Sched test code */
+	init_scheduler();
  	scheduler_run(0, 0);
 
 	while(1);
