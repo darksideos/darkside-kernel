@@ -2,7 +2,7 @@
 #include <kernel/init/os_info.h>
 #include <kernel/mm/heap.h>
 #include <drivers/graphics/vga.h>
-#include <lib/libadt/queue.h>
+#include <lib/libadt/list.h>
 
 #include <kernel/console/kprintf.h>
 
@@ -15,12 +15,14 @@ void kernel_main(os_info_t *os_info)
 
 	/* Call the HAL main function to initialize the CPU */
 	hal_main(os_info);
-
+	
 	/* Initialize the kernel heap */
 	init_kheap();
 
-	/* Sched test code */
-	scheduler_run(0, 0);
+	init_scheduler();
+
+ 	/* Sched test code */
+ 	scheduler_run(0, 0);
 
 	while(1);
 }
