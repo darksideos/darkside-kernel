@@ -12,7 +12,8 @@ list_t list_create(uint32_t itemsz, uint32_t nitems)
 	list_t list;
 
 	list.itemsz = itemsz;
-	list.nitems = nitems;
+	list.nitems = 0;
+	list.length = nitems;
 
 	/* Reserve space for the list and return it */
 	list_reserve(&list, nitems);

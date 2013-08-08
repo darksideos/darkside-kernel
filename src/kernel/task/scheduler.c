@@ -47,7 +47,7 @@ cpu_queue_t *cpu_queue_create()
 void scheduler_run(void *context, uint32_t cpu)
 {
 	/* Get the CPU queue for our CPU */
-	cpu_queue_t *cpu_queue = (cpu_queue_t*) list_get(&cpu_queues, cpu);
+	cpu_queue_t *cpu_queue = *((cpu_queue_t**) list_get(&cpu_queues, cpu));
 
 	/* Save the current thread's context */
 	thread_t *current_thread = thread_current();
@@ -60,16 +60,17 @@ void scheduler_run(void *context, uint32_t cpu)
 
 	/* Find the highest priority queue containing threads */
 	uint32_t priority;
-	for (priority = 31; priority >= 0; priority--)
+	for (priority = 31; priority > 0; priority--)
 	{
 		if (queue_length(&cpu_queue->priorities[priority]) > 0)
 		{
+			kprintf(LOG_DEBUG, "Priority: %d\n", priority);
+			kprintf(LOG_DEBUG, "%08X\n", &cpu_queue->priorities[priority]);
 			kprintf(LOG_DEBUG, "Queue length: 0x%08X\n", queue_length(&cpu_queue->priorities[priority]));
 			break;
 		}
 	}
 
-	kprintf(LOG_DEBUG, "0x%08X\n", priority);
 	return;
 
 	/* Get a thread off the priority queue */
@@ -146,7 +147,8 @@ void init_scheduler()
 	uint32_t cpu;
 	for (cpu = 0; cpu < NUM_CPUS; cpu++)
 	{
-		list_append(&cpu_queues, cpu_queue_create());
+		cpu_queue_t *queue = cpu_queue_create();
+		list_append(&cpu_queues, &queue);
 	}
 
 	/* Create the current threads list */
