@@ -38,11 +38,15 @@ typedef struct device
 	/* Parent bus */
 	bus_t *parent;
 
+	/* Device and function number */
+	uint16_t slot, function;
+
 	/* Vendor and device ID */
 	uint32_t vendor_id, device_id;
 
-	/* Class and subclass */
-	uint8_t class_code, subclass;
+	/* Class code and programming interface */
+	uint16_t class_code;
+	uint8_t prog_if;
 
 	/* I/O Addresses */
 	bar_t *io_addrs;
@@ -64,15 +68,29 @@ typedef struct device
 
 typedef struct bus
 {
-	/* Child buses and devices */
-	struct bus **buses;
-	device_t **devices;
+	/* Read a byte from the configuration space */
+	uint8_t read_config_byte(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset);
+
+	/* Read a word from the configuration space */
+	uint16_t read_config_word(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset);
+
+	/* Read a dword from the configuration space */
+	unsigned long read_config_dword(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset);
+
+	/* Write a byte to the configuration space */
+	void write_config_byte(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset, uint8_t data);
+
+	/* Write a word to the configuration space */
+	void write_config_word(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset, uint16_t data);
+
+	/* Write a dword to the configuration space */
+	void write_config_dword(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset, unsigned long data);
 	
 	/* Enumerate the bus, returning -1 on failure */
 	int32_t enumerate(struct bus *bus);
 
 	/* Perform a DMA transfer, returning -1 on failure */
-	int32_t dma(struct bus *bus, uint64_t dma_addr, uint64_t buf_addr, uint64_t buf_length);
+	int32_t dma(struct bus *bus, uint64_t dma_addr, uint64_t buffer, uint64_t length);
 } bus_t;
 
 /*****************************************************************************************************************************************/
@@ -99,19 +117,19 @@ int32_t bus_enumerate(bus_t *bus)
 }
 
 /* Perform a DMA transfer, returning -1 on failure */
-int32_t bus_dma(bus_t *bus, uint64_t dma_addr, uint64_t buf_addr, uint64_t buf_length)
+int32_t bus_dma(bus_t *bus, uint64_t dma_addr, uint64_t buffer, uint64_t length)
 {
-	return bus->dma(bus, dma_addr, buf_addr, buf_length);
+	return bus->dma(bus, dma_addr, buffer, length);
 }
 
 /* Register a bus */
-void register_bus(uint8_t *name, bus_t *bus)
+void register_bus(bus_t *bus, uint8_t *name)
 {
 	dict_append(&buses, name, bus);
 }
 
 /* Unregister a bus */
-void unregister_bus(uint8_t *name, bus_t *bus)
+void unregister_bus(uint8_t *name)
 {
 	dict_remove(&buses, name);
 }
