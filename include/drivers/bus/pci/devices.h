@@ -3,6 +3,6 @@
 
 /* Vendor IDs */
 #define PCI_VENDOR_INTEL	0x8086
-#define PCI_VENDOR_APLLE	0x106B
+#define PCI_VENDOR_APPLE	0x106B
 
 #endif
