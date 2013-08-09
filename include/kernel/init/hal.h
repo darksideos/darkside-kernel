@@ -4,8 +4,8 @@
 #include <lib/libc/types.h>
 #include <kernel/init/os_info.h>
 
-/* HAL main */
-void hal_main(os_info_t *os_info);
+/* Initialization */
+void hal_init_bsp(os_info_t *os_info);
 
 /* Port I/O */
 uint8_t inportb(uint32_t port);

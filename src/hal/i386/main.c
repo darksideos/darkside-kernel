@@ -8,11 +8,11 @@
 #include <kernel/console/kprintf.h>
 #include <kernel/init/os_info.h>
 
-/* Initialize the HAL */
-void hal_main(os_info_t *os_info)
+/* Initialize the BSP */
+void hal_init_bsp(os_info_t *os_info)
 {
 	/* Print a log message */
-	kprintf(LOG_INFO, "Initializing HAL\n");
+	kprintf(LOG_INFO, "Initializing BSP\n");
 
 	/* Install segmentation and interrupts */
 	gdt_install();
@@ -25,6 +25,8 @@ void hal_main(os_info_t *os_info)
  	init_pmm(os_info->ranges, os_info->num_ranges);
  	init_vmm();
 
+	enable_interrupts();
+
 	/* Print a log message */
-	kprintf(LOG_INFO, "HAL Initialized\n\n");
+	kprintf(LOG_INFO, "BSP Initialized\n\n");
 }
