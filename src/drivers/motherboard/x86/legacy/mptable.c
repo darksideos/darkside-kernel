@@ -212,13 +212,6 @@ typedef struct mp_lapic_irq_entry
 /* Local APIC base address for every CPU */
 uint32_t lapic_phys_start;
 
-/* MP table entries */
-list_t mp_cpu_entries;
-list_t mp_bus_entries;
-list_t mp_ioapic_entries;
-list_t mp_ioapic_irq_entries;
-list_t mp_lapic_irq_entries;
-
 /* Read the MP table pointer and get the MP table */
 void mp_read_table_ptr(mp_table_ptr_t *table_ptr)
 {
@@ -291,27 +284,27 @@ void mp_read_table(mp_table_t *table)
 
 		switch (entry_type)
 		{
-		case 0:
-			list_append(mp_cpu_entries, (mp_cpu_entry_t*) entry_ptr);
+		case MP_ENTRY_TYPE_CPU:
 			entry_ptr += 20;
 			break;
-		case 1:
-			list_append(mp_bus_entries, (mp_bus_entry_t*) entry_ptr);
+		case MP_ENTRY_TYPE_BUS:
 			entry_ptr += 8;
 			break;
-		case 2:
-			list_append(mp_ioapic_entries, (mp_ioapic_entry_t*) entry_ptr);
+		case MP_ENTRY_TYPE_IOAPIC:
 			entry_ptr += 8;
 			break;
-		case 3:
-			list_append(mp_ioapic_irq_entries, (mp_ioapic_irq_entry_t*) entry_ptr);
+		case MP_ENTRY_TYPE_IOAPIC_IRQ:
 			entry_ptr += 8;
 			break;
-		case 4:
-			list_append(mp_lapic_irq_entries, (mp_lapic_irq_entry_t*) entry_ptr);
+		case MP_ENTRY_TYPE_LAPIC_IRQ:
 			entry_ptr += 8;
 			break;
+		default:
+			kprintf(LOG_ERROR, "Unsupported MP table entry type\n");
+			return;
 		}
+
+		entry_num++;
 	}
 }
 
@@ -324,6 +317,6 @@ void mp_read_default_config(mp_table_ptr_t *table_ptr)
 /* Initialize the MP table */
 void mp_table_init(mp_table_ptr_t *table_ptr)
 {
-	/* Parse the MP table */
+	/* Parse the MP table pointer */
 	mp_read_table_ptr(table_ptr);
 }

@@ -53,7 +53,7 @@ void scheduler_run(void *context, uint32_t cpu)
 	thread_t *current_thread = thread_current();
 
 	/* If the sleep wasn't put to sleep or killed, enqueue it */
-	if (current_thread->state == THREAD_RUN)
+	if (current_thread && current_thread->state == THREAD_RUN)
 	{
 		scheduler_enqueue(current_thread);
 	}
@@ -81,7 +81,7 @@ run_thread:
 
 	/* Switch to the thread */
 	list_set(&current_threads, cpu, thread);
-	thread_run(thread);
+	//thread_run(thread);
 }
 
 /* Enqueue a thread in the scheduler */
