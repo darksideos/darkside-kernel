@@ -30,7 +30,7 @@ void pic_eoi(int32_t irq)
 
 		uint16_t isr = (inportb(0xA0) << 8) | inportb(0x20);
 
-		/* Don't send an EOI if spurious */
+		/* Spurious IRQ */
 		if (isr != irq)
 		{
 			/* Send a master, but not slave EOI if 15 */

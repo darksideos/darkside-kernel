@@ -3,6 +3,8 @@
 #include <kernel/mm/heap.h>
 #include <kernel/sync/lock.h>
 
+#include <kernel/console/kprintf.h>
+
 /* Create a spinlock and initialize its values */
 spinlock_t *spinlock_create()
 {
@@ -29,6 +31,8 @@ void spinlock_acquire(spinlock_t *lock)
 {
 	uint32_t interrupts = get_interrupt_state();
 
+	kprintf(LOG_DEBUG, "Current interrupt state: %d\n", interrupts);
+
 	disable_interrupts();
 	while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
 
@@ -40,6 +44,7 @@ void spinlock_release(spinlock_t *lock)
 {
 	if (atomic_cmpxchg(&lock->value, 1, 0) == 1)
 	{
+		kprintf(LOG_DEBUG, "Restored interrupt state: %d\n", lock->interrupts);
 		set_interrupt_state(lock->interrupts);
 	}
 }
