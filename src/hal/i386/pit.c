@@ -17,7 +17,7 @@ bool speaker_installed = false;
 void pit_handler(struct i386_regs *r)
 {
 	pit_ticks++;
-	scheduler_run(r, 1);
+	scheduler_run(r, 0);
 }
 
 /* Get the number of elapsed seconds since boot on the PIT */

@@ -151,4 +151,6 @@ void init_scheduler()
 
 	/* Create the current threads list */
 	current_threads = list_create(sizeof(thread_t*), NUM_CPUS);
+	
+	kprintf(LOG_INFO, "Thread scheduler initialized\n");
 }
