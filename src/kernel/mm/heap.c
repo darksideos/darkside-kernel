@@ -1,6 +1,7 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <lib/libadt/btree.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/addresses.h>
 #include <kernel/mm/heap.h>
@@ -350,4 +351,7 @@ void init_kheap()
 {
 	/* Create the kernel heap */
 	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, KHEAP_INDEX_SIZE, false, true);
+	
+	/* Print a log message */
+	kprintf(LOG_INFO, "Kernel heap initialized\n");
 }
