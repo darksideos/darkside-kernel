@@ -99,7 +99,7 @@ void scheduler_enqueue(thread_t *thread)
 	uint32_t cpu;
 	for (cpu = 0; cpu < NUM_CPUS; cpu++)
 	{
-		cpu_queue = (cpu_queue_t*) list_get(&cpu_queues, cpu);
+		cpu_queue = *((cpu_queue_t**) list_get(&cpu_queues, cpu));
 
 		if (atomic_read(&cpu_queue->num_threads) < min_num_threads)
 		{
@@ -122,7 +122,7 @@ void scheduler_enqueue(thread_t *thread)
 /* Get the current process */
 process_t *process_current()
 {
-	thread_t *current_thread = (thread_t*) list_get(&current_threads, 0);
+	thread_t *current_thread = *((thread_t**) list_get(&current_threads, 0));
 
 	if (current_thread)
 	{
@@ -135,7 +135,7 @@ process_t *process_current()
 /* Get the current thread */
 thread_t *thread_current()
 {
-	return (thread_t*) list_get(&current_threads, 0);
+	return *((thread_t**) list_get(&current_threads, 0));
 }
 
 /* Initialize the scheduler */
@@ -155,5 +155,6 @@ void init_scheduler()
 	/* Create the current threads list */
 	current_threads = list_create(sizeof(thread_t*), NUM_CPUS);
 	
-	kprintf(LOG_INFO, "Thread scheduler initialized\n");
+	/* Print a log message */
+	kprintf(LOG_INFO, "Scheduler initialized\n");
 }
