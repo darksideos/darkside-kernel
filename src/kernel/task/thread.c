@@ -6,10 +6,12 @@
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
 
+uint32_t tid;
+
 /* Find the first available TID */
 uint32_t find_first_tid()
 {
-	return 0;
+	return tid++;
 }
 
 /* Create a thread */
