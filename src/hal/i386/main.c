@@ -25,8 +25,6 @@ void hal_init_bsp(os_info_t *os_info)
  	init_pmm(os_info->ranges, os_info->num_ranges);
  	init_vmm();
 
-	enable_interrupts();
-
 	/* Print a log message */
 	kprintf(LOG_INFO, "BSP Initialized\n\n");
 }

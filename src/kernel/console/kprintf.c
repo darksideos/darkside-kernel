@@ -249,16 +249,22 @@ void kprintf(int32_t loglevel, const int8_t *fmt, ...)
 	{
 	case LOG_DEBUG:
 		puts("[DEBUG] ");
+		break;
 	case LOG_INFO:
 		puts("[INFO] ");
+		break;
 	case LOG_WARNING:
 		puts("[WARNING] ");
+		break;
 	case LOG_ERROR:
 		puts("[ERROR] ");
+		break;
 	case LOG_ALERT:
 		puts("[ALERT] ");
+		break;
 	case LOG_PANIC:
 		puts("[PANIC] ");
+		break;
 	}
 
 	puts(buf);
