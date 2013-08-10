@@ -110,7 +110,7 @@ void scheduler_enqueue(thread_t *thread)
 
 	if (least_loaded_cpu < (NUM_CPUS - 1))
 	{
-		cpu_queue = (cpu_queue_t*) list_get(&cpu_queues, least_loaded_cpu);
+		cpu_queue = *((cpu_queue_t**) list_get(&cpu_queues, least_loaded_cpu));
 	}
 
 	/* Add the thread to the priority queue */
