@@ -121,7 +121,7 @@ void set_interrupt_state(uint32_t state)
 }
 
 /* Handle an IRQ */
-extern void irq_handler(struct i386_regs *r)
+void irq_handler(struct i386_regs *r)
 {
 	/* Define an IRQ handler */
     void (*handler) (struct i386_regs *r);
