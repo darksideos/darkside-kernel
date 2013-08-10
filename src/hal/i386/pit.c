@@ -5,6 +5,7 @@
 #include <hal/i386/pit.h>
 #include <hal/i386/timer.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/console/kprintf.h>
 
 /* The number of PIT ticks and frequency */
 volatile int32_t pit_ticks = 0;
@@ -17,7 +18,8 @@ bool speaker_installed = false;
 void pit_handler(struct i386_regs *r)
 {
 	pit_ticks++;
-	scheduler_run(r, 0);
+	//scheduler_run(r, 0);
+	kprintf(LOG_DEBUG, "BEEP\n");
 }
 
 /* Get the number of elapsed seconds since boot on the PIT */

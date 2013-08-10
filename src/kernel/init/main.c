@@ -26,10 +26,11 @@ void kernel_main(os_info_t *os_info)
 
 	/* Start the rest of the CPUs in the system */
 
+	/* Enable interrupts */
+	enable_interrupts();
+
  	/* Initialize the scheduler */
 	init_scheduler();
-
-	enable_interrupts();
 
 	/* Load init from the root filesystem */
 
