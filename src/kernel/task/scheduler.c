@@ -79,8 +79,11 @@ run_thread:
 	/* Now there is one less thread on the CPU */
 	atomic_dec(&cpu_queue->num_threads);
 
+	kprintf(LOG_DEBUG, "Running thread %d, in process %d\n", thread->tid, thread->process->pid);
+
 	/* Switch to the thread */
 	list_set(&current_threads, cpu, thread);
+	thread->state = THREAD_RUN;
 	//thread_run(thread);
 }
 
