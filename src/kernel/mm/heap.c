@@ -156,6 +156,13 @@ header_t *lookup_chunk(heap_t *heap, uint32_t size)
 	/* Search for a hole */
 	header_t *chunk = (header_t*) search_btree(index, 0)->value;
 
+	/* Verify the chunk header and footer */
+	footer_t *footer = (footer_t*) (((unsigned char*) chunk) + (chunk->size - sizeof(footer_t)))
+	if (chunk->magic != HEAP_MAGIC || footer->magic != HEAP_MAGIC)
+	{
+		kprintf(LOG_PANIC, "Heap corruption of chunk at 0x%08X\n", chunk);
+	}
+
 	/* The hole is larger than what we need */
 	if (chunk->size > size)
 	{
