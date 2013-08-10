@@ -17,7 +17,7 @@ spinlock_t *spinlock_create()
 void spinlock_init(spinlock_t *lock)
 {
 	atomic_set(&lock->value, 0);
-	lock->interrupts;
+	lock->interrupts = 0;
 }
 
 /* Delete a spinlock */
@@ -29,6 +29,8 @@ void spinlock_delete(spinlock_t *lock)
 /* Acquire a spinlock */
 void spinlock_acquire(spinlock_t *lock)
 {
+	kprintf(LOG_DEBUG, "Acquiring spinlock\n");
+
 	uint32_t interrupts = get_interrupt_state();
 
 	kprintf(LOG_DEBUG, "Current interrupt state: %d\n", interrupts);
@@ -42,6 +44,7 @@ void spinlock_acquire(spinlock_t *lock)
 /* Release a spinlock */
 void spinlock_release(spinlock_t *lock)
 {
+	kprintf(LOG_DEBUG, "Releasing spinlock, current value of lock is %d\n", atomic_read(&lock->value));
 	if (atomic_cmpxchg(&lock->value, 1, 0) == 1)
 	{
 		kprintf(LOG_DEBUG, "Restored interrupt state: %d\n", lock->interrupts);
