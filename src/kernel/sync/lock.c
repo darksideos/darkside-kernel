@@ -29,7 +29,7 @@ void spinlock_delete(spinlock_t *lock)
 /* Acquire a spinlock */
 void spinlock_acquire(spinlock_t *lock)
 {
-	kprintf(LOG_DEBUG, "Acquiring spinlock\n");
+	kprintf(LOG_DEBUG, "Acquiring spinlock, current value of lock is %d\n", atomic_read(&lock->value));
 
 	uint32_t interrupts = get_interrupt_state();
 

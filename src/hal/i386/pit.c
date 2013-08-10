@@ -19,7 +19,6 @@ void pit_handler(struct i386_regs *r)
 {
 	pit_ticks++;
 	//scheduler_run(r, 0);
-	kprintf(LOG_DEBUG, "BEEP\n");
 }
 
 /* Get the number of elapsed seconds since boot on the PIT */
