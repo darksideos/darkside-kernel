@@ -21,6 +21,28 @@ void pic_remap(uint8_t master_vector, uint8_t slave_vector)
 /* Send an EOI to the PIC */
 void pic_eoi(int32_t irq)
 {
+	/* If the IRQ is 7 or 15, handle a spurious IRQ */
+	if (irq == 7 || irq == 15)
+	{
+		/* Read the ISR */
+		outportb(0x20, 0x0B);
+		outportb(0xA0, 0x0B);
+
+		uint16_t isr = (inportb(0xA0) << 8) | inportb(0x20);
+
+		/* Don't send an EOI if spurious */
+		if (isr != irq)
+		{
+			/* Send a master, but not slave EOI if 15 */
+			if (irq == 15)
+			{
+				outportb(0x20, 0x20);
+			}
+
+			return;
+		}
+	}
+
 	/* If the IRQ is greater than or equal to 8, we need to send one to the slave PIC and the master PIC.
 	 * Either way, we always send one to the master PIC. If you don't send an EOI, you won't raise any more IRQs. */
     if (irq >= 8)
