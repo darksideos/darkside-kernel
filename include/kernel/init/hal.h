@@ -10,18 +10,18 @@ void hal_init_bsp(os_info_t *os_info);
 /* Port I/O */
 uint8_t inportb(uint32_t port);
 void outportb(uint32_t port, uint8_t data);
-uint8_t inportw(uint32_t port);
+uint16_t inportw(uint32_t port);
 void outportw(uint32_t port, uint16_t data);
-uint8_t inportl(uint32_t port);
-void outportl(uint32_t port, unsigned long data);
+uint32_t inportl(uint32_t port);
+void outportl(uint32_t port, uint32_t data);
 
 /* MMIO */
 uint8_t inmemb(uint32_t address);
 void outmemb(uint32_t address, uint8_t data);
 uint16_t inmemw(uint32_t address);
 void outmemw(uint32_t address, uint16_t data);
-unsigned long inmeml(uint32_t address);
-void outmeml(uint32_t address, unsigned long data);
+uint32_t inmeml(uint32_t address);
+void outmeml(uint32_t address, uint32_t data);
 
 /* IRQs */
 void irq_install_handler(int32_t irq, void *handler);

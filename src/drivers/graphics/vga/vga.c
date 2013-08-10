@@ -2,6 +2,7 @@
 #include <lib/libc/string.h>
 #include <hal/i386/ports.h>
 #include <drivers/graphics/vga.h>
+#include <kernel/console/bochs.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 uint16_t *textmemptr;
@@ -126,6 +127,7 @@ void puts(uint8_t *text)
     for (i = 0; i < strlen(text); i++)
 	{
         putch(text[i]);
+        bochs_putch(text[i]);
     }
 }
 

@@ -28,14 +28,14 @@ void outportw(uint32_t port, uint16_t data)
 }
 
 /* Long Port I/O */
-unsigned long inportl(uint32_t port)
+uint32_t inportl(uint32_t port)
 {
 	unsigned long rv;
 	__asm__ __volatile__ ("inl %1, %0" : "=a" (rv) : "dN" ((uint16_t)port));
 	return rv;
 }
 
-void outportl(uint32_t port, unsigned long data)
+void outportl(uint32_t port, uint32_t data)
 {
 	__asm__ __volatile__ ("outl %1, %0" : : "dN" ((uint16_t)port), "a" (data));
 }

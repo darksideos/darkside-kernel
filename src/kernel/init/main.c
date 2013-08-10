@@ -38,7 +38,7 @@ void kernel_main(os_info_t *os_info)
 	atomic_t var;
 	atomic_set(&var, 0);
 	uint32_t old = atomic_cmpxchg(&var, 0, 1);
-	kprintf("Old: %d, New: %d\n", old, atomic_read(&var));
+	kprintf(LOG_DEBUG, "Old: %d, New: %d\n", old, atomic_read(&var));
 	
 	/* process_t *process1 = process_create("Process 1", 0, 0);
 	process_t *process2 = process_create("Process 2", 0, 0);
