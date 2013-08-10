@@ -33,6 +33,8 @@ void pic_eoi(int32_t irq)
 		/* Don't send an EOI if spurious */
 		if (isr != irq)
 		{
+			kprintf(LOG_DEBUG, "8259 spurious IRQ %d raised\n", irq);
+
 			/* Send a master, but not slave EOI if 15 */
 			if (irq == 15)
 			{
@@ -51,6 +53,8 @@ void pic_eoi(int32_t irq)
     }
 
     outportb(0x20, 0x20);
+
+	kprintf(LOG_DEBUG, "8259 IRQ %d finished\n", irq);
 }
 
 /* Set and clear an IRQ mask on the PIC */
