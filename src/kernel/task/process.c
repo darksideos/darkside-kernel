@@ -6,10 +6,12 @@
 #include <kernel/task/thread.h>
 #include <kernel/vfs/file.h>
 
+uint32_t pid;
+
 /* Find the first available PID */
 uint32_t find_first_pid()
 {
-	return 0;
+	return pid++;
 }
 
 /* Create a process */
