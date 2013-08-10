@@ -16,6 +16,7 @@ spinlock_t *spinlock_create()
 /* Initialize a spinlock's values */
 void spinlock_init(spinlock_t *lock)
 {
+	kprintf(LOG_DEBUG, "INitilazed %08X\n", atomic_read(&lock->value));
 	atomic_set(&lock->value, 0);
 	lock->interrupts = 0;
 }
