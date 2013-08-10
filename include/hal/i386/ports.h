@@ -12,7 +12,7 @@ uint16_t inportw(uint32_t port);
 void outportw(uint32_t port, uint16_t data);
 
 /* Long Port I/O */
-unsigned long inportl(uint32_t port);
-void outportl(uint32_t port, unsigned long data);
+uint32_t inportl(uint32_t port);
+void outportl(uint32_t port, uint32_t data);
 
 #endif
