@@ -165,6 +165,7 @@ header_t *lookup_chunk(heap_t *heap, uint32_t size)
 	else if (footer->magic != HEAP_MAGIC)
 	{
 		kprintf(LOG_PANIC, "Heap corruption of footer at 0x%08X, value is 0x%08X\n", footer, footer->magic);
+	}
 
 	/* The hole is larger than what we need */
 	if (chunk->size > size)

@@ -1,6 +1,7 @@
 #include <lib/libc/stdint.h>
 #include <lib/libadt/linkedlist.h>
 #include <kernel/mm/heap.h>
+#include <kernel/console/kprintf.h>
 
 linkedlist_t linkedlist_create()
 {
@@ -36,8 +37,9 @@ void linkedlist_insert_head(linkedlist_t *list, void *value)
 
 void linkedlist_insert_tail(linkedlist_t *list, void *value)
 {
+	kprintf(LOG_DEBUG, "Creating tail\n");
 	linkedlist_entry_t *tail = (linkedlist_entry_t*) kmalloc(sizeof(linkedlist_entry_t));
-	
+	kprintf(LOG_DEBUG, "Tail: %08X\n", tail);
 	tail->prev = list->tail;
 	tail->next = 0;
 	tail->value = value;
