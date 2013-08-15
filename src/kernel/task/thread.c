@@ -5,6 +5,7 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/console/kprintf.h>
 
 uint32_t tid;
 
@@ -36,9 +37,11 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	/* Set the thread's priority and state */
 	thread->priority = 0;
 	thread->state = THREAD_READY;
-
+	
 	/* Add the thread to the process's thread list */
+	
 	list_append(&process->threads, &thread);
+	kmalloc(1);
 
 	/* Enqueue the thread in the scheduler */
 	scheduler_enqueue(thread);

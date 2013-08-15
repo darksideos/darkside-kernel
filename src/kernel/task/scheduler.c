@@ -29,7 +29,11 @@ static list_t current_threads;
 /* Create a CPU queue */
 cpu_queue_t *cpu_queue_create()
 {
+	kprintf(LOG_DEBUG, "INSTANTIATING CPU QUEUE\n");
+	kmalloc(1);
+	kprintf(LOG_DEBUG, "ALLOCATION COMPLTE\n");
 	cpu_queue_t *queue = (cpu_queue_t*) kmalloc(sizeof(cpu_queue_t));
+	kprintf(LOG_DEBUG, "INSTANTIATED CPU QUEUE\n");
 
 	uint32_t priority;
 	for (priority = 0; priority < THREAD_NUM_PRIORITIES; priority++)
@@ -37,8 +41,10 @@ cpu_queue_t *cpu_queue_create()
 		queue->priorities[priority] = queue_create();
 		spinlock_init(&queue->locks[priority]);
 	}
+	kprintf(LOG_DEBUG, "CREATED PRIORITY QUEUES\n");
 
 	atomic_set(&queue->num_threads, 0);
+	kprintf(LOG_DEBUG, "SET THREAD NUMBER\n");
 
 	return queue;
 }
@@ -112,11 +118,15 @@ void scheduler_enqueue(thread_t *thread)
 	{
 		cpu_queue = *((cpu_queue_t**) list_get(&cpu_queues, least_loaded_cpu));
 	}
-
+	kprintf(LOG_DEBUG, "About to acquire spinlock\n");
 	/* Add the thread to the priority queue */
 	spinlock_acquire(&cpu_queue->locks[thread->priority]);
+	kprintf(LOG_DEBUG, "Acquired, queue: %08X\n", &cpu_queue->priorities[thread->priority]);
+	//
 	queue_enqueue(&cpu_queue->priorities[thread->priority], thread);
+	kprintf(LOG_DEBUG, "Enqueued\n");
 	spinlock_release(&cpu_queue->locks[thread->priority]);
+	kprintf(LOG_DEBUG, "Released\n");
 }
 
 /* Get the current process */
@@ -143,7 +153,7 @@ void init_scheduler()
 {
 	/* Create the CPU queue list */
 	cpu_queues = list_create(sizeof(cpu_queue_t*), NUM_CPUS);
-
+	
 	/* Create the CPU queues */
 	uint32_t cpu;
 	for (cpu = 0; cpu < NUM_CPUS; cpu++)
