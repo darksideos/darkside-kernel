@@ -1,6 +1,7 @@
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
 #include <kernel/mm/heap.h>
+#include <kernel/console/kprintf.h>
 
 /* Function prototype */
 void list_reserve(list_t *list, uint32_t nitems);
@@ -13,7 +14,7 @@ list_t list_create(uint32_t itemsz, uint32_t nitems)
 
 	list.itemsz = itemsz;
 	list.nitems = 0;
-	list.length = nitems;
+	list.length = 0;
 
 	/* Reserve space for the list and return it */
 	list_reserve(&list, nitems);
@@ -97,8 +98,9 @@ void list_reserve(list_t *list, uint32_t nitems)
 	{
 		return;
 	}
-
+	
 	void *newdata = kmalloc(list->itemsz * nitems);
+	
 	if (list->data)
 	{
 		memcpy(newdata, list->data, list->itemsz * list->length);

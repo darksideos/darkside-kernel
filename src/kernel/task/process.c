@@ -5,6 +5,7 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/vfs/file.h>
+#include <kernel/console/kprintf.h>
 
 uint32_t pid;
 
@@ -37,7 +38,7 @@ process_t *process_create(uint8_t *name, void (*fn)(void *arg), void *arg)
 
 	/* Create the list of files opened by the process */
 	process->files = list_create(sizeof(file_t*), 3);
-
+	
 	/* Create the first thread in the process */
 	thread_t *thread = thread_create(process, fn, arg, THREAD_DEF_USTACK_SIZE);
 
