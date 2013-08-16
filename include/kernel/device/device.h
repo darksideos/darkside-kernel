@@ -36,3 +36,5 @@ typedef struct device
 	/* Power state */
 	uint8_t power_state;
 } device_t;
+
+#endif
