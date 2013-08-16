@@ -37,9 +37,7 @@ void linkedlist_insert_head(linkedlist_t *list, void *value)
 
 void linkedlist_insert_tail(linkedlist_t *list, void *value)
 {
-	kprintf(LOG_DEBUG, "Creating tail\n");
 	linkedlist_entry_t *tail = (linkedlist_entry_t*) kmalloc(sizeof(linkedlist_entry_t));
-	kprintf(LOG_DEBUG, "Tail: %08X\n", tail);
 	tail->prev = list->tail;
 	tail->next = 0;
 	tail->value = value;

@@ -2,6 +2,7 @@
 #define __DEV_H
 
 #include <lib/libc/types.h>
+#include <kernel/device/device.h>
 
 /* Device ID, made up of major and minor numbers */
 typedef uint32_t dev_t;
