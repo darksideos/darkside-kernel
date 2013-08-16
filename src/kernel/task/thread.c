@@ -5,7 +5,6 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
-#include <kernel/console/kprintf.h>
 
 uint32_t tid;
 
@@ -24,7 +23,7 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	/* Set the thread's parent process */
 	thread->process = process;
 
-	/* Find the first available TID and give it to the process */
+	/* Find the first available TID and give it to the thread */
 	thread->tid = find_first_tid();
 
 	/* Create the thread's register context */
@@ -39,7 +38,10 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	thread->state = THREAD_READY;
 	
 	/* Add the thread to the process's thread list */
-	list_append(&process->threads, &thread);
+	if (process)
+	{
+		list_append(&process->threads, &thread);
+	}
 
 	/* Enqueue the thread in the scheduler */
 	scheduler_enqueue(thread);
@@ -53,23 +55,23 @@ void thread_destroy(thread_t *thread)
 {
 }
 
-/* Run a thread on the current CPU */
-void thread_run(thread_t *thread)
+/* Kill a thread */
+void thread_kill(thread_t *thread, int32_t status)
 {
-	/* If we're not running in the same process as the current thread, switch the current address space */
-	process_t *process = process_current();
-	if (!process || thread->process != process)
-	{
-		switch_address_space(thread->process->address_space);
-	}
+	/* Set the thread's state to dead */
+	thread->state = THREAD_DEAD;
 
-	/* Map the thread's user and kernel stacks into the current address space */
+	/* Something else has to be done */
+}
 
-	/* Set the kernel stack to the one in the new thread */
-	set_kernel_stack(thread->kstack);
+/* Suspend a thread */
+void thread_suspend(thread_t *thread)
+{
+}
 
-	/* Switch to the new thread's register context */
-	switch_cpu_context(thread->context);
+/* Resume a thread */
+void thread_resume(thread_t *thread)
+{
 }
 
 /* Put the current thread to sleep */
@@ -107,12 +109,25 @@ void thread_yield()
 	scheduler_run(current_thread->context, 1);
 }
 
-/* Kill a thread */
-void thread_kill(thread_t *thread, int32_t status)
+/* Run a thread on the current CPU */
+void thread_run(thread_t *thread)
 {
-}
+	/* If we're not running in the same process as the current thread, switch the current address space */
+	process_t *process = process_current();
+	if (!process || thread->process != process)
+	{
+		/* Make sure the thread belongs to a process */
+		if (thread->process)
+		{
+			switch_address_space(thread->process->address_space);
+		}
+	}
 
-/* Stop a thread */
-void thread_stop(thread_t *thread)
-{
+	/* Map the thread's user and kernel stacks into the current address space */
+
+	/* Set the kernel stack to the one in the new thread */
+	set_kernel_stack(thread->kstack);
+
+	/* Switch to the new thread's register context */
+	switch_cpu_context(thread->context);
 }

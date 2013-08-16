@@ -23,13 +23,16 @@ typedef struct process
 	/* Files opened by the process */
 	list_t files;
 
-	/* Child threads */
+	/* Child processes */
 } process_t;
 
-/* Create, destroy, kill, and stop a process */
+/* Create and destroy a process */
 process_t *process_create(uint8_t *name, void (*fn)(void *arg), void *arg);
 void process_destroy(process_t *process);
+
+/* Kill, suspend, and resume a process */
 void process_kill(process_t *process, int32_t status);
-void process_stop(process_t *process);
+void process_suspend(process_t *process);
+void process_resume(process_t *process);
 
 #endif

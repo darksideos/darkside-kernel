@@ -62,7 +62,12 @@ void process_kill(process_t *process, int32_t status)
 {
 }
 
-/* Stop a process */
-void process_stop(process_t *process)
+/* Suspend a process */
+void process_suspend(process_t *process)
+{
+}
+
+/* Resume a process */
+void process_resume(process_t *process)
 {
 }

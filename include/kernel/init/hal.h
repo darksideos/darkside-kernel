@@ -54,6 +54,7 @@ uint32_t page_align(uint32_t address);
 
 /* Multitasking */
 void *create_cpu_context(void (*fn)(void *arg), bool user);
+void copy_cpu_context(void *dest, void *src);
 void switch_cpu_context(void *context);
 void set_kernel_stack(uint32_t stack);
 

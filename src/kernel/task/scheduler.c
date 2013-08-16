@@ -137,6 +137,7 @@ process_t *process_current()
 thread_t *thread_current()
 {
 	thread_t **thread = list_get(&current_threads, 0);
+
 	if (thread)
 	{
 		return *thread;
@@ -163,11 +164,10 @@ void init_scheduler()
 
 	/* Create the current threads list */
 	current_threads = list_create(sizeof(thread_t*), NUM_CPUS);
-	
+
 	for (cpu = 0; cpu < NUM_CPUS; cpu++)
 	{
-		process_t *process = process_create("CPU Idle Process", 0, 0);
-		list_append(&current_threads, list_get(&process->threads, 0));
+		list_append(&current_threads, 0);
 	}
 	
 	/* Print a log message */
