@@ -18,7 +18,7 @@ void atomic_set(atomic_t *v, uint32_t val);
 /* Atomically add 'incr' to a value */
 void atomic_add(atomic_t *v, uint32_t incr);
 
-/* Atomically subtract 'decr' from a value
+/* Atomically subtract 'decr' from a value */
 void atomic_sub(atomic_t *v, uint32_t decr);
 
 /* Atomically add 'incr' to a value and return the original value */

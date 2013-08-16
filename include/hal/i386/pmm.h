@@ -6,12 +6,6 @@
 #include <kernel/mm/addresses.h>
 #include <kernel/mm/range.h>
 
-/* Physical and virtual start of the PMM bitmap */
-#define PMM_BITMAP_PHYSICAL_START		(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE)
-#define PMM_BITMAP_VIRTUAL_START		((KERNEL_VIRTUAL_START + KERNEL_VIRTUAL_SIZE) - 0x200000)
-
-#define PAGE_TABLE_PMM_BITMAP_START		(PAGE_STRUCTURES_START + (575 * 0x1000))
-
 /* Allocate a physical memory page */
 uint32_t pmm_alloc_page();
 

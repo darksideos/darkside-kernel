@@ -199,15 +199,22 @@ void *create_cpu_context(void (*fn)(void *arg), bool user)
 	return context;
 }
 
+/* Copy a CPU register context */
+void copy_cpu_context(void *dest, void *src)
+{
+	memcpy(dest, src, sizeof(struct i386_regs));
+}
+
 /* Dump the CPU registers */
 void dump_registers(struct i386_regs *r)
 {
 	kprintf(LOG_INFO, "Register Dump\n\n");
  	kprintf(LOG_INFO, "EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n", r->eax, r->ebx, r->ecx, r->edx);
- 	kprintf(LOG_INFO, "ESI: %08x EDI: %08x ESP: %08x EBP: %08x\n", r->esi, r->edi, r->useresp, r->ebp);
- 	kprintf(LOG_INFO, "CS:  %08x DS:  %08x ES:  %08x\n", r->cs, r->ds, r->es);
- 	kprintf(LOG_INFO, "FS:  %08x GS:  %08x SS:  %08x\n", r->fs, r->gs, r->ss);
-	kprintf(LOG_INFO, "EIP: %08x EFLAGS: %08x\n", r->eip, r->eflags);
+ 	kprintf(LOG_INFO, "ESI: %08x EDI: %08x ESP: %08x EBP: %08x\n", r->esi, r->edi, r->esp, r->ebp);
+ 	kprintf(LOG_INFO, "DS:  %08x ES:  %08x FS:  %08x GS:  %08x\n", r->ds, r->es, r->fs, r->gs);
+	kprintf(LOG_INFO, "CS:  %08x EIP: %08x\n", r->cs, r->eip);
+	kprintf(LOG_INFO, "SS:  %08x ESP: %08x\n", r->ss, r->useresp);
+	kprintf(LOG_INFO, "EFLAGS: %08x\n", r->eflags);
 
 	uint32_t cr0, cr2, cr3, cr4;
 	asm volatile("mov %%cr0, %0" : "=r" (cr0));

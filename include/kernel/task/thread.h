@@ -45,14 +45,21 @@ typedef struct thread
 	uint8_t numa_domain;
 } thread_t;
 
-/* Create, destroy, run on the current CPU, put to sleep the current, wake up a, and yield the current, kill, and stop a thread */
+/* Create and destroy a thread */
 thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, uint32_t stack_size);
 void thread_destroy(thread_t *thread);
-void thread_run(thread_t *thread);
+
+/* Kill, suspend, and resume a thread */
+void thread_kill(thread_t *thread, int32_t status);
+void thread_suspend(thread_t *thread);
+void thread_resume(thread_t *thread);
+
+/* Put to sleep the current, wake up a, and yield the current thread */
 void thread_sleep();
 void thread_wake(thread_t *thread);
 void thread_yield();
-void thread_kill(thread_t *thread, int32_t status);
-void thread_stop(thread_t *thread);
+
+/* Run a thread on the current CPU */
+void thread_run(thread_t *thread);
 
 #endif
