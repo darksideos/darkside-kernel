@@ -26,10 +26,12 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the device manager */
 
 	/* Start the rest of the CPUs in the system */
-	enable_interrupts();
 	
  	/* Initialize the scheduler */
 	init_scheduler();
+	
+	/* Enable interrupts */
+	enable_interrupts();
 
 	/* Load init from the root filesystem */
 	
