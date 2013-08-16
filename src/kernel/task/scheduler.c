@@ -51,8 +51,7 @@ void scheduler_run(void *context, uint32_t cpu)
 
 	/* Save the current thread's context */
 	thread_t *current_thread = thread_current();
-	kprintf(LOG_DEBUG, "Address: %08X\n", current_thread);
-
+	
 	/* If the sleep wasn't put to sleep or killed, enqueue it */
 	if (current_thread && current_thread->state == THREAD_RUN)
 	{
@@ -61,7 +60,7 @@ void scheduler_run(void *context, uint32_t cpu)
 
 	/* Find the highest priority queue containing threads */
 	uint32_t priority;
-	for (priority = 31; priority > 0; priority--)
+	for (priority = 31; priority >= 0; priority--)
 	{
 		if (queue_length(&cpu_queue->priorities[priority]) > 0)
 		{
@@ -83,7 +82,8 @@ run_thread:
 	kprintf(LOG_DEBUG, "Running thread %d, in process %d\n", thread->tid, thread->process->pid);
 
 	/* Switch to the thread */
-	list_set(&current_threads, cpu, thread);
+	list_set(&current_threads, cpu, &thread);
+	
 	thread->state = THREAD_RUN;
 	//thread_run(thread);
 }
@@ -136,7 +136,15 @@ process_t *process_current()
 /* Get the current thread */
 thread_t *thread_current()
 {
-	return *((thread_t**) list_get(&current_threads, 0));
+	thread_t **thread = list_get(&current_threads, 0);
+	if (thread)
+	{
+		return *thread;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 /* Initialize the scheduler */
@@ -155,6 +163,12 @@ void init_scheduler()
 
 	/* Create the current threads list */
 	current_threads = list_create(sizeof(thread_t*), NUM_CPUS);
+	
+	for (cpu = 0; cpu < NUM_CPUS; cpu++)
+	{
+		process_t *process = process_create("CPU Idle Process", 0, 0);
+		list_append(&current_threads, list_get(&process->threads, 0));
+	}
 	
 	/* Print a log message */
 	kprintf(LOG_INFO, "Scheduler initialized\n");
