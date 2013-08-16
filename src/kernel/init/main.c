@@ -29,9 +29,6 @@ void kernel_main(os_info_t *os_info)
 	
  	/* Initialize the scheduler */
 	init_scheduler();
-	
-	/* Enable interrupts */
-	enable_interrupts();
 
 	/* Load init from the root filesystem */
 	
@@ -40,6 +37,9 @@ void kernel_main(os_info_t *os_info)
 	process_t *process2 = process_create("Process 2", 0, 0);
 
 	thread_t *thread3 = thread_create(process1, 0, 0, THREAD_DEF_USTACK_SIZE);
+	
+	/* Enable interrupts */
+	enable_interrupts();
 
 	while(1);
 }
