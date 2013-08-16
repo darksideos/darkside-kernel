@@ -39,9 +39,7 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	thread->state = THREAD_READY;
 	
 	/* Add the thread to the process's thread list */
-	
 	list_append(&process->threads, &thread);
-	kmalloc(1);
 
 	/* Enqueue the thread in the scheduler */
 	scheduler_enqueue(thread);
