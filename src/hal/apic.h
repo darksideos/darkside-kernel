@@ -49,18 +49,29 @@ typedef struct lapic
 	uint32_t timer_div;
 } lapic_t;
 
-typedef struct ioapic_entry
+/************************************************** I/O APICs **************************************************************/
+
+/* I/O APIC IRQ */
+typedef union ioapic_entry
 {
-	uint32_t vector				: 8;
-	uint32_t delivery_mode		: 3;
-	uint32_t destination_mode	: 1;
-	uint32_t delivery_status	: 1;
-	uint32_t pin_polarity		: 1;
-	uint32_t remote_irr			: 1;
-	uint32_t trigger_mode		: 1;
-	uint32_t mask				: 1;
-	uint32_t unused				: 39;
-	uint32_t destination		: 8;
+	struct
+	{
+		uint32_t dword0;
+		uint32_t dword1;
+	};
+	struct
+	{
+		uint64_t vector				: 8;
+		uint64_t delivery_mode		: 3;
+		uint64_t destination_mode	: 1;
+		uint64_t delivery_status	: 1;
+		uint64_t pin_polarity		: 1;
+		uint64_t remote_irr			: 1;
+		uint64_t trigger_mode		: 1;
+		uint64_t mask				: 1;
+		uint64_t unused				: 39;
+		uint64_t destination		: 8;
+	};
 } ioapic_entry_t;
 
 typedef struct ioapic
