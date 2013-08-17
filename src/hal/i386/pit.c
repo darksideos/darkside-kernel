@@ -17,7 +17,6 @@ bool speaker_installed = false;
 /* Handle the PIT interrupt */
 void pit_handler(struct i386_regs *r)
 {
-	dump_registers(r);
 	pit_ticks++;
 	scheduler_run(r, 0);
 }
