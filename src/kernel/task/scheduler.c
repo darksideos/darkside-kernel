@@ -79,8 +79,6 @@ run_thread:
 	/* Now there is one less thread on the CPU */
 	atomic_dec(&cpu_queue->num_threads);
 
-	kprintf(LOG_DEBUG, "Running thread %d, in process %d\n", thread->tid, thread->process->pid);
-
 	/* Switch to the thread */
 	list_set(&current_threads, cpu, &thread);
 	
@@ -164,8 +162,8 @@ void init_scheduler()
 
 	/* Create the current threads list */
 	current_threads = list_create(sizeof(thread_t*), NUM_CPUS);
-	thread_t *zero = 0;
 
+	thread_t *zero = 0;
 	for (cpu = 0; cpu < NUM_CPUS; cpu++)
 	{
 		list_append(&current_threads, &zero);
