@@ -90,8 +90,11 @@ void thread_sleep()
 /* Wake up a thread */
 void thread_wake(thread_t *thread)
 {
-	/* Set the thread's state to ready */
-	thread->state = THREAD_READY;
+	/* Set the thread's state to ready if it was running */
+	if (thread->state == THREAD_RUN)
+	{
+		thread->state = THREAD_READY;
+	}
 
 	/* Enqueue the thread in the scheduler */
 	scheduler_enqueue(thread);
