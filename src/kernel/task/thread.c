@@ -26,12 +26,15 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	/* Find the first available TID and give it to the thread */
 	thread->tid = find_first_tid();
 
-	/* Create the thread's register context */
-	thread->context = create_cpu_context(fn, true);
-
 	/* Create the user stack */
+	thread->ustack = kmalloc(stack_size);
+	thread->ustack_size = stack_size;
 
 	/* Create the kernel stack */
+	thread->kstack = kmalloc(THREAD_KSTACK_SIZE);
+
+	/* Create the thread's register context */
+	thread->context = create_cpu_context(fn, thread->ustack, true);
 
 	/* Set the thread's priority and state */
 	thread->priority = 0;
