@@ -6,6 +6,7 @@
 #include <hal/i386/timer.h>
 #include <kernel/task/scheduler.h>
 #include <kernel/console/kprintf.h>
+#include <kernel/console/bochs.h>
 
 /* The number of PIT ticks and frequency */
 volatile int32_t pit_ticks = 0;
@@ -18,6 +19,7 @@ bool speaker_installed = false;
 void pit_handler(struct i386_regs *r)
 {
 	pit_ticks++;
+	bochs_break_e9();
 	scheduler_run(r, 0);
 }
 
