@@ -83,7 +83,7 @@ run_thread:
 	list_set(&current_threads, cpu, &thread);
 	
 	thread->state = THREAD_RUN;
-	//thread_run(thread);
+	thread_run(thread);
 }
 
 /* Enqueue a thread in the scheduler */
