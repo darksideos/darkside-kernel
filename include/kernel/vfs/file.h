@@ -7,7 +7,6 @@
 /* File flags */
 #define FILE_READ	0x01
 #define FILE_WRITE	0x02
-#define FILE_RW		(FILE_READ | FILE_WRITE)
 #define FILE_APPEND	0x04
 #define FILE_CREATE	0x08
 
@@ -15,12 +14,11 @@
 typedef struct file
 {
 	inode_t *node;	// Inode
-	int32_t flags;	// File flags
+	uint32_t flags;	// File flags
 	uint64_t pos;	// File position
 } file_t;
 
-/* Create, open, close, read from, write to, and seek a file */
-file_t *file_create();
+/* Open, close, read from, write to, and seek a file */
 int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode);
 int32_t file_close(file_t *file);
 uint64_t file_read(file_t *file, uint8_t *buffer, uint64_t length);
