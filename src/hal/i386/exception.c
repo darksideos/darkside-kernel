@@ -23,14 +23,13 @@ void gpf_handler(struct i386_regs *r)
 		else
 		{
 			kprintf(LOG_ERROR, "Invalid VM86 opcode\n");
-			//exit(-1);
 		}
 	}
 	/* Otherwise, display an error message and kill the current task */
 	else
 	{
 		kprintf(LOG_ALERT, "Unhandled General Protection Fault Exception at 0x%08x\n", r->eip);
-		//exit(-1);
+		dump_registers(r);
 	}
 }
 

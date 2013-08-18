@@ -5,6 +5,8 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/console/kprintf.h>
+#include <kernel/console/bochs.h>
 
 uint32_t tid;
 
@@ -34,7 +36,7 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	thread->kstack = kmalloc(THREAD_KSTACK_SIZE);
 
 	/* Create the thread's register context */
-	thread->context = create_cpu_context(fn, thread->ustack, true);
+	thread->context = create_cpu_context(fn, thread->ustack, false);
 
 	/* Set the thread's priority and state */
 	thread->priority = 0;

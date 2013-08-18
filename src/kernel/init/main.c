@@ -7,20 +7,28 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/console/kprintf.h>
+#include <kernel/console/bochs.h>
+
+void t1t() {
+	while(1);
+}
 
 void t1()
 {
-	puts("1\n");
+	
+	while(1);
 }
 
 void t2()
 {
-	puts("2\n");
+	//puts("1\n");
+	while(1);
 }
 
 void t3()
 {
-	puts("3\n");
+	//puts("1\n");
+	while(1);
 }
 
 void kernel_main(os_info_t *os_info)
@@ -49,12 +57,12 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 
-	process_t *process1 = process_create("Process 1", &t1, 0);
-	process_t *process2 = process_create("Process 2", &t2, 0);
+	thread_t *thread1 = thread_create(0, &t1, 0, THREAD_DEF_USTACK_SIZE);
+	thread_t *thread2 = thread_create(0, &t2, 0, THREAD_DEF_USTACK_SIZE);
 
-	thread_t *thread3 = thread_create(process1, &t3, 0, THREAD_DEF_USTACK_SIZE);
+	thread_t *thread3 = thread_create(0, &t3, 0, THREAD_DEF_USTACK_SIZE);
 	
-	enable_interrupts();
+	thread_run(thread1);
 
 	while(1);
 }
