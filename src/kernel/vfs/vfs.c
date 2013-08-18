@@ -1,37 +1,29 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
 #include <lib/libadt/list.h>
+#include <lib/libadt/dict.h>
 #include <kernel/mm/heap.h>
 #include <kernel/sync/mutex.h>
 #include <kernel/sync/rwlock.h>
 #include <kernel/vfs/vfs.h>
 
-/* Filesystems and mountpoints */
-static list_t filesystems, mountpoints;
-static mutex_t filesystems_lock, mountpoints_lock;
+/* Filesystems and mountpoints lists */
+static dict_t filesystems;
+static list_t mountpoints;
+
+/* Locks for the filesystems and mountpoints lists */
+static rwlock_t filesystems_lock
+static mutex_t mountpoints_lock;
 
 /* Root of the VFS */
 static inode_t *vfs_root;
 
-/* Filesystem information structure */
-typedef struct fs_info
-{
-	uint8_t *name;
-	filesystem_t *fs;
-} fs_info_t;
-
 /* Register a filesystem */
 int32_t register_filesystem(filesystem_t *fs, uint8_t *name)
 {
-	/* Create a filesystem information structure */
-	fs_info_t fsi;
-	fsi.name = name;
-	fsi.fs = fs;
-
-	/* Add it to the list of filesystems */
-	mutex_acquire(&filesystems_lock);
-	list_append(&filesystems, &fsi);
-	mutex_release(&filesystems_lock);
+	rwlock_write_acquire(&filesystems_lock);
+	dict_append(&filesystems, name, &filesystem);
+	rwlock_write_release(&filesystems_lock);
 
 	return 0;
 }
@@ -39,28 +31,15 @@ int32_t register_filesystem(filesystem_t *fs, uint8_t *name)
 /* Unregister a filesystem */
 int32_t unregister_filesystem(uint8_t *name)
 {
-	/* Go through each registered filesystem */
-	mutex_acquire(&filesystems_lock);
-	for (uint32_t i = 0; i < list_length(&filesystems); i++)
-	{
-		/* Get the filesystem identification */
-		fs_info_t *fsi = (fs_info_t*) list_get(&filesystems, i);
+	rwlock_write_acquire(&filesystems_lock);
+	int32_t result = dict_remove(&filesystems, name);
+	rwlock_write_release(&filesystems_lock);
 
-		/* Is its name the one we're looking for? */
-		if (strequal(fsi->name, name))
-		{
-			/* Remove it from the list */
-			list_remove(&filesystems, i);
-			mutex_release(&filesystems_lock);
-			return 0;
-		}
-	}
-	mutex_release(&filesystems_lock);
-	return -1;
+	return result;
 }
 
 /* Mount a filesystem */
-int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name)
+int32_t vfs_mount(inode_t *node, dev_t dev, uint8_t *fs_name)
 {
 	/* Is the filesystem already mounted? */
 	mutex_acquire(&mountpoints_lock);
@@ -80,26 +59,24 @@ int32_t vfs_mount(inode_t *node, partition_t *partition, uint8_t *fs_name)
 	/* Create a mountpoint structure */
 	mountpoint_t *mp = kmalloc(sizeof(mountpoint_t));
 
-	/* Go through each registered filesystem */
-	for (uint32_t i = 0; i < list_length(&filesystems); i++)
+	/* Get the filesystem */
+	rwlock_read_acquire(&filesystems_lock);
+	filesystem_t *fs = dict_get(&filesystems);
+	rwlock_read_release(&filesystems_lock);
+
+	/* Is the filesystem registered? */
+	if (fs)
 	{
-		/* Get the filesystem identification */
-		fs_info_t *fsi = list_get(&filesystems, i);
+		/* Set up the mountpoint */
+		mp->node = node;
+		mp->dev = dev;
+		mp->fs = fs;
 
-		/* Is its name the one we're looking for? */
-		if (strequal(fsi->name, fs_name))
-		{
-			/* Set up the mountpoint */
-			mp->node = node;
-			mp->partition = partition;
-			mp->fs = fsi->fs;
+		/* Add it to the list */
+		list_append(&mountpoints, &mp);
 
-			/* Add it to the list */
-			list_append(&mountpoints, &mp);
-
-			mutex_release(&mountpoints_lock);
-			return 0;
-		}
+		mutex_release(&mountpoints_lock);
+		return 0;
 	}
 	mutex_release(&mountpoints_lock);
 	kfree(mp);
@@ -133,7 +110,7 @@ int32_t vfs_unmount(inode_t *node)
 	return -1;
 }
 
-/* Open a file */
+/* Open an inode */
 inode_t *vfs_open(uint8_t *path)
 {
 	/* Begin at the root of the VFS */
@@ -149,16 +126,7 @@ inode_t *vfs_open(uint8_t *path)
 	return 0;
 }
 
-/* Create a file */
-inode_t *vfs_create(uint8_t *path, int32_t mode)
-{
-	/* Begin at the root of the VFS */
-	inode_t *node = vfs_root;
-
-	return 0;
-}
-
-/* Close a file */
+/* Close an inode */
 void vfs_close(inode_t *node)
 {
 	if (node->handles > 0)
@@ -209,13 +177,19 @@ inode_t *vfs_finddir(inode_t *dir, uint8_t *name)
 	return 0;
 }
 
-/* Create a new directory entry to a file */
-int32_t vfs_link(inode_t *node, uint8_t *newpath)
+/* Create a new directory entry to an inode */
+int32_t vfs_hardlink(inode_t *node, uint8_t *newpath)
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
 		return node->mp->fs->link(node->mp->fs, node->mp->dev, node, newpath);
 	}
+}
+
+/* Create a new symbolic link to an inode */
+int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
+{
+	return node->mp->fs->symlink(node->mp->fs, node->mp->dev, node, newpath);
 }
 
 /* Remove a directory entry */
@@ -224,10 +198,18 @@ int32_t vfs_unlink(uint8_t *path)
 	return node->mp->fs->unlink(node->mp->fs, node->mp->dev, path);
 }
 
-/* Create a new symbolic link to a file */
-int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
+/* Create a new directory entry and inode */
+inode_t *vfs_mknod(uint8_t *path, int32_t type, int32_t mode, dev_t id)
 {
-	return node->mp->fs->symlink(node->mp->fs, node->mp->dev, node, newpath);
+	inode_t *node = (inode_t*) kmalloc(sizeof(inode_t));
+	int32_t result = node->mp->fs->mknod(node->mp->fs, node->mp->dev, path, type, mode, id, node);
+	
+	if (result == 0)
+	{
+		return node;
+	}
+
+	return 0;
 }
 
 /* Rename a directory entry */
@@ -251,17 +233,18 @@ int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t
 void init_vfs()
 {
 	/* Create the filesystems and mountpoints lists */
-	filesystems = list_create(sizeof(fs_info_t), 4);
+	filesystems = dict_create();
 	mountpoints = list_create(sizeof(mountpoint_t*), 4);
 
-	/* Create the root node */
+	/* Initialize the locks for the filesystems and mountpoints lists */
+	rwlock_init(&filesystems_lock);
+	mutex_init(&mountpoints_lock);
+
+	/* Create the root node and fill out it's information */
 	vfs_root = (inode_t*) kmalloc(sizeof(inode_t));
 
-	/* Fill out it's information */
 	vfs_root->mp = 0;
 	vfs_root->type = INODE_TYPE_DIR;
-	vfs_root->parent = 0;
-	vfs_root->children = list_create(sizeof(inode_t), 4);
 
 	vfs_root->size = 0;
 	vfs_root->mode = 0777;
@@ -269,4 +252,7 @@ void init_vfs()
 	vfs_root->uid = 0;
 	vfs_root->gid = 0;
 	vfs_root->atime = vfs_root->mtime = vfs_root->ctime = 0;
+
+	rwlock_init(&vfs_root->rwlock);
+	vfs_root->handles = 0;
 }

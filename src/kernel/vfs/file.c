@@ -4,16 +4,6 @@
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/file.h>
 
-/* Create a file structure */
-file_t *file_create()
-{
-	/* Create an input file and make sure it's 0 */
-	file_t *file = (file_t*) kmalloc(sizeof(file_t));
-	memset(file, 0, sizeof(file_t));
-
-	return file;
-}
-
 /* Open a file */
 int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode)
 {
@@ -26,7 +16,7 @@ int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode)
 		/* We can create the file */
 		if (flags & FILE_CREATE)
 		{
-			node = vfs_create(path, mode);
+			node = vfs_mknod(path, INODE_TYPE_FILE, mode, 0);
 		}
 		/* We cannot create the file */
 		else
@@ -58,19 +48,33 @@ int32_t file_close(file_t *file)
 /* Read from a file */
 uint64_t file_read(file_t *file, uint8_t *buffer, uint64_t length)
 {
-	uint64_t ret = vfs_read(file->node, buffer, file->pos, length);
-	file->pos += length;
+	if (file->flags & FILE_READ)
+	{
+		uint64_t ret = vfs_read(file->node, buffer, file->pos, length);
+		file->pos += length;
 
-	return ret;
+		return ret;
+	}
+
+	return 0;
 }
 
 /* Write to a file */
 uint64_t file_write(file_t *file, uint8_t *buffer, uint64_t length)
 {
-	uint64_t ret = vfs_write(file->node, buffer, file->pos, length);
-	file->pos += length;
+	if (file->flags & FILE_WRITE)
+	{
+		uint64_t ret = vfs_write(file->node, buffer, file->pos, length);
+		file->pos += length;
 
-	return ret;
+		return ret;
+	}
+	else if (file->flags & FILE_APPEND)
+	{
+		/* Todo: Appending */
+	}
+
+	return 0;
 }
 
 /* Seek a file */

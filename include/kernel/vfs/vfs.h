@@ -27,16 +27,16 @@ typedef struct filesystem
 	list_t (*readdir)(struct filesystem *fs, dev_t dev, struct inode *dir);
 
 	/* Create a new directory entry to an inode, returning -1 on failure */
-	int32_t (*link)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *newpath);
-
-	/* Remove a directory entry, returning -1 on failure */
-	int32_t (*unlink)(struct filesystem *fs, dev_t dev, uint8_t *path);
+	int32_t (*hardlink)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *newpath);
 
 	/* Create a new symbolic link to an inode, returning -1 on failure */
 	int32_t (*symlink)(struct filesystem *fs, dev_t dev, struct inode *node, uint8_t *newpath);
 
-	/* Create a new inode, returning -1 on failure */
-	int32_t (*mknod)(struct filesystem *fs, dev_t dev, uint8_t *path, int32_t type, dev_t id, struct inode *node);
+	/* Remove a directory entry, returning -1 on failure */
+	int32_t (*unlink)(struct filesystem *fs, dev_t dev, uint8_t *path);
+
+	/* Create a new directory entry and inode, returning -1 on failure */
+	int32_t (*mknod)(struct filesystem *fs, dev_t dev, uint8_t *path, int32_t type, int32_t mode, dev_t id, struct inode *node);
 
 	/* Rename a directory entry, returning -1 on failure */
 	int32_t (*rename)(struct filesystem *fs, dev_t dev, uint8_t *oldpath, uint8_t *newpath);
@@ -72,13 +72,9 @@ typedef struct inode
 	/* Inode type */
 	int32_t type;
 
-	/* Parent and child inodes */
-	struct inode *parent;
-	list_t children;
-
 	/* Inode information */
 	uint64_t size;
-	int mode, nlink, uid, gid;
+	int32_t mode, nlink, uid, gid;
 	uint64_t atime, mtime, ctime;
 
 	/* Readers/writer lock */
@@ -89,17 +85,17 @@ typedef struct inode
 
 	/* Device ID for block and character devices */
 	dev_t id;
-
-	/* Inode specific data */
-	void *data;
 } inode_t;
 
 /* Directory entry structure */
 typedef struct dirent
 {
-	/* Name and inode */
-	uint8_t *name;
+	/* Inode */
 	inode_t *inode;
+
+	/* Parent and child directory entries */
+	struct dirent *parent;
+	dict_t children;
 } dirent_t;
 
 /* Register and unregister a filesystem */
@@ -112,15 +108,15 @@ int32_t vfs_unmount(inode_t *node);
 
 /* VFS functions */
 inode_t *vfs_open(uint8_t *path);
-inode_t *vfs_create(uint8_t *path, int32_t mode);
 void vfs_close(inode_t *node);
 uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t length);
 list_t vfs_readdir(inode_t *dir);
 inode_t *vfs_finddir(inode_t *dir, uint8_t *name); 
-int32_t vfs_link(inode_t *node, uint8_t *newpath);
-int32_t vfs_unlink(uint8_t *path);
+int32_t vfs_hardlink(inode_t *node, uint8_t *newpath);
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath);
+int32_t vfs_unlink(uint8_t *path);
+inode_t *vfs_mknod(uint8_t *path, int32_t type, int32_t mode, dev_t id);
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath);
 int32_t vfs_ioctl(inode_t *node, int32_t request, uint8_t *buffer, uint32_t length);
 
