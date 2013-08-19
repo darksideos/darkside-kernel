@@ -19,7 +19,7 @@ bool speaker_installed = false;
 void pit_handler(struct i386_regs *r)
 {
 	pit_ticks++;
-	bochs_break_e9();
+	//bochs_break_e9();
 	scheduler_run(r, 0);
 }
 

@@ -63,7 +63,7 @@ void irq_install()
 }
 
 /* Install an IRQ handler */
-void irq_install_handler(int32_t irq, void (*handler)(struct i386_regs *r))
+void irq_install_handler(int32_t irq, void *handler)
 {
     irqs[irq] = (void*) handler;
 }

@@ -8,6 +8,7 @@
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/console/bochs.h>m
 
 /* TEMPORARY */
 #define NUM_CPUS	1
@@ -46,6 +47,7 @@ cpu_queue_t *cpu_queue_create()
 /* Run the scheduler */
 void scheduler_run(void *context, uint32_t cpu)
 {
+	bochs_break_e9();
 	/* Get the CPU queue for our CPU */
 	cpu_queue_t *cpu_queue = *((cpu_queue_t**) list_get(&cpu_queues, cpu));
 
@@ -75,6 +77,9 @@ run_thread:
 	spinlock_acquire(&cpu_queue->locks[priority]);
 	thread_t *thread = (thread_t*) queue_dequeue(&cpu_queue->priorities[priority]);
 	spinlock_release(&cpu_queue->locks[priority]);
+	
+	kprintf(LOG_DEBUG, "Switching in to thread %d\n", thread->tid);
+	dump_registers(thread->context);
 
 	/* Now there is one less thread on the CPU */
 	atomic_dec(&cpu_queue->num_threads);

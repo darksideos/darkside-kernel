@@ -4,47 +4,37 @@
 #include <hal/i386/debugger.h>
 #include <kernel/console/kprintf.h>
 #include <kernel/mm/heap.h>
+#include <kernel/debug/debugger.h>
 
 /* Breakpoint structure */
-typedef struct
+typedef struct breakpoint
 {
-	uint32_t address;		// Address of the instruction
-	uint32_t instruction;	// Original instruction
+	uint32_t address;								// Address of the instruction
+	uint32_t instruction;							// Original instruction
+	void (*callback)(void *regs, uint32_t mode);	// Debugger callback
 } breakpoint_t;
 
 /* List of breakpoints */
 static list_t breakpoints;
 
-/* Dump the memory at a specific address and length */
-static void dump_memory(uint32_t addr, uint32_t size)
-{
-	kprintf("Memory Dump at 0x%x\n\n", addr);
-
-	uint32_t i;
-	for (i = addr; i < addr + size; i += 2)
-	{
-		kprintf("%x ", *((uint8_t*)i));
-	}
-}
-
 /* Place a breakpoint on an instruction in memory */
-void place_breakpoint(uint32_t addr)
+void place_breakpoint(uint32_t addr, void (*callback)(void *regs, uint32_t mode))
 {
 	/* Save the old instruction so we can access it */
 	breakpoint_t breakpoint;
 	breakpoint.address = addr;
-	breakpoint.instruction = *((uint32_t*)addr);
+	breakpoint.instruction = *((uint32_t*) addr);
+	breakpoint.callback = callback;
 
 	/* Add the breakpoint to the breakpoint list */
 	list_append(&breakpoints, &breakpoint);
 
 	/* Now place an 'int 3' instruction at the address */
-	*((uint8_t*)addr) = 0xCD;
-	*((uint8_t*)addr + 1) = 0x03;
+	*((uint8_t*) addr) = 0xCC;
 }
 
 /* Find a breakpoint by address */
-static int32_t find_breakpoint(uint32_t addr)
+breakpoint_t *find_breakpoint(uint32_t addr)
 {
 	/* Go through each breakpoint */
 	int i;
@@ -63,86 +53,30 @@ static int32_t find_breakpoint(uint32_t addr)
 	return 0;
 }
 
-/* Display help information */
-static void help_information()
+void init_debugger()
 {
-	kprintf("Debugger Commands\n");
-	kprintf("registers - Dump the registers\n");
-	kprintf("memory - Dump the memory at a specific address and length\n");
-	kprintf("breakpoint - Place a breakpoint on an instruction in memory\n");
-	kprintf("step - Step through the code instruction by instruction\n");
-	kprintf("help - Display help information\n");
-	kprintf("exit - Exit the kernel debugger\n");
+	breakpoints = list_create(sizeof(breakpoint), 0);
+	irq_install_handler(1, &debugger_trap);
+	irq_install_handler(3, &debugger_trap);
 }
 
 /* Debugger trap, which is called by breakpoints and stepping through */
 void debugger_trap(struct i386_regs *r)
 {
-	kprintf("Kernel Debugger\n\n");
-
 	/* The breakpoint that's been hit */
 	breakpoint_t *breakpoint = 0;
 
 	/* If the kernel debugger was called from a breakpoint, put the original instruction back */
 	if (r->int_no == 3)
 	{
-		kprintf("Breakpoint Hit at 0x%X\n", r->eip);
-
-		/* If we can't find the breakpoint in the breakpoint list, something else triggered it, so return */
-		breakpoint = find_breakpoint(r->eip);
-		if (!breakpoint)
-		{
-			kprintf("Error: A breakpoint that was not placed in the kernel debugger has been hit\n");
-			return;
-		}
-
 		/* Before we go to the main debugger, put the original instruction back */
-		*((uint32_t*)r->eip) = breakpoint.instruction; 
+		*((uint32_t*) r->eip) = breakpoint->instruction;
+		
+		breakpoint->callback(r, DEBUG_MODE_BREAKPOINT_HIT);
 	}
-	/* If the kernel debugger was called from a singe step, print information */
+	/* We're single stepping */
 	else if (r->int_no == 1)
 	{
-		kprintf("Single Step at 0x%08X\n", r->eip);
-	}
-
-	while (1)
-	{
-		kprintf("> ");
-		unsigned char *command = "exit";
-
-		/* 'registers' - Dump the registers */
-		if (strnequal(command, "registers", 9))
-		{
-			dump_registers(r);
-		}
-		/* 'memory' - Dump the memory at a specific address and length */
-		else if (strnequal(command, "memory ", 7))
-		{
-		}
-		/* 'breakpoint' - Place a breakpoint on an instruction in memory */
-		else if (strnequal(command, "breakpoint", 7))
-		{
-		}
-		/* 'step' - Step through the code instruction by instruction */
-		else if (strnequal(command, "step", 7))
-		{
-			/* Set the trap flag */
-			r->eflags |= 0x100;
-		}
-		/* 'help' - Display help information */
-		else if (strnequal(command, "help", 4))
-		{
-			help_information();
-		}
-		/* 'exit' - Exit the kernel debugger */
-		else if (strnequal(command, "exit", 4))
-		{
-			/* Clear the trap flag */
-			r->eflags &= ~0x100;
-		}
-		else
-		{
-			kprintf("Invalid command\n");
-		}
+		breakpoint->callback(r, DEBUG_MODE_STEP_THROUGH);
 	}
 }
