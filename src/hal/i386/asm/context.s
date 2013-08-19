@@ -7,10 +7,10 @@ switch_cpu_context:
 	mov eax, [esp+4]		; Get the CPU context
 	mov esp, eax			; Move the CPU context into ESP
 	
-	call eoi				; Acknowledge the timer interrupt
+	mov eax, 0x20
+	out 0x20, al			; Acknowledge the timer interrupt
 	
-	pop eax
-	mov gs, eax
+	pop gs
 	pop fs
 	pop es
 	pop ds

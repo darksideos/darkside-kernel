@@ -25,11 +25,13 @@ void gpf_handler(struct i386_regs *r)
 			kprintf(LOG_ERROR, "Invalid VM86 opcode\n");
 		}
 	}
-	/* Otherwise, display an error message and kill the current task */
+	/* Otherwise, display an error message and kill the current thread */
 	else
 	{
 		kprintf(LOG_ALERT, "Unhandled General Protection Fault Exception at 0x%08x\n", r->eip);
+		kprintf(LOG_ALERT, "Segment selector index: 0x%08X\n", r->err_code);
 		dump_registers(r);
+		while(1);
 	}
 }
 
@@ -40,11 +42,8 @@ void page_fault_handler(struct i386_regs *r)
 	uint32_t faulting_address;
 	asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
 
-	/* Print the exception information */
-	kprintf(LOG_ALERT, "Unhandled Page Fault Exception at 0x%08x, error code 0x%08x\nPresent: %s, Access: %s, Mode: %s\n", faulting_address, r->err_code, r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
-
+	/* Display an error message and kill the current thread */
+	kprintf(LOG_ALERT, "Unhandled Page Fault Exception at 0x%08x, error code 0x%08X\nPresent: %s, Access: %s, Mode: %s\n", faulting_address, r->err_code, r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
 	dump_registers(r);
-
-	/* Endless loop */
 	while(1);
 }
