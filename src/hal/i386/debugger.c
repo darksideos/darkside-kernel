@@ -88,16 +88,13 @@ void debugger_trap(struct i386_regs *r)
 	{
 		kprintf("Breakpoint Hit at 0x%X\n", r->eip);
 
-		/* If we can't find the breakpoint in the breakpoint list, something else triggered it, so return */
+		/* If we can find the breakpoint in the breakpoint list, it was manually set */
 		breakpoint = find_breakpoint(r->eip);
-		if (!breakpoint)
+		if (breakpoint)
 		{
-			kprintf("Error: A breakpoint that was not placed in the kernel debugger has been hit\n");
-			return;
+			/* Before we go to the main debugger, put the original instruction back */
+			*((uint32_t*)r->eip) = breakpoint.instruction;
 		}
-
-		/* Before we go to the main debugger, put the original instruction back */
-		*((uint32_t*)r->eip) = breakpoint.instruction; 
 	}
 	/* If the kernel debugger was called from a singe step, print information */
 	else if (r->int_no == 1)
