@@ -23,6 +23,6 @@ void isr_install_handler(int32_t isr, void (*handler)(struct i386_regs *r));
 void isr_uninstall_handler(int32_t isr);
 
 /* Dump the CPU registers */
-void dump_registers(struct i386_regs *r);
+void dump_registers(void *regs);
 
 #endif

@@ -5,5 +5,6 @@
 
 uint8_t getch();
 void keyboard_install();
+uint8_t *gets();
 
 #endif
