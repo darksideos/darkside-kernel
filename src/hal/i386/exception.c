@@ -29,7 +29,7 @@ void gpf_handler(struct i386_regs *r)
 	else
 	{
 		kprintf(LOG_ALERT, "Unhandled General Protection Fault Exception at 0x%08x\n", r->eip);
-		kprintf(LOG_ALERT, "Segment selector index: 0x%08X\n", r->err_code);
+		kprintf(LOG_ALERT, "Segment selector index: 0x%08X\n", (r->err_code >> 3));
 		dump_registers(r);
 		while(1);
 	}

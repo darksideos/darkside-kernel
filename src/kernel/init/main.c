@@ -12,19 +12,25 @@
 
 void t1()
 {
+	disable_interrupts();
 	puts("a\n");
+	enable_interrupts();
 	while (1);
 }
 
 void t2()
 {
+	disable_interrupts();
 	puts("b\n");
+	enable_interrupts();
 	while (1);
 }
 
 void t3()
 {
+	disable_interrupts();
 	puts("c\n");
+	enable_interrupts();
 	while (1);
 }
 
@@ -61,7 +67,7 @@ void kernel_main(os_info_t *os_info)
 
 	thread_t *thread3 = thread_create(0, &t3, 0, THREAD_DEF_USTACK_SIZE);
 	
-	thread_run(thread1);
+	enable_interrupts();
 
 	while(1);
 }
