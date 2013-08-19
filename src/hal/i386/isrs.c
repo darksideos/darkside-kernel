@@ -168,15 +168,15 @@ extern void fault_handler(struct i386_regs *r)
 }
 
 /* Dump the CPU registers */
-void dump_registers(struct i386_regs *r)
+void dump_registers(void *regs)
 {
 	kprintf(LOG_INFO, "Register Dump\n\n");
- 	kprintf(LOG_INFO, "EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n", r->eax, r->ebx, r->ecx, r->edx);
- 	kprintf(LOG_INFO, "ESI: %08x EDI: %08x ESP: %08x EBP: %08x\n", r->esi, r->edi, r->esp, r->ebp);
- 	kprintf(LOG_INFO, "DS:  %08x ES:  %08x FS:  %08x GS:  %08x\n", r->ds, r->es, r->fs, r->gs);
-	kprintf(LOG_INFO, "CS:  %08x EIP: %08x\n", r->cs, r->eip);
-	kprintf(LOG_INFO, "SS:  %08x ESP: %08x\n", r->ss, r->useresp);
-	kprintf(LOG_INFO, "EFLAGS: %08x\n", r->eflags);
+ 	kprintf(LOG_INFO, "EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n", ((struct i386_regs*) regs)->eax, ((struct i386_regs*) regs)->ebx, ((struct i386_regs*) regs)->ecx, ((struct i386_regs*) regs)->edx);
+ 	kprintf(LOG_INFO, "ESI: %08x EDI: %08x ESP: %08x EBP: %08x\n", ((struct i386_regs*) regs)->esi, ((struct i386_regs*) regs)->edi, ((struct i386_regs*) regs)->esp, ((struct i386_regs*) regs)->ebp);
+ 	kprintf(LOG_INFO, "DS:  %08x ES:  %08x FS:  %08x GS:  %08x\n", ((struct i386_regs*) regs)->ds, ((struct i386_regs*) regs)->es, ((struct i386_regs*) regs)->fs, ((struct i386_regs*) regs)->gs);
+	kprintf(LOG_INFO, "CS:  %08x EIP: %08x\n", ((struct i386_regs*) regs)->cs, ((struct i386_regs*) regs)->eip);
+	kprintf(LOG_INFO, "SS:  %08x ESP: %08x\n", ((struct i386_regs*) regs)->ss, ((struct i386_regs*) regs)->useresp);
+	kprintf(LOG_INFO, "EFLAGS: %08x\n", ((struct i386_regs*) regs)->eflags);
 
 	uint32_t cr0, cr2, cr3, cr4;
 	asm volatile("mov %%cr0, %0" : "=r" (cr0));
