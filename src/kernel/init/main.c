@@ -10,23 +10,22 @@
 #include <kernel/console/bochs.h>
 #include <kernel/debug/debugger.h>
 
-void t1t(){while(1);}
-
 void t1()
 {
-	//asm volatile("xchg %eax, %eax");
-	t1t();
-	while(1);
+	puts("a\n");
+	while (1);
 }
 
 void t2()
 {
-	while(1);
+	puts("b\n");
+	while (1);
 }
 
 void t3()
 {
-	while(1);
+	puts("c\n");
+	while (1);
 }
 
 void kernel_main(os_info_t *os_info)
@@ -39,8 +38,7 @@ void kernel_main(os_info_t *os_info)
 
 	/* Initialize the kernel heap */
 	init_kheap();
-	
-	/* Start the kernel debugger */
+
 	init_kernel_debugger();
 	
 	/* Initialize the VFS */
@@ -57,9 +55,6 @@ void kernel_main(os_info_t *os_info)
 	/* Load init from the root filesystem */
 	
 	/* Create and run the init process */
-	
-	/* Place a breakpoint */
-	asm volatile("int $3");
 
 	thread_t *thread1 = thread_create(0, &t1, 0, THREAD_DEF_USTACK_SIZE);
 	thread_t *thread2 = thread_create(0, &t2, 0, THREAD_DEF_USTACK_SIZE);
