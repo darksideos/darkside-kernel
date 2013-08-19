@@ -3,8 +3,8 @@
 #include <hal/i386/isrs.h>
 #include <hal/i386/debugger.h>
 #include <kernel/console/kprintf.h>
-#include <kernel/mm/heap.h>
 #include <kernel/debug/debugger.h>
+#include <kernel/mm/heap.h>
 
 /* Breakpoint structure */
 typedef struct breakpoint
@@ -20,7 +20,7 @@ static list_t breakpoints;
 /* Place a breakpoint on an instruction in memory */
 void place_breakpoint(uint32_t addr, void (*callback)(void *regs, uint32_t mode))
 {
-	/* Save the old instruction so we can access it */
+	/* Fill in the breakpoint's data */
 	breakpoint_t breakpoint;
 	breakpoint.address = addr;
 	breakpoint.instruction = *((uint32_t*) addr);
@@ -56,27 +56,28 @@ breakpoint_t *find_breakpoint(uint32_t addr)
 void init_debugger()
 {
 	breakpoints = list_create(sizeof(breakpoint), 0);
-	irq_install_handler(1, &debugger_trap);
-	irq_install_handler(3, &debugger_trap);
+	isr_install_handler(1, &debugger_trap);
+	isr_install_handler(3, &debugger_trap);
 }
 
 /* Debugger trap, which is called by breakpoints and stepping through */
 void debugger_trap(struct i386_regs *r)
 {
-	/* The breakpoint that's been hit */
-	breakpoint_t *breakpoint = 0;
-
 	/* If the kernel debugger was called from a breakpoint, put the original instruction back */
 	if (r->int_no == 3)
 	{
-		/* Before we go to the main debugger, put the original instruction back */
-		*((uint32_t*) r->eip) = breakpoint->instruction;
+		/* Find out if the breakpoint was registered beforehand */
+		breakpoint_t *breakpoint = find_breakpoint(r->eip);
+		if (breakpoint)
+		{
+			/* Before we go to the main debugger, put the original instruction back */
+			*((uint32_t*) r->eip) = breakpoint->instruction;
+		}
 		
 		breakpoint->callback(r, DEBUG_MODE_BREAKPOINT_HIT);
 	}
 	/* We're single stepping */
 	else if (r->int_no == 1)
 	{
-		breakpoint->callback(r, DEBUG_MODE_STEP_THROUGH);
 	}
 }
