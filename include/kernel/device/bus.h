@@ -2,10 +2,14 @@
 #define __BUS_H
 
 #include <lib/libc/types.h>
+#include <kernel/device/device.h>
 
 /* Bus structure */
 typedef struct bus
 {
+	/* Base device */
+	device_t base;
+
 	/* Read a byte from the configuration space */
 	uint8_t (*read_config_byte)(struct bus *bus, uint16_t slot, uint16_t function, uint16_t offset);
 
