@@ -9,25 +9,22 @@
 #include <kernel/console/kprintf.h>
 #include <kernel/console/bochs.h>
 
-void t1t() {
-	while(1);
-}
+void t1t(){while(1);}
 
 void t1()
 {
-	
+	//asm volatile("xchg %eax, %eax");
+	t1t();
 	while(1);
 }
 
 void t2()
 {
-	//puts("1\n");
 	while(1);
 }
 
 void t3()
 {
-	//puts("1\n");
 	while(1);
 }
 

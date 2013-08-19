@@ -78,4 +78,13 @@ void atomic_dec(atomic_t *v);
 uint32_t atomic_xchg(atomic_t *v, uint32_t newval);
 uint32_t atomic_cmpxchg(atomic_t *v, uint32_t oldval, uint32_t newval);
 
+/* SDI (standard debugging interface) */
+void init_debugger();
+void place_breakpoint(uint32_t address, void (*callback)(void *regs, uint32_t mode));
+void step();
+void exit_breakpoint();
+void dump_registers(void *regs);
+uint32_t get_kernel_stack();
+uint32_t get_user_stack();
+
 #endif
