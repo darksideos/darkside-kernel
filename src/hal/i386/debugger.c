@@ -63,18 +63,20 @@ void init_sdi()
 
 /* Debugger trap, which is called by breakpoints and stepping through */
 void debugger_trap(struct i386_regs *r)
-{	
+{
+	/* Find out if the breakpoint was registered beforehand */
+	breakpoint_t *breakpoint = find_breakpoint(r->eip);
+	if (breakpoint)
+	{
+		/* Before we go to the main debugger, put the original instruction back */
+		*((uint32_t*) r->eip) = breakpoint->instruction;
+	}
+	
 	/* If the kernel debugger was called from a breakpoint, put the original instruction back */
 	if (r->int_no == 3)
 	{
-		/* Find out if the breakpoint was registered beforehand */
-		breakpoint_t *breakpoint = find_breakpoint(r->eip);
-		if (breakpoint)
+		if(breakpoint)
 		{
-			/* Before we go to the main debugger, put the original instruction back */
-			*((uint32_t*) r->eip) = breakpoint->instruction;
-
-			/* Call the debugger trap */
 			breakpoint->callback(r, DEBUG_MODE_BREAKPOINT_HIT);
 		}
 		else
@@ -85,7 +87,14 @@ void debugger_trap(struct i386_regs *r)
 	/* We're single stepping */
 	else if (r->int_no == 1)
 	{
-		kernel_debugger_trap(r, DEBUG_MODE_STEP_THROUGH);
+		if(breakpoint)
+		{
+			breakpoint->callback(r, DEBUG_MODE_STEP_THROUGH);
+		}
+		else
+		{
+			kernel_debugger_trap(r, DEBUG_MODE_STEP_THROUGH);
+		}
 	}
 }
 
