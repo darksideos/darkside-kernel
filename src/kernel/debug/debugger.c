@@ -19,50 +19,58 @@ void help_information()
 {
 	kprintf(LOG_DEBUG, "Debugger Commands\n");
 	kprintf(LOG_DEBUG, "registers - Dump the registers\n");
-	kprintf(LOG_DEBUG, "memory - Dump the memory at a specific address and length\n");
+	kprintf(LOG_DEBUG, "memory <mem>- Dump the memory at a specific address and length\n");
 	kprintf(LOG_DEBUG, "breakpoint - Place a breakpoint on an instruction in memory\n");
 	kprintf(LOG_DEBUG, "step - Step through the code instruction by instruction\n");
 	kprintf(LOG_DEBUG, "help - Display help information\n");
 	kprintf(LOG_DEBUG, "exit - Exit the kernel debugger\n");
 }
 
-while (1)
-	{
-		kprintf("> ");
-		unsigned char *command = "exit";
+void init_kernel_debugger()
+{
+	init_sdi();
+}
 
-		/* 'registers' - Dump the registers */
-		if (strnequal(command, "registers", 9))
-		{
-			dump_registers(r);
-		}
-		/* 'memory' - Dump the memory at a specific address and length */
-		else if (strnequal(command, "memory ", 7))
-		{
-		}
-		/* 'breakpoint' - Place a breakpoint on an instruction in memory */
-		else if (strnequal(command, "breakpoint", 7))
-		{
-		}
-		/* 'step' - Step through the code instruction by instruction */
-		else if (strnequal(command, "step", 7))
-		{
-			/* Set the trap flag */
-			r->eflags |= 0x100;
-		}
-		/* 'help' - Display help information */
-		else if (strnequal(command, "help", 4))
-		{
-			help_information();
-		}
-		/* 'exit' - Exit the kernel debugger */
-		else if (strnequal(command, "exit", 4))
-		{
-			/* Clear the trap flag */
-			r->eflags &= ~0x100;
-		}
-		else
-		{
-			kprintf("Invalid command\n");
-		}
+void kernel_debugger_trap(void *regs, uint32_t mode)
+{
+	kprintf(LOG_DEBUG, "%08X> ", get_instruction_pointer(regs));
+	uint8_t *command = "step";
+
+	/* 'registers' - Dump the registers */
+	if (strnequal(command, "registers", 9))
+	{
+		dump_registers(regs);
 	}
+	/* 'memory' - Dump the memory at a specific address and length */
+	else if (strnequal(command, "memory ", 7))
+	{
+	}
+	/* 'breakpoint' - Place a breakpoint on an instruction in memory */
+	else if (strnequal(command, "breakpoint", 10))
+	{
+	}
+	/* 'step' - Step through the code instruction by instruction */
+	else if (strequal(command, "step", 7))
+	{
+		/* Set the trap flag */
+		start_single_stepping(regs);
+		return;
+	}
+	/* 'help' - Display help information */
+	else if (strequal(command, "help"))
+	{
+		help_information();
+	}
+	/* 'exit' - Exit the kernel debugger */
+	else if (strequal(command, "exit"))
+	{
+		/* Clear the trap flag */
+		stop_single_stepping(regs);
+		return;
+	}
+	else
+	{
+		kprintf(LOG_DEBUG, "Invalid command\n");
+	}
+	kernel_debugger_trap(regs, mode);
+}
