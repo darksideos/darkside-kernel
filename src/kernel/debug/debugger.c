@@ -34,7 +34,7 @@ void init_kernel_debugger()
 void kernel_debugger_trap(void *regs, uint32_t mode)
 {
 	kprintf(LOG_DEBUG, "%08X> ", get_instruction_pointer(regs));
-	uint8_t *command = "step";
+	uint8_t *command = "registers";
 
 	while (1)
 	{
@@ -42,6 +42,7 @@ void kernel_debugger_trap(void *regs, uint32_t mode)
 		if (strnequal(command, "registers", 9))
 		{
 			dump_registers(regs);
+			return;
 		}
 		/* 'memory' - Dump the memory at a specific address and length */
 		else if (strnequal(command, "memory ", 7))
