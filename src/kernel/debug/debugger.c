@@ -34,7 +34,7 @@ void init_kernel_debugger()
 void kernel_debugger_trap(void *regs, uint32_t mode)
 {
 	kprintf(LOG_DEBUG, "%08X> ", get_instruction_pointer(regs));
-	uint8_t *command = "registers";
+	uint8_t *command = "registera";
 
 	while (1)
 	{
@@ -74,6 +74,7 @@ void kernel_debugger_trap(void *regs, uint32_t mode)
 		else
 		{
 			kprintf(LOG_DEBUG, "Invalid command\n");
+			return;
 		}
 	}
 }
