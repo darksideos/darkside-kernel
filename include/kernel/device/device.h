@@ -3,13 +3,16 @@
 
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
-#include <kernel/device/bus.h>
 
 /* Device structure */
 typedef struct device
 {
-	/* Parent bus */
-	bus_t *parent;
+	/* Type */
+	uint8_t type;
+
+	/* Parent and child devices */
+	struct device *parent;
+	list_t children;
 
 	/* Device and function number */
 	uint16_t slot, function;
