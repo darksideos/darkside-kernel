@@ -2,6 +2,8 @@
 #include <hal/i386/isrs.h>
 #include <kernel/mm/heap.h>
 
+#include <kernel/console/kprintf.h>
+
 /* Initialize a CPU register context */
 void *init_cpu_context(void *context, void (*fn)(void *arg), uint64_t stack, bool user)
 {
@@ -29,4 +31,6 @@ void *init_cpu_context(void *context, void (*fn)(void *arg), uint64_t stack, boo
 
 		r->ds = r->es = r->fs = r->gs = 0x10;	// Kernel mode data segment
 	}
+
+	kprintf(LOG_DEBUG, "Context created\n");
 }

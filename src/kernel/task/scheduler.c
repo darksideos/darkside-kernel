@@ -51,7 +51,10 @@ void scheduler_run(void *context, uint32_t cpu)
 
 	/* Save the address of the current thread's context */
 	thread_t *current_thread = thread_current();
-	current_thread->context = context;
+	if (current_thread)
+	{
+		current_thread->context = context;
+	}
 	
 	/* If the sleep wasn't put to sleep or killed, enqueue it */
 	if (current_thread && current_thread->state == THREAD_RUN)
@@ -77,7 +80,7 @@ run_thread:
 	thread_t *thread = (thread_t*) queue_dequeue(&cpu_queue->priorities[priority]);
 	spinlock_release(&cpu_queue->locks[priority]);
 	
-	kprintf(LOG_DEBUG, "Switching to thread %d\n", thread->tid);
+	//kprintf(LOG_DEBUG, "Switching to thread %d\n", thread->tid);
 
 	/* Now there is one less thread on the CPU */
 	atomic_dec(&cpu_queue->num_threads);
