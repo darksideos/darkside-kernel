@@ -15,6 +15,11 @@ typedef struct os_info
 	uint64_t rsdp;
 
 	/* Loaded modules */
+
+	/* Video mode information */
+	void *framebuffer;
+	uint32_t width, height;
+	uint32_t bpp;
 } __attribute__ ((packed)) os_info_t;
 
 #endif
