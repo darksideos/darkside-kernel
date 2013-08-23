@@ -1,6 +1,5 @@
 #include <lib/libc/types.h>
 #include <lib/libc/string.h>
-#include <hal/i386/gdt.h>
 #include <hal/i386/msr.h>
 #include <kernel/console/kprintf.h>
 
@@ -94,8 +93,8 @@ void write_tss(int32_t num, uint16_t ss0, uint16_t esp0)
 	tss.ss0 = ss0;
 	tss.esp0 = esp0;
 
-	tss.cs = KERNEL_CODE_SEG | 3;
-	tss.ss = tss.ds = tss.es = tss.fs = tss.gs = KERNEL_DATA_SEG | 3;
+	tss.cs = 0x0B;
+	tss.ss = tss.ds = tss.es = tss.fs = tss.gs = 0x13;
 }
 
 /* Set the kernel stack in the TSS and the kernel stack MSR */
@@ -118,7 +117,7 @@ void gdt_install()
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);	// Kernel mode data segment
 	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);	// User mode code segment
     gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);	// User mode data segment
-	write_tss(5, KERNEL_DATA_SEG, 0);
+	write_tss(5, 0x10, 0);
 
     /* Flush out the old GDT and TSS and install the new changes! */
     gdt_flush();

@@ -8,6 +8,8 @@
 #include <kernel/console/kprintf.h>
 #include <kernel/console/bochs.h>
 
+#include <hal/i386/isrs.h>
+
 uint32_t tid;
 
 /* Find the first available TID */
@@ -29,14 +31,15 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	thread->tid = find_first_tid();
 
 	/* Create the user stack */
-	thread->ustack = kmalloc(stack_size);
+	thread->ustack = kmalloc(stack_size) + stack_size;
 	thread->ustack_size = stack_size;
 
 	/* Create the kernel stack */
-	thread->kstack = kmalloc(THREAD_KSTACK_SIZE);
+	thread->kstack = kmalloc(THREAD_KSTACK_SIZE) + THREAD_KSTACK_SIZE;
 
 	/* Create the thread's register context */
-	thread->context = create_cpu_context(fn, thread->ustack, false);
+	thread->context = (void*) thread->kstack - sizeof(struct i386_regs);
+	init_cpu_context(thread->context, fn, thread->ustack, false);
 
 	/* Set the thread's priority and state */
 	thread->priority = 0;
@@ -130,8 +133,6 @@ void thread_run(thread_t *thread)
 			switch_address_space(thread->process->address_space);
 		}
 	}
-
-	/* Map the thread's user and kernel stacks into the current address space */
 
 	/* Set the kernel stack to the one in the new thread */
 	set_kernel_stack(thread->kstack);

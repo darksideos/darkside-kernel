@@ -49,18 +49,9 @@ void scheduler_run(void *context, uint32_t cpu)
 	/* Get the CPU queue for our CPU */
 	cpu_queue_t *cpu_queue = *((cpu_queue_t**) list_get(&cpu_queues, cpu));
 
-	/* Save the current thread's context */
+	/* Save the address of the current thread's context */
 	thread_t *current_thread = thread_current();
-
-	if (current_thread)
-	{
-		kprintf(LOG_DEBUG, "Switching from thread %d\n", current_thread->tid);
-		copy_cpu_context(current_thread->context, context);
-	}
-	else
-	{
-		kprintf(LOG_DEBUG, "First time running scheduler\n");
-	}
+	current_thread->context = context;
 	
 	/* If the sleep wasn't put to sleep or killed, enqueue it */
 	if (current_thread && current_thread->state == THREAD_RUN)

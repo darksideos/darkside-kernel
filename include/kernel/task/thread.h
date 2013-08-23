@@ -41,6 +41,9 @@ typedef struct thread
 	uint8_t priority;
 	uint8_t state;
 
+	/* Quantum in milliseconds */
+	uint32_t quantum;
+
 	/* NUMA domain and CPU affinity */
 	uint8_t numa_domain;
 } thread_t;
