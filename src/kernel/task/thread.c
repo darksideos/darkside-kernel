@@ -18,8 +18,8 @@ uint32_t find_first_tid()
 	return tid++;
 }
 
-/* Create a thread */
-thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, uint32_t stack_size)
+/* Internal function to create a thread */
+static thread_t *do_thread_create(process_t *process, void (*fn)(void *arg), void *arg, uint32_t stack_size, bool user)
 {
 	/* Create the thread */
 	thread_t *thread = (thread_t*) kmalloc(sizeof(thread_t));
@@ -31,15 +31,23 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 	thread->tid = find_first_tid();
 
 	/* Create the user stack */
-	thread->ustack = kmalloc(stack_size) + stack_size;
-	thread->ustack_size = stack_size;
+	if (user)
+	{
+		thread->ustack = kmalloc(stack_size) + stack_size;
+		thread->ustack_size = stack_size;
+	}
+	else
+	{
+		thread->ustack = 0;
+		thread->ustack_size = 0;
+	}
 
 	/* Create the kernel stack */
 	thread->kstack = kmalloc(THREAD_KSTACK_SIZE) + THREAD_KSTACK_SIZE;
 
 	/* Create the thread's register context */
 	thread->context = (void*) thread->kstack - sizeof(struct i386_regs);
-	init_cpu_context(thread->context, fn, thread->ustack, false);
+	init_cpu_context(thread->context, fn, thread->ustack, user);
 
 	/* Set the thread's priority and state */
 	thread->priority = 0;
@@ -56,6 +64,18 @@ thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, ui
 
 	/* Return the thread */
 	return thread;
+}
+
+/* Create a user thread */
+thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, uint32_t stack_size)
+{
+	return do_thread_create(process, fn, arg, stack_size, true);
+}
+
+/* Create a kernel thread */
+thread_t *kthread_create(void (*fn)(void *arg), void *arg)
+{
+	return do_thread_create(0, fn, arg, 0, false);
 }
 
 /* Destroy a thread */

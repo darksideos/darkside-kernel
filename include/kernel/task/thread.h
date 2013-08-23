@@ -50,6 +50,7 @@ typedef struct thread
 
 /* Create and destroy a thread */
 thread_t *thread_create(process_t *process, void (*fn)(void *arg), void *arg, uint32_t stack_size);
+thread_t *kthread_create(void (*fn)(void *arg), void *arg);
 void thread_destroy(thread_t *thread);
 
 /* Kill, suspend, and resume a thread */

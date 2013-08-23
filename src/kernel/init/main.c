@@ -62,10 +62,9 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 
-	thread_t *thread1 = thread_create(0, &t1, 0, THREAD_DEF_USTACK_SIZE);
-	thread_t *thread2 = thread_create(0, &t2, 0, THREAD_DEF_USTACK_SIZE);
-
-	thread_t *thread3 = thread_create(0, &t3, 0, THREAD_DEF_USTACK_SIZE);
+	thread_t *thread1 = kthread_create(&t1, 0);
+	thread_t *thread2 = kthread_create(&t2, 0);
+	thread_t *thread3 = kthread_create(&t3, 0);
 	
 	enable_interrupts();
 
