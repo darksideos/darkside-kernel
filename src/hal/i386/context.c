@@ -31,6 +31,4 @@ void *init_cpu_context(void *context, void (*fn)(void *arg), uint64_t stack, boo
 
 		r->ds = r->es = r->fs = r->gs = 0x10;	// Kernel mode data segment
 	}
-
-	kprintf(LOG_DEBUG, "Context created\n");
 }
