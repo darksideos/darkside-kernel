@@ -361,7 +361,7 @@ void *krealloc(void *ptr, uint32_t size)
 void init_kheap()
 {
 	/* Create the kernel heap */
-	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, KHEAP_INDEX_SIZE, false, true);
+	kheap = create_heap(KHEAP_VIRTUAL_START, KHEAP_VIRTUAL_START + KHEAP_INITIAL_SIZE, KHEAP_VIRTUAL_START + KHEAP_MIN_SIZE, KHEAP_VIRTUAL_START + KHEAP_MAX_SIZE, KHEAP_INDEX_SIZE, true/*false*/, true);
 	
 	/* Print a log message */
 	kprintf(LOG_INFO, "Kernel heap initialized\n");
