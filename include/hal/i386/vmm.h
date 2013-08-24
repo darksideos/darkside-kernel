@@ -51,9 +51,6 @@ typedef struct page_directory
 	uint32_t tables[1024];
 } page_directory_t;
 
-/* Get a page */
-page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present, bool rw, bool user, bool global);
-
 /* Get the physical address mapping of a virtual address */
 uint32_t get_mapping(uint32_t dir, uint32_t virtual_address);
 

@@ -1,38 +1,8 @@
-#include <kernel/init/hal.h>
 #include <kernel/init/os_info.h>
+#include <drivers/graphics/vga.h>
+#include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <kernel/task/scheduler.h>
-#include <drivers/graphics/vga.h>
-#include <kernel/console/kprintf.h>
-#include <kernel/task/process.h>
-#include <kernel/task/thread.h>
-#include <kernel/console/kprintf.h>
-#include <kernel/console/bochs.h>
-#include <kernel/debug/debugger.h>
-
-void t1()
-{
-	disable_interrupts();
-	puts("a\n");
-	enable_interrupts();
-	while (1);
-}
-
-void t2()
-{
-	disable_interrupts();
-	puts("b\n");
-	enable_interrupts();
-	while (1);
-}
-
-void t3()
-{
-	disable_interrupts();
-	puts("c\n");
-	enable_interrupts();
-	while (1);
-}
 
 void kernel_main(os_info_t *os_info)
 {
@@ -61,12 +31,6 @@ void kernel_main(os_info_t *os_info)
 	/* Load init from the root filesystem */
 	
 	/* Create and run the init process */
-
-	thread_t *thread1 = kthread_create(&t1, 0);
-	thread_t *thread2 = kthread_create(&t2, 0);
-	thread_t *thread3 = kthread_create(&t3, 0);
-	
-	enable_interrupts();
 
 	while(1);
 }
