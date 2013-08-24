@@ -1,5 +1,4 @@
 #include <lib/libc/types.h>
-#include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
 #include <kernel/vfs/vfs.h>
 #include <kernel/vfs/file.h>
@@ -28,6 +27,8 @@ int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode)
 	/* Set the file structure's information */
 	file->node = node;
 	file->flags = flags;
+
+	return 0;
 }
 
 /* Close a file */
@@ -43,6 +44,8 @@ int32_t file_close(file_t *file)
 
 	/* Destroy the file */
 	kfree(file);
+
+	return 0;
 }
 
 /* Read from a file */

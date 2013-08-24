@@ -1,5 +1,5 @@
-#ifndef __FILE_H
-#define __FILE_H
+#ifndef __VFS_FILE_H
+#define __VFS_FILE_H
 
 #include <lib/libc/types.h>
 #include <kernel/vfs/vfs.h>
