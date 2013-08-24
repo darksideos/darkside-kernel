@@ -4,8 +4,9 @@
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
 #include <lib/libadt/dict.h>
-#include <kernel/device/dev.h>
 #include <kernel/sync/rwlock.h>
+
+typedef uint32_t dev_t;
 
 struct inode;
 
