@@ -14,8 +14,6 @@ void kernel_main(os_info_t *os_info)
 
 	/* Initialize the kernel heap */
 	init_kheap();
-
-	init_kernel_debugger();
 	
 	/* Initialize the VFS */
 
