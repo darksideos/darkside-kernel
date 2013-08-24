@@ -1,5 +1,5 @@
-#ifndef __FILE_H
-#define __FILE_H
+#ifndef __SYSCALL_FILE_H
+#define __SYSCALL_FILE_H
 
 #include <lib/libc/types.h>
 
