@@ -14,7 +14,7 @@ uint32_t current_directory = 0;
 uint32_t page_size = 0x1000;
 
 /* Get a page */
-page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present, bool rw, bool user, bool global)
+page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present, bool rw, bool user)
 {
 	/* Construct the page flags */
 	uint32_t flags = 0;
@@ -32,11 +32,6 @@ page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present
 	if (user)
 	{
 		flags |= PAGE_FLAG_USER;
-	}
-
-	if (global)
-	{
-		flags |= PAGE_FLAG_GLOBAL;
 	}
 
 	/* Find out which page the virtual address in in */
@@ -81,7 +76,7 @@ page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present
 	else if (make)
 	{
 		/* Create a new page table */
-		directory->tables[table_index] = pmm_alloc_page() | PAGE_KERNEL;
+		directory->tables[table_index] = pmm_alloc_page() | flags;
 		flush_tlb();
 		memset(table, 0, 0x1000);
 
@@ -99,7 +94,7 @@ page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present
 uint32_t get_mapping(uint32_t dir, uint32_t virtual_address)
 {
 	/* Get the page */
-	page_t *page = get_page(dir, virtual_address, false, false, false, false, false);
+	page_t *page = get_page(dir, virtual_address, false, false, false, false);
 
 	/* If the page doesn't exist, return an error */
 	if (!page)
@@ -138,7 +133,7 @@ void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address,
 	}
 
 	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
-	page_t *page = get_page(dir, virtual_address, true, present, rw, user, global);
+	page_t *page = get_page(dir, virtual_address, true, present, rw, user);
 
 	/* Map the page in the table to the physical address */
 	*((uint32_t*) page) = physical_address | flags;
@@ -151,7 +146,7 @@ void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address,
 void unmap_page(uint32_t dir, uint32_t virtual_address)
 {
 	/* Return the page that corresponds to the virtual address */
-	page_t *page = get_page(dir, virtual_address, false, false, false, false, false);
+	page_t *page = get_page(dir, virtual_address, false, false, false, false);
 
 	/* If the page already does not exist, return */
 	if (!page)
