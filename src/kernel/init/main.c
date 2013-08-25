@@ -7,6 +7,7 @@
 #include <kernel/modules/exec.h>
 #include <kernel/console/kprintf.h>
 
+#include <lib/libadt/bitmap.h>
 #include <lib/libadt/buddy.h>
 
 void kernel_main(os_info_t *os_info)
@@ -38,14 +39,20 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 
-	/*buddy_t buddy;
+	buddy_t buddy;
 	buddy_init(&buddy, kmalloc(130944), 0, 0x1000000, 5, 15);
 
-	kprintf("0x%08X\n", buddy_alloc(&buddy, 32));*/
+	uint64_t alloc1 = buddy_malloc(&buddy, 32);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc1);
 
-	kprintf(LOG_DEBUG, "Before\n");
-	kprintf(LOG_DEBUG, "%d\n", log2(64));
-	kprintf(LOG_DEBUG, "After\n");
+	uint64_t alloc2 = buddy_malloc(&buddy, 32);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc2);
+
+	buddy_free(&buddy, alloc1, 32);
+	buddy_free(&buddy, alloc2, 32);
+
+	uint64_t alloc3 = buddy_malloc(&buddy, 64);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc3);
 
 	while(1);
 }
