@@ -7,7 +7,7 @@
 uint64_t pow(uint64_t num, uint64_t exp);
 
 /* Calculate the binary logarithm of a number */
-uint64_t log2(uint64_t num);
+uint32_t log2(uint32_t num);
 
 /* Divide a number by a divisor and round the result down */
 uint64_t floor(uint64_t num, uint64_t div);

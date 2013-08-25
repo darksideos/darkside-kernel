@@ -44,7 +44,7 @@ void kernel_main(os_info_t *os_info)
 	kprintf("0x%08X\n", buddy_alloc(&buddy, 32));*/
 
 	kprintf(LOG_DEBUG, "Before\n");
-	kprintf(LOG_DEBUG, "%d\n", (int32_t) log2(64));
+	kprintf(LOG_DEBUG, "%d\n", log2(64));
 	kprintf(LOG_DEBUG, "After\n");
 
 	while(1);
