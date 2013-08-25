@@ -38,10 +38,14 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 
-	buddy_t buddy;
+	/*buddy_t buddy;
 	buddy_init(&buddy, kmalloc(130944), 0, 0x1000000, 5, 15);
 
-	kprintf("0x%08X\n", buddy_alloc(&buddy, 32));
+	kprintf("0x%08X\n", buddy_alloc(&buddy, 32));*/
+
+	kprintf(LOG_DEBUG, "Before\n");
+	kprintf(LOG_DEBUG, "%d\n", (int32_t) log2(64));
+	kprintf(LOG_DEBUG, "After\n");
 
 	while(1);
 }
