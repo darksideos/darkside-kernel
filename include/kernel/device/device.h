@@ -28,7 +28,7 @@ typedef struct device
 	list_t children;
 
 	/* PCI bus, device, and function numbers */
-	uint16_t pci_bus, pci_device, pci_function;
+	uint8_t pci_bus, pci_device, pci_function;
 
 	/* PCI vendor and device ID */
 	uint32_t pci_vendor_id, pci_device_id;
