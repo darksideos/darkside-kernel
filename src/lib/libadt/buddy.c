@@ -1,6 +1,7 @@
 #include <lib/libc/types.h>
 #include <lib/libc/math.h>
 #include <lib/libadt/bitmap.h>
+#include <lib/libadt/buddy.h>
 
 /* Get the buddy, parent, and child of a node */
 #define BUDDY(x)	(x ^ 1)
@@ -17,9 +18,10 @@ void buddy_init(buddy_t *buddy, uint8_t *storage, uint64_t start, uint64_t size,
 	buddy->max_node_size_log2 = max_node_size_log2;
 
 	/* Create the bitmaps */
-	for (uint32_t i = 0; i < NUM_BUDDY_BITMAPS; i++)
+	uint32_t i;
+	for (i = 0; i < 10; i++)
 	{
-		uint32_t nbits = size >> (MIN_BUDDY_SIZE_LOG2 + i);
+		uint32_t nbits = size >> (min_node_size_log2 + i);
 		bitmap_init(&buddy->bitmaps[i], storage, nbits);
 		storage += nbits / 8;
 	}
@@ -48,7 +50,7 @@ uint64_t buddy_malloc(buddy_t *buddy, uint32_t size)
 	int64_t index;
 	while (log2_size <= buddy->max_node_size_log2)
 	{
-		index = bitmap_first_clear(&buddy->bitmaps[log2_size - buddy->min_buddy_size_log2]);
+		index = bitmap_first_clear(&buddy->bitmaps[log2_size - buddy->min_node_size_log2]);
 
 		if (index != -1)
 		{
@@ -67,7 +69,7 @@ uint64_t buddy_malloc(buddy_t *buddy, uint32_t size)
 	/* Now try to split the block */
 	for (; log2_size != orig_log2_size; --log2_size)
 	{
-		uint32_t bitmap_index = log2_size - buddy->min_buddy_size_log2;
+		uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
 
 		/* The node is allocated */
 		bitmap_set(&buddy->bitmaps[bitmap_index], index);
@@ -79,7 +81,7 @@ uint64_t buddy_malloc(buddy_t *buddy, uint32_t size)
 	}
 
 	/* Mark the block as allocated */
-	uint32_t bitmap_index = log2_size - buddy->min_buddy_size_log2;
+	uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
 	bitmap_set(&buddy->bitmaps[bitmap_index], index);
 
 	/* Calculate the address and return it */
@@ -103,19 +105,19 @@ void buddy_free(buddy_t *buddy, uint64_t address, uint32_t size)
 	/* Go through the bitmaps, freeing the memory */
 	while (log2_size <= buddy->max_node_size_log2)
 	{
-		uint32_t bitmap_index = log2_size - buddy->min_buddy_size_log2;
+		uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
 
 		/* Mark the node free */
 		bitmap_clear(&buddy->bitmaps[bitmap_index], (uint32_t) index);
 
 		/* Are we at the end? */
-		if (log2_size == buddy->max_buddy_size_log2)
+		if (log2_size == buddy->max_node_size_log2)
 		{
 			break;
 		}
 
 		/* Is it's buddy allocated? */
-		if (bitmap_test(&buddy->bitmaps[bitmap_index], BUDDY(index))
+		if (bitmap_test(&buddy->bitmaps[bitmap_index], BUDDY(index)))
 		{
 			break;
 		}

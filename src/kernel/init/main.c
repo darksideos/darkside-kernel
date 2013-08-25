@@ -7,6 +7,8 @@
 #include <kernel/modules/exec.h>
 #include <kernel/console/kprintf.h>
 
+#include <lib/libadt/buddy.h>
+
 void kernel_main(os_info_t *os_info)
 {
 	/* Start the VGA text mode driver */
@@ -29,15 +31,17 @@ void kernel_main(os_info_t *os_info)
 
 	/* Start the rest of the CPUs in the system */
 	
-	module_t *module = module_create("ELF", "Run ELF executables, load ELF libraries, relocate ELF modules", "Noah Singer", 0, 0, 0, MODULE_TYPE_EXEC, 0, 2);
-	kprintf(LOG_DEBUG, "Module addr: %08X\n", module);
-	
  	/* Initialize the scheduler */
 	init_scheduler();
 
 	/* Load init from the root filesystem */
 	
 	/* Create and run the init process */
+
+	buddy_t buddy;
+	buddy_init(&buddy, kmalloc(130944), 0, 0x1000000, 5, 15);
+
+	kprintf("0x%08X\n", buddy_alloc(&buddy, 32));
 
 	while(1);
 }
