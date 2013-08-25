@@ -3,36 +3,72 @@
 
 #include <lib/libc/stdint.h>
 
+
+
 /* End of the kernel */
+
 extern uint32_t end;
 
+
+
 /* Kernel code and data */
+
 #define KERNEL_PHYSICAL_START		0x100000
+
 #define KERNEL_VIRTUAL_START		0x80000000
+
 #define KERNEL_PHYSICAL_SIZE		(((uint32_t) &end) - KERNEL_VIRTUAL_START)
+
 #define KERNEL_VIRTUAL_SIZE			0x10000000
 
+
+
 /* PMM bitmap */
+
 #define PMM_BITMAP_PHYSICAL_START	(KERNEL_PHYSICAL_START + KERNEL_PHYSICAL_SIZE)
+
 #define PMM_BITMAP_VIRTUAL_START	((KERNEL_VIRTUAL_START + KERNEL_VIRTUAL_SIZE) - 0x200000)
 
+
+
 /* Kernel heap */
+
 #define KHEAP_PHYSICAL_START		0x400000
+
 #define KHEAP_VIRTUAL_START			0x90000000
+
 #define KHEAP_INITIAL_SIZE			0x100000
+
 #define KHEAP_MIN_SIZE				0x70000
+
 #define KHEAP_MAX_SIZE				0xFFFF000
+
 #define KHEAP_INDEX_SIZE			0x20000
 
+
+
 /* Kernel stack */
+
 #define KERNEL_STACK_START			0xB0000000
+
 #define KERNEL_STACK_SIZE			0x10000
 
-/* Kernel modules */
-#define KERNEL_MODULES_START		0xB0000000
-#define KERNEL_MODULES_SIZE			0x40000000
 
+
+/* Kernel modules */
+
+#define KERNEL_MODULES_START		0xB0000000
+
+#define KERNEL_MODULES_INITIAL_SIZE	0x100000
+#define KERNEL_MODULES_MIN_SIZE		0x70000
+#define KERNEL_MODULES_MAX_SIZE		0x40000000
+
+
+#define KERNEL_MODULES_INDEX_SIZE	0x20000
+
+/* Paging structures */
 #define PAGE_STRUCTURES_START		0xFFC00000
+
 #define PAGE_STRUCTURES_SIZE		0x400000
 
 #endif
