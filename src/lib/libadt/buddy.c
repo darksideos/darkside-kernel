@@ -71,10 +71,10 @@ uint64_t buddy_malloc(buddy_t *buddy, uint32_t size)
 	{
 		uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
 
-		/* The node is allocated */
+		/* Mark the node as allocated */
 		bitmap_set(&buddy->bitmaps[bitmap_index], index);
 
-		/* The 2 children are free */
+		/* Mark the 2 children as free */
 		index = CHILD(index);
 		bitmap_clear(&buddy->bitmaps[bitmap_index - 1], index);
 		bitmap_clear(&buddy->bitmaps[bitmap_index - 1], index + 1);
@@ -107,7 +107,7 @@ void buddy_free(buddy_t *buddy, uint64_t address, uint32_t size)
 	{
 		uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
 
-		/* Mark the node free */
+		/* Mark the node as free */
 		bitmap_clear(&buddy->bitmaps[bitmap_index], (uint32_t) index);
 
 		/* Are we at the end? */
@@ -122,9 +122,9 @@ void buddy_free(buddy_t *buddy, uint64_t address, uint32_t size)
 			break;
 		}
 
-		/* Mark both of them allocated */
-		bitmap_set(&buddy->bitmaps[bitmap_index], index);
-		bitmap_set(&buddy->bitmaps[bitmap_index], BUDDY(index));
+		/* Mark both of them as allocated */
+		bitmap_clear(&buddy->bitmaps[bitmap_index], index);
+		bitmap_clear(&buddy->bitmaps[bitmap_index], BUDDY(index));
 
 		/* Move up the bitmaps */
 		index = PARENT(index);
