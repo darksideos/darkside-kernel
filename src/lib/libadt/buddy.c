@@ -3,6 +3,8 @@
 #include <lib/libadt/bitmap.h>
 #include <lib/libadt/buddy.h>
 
+#include <kernel/console/kprintf.h>
+
 /* Get the buddy, parent, and child of a node */
 #define BUDDY(x)	(x ^ 1)
 #define PARENT(x)	(x >> 1)
