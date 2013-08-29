@@ -3,8 +3,6 @@
 #include <lib/libadt/bitmap.h>
 #include <lib/libadt/buddy.h>
 
-#include <kernel/console/kprintf.h>
-
 /* Get the buddy, parent, and child of a node */
 #define BUDDY(x)	(x ^ 1)
 #define PARENT(x)	(x >> 1)
@@ -82,9 +80,17 @@ uint64_t buddy_malloc(buddy_t *buddy, uint32_t size)
 		bitmap_clear(&buddy->bitmaps[bitmap_index - 1], index + 1);
 	}
 
-	/* Mark the block as allocated */
-	uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
-	bitmap_set(&buddy->bitmaps[bitmap_index], index);
+	/* Mark the block and its parents as allocated */
+	int64_t current_index;
+	for (current_index = index; log2_size <= buddy->max_node_size_log2; log2_size++)
+	{
+		/* Mark the block as allocated */
+		uint32_t bitmap_index = log2_size - buddy->min_node_size_log2;
+		bitmap_set(&buddy->bitmaps[bitmap_index], current_index);
+
+		/* Go to the parent */
+		current_index = PARENT(current_index);
+	}
 
 	/* Calculate the address and return it */
 	uint64_t address = buddy->start + ((uint64_t) index << log2_size);
