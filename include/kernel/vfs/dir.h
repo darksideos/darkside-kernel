@@ -7,10 +7,11 @@
 /* Directory structure */
 typedef file_t dir_t;
 
-/* Create, open, close, read an entry in, and seek a directory */
+/* Create, open, close, read an entry in, seek, and get the current position of a directory */
 int32_t dir_create(dir_t *dir, uint8_t *path, int32_t mode);
 int32_t dir_open(dir_t *dir, uint8_t *path);
 int32_t dir_close(dir_t *dir);
-uint64_t dir_seek(dir_t *dir, uint32_t offset, int32_t origin);
+void dir_seek(dir_t *dir, uint32_t pos);
+uint32_t dir_tell(dir_t *dir);
 
 #endif
