@@ -38,22 +38,13 @@ int32_t dir_close(dir_t *dir)
 }
 
 /* Seek a directory */
-uint32_t dir_seek(dir_t *dir, uint32_t offset, int32_t origin)
+void dir_seek(dir_t *dir, uint32_t pos)
 {
-	/* Beginning */
-	if (origin == 0)
-	{
-		dir->pos = (uint64_t) offset;
-		return pos;
-	}
-	/* Current position */
-	else if (origin == 1)
-	{
-		dir->pos += (uint64_t) offset;
-		return (uint32_t) dir->pos;
-	}
-	else
-	{
-		return (uint32_t) -1;
-	}
+	dir->pos = (uint64_t) pos;
+}
+
+/* Tell the current position of a directory */
+uint32_t dir_tell(dir_t *dir)
+{
+	return (uint32_t) dir->pos;
 }
