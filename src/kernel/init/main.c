@@ -48,11 +48,8 @@ void kernel_main(os_info_t *os_info)
 	uint64_t alloc2 = buddy_malloc(&buddy, 64);
 	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc2);
 
-	/*uint64_t alloc3 = buddy_malloc(&buddy, 128);
-	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc3);*/
-
-	/*uint64_t alloc4 = buddy_malloc(&buddy, 256);
-	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc4);*/
+	uint64_t alloc3 = buddy_malloc(&buddy, 32);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc3);
 
 	while(1);
 }
