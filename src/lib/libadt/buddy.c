@@ -80,20 +80,6 @@ uint64_t buddy_malloc(buddy_t *buddy, uint32_t size)
 		bitmap_clear(&buddy->bitmaps[bitmap_index - 1], index + 1);
 	}
 
-	/* Mark the block and its parents as allocated */
-	uint32_t current_log2_size = log2_size;
-
-	int64_t current_index;
-	for (current_index = index; current_log2_size < buddy->max_node_size_log2; current_log2_size++)
-	{
-		/* Mark the block as allocated */
-		uint32_t bitmap_index = current_log2_size - buddy->min_node_size_log2;
-		bitmap_set(&buddy->bitmaps[bitmap_index], current_index);
-
-		/* Go to the parent */
-		current_index = PARENT(current_index);
-	}
-
 	/* Calculate the address and return it */
 	uint64_t address = buddy->start + ((uint64_t) index << log2_size);
 	return address;
