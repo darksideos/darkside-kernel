@@ -5,6 +5,7 @@
 #include <kernel/task/scheduler.h>
 
 #include <kernel/console/kprintf.h>
+#include <lib/libc/string.h>
 
 void kernel_main(os_info_t *os_info)
 {
@@ -20,9 +21,6 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the VFS */
 	init_vfs();
 
-	/* Initialize the scheduler */
-	init_scheduler();
-
 	/* Initialize the kernel modules */
 
 	/* Register the default executable formats */
@@ -33,9 +31,21 @@ void kernel_main(os_info_t *os_info)
 
 	/* Start the rest of the CPUs in the system */
 
+	/* Initialize the scheduler */
+	init_scheduler();
+
 	/* Load init from the root filesystem */
 	
 	/* Create and run the init process */
+
+	uint8_t *saveptr = 0;
+
+	uint8_t *str = strtok("a/b/c/d/e", "/", &saveptr);
+	while (str)
+	{
+		kprintf(LOG_DEBUG, "%s\n", str);
+		str = strtok(0, "/", &saveptr);
+	}
 
 	while(1);
 }
