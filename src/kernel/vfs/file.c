@@ -15,7 +15,7 @@ int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode)
 		/* We can create the file */
 		if (flags & FILE_CREATE)
 		{
-			node = vfs_mknod(path, INODE_TYPE_FILE, mode, 0);
+			//node = vfs_mknod(path, INODE_TYPE_FILE, mode);
 		}
 		/* We cannot create the file */
 		else

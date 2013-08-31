@@ -39,7 +39,7 @@ int32_t unregister_filesystem(uint8_t *name)
 }
 
 /* Mount a filesystem */
-int32_t vfs_mount(inode_t *node, dev_t dev, uint8_t *fs_name)
+int32_t vfs_mount(inode_t *node, device_t *device, uint8_t *fs_name)
 {
 	/* Is the filesystem already mounted? */
 	mutex_acquire(&mountpoints_lock);
@@ -67,9 +67,14 @@ int32_t vfs_mount(inode_t *node, dev_t dev, uint8_t *fs_name)
 	/* Is the filesystem registered? */
 	if (fs)
 	{
+		/* Initialize the filesystem */
+		inode_t *root = (inode_t*) kmalloc(sizeof(inode_t));
+		fs->init(fs, device, root);
+
 		/* Set up the mountpoint */
 		mp->node = node;
-		mp->dev = dev;
+		mp->root = root;
+		mp->device = device;
 		mp->fs = fs;
 
 		/* Add it to the list */
@@ -198,35 +203,10 @@ int32_t vfs_unlink(uint8_t *path)
 	return node->mp->fs->unlink(node->mp->fs, node->mp->dev, path);
 }
 
-/* Create a new directory entry and inode */
-inode_t *vfs_mknod(uint8_t *path, int32_t type, int32_t mode, dev_t id)
-{
-	inode_t *node = (inode_t*) kmalloc(sizeof(inode_t));
-	int32_t result = node->mp->fs->mknod(node->mp->fs, node->mp->dev, path, type, mode, id, node);
-	
-	if (result == 0)
-	{
-		return node;
-	}
-
-	return 0;
-}
-
 /* Rename a directory entry */
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath)
 {
 	return node->mp->fs->rename(node->mp->fs, node->mp->dev, oldpath, newpath);
-}
-
-/* Issue a device specific request */
-int32_t vfs_ioctl(struct inode *node, int32_t request, uint8_t *buffer, uint32_t length)
-{
-	if (node->mp->fs->ioctl)
-	{
-		return node->mp->fs->ioctl(node->mp->fs, node, request, buffer, length);
-	}
-
-	return -1;
 }
 
 /* Initialize the VFS */
