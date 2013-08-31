@@ -2,11 +2,13 @@
 #define __MUTEX_H
 
 #include <kernel/init/hal.h>
+#include <kernel/task/thread.h>
 
 /* Mutex structure */
 typedef struct mutex
 {
 	atomic_t value;
+	thread_t *owner;
 } mutex_t;
 
 /* Create, initialize, delete, acquire, and release a mutex */

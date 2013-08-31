@@ -11,8 +11,9 @@ int32_t dir_open(dir_t *dir, uint8_t *path)
 	/* It suceeded */
 	if (node)
 	{
-		file->node = node;
-		file->flags = flags;
+		dir->node = node;
+		dir->flags = 0;
+		dir->pos = 0;
 
 		return 0;
 	}
@@ -27,9 +28,9 @@ int32_t dir_close(dir_t *dir)
 	vfs_close(dir->node);
 
 	/* Set its information to 0 */
-	file->node = 0;
-	file->flags = 0;
-	file->pos = 0;
+	dir->node = 0;
+	dir->flags = 0;
+	dir->pos = 0;
 
 	/* Destroy the directory */
 	kfree(dir);

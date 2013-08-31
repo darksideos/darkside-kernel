@@ -3,6 +3,8 @@
 #include <kernel/sync/lock.h>
 #include <kernel/sync/semaphore.h>
 
+#include <kernel/console/kprintf.h>
+
 /* Create a semaphore and initialize its values */
 semaphore_t *semaphore_create(uint32_t initial_units)
 {
@@ -34,6 +36,7 @@ void semaphore_wait(semaphore_t *sem)
 	}
 
 	/* Semaphore is at 0, so put the thread to sleep */
+	kprintf(LOG_DEBUG, "Semaphore get failed\n");
 }
 
 /* Signal a semaphore */

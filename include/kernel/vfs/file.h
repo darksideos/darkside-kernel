@@ -24,6 +24,5 @@ int32_t file_close(file_t *file);
 uint64_t file_read(file_t *file, uint8_t *buffer, uint64_t length);
 uint64_t file_write(file_t *file, uint8_t *buffer, uint64_t length);
 uint64_t file_seek(file_t *file, int64_t offset, int32_t origin);
-int32_t file_ioctl(file_t *file, int32_t request, uint8_t *buffer, uint32_t length);
 
 #endif

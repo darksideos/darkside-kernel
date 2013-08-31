@@ -27,6 +27,7 @@ int32_t file_open(file_t *file, uint8_t *path, uint32_t flags, int32_t mode)
 	/* Set the file structure's information */
 	file->node = node;
 	file->flags = flags;
+	file->pos = 0;
 
 	return 0;
 }
@@ -105,10 +106,4 @@ uint64_t file_seek(file_t *file, int64_t offset, int32_t origin)
 	{
 		return (uint64_t) -1;
 	}
-}
-
-/* Issue a device specific request to a file */
-int32_t file_ioctl(file_t *file, int32_t request, uint8_t *buffer, uint32_t length)
-{
-	return vfs_ioctl(file->node, request, buffer, length);
 }
