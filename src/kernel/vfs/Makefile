@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-OBJFILES = disk.o file.o mbr.o vfs.o
+OBJFILES = dir.o file.o vfs.o
  
 .c.o:
 	$(CCBASE)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/kernel/vfs/$@ -c $<
