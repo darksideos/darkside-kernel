@@ -2,6 +2,7 @@
 #include <lib/libc/string.h>
 #include <lib/libadt/list.h>
 #include <lib/libadt/dict.h>
+#include <kernel/console/kprintf.h>
 #include <kernel/mm/heap.h>
 #include <kernel/sync/mutex.h>
 #include <kernel/sync/rwlock.h>
@@ -12,17 +13,17 @@ static dict_t filesystems;
 static list_t mountpoints;
 
 /* Locks for the filesystems and mountpoints lists */
-static rwlock_t filesystems_lock
+static rwlock_t filesystems_lock;
 static mutex_t mountpoints_lock;
 
 /* Root of the VFS */
-static inode_t *vfs_root;
+static inode_t vfs_root;
 
 /* Register a filesystem */
 int32_t register_filesystem(filesystem_t *fs, uint8_t *name)
 {
 	rwlock_write_acquire(&filesystems_lock);
-	dict_append(&filesystems, name, &filesystem);
+	dict_append(&filesystems, name, fs);
 	rwlock_write_release(&filesystems_lock);
 
 	return 0;
@@ -61,7 +62,7 @@ int32_t vfs_mount(inode_t *node, device_t *device, uint8_t *fs_name)
 
 	/* Get the filesystem */
 	rwlock_read_acquire(&filesystems_lock);
-	filesystem_t *fs = dict_get(&filesystems);
+	filesystem_t *fs = dict_get(&filesystems, fs_name);
 	rwlock_read_release(&filesystems_lock);
 
 	/* Is the filesystem registered? */
@@ -71,7 +72,7 @@ int32_t vfs_mount(inode_t *node, device_t *device, uint8_t *fs_name)
 		mp->node = node;
 		mp->device = device;
 		mp->fs = fs;
-		memcpy(&mp->orig_inode_data, node, sizeof(inode_t));
+		//memcpy(&mp->orig_inode_data, node, sizeof(inode_t));
 
 		/* Initialize the filesystem */
 		fs->init(fs, device, node);
@@ -101,7 +102,7 @@ int32_t vfs_unmount(inode_t *node)
 		if (mp->node == node)
 		{
 			/* Restore the inode's original data */
-			memcpy(node, &mp->orig_inode_data, sizeof(inode_t));
+			//memcpy(node, &mp->orig_inode_data, sizeof(inode_t));
 
 			/* Remove the mountpoint from the list */
 			list_remove(&mountpoints, i);
@@ -121,7 +122,7 @@ int32_t vfs_unmount(inode_t *node)
 inode_t *vfs_open(uint8_t *path)
 {
 	/* Begin at the root of the VFS */
-	inode_t *node = vfs_root;
+	inode_t *node = &vfs_root;
 
 	/* If we found the node, increment its open count and return */
 	if (node)
@@ -165,16 +166,16 @@ uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t len
 }
 
 /* Return a list of directory entries in a directory */
-list_t vfs_readdir(inode_t *dir)
+list_t vfs_readdir(inode_t *node)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
-		return node->mp->fs->readdir(node->mp->fs, node->mp->device, dir);
+		return node->mp->fs->readdir(node->mp->fs, node->mp->device, node);
 	}
 }
 
 /* Return an inode by name */
-inode_t *vfs_finddir(inode_t *dir, uint8_t *name)
+inode_t *vfs_finddir(inode_t *node, uint8_t *name)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
@@ -189,26 +190,22 @@ int32_t vfs_hardlink(inode_t *node, uint8_t *newpath)
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->hardlink(node->mp->fs, node->mp->device, node, newpath);
 	}
 }
 
 /* Create a new symbolic link to an inode */
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
 {
-	return node->mp->fs->symlink(node->mp->fs, node->mp->device, node, newpath);
 }
 
 /* Remove a directory entry */
 int32_t vfs_delete(uint8_t *path)
 {
-	return node->mp->fs->delete(node->mp->fs, node->mp->device, path);
 }
 
 /* Rename a directory entry */
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath)
 {
-	return node->mp->fs->rename(node->mp->fs, node->mp->device, oldpath, newpath);
 }
 
 /* Initialize the VFS */
@@ -235,4 +232,7 @@ void init_vfs()
 
 	rwlock_init(&vfs_root.rwlock);
 	vfs_root.handles = 0;
+
+	/* Print a log message */
+	kprintf(LOG_INFO, "VFS initialized\n");
 }
