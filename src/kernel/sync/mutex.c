@@ -2,6 +2,8 @@
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <kernel/sync/mutex.h>
+#include <kernel/task/thread.h>
+#include <kernel/task/scheduler.h>
 
 /* Create a mutex and initialize its values */
 mutex_t *mutex_create()
@@ -15,6 +17,7 @@ mutex_t *mutex_create()
 void mutex_init(mutex_t *mutex)
 {
 	atomic_set(&mutex->value, 0);
+	mutex->owner = 0;
 }
 
 /* Delete a mutex */
@@ -31,6 +34,7 @@ void mutex_acquire(mutex_t *mutex)
 	if (atomic_cmpxchg(&mutex->value, 0, 1) == 0)
 	{
 		/* Make us the owner and return */
+		mutex->owner = thread_current();
 		return;
 	}
 
@@ -41,7 +45,7 @@ void mutex_acquire(mutex_t *mutex)
 void mutex_release(mutex_t *mutex)
 {
 	/* Make sure we own the mutex */
-	if (1)
+	if (mutex->owner == thread_current())
 	{
 		/* Check if the mutex equals 1, and if it does, set it to 0 */
 		if (atomic_cmpxchg(&mutex->value, 1, 0) == 1)

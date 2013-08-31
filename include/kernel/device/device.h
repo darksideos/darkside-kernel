@@ -3,7 +3,7 @@
 
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
-#include <kernel/device/device.h>
+#include <kernel/device/driver.h>
 
 /* Device structure */
 typedef struct device

@@ -27,6 +27,9 @@ typedef struct filesystem
 	/* Return a list of directory entries in a directory */
 	list_t (*readdir)(struct filesystem *fs, device_t *device, struct inode *dir);
 
+	/* Get a directory entry by name, returning -1 on failure */
+	int32_t (*finddir)(struct filesystem *fs, device_t *device, struct inode *dir, struct inode *node);
+
 	/* Create a new directory entry to an inode, returning -1 on failure */
 	int32_t (*hardlink)(struct filesystem *fs, device_t *device, struct inode *node, uint8_t *newpath);
 
@@ -47,7 +50,7 @@ typedef struct mountpoint
 	struct inode *node;
 	device_t *device;
 	filesystem_t *fs;
-	struct inode orig_inode_data;
+	//struct inode orig_inode_data;
 } mountpoint_t;
 
 /* Inode types */
@@ -111,5 +114,8 @@ int32_t vfs_hardlink(inode_t *node, uint8_t *newpath);
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath);
 int32_t vfs_delete(uint8_t *path);
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath);
+
+/* Initialize the VFS */
+void init_vfs();
 
 #endif

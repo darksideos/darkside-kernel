@@ -1,4 +1,5 @@
 #include <lib/libc/types.h>
+#include <lib/libc/string.h>
 #include <lib/libadt/list.h>
 #include <kernel/mm/heap.h>
 #include <kernel/console/kprintf.h>
