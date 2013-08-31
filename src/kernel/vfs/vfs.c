@@ -67,17 +67,16 @@ int32_t vfs_mount(inode_t *node, device_t *device, uint8_t *fs_name)
 	/* Is the filesystem registered? */
 	if (fs)
 	{
-		/* Initialize the filesystem */
-		inode_t *root = (inode_t*) kmalloc(sizeof(inode_t));
-		fs->init(fs, device, root);
-
 		/* Set up the mountpoint */
 		mp->node = node;
-		mp->root = root;
 		mp->device = device;
 		mp->fs = fs;
+		memcpy(&mp->orig_inode_data, node, sizeof(inode_t));
 
-		/* Add it to the list */
+		/* Initialize the filesystem */
+		fs->init(fs, device, node);
+
+		/* Add the mountpoint to the list */
 		list_append(&mountpoints, &mp);
 
 		mutex_release(&mountpoints_lock);
@@ -101,6 +100,9 @@ int32_t vfs_unmount(inode_t *node)
 		/* Does the node match */
 		if (mp->node == node)
 		{
+			/* Restore the inode's original data */
+			memcpy(node, &mp->orig_inode_data, sizeof(inode_t));
+
 			/* Remove the mountpoint from the list */
 			list_remove(&mountpoints, i);
 
@@ -145,7 +147,7 @@ uint64_t vfs_read(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t leng
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->read(node->mp->fs, node->mp->dev, node, buffer, offset, length);
+		return node->mp->fs->read(node->mp->fs, node->mp->device, node, buffer, offset, length);
 	}
 
 	return 0;
@@ -156,7 +158,7 @@ uint64_t vfs_write(inode_t *node, uint8_t *buffer, uint64_t offset, uint64_t len
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->write(node->mp->fs, node->mp->dev, node, buffer, offset, length);
+		return node->mp->fs->write(node->mp->fs, node->mp->device, node, buffer, offset, length);
 	}
 
 	return 0;
@@ -167,7 +169,7 @@ list_t vfs_readdir(inode_t *dir)
 {
 	if (node->type == INODE_TYPE_DIR)
 	{
-		return node->mp->fs->readdir(node->mp->fs, node->mp->dev, dir);
+		return node->mp->fs->readdir(node->mp->fs, node->mp->device, dir);
 	}
 }
 
@@ -187,26 +189,26 @@ int32_t vfs_hardlink(inode_t *node, uint8_t *newpath)
 {
 	if (node->type != INODE_TYPE_DIR)
 	{
-		return node->mp->fs->link(node->mp->fs, node->mp->dev, node, newpath);
+		return node->mp->fs->hardlink(node->mp->fs, node->mp->device, node, newpath);
 	}
 }
 
 /* Create a new symbolic link to an inode */
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath)
 {
-	return node->mp->fs->symlink(node->mp->fs, node->mp->dev, node, newpath);
+	return node->mp->fs->symlink(node->mp->fs, node->mp->device, node, newpath);
 }
 
 /* Remove a directory entry */
-int32_t vfs_unlink(uint8_t *path)
+int32_t vfs_delete(uint8_t *path)
 {
-	return node->mp->fs->unlink(node->mp->fs, node->mp->dev, path);
+	return node->mp->fs->delete(node->mp->fs, node->mp->device, path);
 }
 
 /* Rename a directory entry */
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath)
 {
-	return node->mp->fs->rename(node->mp->fs, node->mp->dev, oldpath, newpath);
+	return node->mp->fs->rename(node->mp->fs, node->mp->device, oldpath, newpath);
 }
 
 /* Initialize the VFS */
@@ -220,19 +222,17 @@ void init_vfs()
 	rwlock_init(&filesystems_lock);
 	mutex_init(&mountpoints_lock);
 
-	/* Create the root node and fill out it's information */
-	vfs_root = (inode_t*) kmalloc(sizeof(inode_t));
+	/* Fill our the root node's information */
+	vfs_root.mp = 0;
+	vfs_root.type = INODE_TYPE_DIR;
 
-	vfs_root->mp = 0;
-	vfs_root->type = INODE_TYPE_DIR;
+	vfs_root.size = 0;
+	vfs_root.mode = 0777;
+	vfs_root.nlink = 0;
+	vfs_root.uid = 0;
+	vfs_root.gid = 0;
+	vfs_root.atime = vfs_root.mtime = vfs_root.ctime = 0;
 
-	vfs_root->size = 0;
-	vfs_root->mode = 0777;
-	vfs_root->nlink = 0;
-	vfs_root->uid = 0;
-	vfs_root->gid = 0;
-	vfs_root->atime = vfs_root->mtime = vfs_root->ctime = 0;
-
-	rwlock_init(&vfs_root->rwlock);
-	vfs_root->handles = 0;
+	rwlock_init(&vfs_root.rwlock);
+	vfs_root.handles = 0;
 }
