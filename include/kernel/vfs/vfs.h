@@ -34,7 +34,7 @@ typedef struct filesystem
 	int32_t (*symlink)(struct filesystem *fs, device_t *device, struct inode *node, uint8_t *newpath);
 
 	/* Remove a directory entry, returning -1 on failure */
-	int32_t (*unlink)(struct filesystem *fs, device_t *device, uint8_t *path);
+	int32_t (*delete)(struct filesystem *fs, device_t *device, uint8_t *path);
 
 	/* Rename a directory entry, returning -1 on failure */
 	int32_t (*rename)(struct filesystem *fs, device_t *device, uint8_t *oldpath, uint8_t *newpath);
@@ -43,11 +43,11 @@ typedef struct filesystem
 /* Mountpoint structure */
 typedef struct mountpoint
 {
-	/* Inode, root, device, and filesystem */
+	/* Inode, device, filesystem, and original inode data */
 	struct inode *node;
-	struct inode *root;
 	device_t *device;
 	filesystem_t *fs;
+	struct inode orig_inode_data;
 } mountpoint_t;
 
 /* Inode types */
@@ -109,7 +109,7 @@ list_t vfs_readdir(inode_t *dir);
 inode_t *vfs_finddir(inode_t *dir, uint8_t *name); 
 int32_t vfs_hardlink(inode_t *node, uint8_t *newpath);
 int32_t vfs_symlink(inode_t *node, uint8_t *newpath);
-int32_t vfs_unlink(uint8_t *path);
+int32_t vfs_delete(uint8_t *path);
 int32_t vfs_rename(uint8_t *oldpath, uint8_t *newpath);
 
 #endif
