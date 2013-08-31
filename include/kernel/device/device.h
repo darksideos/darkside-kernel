@@ -5,23 +5,11 @@
 #include <lib/libadt/list.h>
 #include <kernel/device/device.h>
 
-/* Device types */
-#define DEVICE_TYPE_TEXTMODE	0	/* Text mode display device */
-#define DEVICE_TYPE_GRAPHICS	1	/* Graphics display device */
-#define DEVICE_TYPE_STORAGE		2	/* Storage device */
-#define DEVICE_TYPE_NETWORK		3	/* Network device */
-#define DEVICE_TYPE_KEYBOARD	4	/* Keyboard */
-#define DEVICE_TYPE_MOUSE		5	/* Mouse */
-#define DEVICE_TYPE_SOUND		6	/* Sound device */
-#define DEVICE_TYPE_BUS			7	/* Bus */
-#define DEVICE_TYPE_CONTROLLER	8	/* Controller */
-#define DEVICE_TYPE_OTHER		9	/* Other device */
-
 /* Device structure */
 typedef struct device
 {
-	/* Type */
-	uint8_t type;
+	/* Device class code */
+	uint16_t class_code;
 
 	/* Parent and child devices */
 	struct device *parent;
