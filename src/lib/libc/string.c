@@ -181,7 +181,6 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')
 		{
-			//kprintf("End of string\n");
 			/* Get a pointer to the string and set saveptr to 0 */
 			unsigned char *retval = *saveptr - skipped;
 			*saveptr = 0;
@@ -192,7 +191,6 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 		skipped++;
 		(*saveptr)++;
 	}
-	//kprintf("Delimiter found, skipped=%d.\n", skipped);
 	
 	/* We've found the delimeter, so save the string */
 	unsigned char *retval = *saveptr - skipped;
