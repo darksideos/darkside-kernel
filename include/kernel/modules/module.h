@@ -28,7 +28,7 @@ typedef struct module
 	/* Module state */
 	uint8_t state;
 	
-	list_t *dependencies;
+	list_t dependencies;
 } module_t;
 
 /* Work with the module heap */

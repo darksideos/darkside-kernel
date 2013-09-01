@@ -25,7 +25,7 @@ module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t m
         module->patch = patch;
         module->state = MODULE_UNLOADED;
         
-        module->dependencies = &list_create(sizeof(module_t*), 0);
+        module->dependencies = list_create(sizeof(module_t*), 0);
         
         return module;
 }
