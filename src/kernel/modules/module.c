@@ -12,7 +12,7 @@ void modules_init()
 		KERNEL_MODULES_INDEX_SIZE, false, true);
 } 
 
-module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t major, uint8_t minor, uint8_t patch, uint8_t type, uint8_t subtype, uint8_t num_funcs)
+module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t major, uint8_t minor, uint8_t patch)
 {
         module_t *module = heap_malloc(module_heap, sizeof(module_t));
         
@@ -23,21 +23,9 @@ module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t m
         module->major = major;
         module->minor = minor;
         module->patch = patch;
-        module->type = type;
-        module->subtype = subtype;
         module->state = MODULE_UNLOADED;
         
-        module->funcs = heap_malloc(module_heap, sizeof(module_function_t) * (num_funcs + MODULE_FUNC_NUM_BUILTINS));
-        module->num_funcs = num_funcs;
+        module->dependencies = &list_create(sizeof(module_t*), 0);
+        
         return module;
-}
- 
-void *module_register_func(module_t *module, unsigned int func_num, module_function_t *func)
-{
-        module->funcs[func_num] = *func;
-}
- 
-void *module_func(module_t *module, unsigned int func_num, unsigned int argc, void **argv)
-{
-        return module->funcs[func_num](argc, argv);
 }
