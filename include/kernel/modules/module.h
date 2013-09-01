@@ -5,10 +5,6 @@
 
 #define MODULE_TYPE_EXEC                0x00
 #define MODULE_TYPE_DRIVER              0x01
- 
-#define MODULE_FUNC_INIT                0x00
-#define MODULE_FUNC_FINI                0x01
-#define MODULE_FUNC_NUM_BUILTINS		2
 
 #define MODULE_LOADED					0	/* Module is loaded but not initialized */
 #define MODULE_INIT						1	/* Module is initialized */
@@ -28,6 +24,7 @@ typedef struct module
 	uint8_t *desc;
 	uint8_t *author;
 	
+	uint8_t class;
 	uint8_t type;
 	uint8_t subtype;
 	
@@ -44,7 +41,7 @@ typedef struct module
 void modules_init();
 
 /* Manipulate a module object */
-module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t major, uint8_t minor, uint8_t patch, uint8_t type, uint8_t subtype, uint8_t num_funcs);
+module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t major, uint8_t minor, uint8_t patch, uint8_t class, uint8_t type, uint8_t subtype, uint8_t num_funcs);
 void *module_register_func(module_t *module, unsigned int funcNumber, module_function_t *func);
 
 /* Load and unload a module on the module heap */
