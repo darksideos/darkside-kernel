@@ -3,6 +3,7 @@
 #include <kernel/modules/module_tree.h>
 #include <kernel/mm/heap.h>
 #include <kernel/mm/addresses.h>
+#include <kernel/console/kprintf.h>
 
 heap_t *module_heap;
 
@@ -13,7 +14,9 @@ void init_modules()
 		KERNEL_MODULES_INDEX_SIZE, false, true);
 	
 	module_tree_node_t *node = module_tree_node_create();
-	module_tree_insert(node, 0, 7, 0, 1, 2, 3, 4, 5, 6);
+	module_tree_insert(node, 0xDEADBEEF, 7, 0, 1, 2, 3, 4, 5, 6);
+	module_tree_node_t *thing = module_tree_lookup(node, 7, 0, 1, 2, 3, 4, 5, 6);
+	kprintf(LOG_DEBUG, "THING: %08X\n", thing);
 } 
 
 module_t *module_create(uint8_t *name, uint8_t *desc, uint8_t *author, uint8_t major, uint8_t minor, uint8_t patch)
