@@ -18,6 +18,7 @@ typedef struct module_tree_node
 } module_tree_node_t;
 
 module_tree_node_t *module_tree_node_create();
-void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, uint8_t levels, ...);
+void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, uint32_t levels, ...);
+module_tree_node_t *module_tree_lookup(module_tree_node_t *root, uint32_t levels, ...);
 
 #endif

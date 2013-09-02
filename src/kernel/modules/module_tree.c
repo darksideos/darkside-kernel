@@ -2,7 +2,6 @@
 #include <lib/libadt/list.h>
 #include <kernel/modules/module_tree.h>
 #include <kernel/mm/heap.h>
-#include <kernel/console/kprintf.h>
 
 extern heap_t *module_heap;
 
@@ -15,10 +14,9 @@ module_tree_node_t *module_tree_node_create()
 
 module_tree_node_t *module_tree_get_child(module_tree_node_t *parent, uint32_t index)
 {
-	uint32_t listIndex;
-	for(listIndex = 0; listIndex < list_length(&parent->children); listIndex++)
+	for(uint32_t list_index = 0; list_index < list_length(&parent->children); list_index++)
 	{
-		module_tree_node_t *child = list_get(&parent->children, listIndex);
+		module_pair_t *child = *((module_pair_t**) list_get(&parent->children, list_index));
 		
 		if(child->index == index)
 		{
@@ -29,7 +27,7 @@ module_tree_node_t *module_tree_get_child(module_tree_node_t *parent, uint32_t i
 	return 0;
 }
 
-void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, uint8_t levels, ...)
+void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, uint32_t levels, ...)
 {
 	va_list args;
 	
@@ -37,12 +35,11 @@ void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, ui
 	
 	module_tree_node_t *parent = root;
 	
-	int index;
-	for(index = 0; index < levels; index++)
+	for(uint32_t index = 0; index < levels; index++)
 	{
-		uint32_t treeIndex = va_arg(args, uint32_t);
+		uint32_t tree_index = va_arg(args, uint32_t);
 		
-		module_tree_node_t *new_parent = module_tree_get_child(parent, treeIndex);
+		module_tree_node_t *new_parent = module_tree_get_child(parent, tree_index);
 		
 		/* The node doesn't have the child */
 		if(!new_parent)
@@ -58,15 +55,34 @@ void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, ui
 			}
 			
 			module_pair_t *pair = heap_malloc(module_heap, sizeof(module_pair_t));
-			pair->index = treeIndex;
+			pair->index = tree_index;
 			pair->data = new_parent;
 			
 			list_append(&parent->children, &pair);
 		}
-			
 		
 		parent = new_parent;
 	}
 	
 	va_end(args);
+}
+
+module_tree_node_t *module_tree_lookup(module_tree_node_t *root, uint32_t levels, ...)
+{
+	va_list args;
+	
+	va_start(args, levels);
+	
+	module_tree_node_t *parent = root;
+	
+	for(uint32_t index = 0; index < levels; index++)
+	{
+		uint32_t tree_index = va_arg(args, uint32_t);
+		
+		module_tree_node_t *parent = module_tree_get_child(parent, tree_index);
+	}
+	
+	va_end(args);
+	
+	return parent;
 }
