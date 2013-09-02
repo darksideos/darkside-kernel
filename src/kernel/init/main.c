@@ -22,7 +22,8 @@ void kernel_main(os_info_t *os_info)
 	init_vfs();
 
 	/* Initialize the kernel modules */
-
+	init_modules();
+	
 	/* Register the default executable formats */
 
 	/* Initialize the motherboard driver */
@@ -37,15 +38,15 @@ void kernel_main(os_info_t *os_info)
 	/* Load init from the root filesystem */
 	
 	/* Create and run the init process */
-
-	uint8_t *saveptr = 0;
+	
+	/*uint8_t *saveptr = 0;
 
 	uint8_t *str = strtok("a/b/c/d/e", "/", &saveptr);
 	while (str)
 	{
 		kprintf(LOG_DEBUG, "%s\n", str);
 		str = strtok(0, "/", &saveptr);
-	}
+	}*/
 
 	while(1);
 }
