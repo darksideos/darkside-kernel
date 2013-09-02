@@ -2,6 +2,7 @@
 #include <lib/libadt/list.h>
 #include <kernel/modules/module_tree.h>
 #include <kernel/mm/heap.h>
+#include <kernel/console/kprintf.h>
 
 extern heap_t *module_heap;
 
@@ -9,14 +10,19 @@ module_tree_node_t *module_tree_node_create()
 {
 	module_tree_node_t *node = heap_malloc(module_heap, sizeof(module_tree_node_t));
 	
-	node->children = list_create(sizeof(module_pair_t*), 0);
+	node->children = list_create(sizeof(module_pair_t*), 1);
+	
+	return node;
 }
 
 module_tree_node_t *module_tree_get_child(module_tree_node_t *parent, uint32_t index)
 {
+	kprintf(LOG_DEBUG, "Taking from %08X\n", &parent->children);
 	for(uint32_t list_index = 0; list_index < list_length(&parent->children); list_index++)
 	{
+		kprintf(LOG_DEBUG, "ABT TO CHECK\n");
 		module_pair_t *child = *((module_pair_t**) list_get(&parent->children, list_index));
+		kprintf(LOG_DEBUG, "CHECKING %08X\n", list_get(&parent->children, list_index));
 		
 		if(child->index == index)
 		{
@@ -78,8 +84,9 @@ module_tree_node_t *module_tree_lookup(module_tree_node_t *root, uint32_t levels
 	for(uint32_t index = 0; index < levels; index++)
 	{
 		uint32_t tree_index = va_arg(args, uint32_t);
+		kprintf(LOG_DEBUG, "Parent: %08X, index: %08X\n", parent, tree_index);
 		
-		module_tree_node_t *parent = module_tree_get_child(parent, tree_index);
+		parent = module_tree_get_child(parent, tree_index);
 	}
 	
 	va_end(args);
