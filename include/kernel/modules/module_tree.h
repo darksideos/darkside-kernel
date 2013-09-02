@@ -12,7 +12,7 @@ typedef struct module_pair
 
 typedef struct module_tree_node
 {
-	bool end;
+	bool module;
 	
 	list_t children;
 } module_tree_node_t;
