@@ -15,7 +15,9 @@ void init_modules()
 	
 	module_tree_node_t *node = module_tree_node_create();
 	module_tree_insert(node, 0xDEADBEEF, 7, 0, 1, 2, 3, 4, 5, 6);
-	module_tree_node_t *thing = module_tree_lookup(node, 7, 0, 1, 2, 3, 4, 5, 6);
+	module_tree_insert(node, 0xFEEDDEAF, 7, 0, 1, 2, 3, 4, 5, 5);
+	module_tree_insert(node, 0x0BFF0BFF, 7, 0, 1, 10, 7000, 4, 5, 6);
+	module_tree_node_t *thing = module_tree_lookup(node, 7, 0, 1, 10, 7000, 4, 5, 6);
 	kprintf(LOG_DEBUG, "THING: %08X\n", thing);
 } 
 
