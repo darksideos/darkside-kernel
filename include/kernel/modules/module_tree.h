@@ -2,19 +2,13 @@
 #define __MODULE_TREE_H
 
 #include <lib/libc/types.h>
-
-typedef struct module_pair
-{
-	uint32_t index;
-	
-	void *data;
-} module_pair_t;
+#include <lib/libadt/map.h>
 
 typedef struct module_tree_node
 {
 	bool module;
 	
-	list_t children;
+	map_t children;
 } module_tree_node_t;
 
 module_tree_node_t *module_tree_node_create();
