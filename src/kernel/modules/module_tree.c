@@ -10,27 +10,14 @@ module_tree_node_t *module_tree_node_create()
 {
 	module_tree_node_t *node = heap_malloc(module_heap, sizeof(module_tree_node_t));
 	
-	node->children = list_create(sizeof(module_pair_t*), 1);
+	node->children = map_create();
 	
 	return node;
 }
 
 module_tree_node_t *module_tree_get_child(module_tree_node_t *parent, uint32_t index)
 {
-	kprintf(LOG_DEBUG, "Taking from %08X\n", &parent->children);
-	for(uint32_t list_index = 0; list_index < list_length(&parent->children); list_index++)
-	{
-		kprintf(LOG_DEBUG, "ABT TO CHECK\n");
-		module_pair_t *child = *((module_pair_t**) list_get(&parent->children, list_index));
-		kprintf(LOG_DEBUG, "CHECKING %08X\n", list_get(&parent->children, list_index));
-		
-		if(child->index == index)
-		{
-			return child;
-		}
-	}
-	
-	return 0;
+	return map_get(&parent->children, index);
 }
 
 void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, uint32_t levels, ...)
@@ -60,11 +47,7 @@ void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, ui
 				new_parent = module_tree_node_create();
 			}
 			
-			module_pair_t *pair = heap_malloc(module_heap, sizeof(module_pair_t));
-			pair->index = tree_index;
-			pair->data = new_parent;
-			
-			list_append(&parent->children, &pair);
+			map_append(&parent->children, tree_index, new_parent);
 		}
 		
 		parent = new_parent;

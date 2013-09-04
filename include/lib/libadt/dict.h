@@ -2,13 +2,9 @@
 #define __DICT_H
 
 #include <lib/libc/types.h>
-#include <lib/libadt/list.h>
+#include <lib/libadt/map.h>
 
-/* Dictionary structure */
-typedef struct dict
-{
-	list_t *buckets;
-} dict_t;
+typedef map_t dict_t;
 
 /* Create, destroy, append an item to, remove an item from, get and set an item, get the keys in, and rename a key in a dictionary */
 dict_t dict_create();
