@@ -15,7 +15,7 @@ module_tree_node_t *module_tree_node_create()
 	return node;
 }
 
-module_tree_node_t *module_tree_get_child(module_tree_node_t *parent, uint32_t index)
+module_tree_node_t *module_tree_get_child(module_tree_node_t *parent, uint64_t index)
 {
 	return map_get(&parent->children, index);
 }
@@ -30,7 +30,7 @@ void module_tree_insert(module_tree_node_t *root, module_tree_node_t *module, ui
 	
 	for(uint32_t index = 0; index < levels; index++)
 	{
-		uint32_t tree_index = va_arg(args, uint32_t);
+		uint64_t tree_index = va_arg(args, uint32_t);
 		
 		module_tree_node_t *new_parent = module_tree_get_child(parent, tree_index);
 		
