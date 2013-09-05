@@ -2,6 +2,7 @@
 #define __THREAD_H
 
 #include <lib/libc/types.h>
+#include <lib/libadt/queue.h>
 #include <kernel/task/process.h>
 
 /* Thread user stack sizes */
@@ -46,6 +47,9 @@ typedef struct thread
 
 	/* NUMA domain and CPU affinity */
 	uint8_t numa_domain;
+
+	/* Event queue */
+	queue_t event_queue;
 } thread_t;
 
 /* Create and destroy a thread */
