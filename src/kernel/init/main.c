@@ -7,6 +7,37 @@
 #include <kernel/console/kprintf.h>
 #include <lib/libc/string.h>
 
+#include <kernel/task/thread.h>
+#include <kernel/ipc/event.h>
+
+uint16_t *vidmem = 0xB8000;
+
+void t1()
+{
+	vidmem[0] = 0x7041;
+
+	while (1);
+}
+
+void t2()
+{
+	vidmem[1] = 0x7042;
+
+	while (1);
+}
+
+void t3()
+{
+	vidmem[2] = 0x7043;
+
+	while (1);
+}
+
+void event1()
+{
+	vidmem[3] = 0x7044;
+}
+
 void kernel_main(os_info_t *os_info)
 {
 	/* Start the VGA text mode driver */
@@ -22,7 +53,7 @@ void kernel_main(os_info_t *os_info)
 	init_vfs();
 
 	/* Initialize the kernel modules */
-	init_modules();
+	//init_modules();
 	
 	/* Register the default executable formats */
 
@@ -47,6 +78,15 @@ void kernel_main(os_info_t *os_info)
 		kprintf(LOG_DEBUG, "%s\n", str);
 		str = strtok(0, "/", &saveptr);
 	}*/
+
+	thread_t *thread = thread_create(0, &t1, 0, 256);
+	thread_create(0, &t2, 0, 256);
+	thread_create(0, &t3, 0, 256);
+
+	event_t *event = event_create(&event1);
+	event_send(event, thread);
+
+	enable_interrupts();
 
 	while(1);
 }

@@ -1,14 +1,15 @@
 #include <lib/libc/types.h>
 #include <lib/libadt/list.h>
+#include <lib/libadt/queue.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 #include <kernel/task/process.h>
 #include <kernel/task/thread.h>
 #include <kernel/task/scheduler.h>
-#include <kernel/console/kprintf.h>
-#include <kernel/console/bochs.h>
 
 #include <hal/i386/isrs.h>
+#include <kernel/ipc/event.h>
+#include <kernel/console/kprintf.h>
 
 uint32_t tid;
 
@@ -52,6 +53,11 @@ static thread_t *do_thread_create(process_t *process, void (*fn)(void *arg), voi
 	/* Set the thread's priority and state */
 	thread->priority = 0;
 	thread->state = THREAD_READY;
+
+	/* Set the thread's NUMA domain and CPU affinity */
+
+	/* Create the event queue for the thread */
+	thread->event_queue = queue_create();
 	
 	/* Add the thread to the process's thread list */
 	if (process)
@@ -156,6 +162,18 @@ void thread_run(thread_t *thread)
 
 	/* Set the kernel stack to the one in the new thread */
 	set_kernel_stack(thread->kstack);
+
+	/* Handle any pending events on the thread */
+	if (thread->tid == 0)
+	{
+		event_t *event = (event_t*) queue_dequeue(&thread->event_queue);
+
+		thread->ustack -= 4;
+		*((uint32_t*) thread->ustack) = ((struct i386_regs*) thread->context)->eip;
+
+		((struct i386_regs*) thread->context)->eip = (uint32_t) event->handler;
+		kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) event->handler);
+	}
 
 	/* Switch to the new thread's register context */
 	switch_cpu_context(thread->context);

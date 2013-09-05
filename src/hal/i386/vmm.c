@@ -236,13 +236,13 @@ void init_vmm()
 	/* Identity map the first 1 MB of the address space, so that the VGA framebuffer and VM86 tasks will work */
 	for (i = 0x1000; i < 0x100000; i += 0x1000)
 	{
-		map_page(kernel_directory, i, i, true, true, false, true);
+		map_page(kernel_directory, i, i, true, true, true/*false*/, true);
 	}
 
 	/* Map our kernel into the kernel directory */
 	for (i = 0; i < KERNEL_PHYSICAL_SIZE; i += 0x1000)
 	{
-		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, false, true);
+		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, true/*false*/, true);
 	}
 
 	/* Map the PMM bitmap into the kernel directory */
