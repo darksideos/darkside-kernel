@@ -1,161 +1,99 @@
 #include <lib/libc/types.h>
-#include <hal/i386/ports.h>
-#include <hal/i386/isrs.h>
-#include <hal/i386/irq.h>
-#include <kernel/mm/heap.h>
-#include <drivers/ide/ata.h>
-
-/* ATA ready flags */
-uint8_t primary_ata_ready;
-uint8_t secondary_ata_ready;
+#include <lib/libadt/list.h>
+#include <kernel/init/hal.h>
+#include <kernel/device/device.h>
 
 /* Wait for the ATA drive to be ready */
-void ata_wait(uint8_t drive)
+static void ata_wait(device_t *device, uint8_t drive)
 {
+	unsigned int status;
+	unsigned short port;
+	
 	if (drive <= 1)
 	{
-		while (!primary_ata_ready);
+		port = list_get(&device->pio_addresses, 1);
 	}
 	else if (drive <= 3)
 	{
-		while (!secondary_ata_ready);
+		port = 0;
+	}
+	
+	/* We have to wait 400ns (poll four extra times) for the IDE controller to get set up for polling */
+	int index;
+	for(index = 0; index < 5; index++)
+	{
+		status = inportb(port);
+	}
+	
+	while(!((!(status & (1 << 7)) && (status & (1 << 3)) || (status & (1 << 0)) || (status & (1 << 5)))))
+	{
+		status = inportb(port);
 	}
 }
 
-/* Read and write sectors from and to an ATA drive in PIO mode */
-uint8_t *lba28_sector_read_pio(uint8_t drive, uint32_t addr, uint32_t numsectors)
+/* Read sectors from an ATA drive */
+uint64_t ata_driver_read(device_t *device, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
-    uint8_t *buffer;
-    uint16_t tmpword;
-    uint32_t idx;
+	uint32_t numsectors = length / 512;
 
-	buffer = (uint8_t*) kmalloc(512 * numsectors);
+	uint32_t base = list_get(&device->pio_addresses, 1);
+    outportb(base + 1, 0x00);
+    outportb(base + 2, numsectors);
+    outportb(base + 3, (uint8_t) offset);
+    outportb(base + 4, (uint8_t) (offset >> 8));
+    outportb(base + 5, (uint8_t) (offset >> 16));
+    outportb(base + 6, 0xE0 | (0 << 4) | ((offset >> 24) & 0x0F));
+    outportb(base + 7, 0x20);
+    ata_wait(device, 0);
 
-    outportb(0x1F1, 0x00);
-    outportb(0x1F2, numsectors);
-    outportb(0x1F3, (uint8_t)addr);
-    outportb(0x1F4, (uint8_t)(addr >> 8));
-    outportb(0x1F5, (uint8_t)(addr >> 16));
-    outportb(0x1F6, 0xE0 | (drive << 4) | ((addr >> 24) & 0x0F));
-    outportb(0x1F7, 0x20);
-    ata_wait(drive);
+	uint64_t ret = 0;
 
-    for (idx = 0; idx < 256 * numsectors; idx++)
+    for (uint32_t idx = 0; idx < 256 * numsectors; idx++)
     {
-		tmpword = inportw(0x1F0);
+		uint16_t tmpword = inportw(base);
 		buffer[idx * 2] = (uint8_t)tmpword;
 		buffer[idx * 2 + 1] = (uint8_t)(tmpword >> 8);
+
+		ret += 2;
     }
-	return buffer;
+
+	return ret;
 }
 
-void lba28_sector_write_pio(uint8_t drive, uint32_t addr, uint32_t numsectors, uint8_t *buffer)
+/* Write sectors to an ATA drive */
+uint64_t ata_driver_write(device_t *device, uint8_t *buffer, uint64_t offset, uint64_t length)
 {
-    uint16_t tmpword;
-    uint32_t idx;
-    outportb(0x1F1, 0x00);
-    outportb(0x1F2, numsectors);
-    outportb(0x1F3, (uint8_t)addr);
-    outportb(0x1F4, (uint8_t)(addr >> 8));
-    outportb(0x1F5, (uint8_t)(addr >> 16));
-    outportb(0x1F6, 0xE0 | (drive << 4) | ((addr >> 24) & 0x0F));
-    outportb(0x1F7, 0x30);
-    ata_wait(drive);
+    uint32_t numsectors = length / 512;
 
-    for (idx = 0; idx < 256 * numsectors; idx++)
+	uint32_t base = list_get(&device->pio_addresses, 1);
+    outportb(base + 1, 0x00);
+    outportb(base + 2, numsectors);
+    outportb(base + 3, (uint8_t) offset);
+    outportb(base + 4, (uint8_t) (offset >> 8));
+    outportb(base + 5, (uint8_t) (offset >> 16));
+    outportb(base + 6, 0xE0 | (0 << 4) | ((offset >> 24) & 0x0F));
+    outportb(base + 7, 0x30);
+    ata_wait(device, 0);
+
+	uint64_t ret = 0;
+
+    for (uint32_t idx = 0; idx < 256 * numsectors; idx++)
 	{
-		tmpword = buffer[8 + idx * 2] | (buffer[8 + idx * 2 + 1] << 8);
-		outportw(0x1F0, tmpword);
+		uint16_t tmpword = buffer[8 + idx * 2] | (buffer[8 + idx * 2 + 1] << 8);
+		outportw(base, tmpword);
+
+		ret += 2;
     }
+
+	return ret;
 }
 
-uint8_t *lba48_sector_read_pio(uint8_t drive, uint32_t addr, uint16_t numsectors)
+/* Initialize the module */
+void ata_module_init(module_t *module)
 {
-    uint8_t *buffer;
-    uint16_t tmpword;
-    uint32_t idx;
-
-	buffer = (uint8_t*) kmalloc(512 * numsectors);
-
-    outportb(0x1F1, 0x00);
-    outportb(0x1F1, 0x00);
-    outportb(0x1F2, (uint8_t)numsectors);
-    outportb(0x1F2, (uint8_t)(numsectors >> 8));
-    outportb(0x1F3, (uint8_t)(addr >> 24));
-    outportb(0x1F3, (uint8_t)addr);
-    //outportb(0x1F4, (uint8_t)(addr >> 32));
-    outportb(0x1F4, (uint8_t)(addr >> 8));
-    //outportb(0x1F5, (uint8_t)(addr >> 40));
-    outportb(0x1F5, (uint8_t)(addr >> 16));
-    outportb(0x1F6, 0x40 | (drive << 4));
-    outportb(0x1F7, 0x24);
-    ata_wait(drive);
-
-    for (idx = 0; idx < 256 * numsectors; idx++)
-	{
-		tmpword = inportw(0x1F0);
-		buffer[idx * 2] = (uint8_t)tmpword;
-		buffer[idx * 2 + 1] = (uint8_t)(tmpword >> 8);
-    }
-    return buffer;
 }
 
-void lba48_sector_write_pio(uint8_t drive, uint32_t addr, uint16_t numsectors, uint8_t *buffer)
+/* Shutdown the module */
+void ata_module_fini(module_t *module)
 {
-    uint16_t tmpword;
-    uint32_t idx;
-
-    outportb(0x1F1, 0x00);
-    outportb(0x1F1, 0x00);
-    outportb(0x1F2, (uint8_t)numsectors);
-    outportb(0x1F2, (uint8_t)(numsectors >> 8));
-    outportb(0x1F3, (uint8_t)(addr >> 24));
-    outportb(0x1F3, (uint8_t)addr);
-    //outportb(0x1F4, (uint8_t)(addr >> 32));
-    outportb(0x1F4, (uint8_t)(addr >> 8));
-    //outportb(0x1F5, (uint8_t)(addr >> 40));
-    outportb(0x1F5, (uint8_t)(addr >> 16));
-    outportb(0x1F6, 0x40 | (drive << 4));
-    outportb(0x1F7, 0x34);
-    ata_wait(drive);
-
-    for (idx = 0; idx < 256 * numsectors; idx++)
-	{
-		tmpword = buffer[8 + idx * 2] | (buffer[8 + idx * 2 + 1] << 8);
-		outportw(0x1F0, tmpword);
-    }
-}
-
-/* ATA IRQ handler */
-void ata_handler(struct i386_regs *r)
-{
-	/* Set or clear the ATA ready flag */
-	if (r->int_no == 0x2E)
-	{
-		/* Primary ATA controller */
-		primary_ata_ready = !primary_ata_ready;
-	}
-	else if (r->int_no == 0x2F)
-	{
-		/* Seconary ATA controller */
-		secondary_ata_ready = !secondary_ata_ready;
-	}
-
-	/* Tell the ATA controller that we've recieved the interrupt */
-	inportb(0x1F7);
-}
-
-/* Install the ATA IRQ */
-void ata_install(uint8_t controller)
-{
-	/* Primary ATA controller */
-	if (controller == 0)
-	{
-		irq_install_handler(14, ata_handler);
-	}
-	/* Secondary ATA controller */
-	else if (controller == 1)
-	{
-		irq_install_handler(15, ata_handler);
-	}
 }
