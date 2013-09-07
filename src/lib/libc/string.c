@@ -2,6 +2,7 @@
 #include <lib/libc/ctype.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
+#include <kernel/console/kprintf.h>
 
 void *memcpy(void *dest, void *src, size_t count)
 {
@@ -165,11 +166,11 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 {
 	/* First call */
 	if (str)
-	{
+	{\
 		*saveptr = str;
 	}
 	
-	/* End of string */
+	/* We reached the end of string in the previous call */
 	if (!(*saveptr))
 	{
 		return 0;
@@ -197,7 +198,7 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 	retval[skipped] = '\0';
 
 	/* Increment saveptr by the length of the delimeter */
-	(*saveptr) += strlen(delimeter) + skipped;
+	(*saveptr) += strlen(delimeter) + skipped - 1;
 	
 	return retval;
 }
