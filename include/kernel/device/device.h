@@ -41,4 +41,8 @@ typedef struct device
 	uint8_t power_state;
 } device_t;
 
+/* Read from, write to, and issue a device specific request to a device */
+uint64_t device_read(device_t *device, uint8_t *buffer, uint64_t offset, uint64_t length);
+uint64_t device_write(device_t *device, uint8_t *buffer, uint64_t offset, uint64_t length);
+
 #endif

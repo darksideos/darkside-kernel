@@ -20,12 +20,6 @@ typedef struct driver
 	uint64_t (*write)(struct device *device, uint8_t *buffer, uint64_t offset, uint64_t length);
 } driver_t;
 
-/* Load, unload, initialize, and finalize a driver */
-driver_t *driver_load(uint8_t *path);
-void driver_unload(driver_t *driver);
-int32_t driver_init(driver_t *driver);
-int32_t driver_fini(driver_t *driver);
-
 /* Read from, write to, and issue a device specific request to a device */
 uint64_t driver_read(driver_t *driver, struct device *device, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t driver_write(driver_t *driver, struct device *device, uint8_t *buffer, uint64_t offset, uint64_t length);
