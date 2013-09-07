@@ -36,7 +36,7 @@ uint64_t ata_driver_read(device_t *device, uint8_t *buffer, uint64_t offset, uin
 {
 	uint32_t numsectors = length / 512;
 
-	uint32_t base = list_get(&device->pio_addresses, 1);
+	uint32_t base = list_get(&device->pio_addresses, 0);
     outportb(base + 1, 0x00);
     outportb(base + 2, numsectors);
     outportb(base + 3, (uint8_t) offset);
@@ -65,7 +65,7 @@ uint64_t ata_driver_write(device_t *device, uint8_t *buffer, uint64_t offset, ui
 {
     uint32_t numsectors = length / 512;
 
-	uint32_t base = list_get(&device->pio_addresses, 1);
+	uint32_t base = list_get(&device->pio_addresses, 0);
     outportb(base + 1, 0x00);
     outportb(base + 2, numsectors);
     outportb(base + 3, (uint8_t) offset);

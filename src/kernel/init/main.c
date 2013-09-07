@@ -118,10 +118,13 @@ void kernel_main(os_info_t *os_info)
 	
 	device->driver = driver;
 
-	list_append(&device->pio_addresses, 0x1F0);
-	list_append(&device->pio_addresses, 0x3F6);
-	list_append(&device->pio_addresses, 0x170);
-	list_append(&device->pio_addresses, 0x376);
+	device->pio_addresses = list_create(sizeof(uint32_t), 4);
+
+	uint32_t addr[4] = {0x1F0, 0x3F6, 0x170, 0x376};
+	list_append(&device->pio_addresses, &addr[0]);
+	list_append(&device->pio_addresses, &addr[1]);
+	list_append(&device->pio_addresses, &addr[2]);
+	list_append(&device->pio_addresses, &addr[3]);
 	
 	uint8_t *buffer = kmalloc(512);
 	device_read(device, buffer, 0, 512);
