@@ -166,7 +166,7 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 {
 	/* First call */
 	if (str)
-	{\
+	{
 		*saveptr = str;
 	}
 	
@@ -198,7 +198,9 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 	retval[skipped] = '\0';
 
 	/* Increment saveptr by the length of the delimeter */
-	(*saveptr) += strlen(delimeter) + skipped - 1;
+	(*saveptr) += strlen(delimeter);
+	
+	kprintf(LOG_DEBUG, "PTR: %08X\n", *saveptr);
 	
 	return retval;
 }
