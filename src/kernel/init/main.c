@@ -81,7 +81,7 @@ void kernel_main(os_info_t *os_info)
 	
 	uint8_t *saveptr = 0;
 
-	uint8_t *str = strtok("a/b/c/d/e", "/", &saveptr);
+	uint8_t *str = strtok("/home/noahsinger/Downloads/helloworld.txt", "/", &saveptr);
 	while (str)
 	{
 		kprintf(LOG_DEBUG, "%s\n", str);
