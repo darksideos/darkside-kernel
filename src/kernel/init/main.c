@@ -79,14 +79,14 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 	
-	/*uint8_t *saveptr = 0;
+	uint8_t *saveptr = 0;
 
 	uint8_t *str = strtok("a/b/c/d/e", "/", &saveptr);
 	while (str)
 	{
 		kprintf(LOG_DEBUG, "%s\n", str);
 		str = strtok(0, "/", &saveptr);
-	}*/
+	}
 
 	/*thread_t *thread = thread_create(0, &t1, 0, 256);
 	thread_create(0, &t2, 0, 256);
@@ -97,7 +97,7 @@ void kernel_main(os_info_t *os_info)
 
 	enable_interrupts();*/
 
-	driver_t *driver = (driver_t*) kmalloc(sizeof(driver_t));
+	/*driver_t *driver = (driver_t*) kmalloc(sizeof(driver_t));
 
 	driver->base.name = "Generic ATA driver";
 	driver->base.desc = "Generic ATA driver";
@@ -134,7 +134,7 @@ void kernel_main(os_info_t *os_info)
 	{
 		putch(buffer[i]);
 		i++;
-	}
+	}*/
 
 	while(1);
 }

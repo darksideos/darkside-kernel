@@ -22,7 +22,7 @@ kernel-i386.elf: clean
 	cd ../src/kernel; make BLD_TARGET=i386 CCBASE=$(i386) CFLAGS="$(CFLAGS_i386)"
 	cd ../src/drivers/graphics/vga; make CCBASE=$(i386) 
 	cd ../src/drivers/input/ps2; make CCBASE=$(i386)
-	cd ../src/drivers/fs/ext2; make CCBASE=$(i386)
+#	cd ../src/drivers/fs/ext2; make CCBASE=$(i386)
 	cd ../src/drivers/storage/ide/ata; make CCBASE=$(i386)
 	cd ../src/lib/libc; make BLD_TARGET=i386 CCBASE=$(i386) CFLAGS="$(CFLAGS_i386)"
 	cd ../src/lib/libadt; make BLD_TARGET=i386 CCBASE=$(i386) CFLAGS="$(CFLAGS_i386)"
