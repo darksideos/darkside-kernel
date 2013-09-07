@@ -2,6 +2,7 @@
 #include <lib/libadt/list.h>
 #include <kernel/init/hal.h>
 #include <kernel/device/device.h>
+#include <kernel/console/kprintf.h>
 
 /* Wait for the ATA drive to be ready */
 static void ata_wait(device_t *device, uint8_t drive)
@@ -36,7 +37,8 @@ uint64_t ata_driver_read(device_t *device, uint8_t *buffer, uint64_t offset, uin
 {
 	uint32_t numsectors = length / 512;
 
-	uint32_t base = list_get(&device->pio_addresses, 0);
+	uint16_t base = *((uint16_t**) list_get(&device->pio_addresses, 0));
+
     outportb(base + 1, 0x00);
     outportb(base + 2, numsectors);
     outportb(base + 3, (uint8_t) offset);
