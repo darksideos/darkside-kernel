@@ -37,7 +37,7 @@ inode_t *read_inode(partition_t *part, superblock_t *superblock, unsigned int in
 	block_group_desc_t *desc = read_block_descriptor(part, superblock, block_group);
 	
 	unsigned int table_index = (inode - 1) % floor(get_block_size(superblock), get_inode_size(superblock));
-	unsigned int table_block = floor((inode * get_inode_size(superblock)), get_block_size(superblock));
+	unsigned int table_block = floor(((inode - 1) * get_inode_size(superblock)), get_block_size(superblock));
 	
 	return read_block(part, superblock, desc->inode_table_block + table_block) + table_index * get_inode_size(superblock);
 }
@@ -62,6 +62,7 @@ unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock
 		{
 			trans = length;
 		}
+		
 		memcpy(buffer + offset, read_block(part, superblock, block), trans);
 		return trans;
 	}
@@ -93,7 +94,7 @@ unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock
 	}
 }
 
-int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode,  unsigned char buffer[], unsigned int length)
+int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode, unsigned char buffer[], unsigned int length)
 {
 	unsigned int blocks_read = 0;
 	unsigned int bytes_left = length;
@@ -157,18 +158,21 @@ unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *
 {
 	unsigned char *data = kmalloc(parent->low_size);
 	ext2_read(part, superblock, parent, data, parent->low_size);
-	int index;
+	int index = 0;
 	
 	while(true)
 	{
 		data += ((inode_dirent_t*) data)->size;
 		unsigned char *file_name = kmalloc(((inode_dirent_t*) data)->low_length + 1);
+		memset(file_name, 0, ((inode_dirent_t*) data)->low_length + 1);
 		memcpy(file_name, &(((inode_dirent_t*) data)->name_start), ((inode_dirent_t*) data)->low_length);
 		
 		if(strequal(file_name, name))
 		{
 			return ((inode_dirent_t*) data)->inode;
 		}
+		
+		index++;
 	}
 }
 
