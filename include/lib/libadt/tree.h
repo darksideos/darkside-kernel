@@ -10,12 +10,12 @@ typedef struct tree_node
 
 typedef struct tree
 {
-	tree_t root_node;
-}
+	tree_node_t root_node;
+} tree_t;
 
 /* Creating structures */
 tree_t tree_create();
-tree_node_t *tree_node_create();
+tree_node_t tree_node_create();
 
 /* Manipulating structures */
 void tree_insert(tree_t *tree, tree_node_t *node, uint32_t levels, ...);
