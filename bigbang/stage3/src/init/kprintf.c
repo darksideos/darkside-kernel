@@ -243,6 +243,7 @@ void kprintf(const char *fmt, ...)
 	i = vsprintf(buf, fmt, args);
 
 	buf[i] = '\0';
-
+	
+	puts("[BTLDR] ");
 	puts(buf);
 }
