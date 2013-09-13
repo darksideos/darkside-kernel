@@ -5,12 +5,12 @@
 #include <lib/libadt/list.h>
 #include <lib/libc/stdarg.h>
 
-tree_node_t tree_node_create()
+tree_node_t *tree_node_create()
 {
-	tree_node_t node = *((tree_node_t*) kmalloc(sizeof(tree_node_t)));
-	memset(&node, 0, sizeof(tree_node_t));
+	tree_node_t *node = kmalloc(sizeof(tree_node_t));
+	memset(node, 0, sizeof(tree_node_t));
 	
-	node.children = map_create();
+	node->children = map_create();
 	
 	return node;
 }
@@ -20,7 +20,7 @@ tree_t tree_create()
 	tree_t tree = *((tree_t*) kmalloc(sizeof(tree_t)));
 	memset(&tree, 0, sizeof(tree_t));
 	
-	tree_node_t root = tree_node_create();
+	tree_node_t root = *tree_node_create();
 	tree.root_node = root;
 	
 	return tree;
@@ -50,7 +50,7 @@ void tree_insert(tree_t *tree, tree_node_t *node, uint32_t levels, ...)
 			}
 			else
 			{
-				new_parent = &tree_node_create();
+				new_parent = tree_node_create();
 			}
 			
 			map_append(&parent->children, tree_index, new_parent);
