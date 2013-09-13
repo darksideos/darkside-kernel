@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-OBJFILES = math.o string.o
+OBJFILES = math.o str2int.o string.o
 
 .c.o:
 	$(CCBASE)-gcc $(CFLAGS) -I $(ROOT)/include -o $(ROOT)/build-$(BLD_TARGET)/lib/libc/$@ -c $<
