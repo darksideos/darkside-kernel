@@ -2,5 +2,6 @@
 #define __PLACEMENT_H
 
 unsigned int kmalloc(unsigned int size);
+void kfree(unsigned int address);
 
 #endif

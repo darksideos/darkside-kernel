@@ -5,12 +5,15 @@
 #include <lib/libadt/list.h>
 #include <lib/libc/stdarg.h>
 
-tree_node_t *tree_node_create()
+tree_node_t *tree_node_create(tree_node_t *parent)
 {
 	tree_node_t *node = kmalloc(sizeof(tree_node_t));
 	memset(node, 0, sizeof(tree_node_t));
 	
-	node->children = map_create();
+	map_t map = map_create();
+	
+	node->parent = parent;
+	node->data = (void*) &map;
 	
 	return node;
 }
@@ -20,13 +23,13 @@ tree_t tree_create()
 	tree_t tree = *((tree_t*) kmalloc(sizeof(tree_t)));
 	memset(&tree, 0, sizeof(tree_t));
 	
-	tree_node_t root = *tree_node_create();
+	tree_node_t root = *tree_node_create(0);
 	tree.root_node = root;
 	
 	return tree;
 }
 
-void tree_insert(tree_t *tree, tree_node_t *node, uint32_t levels, ...)
+void tree_insert(tree_t *tree, void *data, uint32_t levels, ...)
 {
 	va_list args;
 	
@@ -38,31 +41,31 @@ void tree_insert(tree_t *tree, tree_node_t *node, uint32_t levels, ...)
 	{
 		uint32_t tree_index = va_arg(args, uint32_t);
 		
-		tree_node_t *new_parent = map_get(&parent->children, tree_index);
+		tree_node_t *child = map_get((map_t*) parent->data, tree_index);
 		
 		/* The node doesn't have the child */
-		if(!new_parent)
+		if(!child)
 		{
 			/* This is the last node */
 			if(index == levels - 1)
 			{
-				new_parent = node;
+				child = data;
 			}
 			else
 			{
-				new_parent = tree_node_create();
+				child = tree_node_create(parent);
 			}
 			
-			map_append(&parent->children, tree_index, new_parent);
+			tree_node_insert(parent, child, tree_index);
 		}
 		
-		parent = new_parent;
+		parent = child;
 	}
 	
 	va_end(args);
 }
 
-tree_node_t *tree_lookup(tree_t *tree, uint32_t levels, ...)
+void *tree_lookup(tree_t *tree, uint32_t levels, ...)
 {
 	va_list args;
 	
@@ -74,10 +77,20 @@ tree_node_t *tree_lookup(tree_t *tree, uint32_t levels, ...)
 	{
 		uint32_t tree_index = va_arg(args, uint32_t);
 		
-		parent = map_get(&parent->children, tree_index);
+		parent = map_get((map_t*) parent->data, tree_index);
 	}
 	
 	va_end(args);
 	
-	return parent;
+	return (void*) parent;
+}
+
+tree_node_t *tree_node_parent(tree_node_t *child)
+{
+	return (tree_node_t*) child->parent;
+}
+
+void tree_node_insert(tree_node_t *parent, void *data, uint32_t tree_index)
+{
+	map_append((map_t*) parent->data, tree_index, data);
 }
