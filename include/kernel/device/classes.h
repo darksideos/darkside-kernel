@@ -12,21 +12,21 @@
 #define DEVICE_CLASS_OTHER			0x08	/* Other device */
 
 /* Display devices */
-#define DEVICE_DISPLAY_TEXTMODE		0x00	/* Text mode display device */
-#define DEVICE_DISPLAY_GRAPHICS		0x01	/* Graphics display device */
+#define DEVICE_DISPLAY_TEXTMODE		0x0100	/* Text mode display device */
+#define DEVICE_DISPLAY_GRAPHICS		0x0101	/* Graphics display device */
 
 /* Storage devices */
-#define DEVICE_STORAGE_HDD			0x00	/* Hard drive */
-#define DEVICE_STORAGE_DISC			0x01	/* Disc drive */
-#define DEVICE_STORAGE_FLOPPY		0x02	/* Floppy drive */
+#define DEVICE_STORAGE_HDD			0x0200	/* Hard drive */
+#define DEVICE_STORAGE_DISC			0x0201	/* Disc drive */
+#define DEVICE_STORAGE_FLOPPY		0x0202	/* Floppy drive */
 #define DEVICE_STORAGE_USBMASS
 
 /* Network devices */
-#define DEVICE_NETWORK_ETHERNET		0x00	/* Ethernet device */
-#define DEVICE_NETWORK_WIFI			0x01	/* Wifi device */
+#define DEVICE_NETWORK_ETHERNET		0x0300	/* Ethernet device */
+#define DEVICE_NETWORK_WIFI			0x0301	/* Wifi device */
 
 /* Input devices */
-#define DEVICE_INPUT_KEYBOARD		0x00	/* Keyboard */
-#define DEVICE_INPUT_MOUSE			0x01	/* Mouse */
+#define DEVICE_INPUT_KEYBOARD		0x0400	/* Keyboard */
+#define DEVICE_INPUT_MOUSE			0x0401	/* Mouse */
 
 #endif

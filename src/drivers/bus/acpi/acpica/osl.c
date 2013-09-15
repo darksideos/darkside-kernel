@@ -70,6 +70,38 @@ ACPI_STATUS AcpiOsPhysicalTableOverride(ACPI_TABLE_HEADER *ExistingTable, ACPI_P
     return AE_SUPPORT;
 }
 
+/* Create a slab cache */
+ACPI_STATUS AcpiOsCreateCache(char *CacheName, UINT16 ObjectSize, UINT16 MaxDepth, ACPI_CACHE_T **ReturnCache)
+{
+	*ReturnCache = 0;
+
+	return AE_SUPPORT;
+}
+
+/* Destroy a slab cache */
+ACPI_STATUS AcpiOsDeleteCache(ACPI_CACHE_T *Cache)
+{
+	return AE_SUPPORT;
+}
+
+/* Free all the objects from a slab cache */
+ACPI_STATUS AcpiOsPurgeCache(ACPI_CACHE_T *Cache)
+{
+	return AE_SUPPORT;
+}
+
+/* Allocate an object from a slab cache */
+void *AcpiOsAcquireObject(ACPI_CACHE_T *Cache)
+{
+	return 0;
+}
+
+/* Free an object from a slab cache */
+ACPI_STATUS AcpiOsReleaseObject(ACPI_CACHE_T *Cache, void *Object)
+{
+	return AE_SUPPORT;
+}
+
 /* Map a physical address into the virtual address space */
 void *AcpiOsMapMemory(ACPI_PHYSICAL_ADDRESS where, ACPI_SIZE length)
 {
@@ -80,6 +112,14 @@ void *AcpiOsMapMemory(ACPI_PHYSICAL_ADDRESS where, ACPI_SIZE length)
 void AcpiOsUnmapMemory(void *where, ACPI_SIZE length)
 {
     return;
+}
+
+/* Get the physical address mapping of a virtual address */
+ACPI_STATUS AcpiOsGetPhysicalAddress(void *LogicalAddress, ACPI_PHYSICAL_ADDRESS *PhysicalAddress)
+{
+	*PhysicalAddress = get_mapping(LogicalAddress);
+
+	return AE_OK;
 }
 
 /* Allocate memory from the kernel heap */
@@ -121,8 +161,19 @@ ACPI_STATUS AcpiOsExecute(ACPI_EXECUTE_TYPE Type, ACPI_OSD_EXEC_CALLBACK Functio
 }
 
 /* Put the current thread to sleep */
+void AcpiOsSleep(UINT64 Milliseconds)
+{
+}
 
 /* Stall the current thread */
+void AcpiOsStall(UINT32 Microseconds)
+{
+}
+
+/* Wait for all threads created by ACPICA to complete */
+void AcpiOsWaitEventsComplete()
+{
+}
 
 /* Create a mutex and initialize its values */
 ACPI_STATUS AcpiOsCreateMutex(ACPI_MUTEX *OutHandle)
