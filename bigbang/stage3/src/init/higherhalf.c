@@ -13,7 +13,7 @@ void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_l
 	unsigned int address;
 
 	/* Lower half */
-	for (address = 0; address < 0x400000; address += 0x1000)
+	for (address = 0; address < 0x100000; address += 0x1000)
 	{
 		pt_lower[address / 0x1000] = address | PAGE_KERNEL;
 	}
