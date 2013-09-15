@@ -1,10 +1,9 @@
 ENTRY(start)
 OUTPUT_FORMAT("elf32-i386")
-phys = 0x2000;
 
 SECTIONS
 {
-	. = 0x4000;
+	. = 0x2000;
 	
 	.text : ALIGN(4096)
 	{
