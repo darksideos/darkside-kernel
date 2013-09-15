@@ -23,8 +23,8 @@ start:
 	push ebx							; Push the OS info structure
 	
 	extern load_higherhalf				; Tell NASM that our higher half function is in another file
-	mov ecx, load_higherhalf			; Convert to physical address
-	call ecx   							; Jump to our higher half function
+	mov ecx, load_higherhalf
+	call ecx			   				; Jump to our higher half function
 
 eternal:
 	jmp eternal
