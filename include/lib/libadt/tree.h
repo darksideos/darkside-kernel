@@ -7,7 +7,8 @@ typedef struct tree_node
 {
 	struct tree_node *parent;
 	
-	/* This is usually a map_t of children */
+	bool normal;
+	/* This is usually a map_t of children, if normal is true */
 	void *data;
 } tree_node_t;
 
