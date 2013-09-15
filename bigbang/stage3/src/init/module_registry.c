@@ -47,8 +47,9 @@ unsigned int tree_index(unsigned char *line)
 		unsigned char *noquotes = kmalloc(strlen(line) - 1);
 		memset(noquotes, 0, strlen(line) - 1);
 		
+		kprintf(LOG_DEBUG, "b4\n");
 		strncpy(noquotes, line + 1, strlen(line) - 1);
-		
+		kprintf(LOG_DEBUG, "after\n");
 		return hash(noquotes);
 	}
 	else
@@ -57,14 +58,14 @@ unsigned int tree_index(unsigned char *line)
 	}
 }
 
-unsigned int indents(unsigned char *line)
+unsigned int separate_indents(unsigned char **line)
 {
-	unsigned int indents;
+	unsigned int indents = 0;
 	
-	while(*line == '\t')
+	while(**line == '\t')
 	{
 		indents++;
-		line++;
+		(*line)++;
 	}
 	
 	return indents;
@@ -87,13 +88,20 @@ void parse_registry(os_info_t *os_info)
 	unsigned int lineNumber = 0;
 	
 	module_t *module = 0;
-	unsigned int lastIndent = 0;
+	unsigned int lastIndents = 0;
+	
+	tree_t tree = tree_create();
+	tree_node_t *parent = &tree.root_node;
+	
 	while(line != 0)
 	{
+		/* Separate out tabs from data, returning the number of tabs and advancing the string pointer */
+		unsigned int indents = separate_indents(&line);
+		
 		if(module)
 		{
 			/* Continuing a module declaration */
-			if(indents(line) == lastIndent)
+			if(indents == lastIndents)
 			{
 				if(strnequal("@NAME", line, 5))
 				{
@@ -121,14 +129,15 @@ void parse_registry(os_info_t *os_info)
 				}
 				else
 				{
-					kprintf("Error: module registry command unrecognized at line %d: %s\n", line);
+					kprintf(LOG_PANIC, "Error: module registry command unrecognized at line %d: %s\n", line);
 					while(1);
 				}
 			}
 			/* Ending a module declaration */
 			else
 			{
-				/* EVENTUALLY write the module struct to the tree */
+				/* Write the module to the tree */
+				parent->data = module;
 				module = 0;
 			}
 		}
@@ -139,12 +148,24 @@ void parse_registry(os_info_t *os_info)
 			{
 				module = kmalloc(sizeof(module_t));
 			}
-			/* EVENTUALLY sub the tree */
+			/* Sub in */
+			else if(indents > lastIndents)
+			{
+				tree_node_t *child = tree_node_create(parent);
+				tree_node_insert(parent, child, tree_index(line));
+				parent = child;
+			}
+			/* Sub out */
+			else
+			{
+				parent = parent->parent;
+			}
 		}
-		kprintf("Tree index %d, indents %d\n", tree_index(line), indents(line));
 		
-		lastIndent = indents(line);
+		lastIndents = indents;
 		line = strtok(0, "\n", &saveptr);
 		lineNumber++;
 	}
+	
+	os_info->module_registry = tree;
 }
