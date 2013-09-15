@@ -1,7 +1,7 @@
 [ORG 0x1000]
 [BITS 16]
 
-mov	ax, 0x400			; destination segment
+mov	ax, 0x200			; destination segment
 mov	es, ax				; is stored in es
 mov	ah, 0x02			; function = 02h to read
 mov al, 64				; read 64 sectors
@@ -14,7 +14,7 @@ mov	dh,	0				; head number 0 goes in dh
 mov	dl, 0x80			; hard drive
 
 mov	bx, 0x0000			; offset goes in bx
-; stage3 will be stored at 0x4000
+; stage3 will be stored at 0x2000
 
 ; Call the BIOS to read the disk
 int	0x13
@@ -139,4 +139,4 @@ reload_segs:
 mov word [mem_map_num_entries], bp
 
 mov ebx, os_info	; Give stage3 the OS info struct
-jmp 0x4000			; Jump to stage3
+jmp 0x2000			; Jump to stage3

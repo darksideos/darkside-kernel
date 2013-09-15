@@ -86,7 +86,7 @@ void parse_registry(os_info_t *os_info)
 	unsigned char *line = strtok(registry_data, "\n", &saveptr);
 	unsigned int lineNumber = 0;
 	
-	module_t module = 0;
+	module_t *module = 0;
 	unsigned int lastIndent = 0;
 	while(line != 0)
 	{
@@ -95,19 +95,19 @@ void parse_registry(os_info_t *os_info)
 			/* Continuing a module declaration */
 			if(indents(line) == lastIndent)
 			{
-				if(strnequal("@NAME", line, 5)
+				if(strnequal("@NAME", line, 5))
 				{
 					module->name = line + 6;
 				}
-				else if(strnequal("@DESC", line, 5)
+				else if(strnequal("@DESC", line, 5))
 				{
 					module->desc = line + 6;
 				}
-				else if(strnequal("@AUTHOR", line, 7)
+				else if(strnequal("@AUTHOR", line, 7))
 				{
 					module->author = line + 8;
 				}
-				else if(strnequal("@PATH", line, 5)
+				else if(strnequal("@PATH", line, 5))
 				{
 					module->path = line + 6;
 				}
@@ -135,7 +135,7 @@ void parse_registry(os_info_t *os_info)
 		else
 		{
 			/* Beginning a module declaration */
-			if(strequal(line), "@MODULE")
+			if(strequal(line, "@MODULE"))
 			{
 				module = kmalloc(sizeof(module_t));
 			}
