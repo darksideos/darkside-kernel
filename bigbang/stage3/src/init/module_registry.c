@@ -138,6 +138,7 @@ void parse_registry(os_info_t *os_info)
 			{
 				/* Write the module to the tree */
 				parent->data = module;
+				parent->normal = false;
 				module = 0;
 			}
 		}
