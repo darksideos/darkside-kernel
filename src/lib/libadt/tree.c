@@ -4,6 +4,7 @@
 #include <lib/libadt/map.h>
 #include <lib/libadt/list.h>
 #include <lib/libc/stdarg.h>
+#include <lib/libc/types.h>
 
 tree_node_t *tree_node_create(tree_node_t *parent)
 {
@@ -14,6 +15,7 @@ tree_node_t *tree_node_create(tree_node_t *parent)
 	
 	node->parent = parent;
 	node->data = (void*) &map;
+	node->normal = true;
 	
 	return node;
 }
