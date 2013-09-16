@@ -11,7 +11,7 @@ struct device;
 typedef struct driver
 {
 	/* Base object */
-	module_t base;
+	loaded_module_t base;
 
 	/* Read a specified amount of data at the given offset from a device into a buffer */
 	uint64_t (*read)(struct device *device, uint8_t *buffer, uint64_t offset, uint64_t length);
