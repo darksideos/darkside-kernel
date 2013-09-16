@@ -47,9 +47,7 @@ unsigned int tree_index(unsigned char *line)
 		unsigned char *noquotes = kmalloc(strlen(line) - 1);
 		memset(noquotes, 0, strlen(line) - 1);
 		
-		kprintf(LOG_DEBUG, "b4\n");
 		strncpy(noquotes, line + 1, strlen(line) - 1);
-		kprintf(LOG_DEBUG, "after\n");
 		return hash(noquotes);
 	}
 	else
@@ -68,7 +66,8 @@ unsigned int separate_indents(unsigned char **line)
 		(*line)++;
 	}
 	
-	return indents;
+	/* The "root" node in the tree has 0 indents */
+	return indents + 1;
 }
 
 void parse_registry(os_info_t *os_info)
@@ -88,10 +87,12 @@ void parse_registry(os_info_t *os_info)
 	unsigned int lineNumber = 0;
 	
 	module_t *module = 0;
-	unsigned int lastIndents = 0;
+	int lastIndents = 0;
 	
 	tree_t tree = tree_create();
 	tree_node_t *parent = &tree.root_node;
+	
+	kprintf(LOG_DEBUG, "PLOC %08X\n", parent);
 	
 	while(line != 0)
 	{
@@ -147,18 +148,25 @@ void parse_registry(os_info_t *os_info)
 			/* Beginning a module declaration */
 			if(strequal(line, "@MODULE"))
 			{
+				kprintf(LOG_DEBUG, "@MODULE DECL\n");
 				module = kmalloc(sizeof(module_t));
 			}
 			/* Sub in */
 			else if(indents > lastIndents)
 			{
 				tree_node_t *child = tree_node_create(parent);
+				kprintf(LOG_DEBUG, "Subbed in, line %s, %08X %08X\n", line, parent, child);
+				kprintf(LOG_DEBUG, "New index %d\n", tree_index(line));
+				kprintf(LOG_DEBUG, "%d\n", parent->data);
 				tree_node_insert(parent, child, tree_index(line));
+				kprintf(LOG_DEBUG, "New node inserted\n");
 				parent = child;
+				kprintf(LOG_DEBUG, "Switched active nodes\n");
 			}
 			/* Sub out */
 			else
 			{
+				kprintf(LOG_DEBUG, "Subbed out on line %s\n", line);
 				parent = parent->parent;
 			}
 		}

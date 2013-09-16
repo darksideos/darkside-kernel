@@ -3,6 +3,22 @@
 
 #include <lib/libc/types.h>
 #include <kernel/mm/range.h>
+#include <lib/libadt/tree.h>
+
+/* An OS module struct */
+typedef struct module
+{
+	unsigned char *name;
+	unsigned char *author;
+	unsigned char *desc;
+	
+	unsigned char major;
+	unsigned char minor;
+	unsigned char patch;
+	
+	unsigned char *path;
+	unsigned char *data;
+} module_t;
 
 /* OS information structure */
 typedef struct os_info
@@ -10,12 +26,13 @@ typedef struct os_info
 	/* Physical memory map */
 	range_t *ranges;
 	uint32_t num_ranges;
+	
+	/* Loaded modules */
+	tree_t module_registry;
 
 	/* ACPI RSDP */
 	uint64_t rsdp;
-
-	/* Loaded modules */
-
+	
 	/* Video mode information */
 	void *framebuffer;
 	uint32_t width, height;

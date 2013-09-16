@@ -13,6 +13,7 @@ map_t map_create()
 	/* Create its bucket list */
 	list_t bucket_list = list_create(sizeof(bucket_t), 4);
 
+	kprintf(LOG_DEBUG, "Map create\n");
 	map.buckets = (list_t*) kmalloc(sizeof(list_t));
 	memcpy(map.buckets, &bucket_list, sizeof(list_t));
 
