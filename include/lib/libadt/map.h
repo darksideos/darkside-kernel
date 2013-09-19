@@ -14,7 +14,7 @@ typedef struct bucket
 /* Map structure */
 typedef struct map
 {
-	list_t *buckets;
+	list_t buckets;
 } map_t;
 
 map_t map_create();
