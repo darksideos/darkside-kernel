@@ -5,6 +5,7 @@
 #include <lib/libadt/list.h>
 #include <lib/libc/stdarg.h>
 #include <lib/libc/types.h>
+#include <kernel/console/kprintf.h>
 
 tree_node_t *tree_node_create(tree_node_t *parent)
 {

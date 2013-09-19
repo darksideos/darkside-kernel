@@ -8,17 +8,18 @@
 void list_reserve(list_t *list, uint32_t nitems);
 
 /* Create a list */
-list_t list_create(uint32_t itemsz, uint32_t nitems)
+list_t list_create(uint32_t itemsz, uint32_t preallocated)
 {
 	/* Declare a new list and fill out its information */
 	list_t list;
 
 	list.itemsz = itemsz;
-	list.nitems = 0;
-	list.length = 0;
+	list.occupied = 0;
+	list.allocated = 0;
 
 	/* Reserve space for the list and return it */
-	list_reserve(&list, nitems);
+	list_reserve(&list, preallocated);
+	
 	return list;
 }
 
@@ -34,42 +35,42 @@ void list_destroy(list_t *list)
 	/* Set its information to 0 */
 	list->data = 0;
 	list->itemsz = 0;
-	list->nitems = 0;
-	list->length = 0;
+	list->occupied = 0;
+	list->allocated = 0;
 }
 
 /* Append an item to a list */
 uint32_t list_append(list_t *list, void *item)
 {
 	/* Reserve more space */
-	list_reserve(list, list->nitems + 1);
+	list_reserve(list, list->occupied + 1);
 
 	/* Copy the item into the list */
 	uint8_t *bytes = (uint8_t*) list->data;
-	memcpy(&bytes[list->itemsz * list->nitems], item, list->itemsz);
+	memcpy(&bytes[list->itemsz * list->occupied], item, list->itemsz);
 
 	/* Increment the number of items */
-	list->nitems++;
+	list->occupied++;
 
 	/* Return the item's index */
-	return list->nitems - 1;
+	return list->occupied - 1;
 }
 
 /* Remove an item from a list */
 void list_remove(list_t *list, uint32_t index)
 {
-	if (index < list->nitems)
+	if (index < list->occupied)
 	{
 		uint8_t *bytes = (uint8_t*) list->data;
-		memmove(&bytes[index * list->itemsz], &bytes[(index+1) * list->itemsz], (list->length - index) * list->itemsz);
-		list->nitems--;
+		memmove(&bytes[index * list->itemsz], &bytes[(index+1) * list->itemsz], (list->allocated - index) * list->itemsz);
+		list->occupied--;
 	}
 }
 
 /* Get an item in a list */
 void *list_get(list_t *list, uint32_t index)
 {
-	if (index < list->nitems)
+	if (index < list->occupied)
 	{
 		uint8_t *bytes = (uint8_t*) list->data;
 		return (void*) (&bytes[index * list->itemsz]);
@@ -79,7 +80,7 @@ void *list_get(list_t *list, uint32_t index)
 /* Set an item in a list */
 void list_set(list_t *list, uint32_t index, void *item)
 {
-	if (index < list->nitems)
+	if (index < list->occupied)
 	{
 		uint8_t *bytes = (uint8_t*) list->data;
 		memcpy(&bytes[index * list->itemsz], item, list->itemsz);
@@ -89,24 +90,26 @@ void list_set(list_t *list, uint32_t index, void *item)
 /* Get the number of items in a list */
 uint32_t list_length(list_t *list)
 {
-	return list->nitems;
+	return list->occupied;
 }
 
 /* Reserve space for a list */
-void list_reserve(list_t *list, uint32_t nitems)
+void list_reserve(list_t *list, uint32_t allocate)
 {
-	if (list->length >= nitems)
+	/* We have more space than was requested, so do nothing */
+	if (list->allocated >= allocate)
 	{
 		return;
 	}
 	
-	void *newdata = kmalloc(list->itemsz * nitems);
+	/* We need more space */
+	void *newdata = kmalloc(list->itemsz * allocate);
 	
 	if (list->data)
 	{
-		memcpy(newdata, list->data, list->itemsz * list->length);
+		memcpy(newdata, list->data, list->itemsz * list->occupied);
 	}
 
 	list->data = newdata;
-	list->length = nitems;
+	list->allocated = allocate;
 }

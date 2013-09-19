@@ -3,6 +3,7 @@
 #include <lib/libadt/list.h>
 #include <lib/libc/string.h>
 #include <kernel/mm/heap.h>
+#include <kernel/console/kprintf.h>
 
 /* Create a map */
 map_t map_create()
@@ -13,9 +14,11 @@ map_t map_create()
 	/* Create its bucket list */
 	list_t bucket_list = list_create(sizeof(bucket_t), 4);
 
-	kprintf(LOG_DEBUG, "Map create\n");
 	map.buckets = (list_t*) kmalloc(sizeof(list_t));
 	memcpy(map.buckets, &bucket_list, sizeof(list_t));
+	
+	/* For some reason, removing this line causes a triple fault */
+	kprintf(LOG_DEBUG, "Creating @ %08X\n", &map);
 
 	/* Return the map */
 	return map;
