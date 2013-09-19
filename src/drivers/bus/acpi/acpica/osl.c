@@ -18,6 +18,10 @@
 #define _COMPONENT          ACPI_OS_SERVICES
         ACPI_MODULE_NAME    ("osunixxf")
 
+/* ACPI IRQ information */
+static ACPI_OSD_HANDLER acpi_irq_handler;
+static void *acpi_irq_context;
+
 /* Initialize the OSL */
 ACPI_STATUS AcpiOsInitialize(void)
 {
@@ -105,7 +109,7 @@ ACPI_STATUS AcpiOsReleaseObject(ACPI_CACHE_T *Cache, void *Object)
 /* Map a physical address into the virtual address space */
 void *AcpiOsMapMemory(ACPI_PHYSICAL_ADDRESS where, ACPI_SIZE length)
 {
-	return 0;
+	return where;
 }
 
 /* Unmap a virtual address */
@@ -308,9 +312,20 @@ void AcpiOsReleaseLock (ACPI_SPINLOCK Handle, ACPI_CPU_FLAGS Flags)
 	spinlock_release(lock);
 }
 
+/* Stub for executing an ACPI IRQ */
+static void acpi_irq_stub(struct regs *r)
+{
+	(*acpi_irq_handler)(acpi_irq_context);
+}
+
 /* Install a handler for a given IRQ */
 ACPI_STATUS AcpiOsInstallInterruptHandler(UINT32 InterruptNumber, ACPI_OSD_HANDLER ServiceRoutine, void *Context)
 {
+	acpi_irq_handler = ServiceRoutine;
+	acpi_irq_context = Context;
+
+	irq_install_handler(InterruptNumber, &acpi_irq_stub);
+
     return AE_OK;
 }
 
