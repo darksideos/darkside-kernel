@@ -1,20 +1,12 @@
-#ifndef __TREE_H
-#define __TREE_H
+#ifndef __INDEX_TREE_H
+#define __INDEX_TREE_H
 
-#include <lib/libadt/map.h>
+typedef struct index_tree_node index_tree_node_t;
 
-typedef struct tree_node
+/* Index tree structure */
+typedef struct index_tree
 {
-	struct tree_node *parent;
-	
-	bool normal;
-	/* This is usually a map_t of children, if normal is true */
-	void *data;
-} tree_node_t;
-
-typedef struct tree
-{
-	tree_node_t root_node;
+	index_tree_node_t *root;
 } tree_t;
 
 /* Creating trees */
@@ -23,9 +15,6 @@ tree_t tree_create();
 /* Manipulating trees */
 void tree_insert(tree_t *tree, void *data, uint32_t levels, ...);
 void *tree_lookup(tree_t *tree, uint32_t levels, ...);
-
-/* Creating nodes */
-tree_node_t *tree_node_create(tree_node_t *parent);
 
 /* Node info */
 tree_node_t *tree_node_parent(tree_node_t *child);
