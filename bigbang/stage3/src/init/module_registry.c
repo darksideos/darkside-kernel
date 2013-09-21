@@ -7,6 +7,8 @@
 #include <lib/libc/string.h>
 #include <lib/libc/str2int.h>
 #include <lib/libc/types.h>
+#include <lib/libadt/map.h>
+#include <lib/libadt/index_tree.h>
 
 extern partition_t *part;
 extern superblock_t *superblock;
@@ -78,7 +80,7 @@ void parse_registry(os_info_t *os_info)
 	map_append(&test, 42, 0xDEADBEEF);
 	kprintf(LOG_DEBUG, "Retrieving\n");
 	kprintf(LOG_DEBUG, "Retrieved %08X\n", map_get(&test, 42));
-	// tree_t test = tree_create();
+	// index_tree_t test = tree_create();
 // 	
 // 	kprintf(LOG_DEBUG, "inserting\n");
 // 	tree_insert(&test, 0xDEADBEEF, 3, 0, 1, 2);
@@ -102,7 +104,7 @@ void parse_registry(os_info_t *os_info)
 	module_t *module = 0;
 	int lastIndents = 0;
 	
-	tree_t tree = tree_create();
+	index_tree_t tree = tree_create();
 	tree_node_t *parent = &tree.root_node;
 	
 	kprintf(LOG_DEBUG, "PLOC %08X\n", parent);
