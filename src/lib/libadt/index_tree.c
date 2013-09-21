@@ -25,7 +25,7 @@ static index_tree_node_t *index_tree_node_create(index_tree_node_t *parent, void
 
 	node->parent = parent;
 	node->children = map_create();
-	node->data = 0;
+	node->data = data;
 	
 	return node;
 }
@@ -41,7 +41,7 @@ index_tree_t index_tree_create()
 {
 	index_tree_t tree;
 	
-	tree.root = index_tree_node_create(0);
+	tree.root = index_tree_node_create(0, 0);
 	
 	return tree;
 }
@@ -67,11 +67,11 @@ void index_tree_insert(index_tree_t *tree, void *data, uint32_t levels, ...)
 			/* This is the last node */
 			if(index == levels - 1)
 			{
-				child = data;
+				child = index_tree_node_create(parent, data);
 			}
 			else
 			{
-				child = index_tree_node_create(parent, data);
+				child = index_tree_node_create(parent, 0);
 			}
 			
 			index_tree_node_insert(parent, child, tree_index);
