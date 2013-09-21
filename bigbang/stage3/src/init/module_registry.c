@@ -99,6 +99,7 @@ void parse_registry(os_info_t *os_info)
 		/* Separate out tabs from data, returning the number of tabs and advancing the string pointer */
 		unsigned int indents = separate_indents(&line);
 		
+		/* We're in "module mode" */
 		if(module)
 		{
 			/* Continuing a module declaration */
@@ -139,21 +140,30 @@ void parse_registry(os_info_t *os_info)
 			{
 				/* Write the module to the tree */
 				parent->data = module;
+				parent->normal = false;
 				module = 0;
 			}
 		}
-		else
+		
+		/* Sub out */
+		while (lastIndents > indents)
 		{
-			/* Beginning a module declaration */
+			parent = parent->parent;
+			indents--;
+		}
+			
+		if(!module)
+		{
+			/* We are beginning a module declaration */
 			if(strequal(line, "@MODULE"))
 			{
-				kprintf(LOG_DEBUG, "@MODULE DECL\n");
 				module = kmalloc(sizeof(module_t));
 			}
+			/* We are "subbing in" -- going another level into the tree */
 			else
 			{
-				struct index_tree_node *child = tree_node_create(parent);
-				tree_node_insert(parent, child, tree_index(line));
+				struct index_tree_node *child = index_tree_node_create(parent);
+				index_tree_node_insert(parent, child, tree_index(line));
 				parent = child;
 			}
 		}
