@@ -31,7 +31,7 @@ static index_tree_node_t *index_tree_node_create(index_tree_node_t *parent)
 }
 
 /* Insert data into a tree node */
-void tree_node_insert(index_tree_node_t *parent, index_tree_node_t *child, uint32_t tree_index)
+void index_tree_node_insert(index_tree_node_t *parent, index_tree_node_t *child, uint32_t tree_index)
 {
 	map_append(&parent->children, tree_index, child);
 }
