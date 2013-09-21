@@ -73,20 +73,7 @@ unsigned int separate_indents(unsigned char **line)
 }
 
 void parse_registry(os_info_t *os_info)
-{
-	map_t test = map_create();
-	
-	kprintf(LOG_DEBUG, "Appending\n");
-	map_append(&test, 42, 0xDEADBEEF);
-	kprintf(LOG_DEBUG, "Retrieving\n");
-	kprintf(LOG_DEBUG, "Retrieved %08X\n", map_get(&test, 42));
-	// index_tree_t test = tree_create();
-// 	
-// 	kprintf(LOG_DEBUG, "inserting\n");
-// 	tree_insert(&test, 0xDEADBEEF, 3, 0, 1, 2);
-// 	kprintf(LOG_DEBUG, "inserted\n");
-// 	kprintf(LOG_DEBUG, "V1: %08X\n", tree_lookup(&test, 3, 0, 1, 2));
-	
+{	
 	unsigned int modules = ext2_finddir(part, superblock, boot_inode, "modules");
 	inode_t *modules_inode = read_inode(part, superblock, modules);
 
@@ -104,10 +91,8 @@ void parse_registry(os_info_t *os_info)
 	module_t *module = 0;
 	int lastIndents = 0;
 	
-	index_tree_t tree = tree_create();
-	tree_node_t *parent = &tree.root_node;
-	
-	kprintf(LOG_DEBUG, "PLOC %08X\n", parent);
+	index_tree_t tree = index_tree_create();
+	struct index_tree_node *parent = tree.root;
 	
 	while(line != 0)
 	{
@@ -154,7 +139,6 @@ void parse_registry(os_info_t *os_info)
 			{
 				/* Write the module to the tree */
 				parent->data = module;
-				parent->normal = false;
 				module = 0;
 			}
 		}
@@ -168,21 +152,9 @@ void parse_registry(os_info_t *os_info)
 			}
 			else
 			{
-				tree_node_t *child = tree_node_create(parent);
-				kprintf(LOG_DEBUG, "Subbed in, line %s, %08X %08X\n", line, parent, child);
-				kprintf(LOG_DEBUG, "New index %d\n", tree_index(line));
-				kprintf(LOG_DEBUG, "%d\n", parent->data);
+				struct index_tree_node *child = tree_node_create(parent);
 				tree_node_insert(parent, child, tree_index(line));
-				kprintf(LOG_DEBUG, "New node inserted\n");
 				parent = child;
-				kprintf(LOG_DEBUG, "Switched active nodes\n");
-			}
-			
-			/* Sub out */
-			if(lastIndents > indents)
-			{
-				kprintf(LOG_DEBUG, "Subbed out on line %s\n", line);
-				parent = parent->parent;
 			}
 		}
 		
