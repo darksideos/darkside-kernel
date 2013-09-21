@@ -27,11 +27,8 @@ typedef struct os_info
 	range_t *ranges;
 	uint32_t num_ranges;
 	
-	/* Loaded modules */
+	/* Module registry and loaded modules */
 	index_tree_t module_registry;
-
-	/* ACPI RSDP */
-	uint64_t rsdp;
 } __attribute__ ((packed)) os_info_t;
 
 #endif
