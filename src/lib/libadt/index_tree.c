@@ -64,7 +64,7 @@ void index_tree_insert(index_tree_t *tree, void *data, uint32_t levels, ...)
 		/* The node doesn't have the child */
 		if(!child)
 		{
-			/* This is the last node */
+			/* This is the last node (and doesn't exist) */
 			if(index == levels - 1)
 			{
 				child = index_tree_node_create(parent, data);
@@ -75,6 +75,11 @@ void index_tree_insert(index_tree_t *tree, void *data, uint32_t levels, ...)
 			}
 			
 			index_tree_node_insert(parent, child, tree_index);
+		}
+		/* The node exists, but doesn't have the data */
+		else if(index == levels - 1)
+		{
+			child->data = data;
 		}
 		
 		parent = child;
