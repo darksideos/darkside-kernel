@@ -9,6 +9,9 @@
 #include <init/os_info.h>
 #include <init/bochs.h>
 
+#include <init/kprintf.h>
+#include <lib/libadt/index_tree.h>
+
 extern unsigned int *pd;
 
 partition_t *part;
@@ -41,7 +44,14 @@ void main(os_info_x86_t *os_info_x86)
 	elf_load_executable(kernel_elf);
 	void (*exec_run)(os_info_t*) = kernel_elf->entry_point;
 	
-	parse_registry(os_info);
+	/*parse_registry(os_info);*/
+
+	index_tree_t tree = index_tree_create();
+
+	index_tree_insert(&tree, (void*) 0xDEADBEEF, 4, 0, 1, 2, 3);
+	void *data = index_tree_lookup(&tree, 4, 0, 1, 2, 3);
+
+	kprintf(LOG_DEBUG, "0x%08X\n", data);
 	
 	while(1);
 	
