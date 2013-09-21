@@ -1,6 +1,8 @@
 #ifndef __INDEX_TREE_H
 #define __INDEX_TREE_H
 
+#include <lib/libc/types.h>
+
 struct index_tree_node;
 
 /* Index tree structure */
