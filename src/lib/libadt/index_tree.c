@@ -114,3 +114,14 @@ index_tree_node_t *index_tree_node_parent(index_tree_node_t *node)
 {
 	return node->parent;
 }
+
+/* Getters and setters for node data */
+void *index_tree_node_get_data(struct index_tree_node *node)
+{
+	return node->data;
+}
+
+void index_tree_node_set_data(struct index_tree_node *node, void *data)
+{
+	node->data = data;
+}

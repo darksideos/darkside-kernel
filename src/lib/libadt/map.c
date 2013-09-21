@@ -12,9 +12,6 @@ map_t map_create()
 	map_t map;
 
 	map.buckets = list_create(sizeof(bucket_t), 4);
-	
-	/* For some reason, removing this line causes a triple fault */
-	kprintf(LOG_DEBUG, "Creating @ %08X\n", &map);
 
 	/* Return the map */
 	return map;
