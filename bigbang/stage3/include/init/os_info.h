@@ -1,7 +1,7 @@
 #ifndef __OS_INFO_H
 #define __OS_INFO_H
 
-#include <lib/libadt/tree.h>
+#include <lib/libadt/index_tree.h>
 
 #define MEM_MAP_FLAG_FREE			0x01
 #define MEM_MAP_FLAG_VALID			0x02
@@ -17,10 +17,12 @@ typedef struct mem_map_entry
 
 typedef struct os_info
 {
+	/* Physical memory map */
 	mem_map_entry_t* mem_map;
 	unsigned int mem_map_entries;
 	
-	tree_t module_registry;
+	/* Module registry and loaded modules */
+	index_tree_t module_registry;
 } __attribute__ ((packed)) os_info_t;
 
 #endif
