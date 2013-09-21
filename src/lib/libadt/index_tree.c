@@ -19,7 +19,7 @@ typedef struct index_tree_node
 } index_tree_node_t;
 
 /* Create an index tree node */
-static index_tree_node_t *index_tree_node_create(index_tree_node_t *parent)
+static index_tree_node_t *index_tree_node_create(index_tree_node_t *parent, void *data)
 {
 	index_tree_node_t *node = kmalloc(sizeof(index_tree_node_t));
 
@@ -71,7 +71,7 @@ void index_tree_insert(index_tree_t *tree, void *data, uint32_t levels, ...)
 			}
 			else
 			{
-				child = index_tree_node_create(parent);
+				child = index_tree_node_create(parent, data);
 			}
 			
 			index_tree_node_insert(parent, child, tree_index);
