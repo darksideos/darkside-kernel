@@ -51,7 +51,7 @@ void main(os_info_x86_t *os_info_x86)
 	index_tree_insert(&tree, (void*) 0xDEADBEEF, 4, 0, 1, 2, 3);
 	void *data = index_tree_lookup(&tree, 4, 0, 1, 2, 3);
 
-	kprintf(LOG_DEBUG, "0x%08X\n", data);
+	kprintf(LOG_DEBUG, "0x%08X\n", (unsigned int) data);
 	
 	while(1);
 	
