@@ -20,6 +20,8 @@ void *index_tree_lookup(index_tree_t *tree, uint32_t levels, ...);
 
 /* Node info */
 struct index_tree_node *index_tree_node_parent(struct index_tree_node *child);
+void *index_tree_node_get_data(struct index_tree_node *node);
+void index_tree_node_set_data(struct index_tree_node *node, void *data);
 
 /* Manipulating nodes */
 void index_tree_node_insert(struct index_tree_node *parent, struct index_tree_node *child, uint32_t tree_index);

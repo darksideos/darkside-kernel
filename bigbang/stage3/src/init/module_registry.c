@@ -74,6 +74,7 @@ unsigned int separate_indents(unsigned char **line)
 
 void parse_registry(os_info_t *os_info)
 {	
+	kprintf(LOG_DEBUG, "Reading to parse modules\n");
 	unsigned int modules = ext2_finddir(part, superblock, boot_inode, "modules");
 	inode_t *modules_inode = read_inode(part, superblock, modules);
 
@@ -105,6 +106,7 @@ void parse_registry(os_info_t *os_info)
 			/* Continuing a module declaration */
 			if(indents == lastIndents)
 			{
+				kprintf(LOG_DEBUG, "Continuing module declaration\n");
 				if(strnequal("@NAME", line, 5))
 				{
 					module->name = line + 6;
@@ -139,17 +141,19 @@ void parse_registry(os_info_t *os_info)
 			else
 			{
 				/* Write the module to the tree */
-				parent->data = module;
-				parent->normal = false;
+				index_tree_node_set_data(parent, module);
 				module = 0;
+				
+				kprintf(LOG_DEBUG, "Writing module data to tree\n", indents);
 			}
 		}
 		
 		/* Sub out */
 		while (lastIndents > indents)
 		{
-			parent = parent->parent;
+			parent = index_tree_node_parent(parent);
 			indents--;
+			kprintf(LOG_DEBUG, "Subbing out to level %d\n", indents);
 		}
 			
 		if(!module)
@@ -157,11 +161,13 @@ void parse_registry(os_info_t *os_info)
 			/* We are beginning a module declaration */
 			if(strequal(line, "@MODULE"))
 			{
+				kprintf(LOG_DEBUG, "Beginning module declaration.\n");
 				module = kmalloc(sizeof(module_t));
 			}
 			/* We are "subbing in" -- going another level into the tree */
 			else
 			{
+				kprintf(LOG_DEBUG, "Subbing in to level %d\n", indents);
 				struct index_tree_node *child = index_tree_node_create(parent);
 				index_tree_node_insert(parent, child, tree_index(line));
 				parent = child;
