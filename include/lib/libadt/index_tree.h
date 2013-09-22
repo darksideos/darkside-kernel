@@ -24,6 +24,7 @@ void *index_tree_node_get_data(struct index_tree_node *node);
 void index_tree_node_set_data(struct index_tree_node *node, void *data);
 
 /* Manipulating nodes */
+struct index_tree_node *index_tree_node_create(struct index_tree_node *parent, void *data);
 void index_tree_node_insert(struct index_tree_node *parent, struct index_tree_node *child, uint32_t tree_index);
 
 #endif

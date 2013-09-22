@@ -73,8 +73,7 @@ unsigned int separate_indents(unsigned char **line)
 }
 
 void parse_registry(os_info_t *os_info)
-{	
-	kprintf(LOG_DEBUG, "Reading to parse modules\n");
+{
 	unsigned int modules = ext2_finddir(part, superblock, boot_inode, "modules");
 	inode_t *modules_inode = read_inode(part, superblock, modules);
 
@@ -83,7 +82,10 @@ void parse_registry(os_info_t *os_info)
 	
 	unsigned char *registry_data = kmalloc(registry_inode->low_size + 1);
 	memset(registry_data, 0, registry_inode->low_size + 1);
+	kprintf(LOG_DEBUG, "Size: %d\n", registry_inode->low_size);
 	ext2_read(part, superblock, registry_inode, registry_data, registry_inode->low_size);
+	
+	kprintf(LOG_INFO, "Allocated and read module registry\n");
 	
 	unsigned char *saveptr = 0;
 	unsigned char *line = strtok(registry_data, "\n", &saveptr);
@@ -152,7 +154,7 @@ void parse_registry(os_info_t *os_info)
 		while (lastIndents > indents)
 		{
 			parent = index_tree_node_parent(parent);
-			indents--;
+			lastIndents--;
 			kprintf(LOG_DEBUG, "Subbing out to level %d\n", indents);
 		}
 			
@@ -165,10 +167,10 @@ void parse_registry(os_info_t *os_info)
 				module = kmalloc(sizeof(module_t));
 			}
 			/* We are "subbing in" -- going another level into the tree */
-			else
+			else if(!strequal(line, ""))
 			{
 				kprintf(LOG_DEBUG, "Subbing in to level %d\n", indents);
-				struct index_tree_node *child = index_tree_node_create(parent);
+				struct index_tree_node *child = index_tree_node_create(parent, 0);
 				index_tree_node_insert(parent, child, tree_index(line));
 				parent = child;
 			}
@@ -180,4 +182,6 @@ void parse_registry(os_info_t *os_info)
 	}
 	
 	os_info->module_registry = tree;
+	
+	kprintf(LOG_INFO, "Parsed module registry\n");
 }
