@@ -2,6 +2,7 @@
 #define __CLASSES_H
 
 /* Device types */
+#define DEVICE_CLASS_SYSTEM			0x00	/* System device */
 #define DEVICE_CLASS_DISPLAY		0x01	/* Display device */
 #define DEVICE_CLASS_STORAGE		0x02	/* Storage device */
 #define DEVICE_CLASS_NETWORK		0x03	/* Network device */
@@ -10,6 +11,13 @@
 #define DEVICE_CLASS_BUS			0x06	/* Bus */
 #define DEVICE_CLASS_CONTROLLER		0x07	/* Controller */
 #define DEVICE_CLASS_OTHER			0x08	/* Other device */
+
+/* System devices */
+#define DEVICE_SYSTEM_PROCESSOR		0x0000	/* Processor */
+#define DEVICE_SYSTEM_MEMORY		0x0001	/* Memory */
+#define DEVICE_SYSTEM_IRQ			0x0002	/* Interrupt controller */
+#define DEVICE_SYSTEM_TIMER			0x0003	/* Timer */
+#define DEVICE_SYSTEM_RTC			0x0004	/* Real-time clock */
 
 /* Display devices */
 #define DEVICE_DISPLAY_TEXTMODE		0x0100	/* Text mode display device */
