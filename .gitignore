@@ -2,6 +2,7 @@
 *.elf
 *.img
 *.a
+*.pdf
 .DS_Store
 .DS_Store?
 ._*
