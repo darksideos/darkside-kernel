@@ -1,1 +1,0 @@
-This code was taken and modified by Theo Tosini from https://github.com/brianwiddas/pi-baremetal

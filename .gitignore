@@ -2,7 +2,10 @@
 *.elf
 *.img
 *.a
+<<<<<<< HEAD
 *.bin
+=======
+>>>>>>> raspi
 *.pdf
 .DS_Store
 .DS_Store?
