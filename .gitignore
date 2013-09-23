@@ -3,6 +3,7 @@
 *.img
 *.a
 *.bin
+*.pdf
 .DS_Store
 .DS_Store?
 ._*
