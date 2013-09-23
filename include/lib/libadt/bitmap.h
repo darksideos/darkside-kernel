@@ -19,7 +19,10 @@ void bitmap_set(bitmap_t *bitmap, uint32_t index);
 /* Clear a bit in a bitmap */
 void bitmap_clear(bitmap_t *bitmap, uint32_t index);
 
+/* Test a bit in a bitmap */
+bool bitmap_test(bitmap_t *bitmap, uint32_t index);
+
 /* Find the first clear bit in a bitmap */
-uint32_t bitmap_first_clear(bitmap_t *bitmap);
+int64_t bitmap_first_clear(bitmap_t *bitmap);
 
 #endif
