@@ -1,6 +1,8 @@
 #include <lib/libc/types.h>
 #include <lib/libc/math.h>
 
+#include <kernel/console/kprintf.h>
+
 extern uint64_t __udivdi3(uint64_t num, uint64_t div);
 extern uint64_t __umoddi3(uint64_t num, uint64_t div);
 
@@ -18,23 +20,10 @@ uint64_t pow(uint64_t num, uint64_t exp)
 }
 
 /* Calculate the binary logarithm of a number */
-uint64_t log2(uint64_t num)
+uint32_t log2(uint32_t num)
 {
-	/* Find the number of leading zeroes */
-	uint64_t lz = 0;
-
-	for (uint8_t bit = 31; bit >= 0; bit--)
-	{
-		if ((num & (1 << bit)) == 1)
-		{
-			break;
-		}
-
-		lz++;
-	}
-
 	/* Calculate and return the binary logarithm */
-	return 63 - lz;
+	return 31 - __builtin_clz(num);
 }
 
 /* Divide a number by a divisor and round the result down */

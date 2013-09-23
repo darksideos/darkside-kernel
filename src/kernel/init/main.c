@@ -48,6 +48,9 @@ void event1()
 uint64_t ata_driver_read(device_t *device, uint8_t *buffer, uint64_t offset, uint64_t length);
 uint64_t ata_driver_write(device_t *device, uint8_t *buffer, uint64_t offset, uint64_t length);
 
+#include <lib/libadt/bitmap.h>
+#include <lib/libadt/buddy.h>
+
 void kernel_main(os_info_t *os_info)
 {
 	/* Start the VGA text mode driver */
@@ -72,8 +75,13 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the device manager */
 
 	/* Start the rest of the CPUs in the system */
+<<<<<<< HEAD
 
 	/* Initialize the scheduler */
+=======
+	
+ 	/* Initialize the scheduler */
+>>>>>>> heap
 	init_scheduler();
 
 	/* Load init from the root filesystem */
@@ -134,6 +142,18 @@ void kernel_main(os_info_t *os_info)
 		putch(buffer[i]);
 		i++;
 	}*/
+
+	buddy_t buddy;
+	buddy_init(&buddy, kmalloc(130944), 0, 0x1000000, 5, 15);
+
+	uint64_t alloc1 = buddy_malloc(&buddy, 32);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc1);
+
+	uint64_t alloc2 = buddy_malloc(&buddy, 64);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc2);
+
+	uint64_t alloc3 = buddy_malloc(&buddy, 32);
+	kprintf(LOG_DEBUG, "0x%08X\n", (uint32_t) alloc3);
 
 	while(1);
 }
