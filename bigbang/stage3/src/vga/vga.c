@@ -116,6 +116,8 @@ void putch(unsigned char c)
     /* Scroll the screen if needed, and finally move the cursor */
     scroll();
     move_csr();
+    
+    bochs_putch(c);
 }
 
 /* Uses the above routine to output a string */

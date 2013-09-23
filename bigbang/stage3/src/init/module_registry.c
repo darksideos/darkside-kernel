@@ -82,10 +82,7 @@ void parse_registry(os_info_t *os_info)
 	
 	unsigned char *registry_data = kmalloc(registry_inode->low_size + 1);
 	memset(registry_data, 0, registry_inode->low_size + 1);
-	kprintf(LOG_DEBUG, "Size: %d\n", registry_inode->low_size);
 	ext2_read(part, superblock, registry_inode, registry_data, registry_inode->low_size);
-	
-	kprintf(LOG_INFO, "Allocated and read module registry\n");
 	
 	unsigned char *saveptr = 0;
 	unsigned char *line = strtok(registry_data, "\n", &saveptr);

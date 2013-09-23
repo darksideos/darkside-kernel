@@ -54,6 +54,7 @@ unsigned int ext2_read_block_pointer(partition_t *part, superblock_t *superblock
 	
 	if(level == 0)
 	{
+		/* Reading a single block */
 		if(length >= get_block_size(superblock))
 		{
 			trans = get_block_size(superblock);
@@ -103,7 +104,7 @@ int ext2_read(partition_t *part, superblock_t *superblock, inode_t *inode, unsig
 	/* First, use the 12 direct pointers */
 	while(bytes_left > 0 && blocks_read < 12)
 	{
-		bytes_left -= ext2_read_block_pointer(part, superblock, inode->direct_block[blocks_read], buffer, length, 0, blocks_read * get_block_size(superblock));
+		bytes_left -= ext2_read_block_pointer(part, superblock, inode->direct_block[blocks_read], buffer, bytes_left, 0, blocks_read * get_block_size(superblock));
 		blocks_read++;
 	}
 		
