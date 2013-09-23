@@ -10,7 +10,6 @@
 
 /* Initialize a buddy object */
 void buddy_init(buddy_t *buddy, uint8_t *storage, uint64_t start, uint64_t size, uint8_t min_node_size_log2, uint8_t max_node_size_log2)
->>>>>>> heap
 {
 	buddy->start = start;
 	buddy->size = size;
