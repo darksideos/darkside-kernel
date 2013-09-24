@@ -1,0 +1,4 @@
+<docgenconfig>
+	<coderoot>../../src</coderoot>
+	<coderoot subdirs="no">../../include</coderoot>
+</docgenconfig>
