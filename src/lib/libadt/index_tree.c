@@ -36,6 +36,32 @@ void index_tree_node_insert(index_tree_node_t *parent, index_tree_node_t *child,
 	map_append(&parent->children, tree_index, child);
 }
 
+void index_tree_node_enumerate(index_tree_node_t *node, uint32_t level)
+{
+	uint32_t j;
+	for (j = 0; j < level; j++)
+	{
+		kprintf("\t");
+	}
+
+	kprintf("0x%08X\n", node->data);
+
+	for (i = 0; i < list_length(&node->map.buckets))
+	{
+		for (j = 0; j < level; j++)
+		{
+			kprintf("\t");
+		}
+
+		bucket_t *bucket = list_get(&node->map.buckets, i);
+
+		kprintf("0x%08X\n", bucket->key);
+
+		index_tree_node_enumerate(bucket->value, level + 1);
+	}
+}
+
+
 /* Create an index tree */
 index_tree_t index_tree_create()
 {
@@ -107,6 +133,11 @@ void *index_tree_lookup(index_tree_t *tree, uint32_t levels, ...)
 	va_end(args);
 	
 	return parent->data;
+}
+
+void index_tree_enumerate(index_tree_t *tree)
+{
+	index_tree_node_enumerate(tree->root, 0);
 }
 
 /* Get the parent of an index tree node */
