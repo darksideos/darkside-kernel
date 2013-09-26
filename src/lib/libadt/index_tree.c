@@ -45,11 +45,11 @@ void index_tree_node_enumerate(index_tree_node_t *node, uint32_t level)
 
 	kprintf(LOG_DEBUG, "Data: 0x%08X\n", node->data);
 
-	for (uint32_t i = 0; i < list_length(&node->children.buckets))
+	for (uint32_t i = 0; i < list_length(&node->children.buckets); i++)
 	{
-		for (j = 0; j < level; j++)
+		for (uint32_t j = 0; j < level; j++)
 		{
-			kprintf("\t");
+			kprintf(LOG_NONE, "\t");
 		}
 
 		bucket_t *bucket = list_get(&node->children.buckets, i);
