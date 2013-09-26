@@ -38,26 +38,25 @@ void index_tree_node_insert(index_tree_node_t *parent, index_tree_node_t *child,
 
 void index_tree_node_enumerate(index_tree_node_t *node, uint32_t level)
 {
-	uint32_t j;
-	for (j = 0; j < level; j++)
+	for (uint32_t j = 0; j < level; j++)
 	{
-		kprintf("\t");
+		kprintf(LOG_NONE, "\t");
 	}
 
-	kprintf("0x%08X\n", node->data);
+	kprintf(LOG_DEBUG, "Data: 0x%08X\n", node->data);
 
-	for (i = 0; i < list_length(&node->map.buckets))
+	for (uint32_t i = 0; i < list_length(&node->children.buckets))
 	{
 		for (j = 0; j < level; j++)
 		{
 			kprintf("\t");
 		}
 
-		bucket_t *bucket = list_get(&node->map.buckets, i);
+		bucket_t *bucket = list_get(&node->children.buckets, i);
 
-		kprintf("0x%08X\n", bucket->key);
+		kprintf(LOG_DEBUG, "+0x%08X\n", bucket->key);
 
-		index_tree_node_enumerate(bucket->value, level + 1);
+		index_tree_node_enumerate(bucket->key, level + 1);
 	}
 }
 

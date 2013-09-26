@@ -244,28 +244,31 @@ void kprintf(unsigned char loglevel, const char *fmt, ...)
 
 	buf[i] = '\0';
 	
-	puts("[BTLDR] ");
-	
-	switch (loglevel)
+	if(!loglevel == LOG_NONE)
 	{
-	case LOG_DEBUG:
-		puts("[DEBUG] ");
-		break;
-	case LOG_INFO:
-		puts("[INFO] ");
-		break;
-	case LOG_WARNING:
-		puts("[WARNING] ");
-		break;
-	case LOG_ERROR:
-		puts("[ERROR] ");
-		break;
-	case LOG_ALERT:
-		puts("[ALERT] ");
-		break;
-	case LOG_PANIC:
-		puts("[PANIC] ");
-		break;
+		puts("[BTLDR] ");
+	
+		switch (loglevel)
+		{
+		case LOG_DEBUG:
+			puts("[DEBUG] ");
+			break;
+		case LOG_INFO:
+			puts("[INFO] ");
+			break;
+		case LOG_WARNING:
+			puts("[WARNING] ");
+			break;
+		case LOG_ERROR:
+			puts("[ERROR] ");
+			break;
+		case LOG_ALERT:
+			puts("[ALERT] ");
+			break;
+		case LOG_PANIC:
+			puts("[PANIC] ");
+			break;
+		}
 	}
 	
 	puts(buf);
