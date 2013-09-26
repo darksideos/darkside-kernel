@@ -12,6 +12,8 @@
 #define LOG_ALERT	0x01
 #define LOG_PANIC	0x00
 
+#define LOG_NONE	0xFF
+
 /* Print formatted data to the console */
 void kprintf(int32_t loglevel, const int8_t *fmt, ...);
 
