@@ -74,6 +74,13 @@ unsigned int separate_indents(unsigned char **line)
 
 void parse_registry(os_info_t *os_info)
 {
+	index_tree_t test_tree = index_tree_create();
+	index_tree_insert(&test_tree, 0xDEADBEEF, 4, 0, 1, 2, 3);
+	index_tree_insert(&test_tree, 0xBEEFDEAD, 4, 0, 1, 2, 4);
+	index_tree_insert(&test_tree, 0x0BFF0BFF, 2, 1, 9);
+	
+	index_tree_enumerate(&test_tree);
+	
 	unsigned int modules = ext2_finddir(part, superblock, boot_inode, "modules");
 	inode_t *modules_inode = read_inode(part, superblock, modules);
 
