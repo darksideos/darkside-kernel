@@ -5,6 +5,7 @@
 #include <mm/placement.h>
 #include <init/bochs.h>
 #include <lib/libc/math.h>
+#include <lib/libc/types.h>
 
 unsigned int get_inode_size(superblock_t *superblock)
 {
