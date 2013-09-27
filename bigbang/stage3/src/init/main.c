@@ -46,8 +46,6 @@ void main(os_info_x86_t *os_info_x86)
 	
 	parse_registry(os_info);
 	
-	while(1);
-	
 	/* We don't want to push any extra values, so use a push and a jmp */
 	asm ("push %0\n\tjmp *%1"
 	:

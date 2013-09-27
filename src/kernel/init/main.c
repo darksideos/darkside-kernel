@@ -16,6 +16,7 @@
 #include <kernel/device/device.h>
 #include <kernel/device/driver.h>
 #include <lib/libadt/list.h>
+#include <lib/libadt/index_tree.h>
 
 uint16_t *vidmem = 0xB8000;
 
@@ -74,12 +75,11 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 	
-	/*kprintf(LOG_DEBUG, "Looking up node\n");
-	tree_node_t *parent = (tree_node_t*) tree_lookup(&os_info->module_registry, 1, 42);
-	kprintf(LOG_DEBUG, "Finding data from parent @ %08X\n", parent);
-	module_t *module = (module_t*) parent->data;
+	kprintf(LOG_DEBUG, "Looking up node\n");
+	index_tree_enumerate(&os_info->module_registry);
+	module_t *module = (module_t*) index_tree_lookup(&os_info->module_registry, 1, 42);
 	kprintf(LOG_DEBUG, "Found data @ %08X\n", module);
-	kprintf(LOG_DEBUG, "Author: %s\n", module->author);*/
+	kprintf(LOG_DEBUG, "Author: %s\n", module->author);
 
 	/*thread_t *thread = thread_create(0, &t1, 0, 256);
 	thread_create(0, &t2, 0, 256);
