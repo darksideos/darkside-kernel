@@ -56,7 +56,7 @@ void index_tree_node_enumerate(index_tree_node_t *node, uint32_t level)
 
 		kprintf(LOG_DEBUG, "+0x%08X\n", bucket->key);
 
-		index_tree_node_enumerate(bucket->key, level + 1);
+		index_tree_node_enumerate(map_get(&node->children, bucket->key), level + 1);
 	}
 }
 
