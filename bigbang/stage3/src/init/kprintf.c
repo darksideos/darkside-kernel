@@ -244,7 +244,7 @@ void kprintf(unsigned char loglevel, const char *fmt, ...)
 
 	buf[i] = '\0';
 	
-	if(!loglevel == LOG_NONE)
+	if(loglevel != LOG_NONE)
 	{
 		puts("[BTLDR] ");
 	
