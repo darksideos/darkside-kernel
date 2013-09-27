@@ -46,6 +46,22 @@ void event1()
 	vidmem[3] = 0x7044;
 }
 
+/* Hash a key */
+unsigned int hash(unsigned char *key)
+{
+	unsigned int hash_key = 0;
+
+	while (*key)
+	{
+		hash_key *= 0x1F;
+		hash_key += *key;
+
+		key++;
+	}
+
+	return hash_key;
+}
+
 void kernel_main(os_info_t *os_info)
 {
 	/* Start the VGA text mode driver */
@@ -76,8 +92,7 @@ void kernel_main(os_info_t *os_info)
 	/* Create and run the init process */
 	
 	kprintf(LOG_DEBUG, "Looking up node\n");
-	index_tree_enumerate(&os_info->module_registry);
-	module_t *module = (module_t*) index_tree_lookup(&os_info->module_registry, 1, 42);
+	module_t *module = (module_t*) index_tree_lookup(&os_info->module_registry, 3, hash("DEVICE DRIVERS"), hash("BUSES"), hash("0A00"));
 	kprintf(LOG_DEBUG, "Found data @ %08X\n", module);
 	kprintf(LOG_DEBUG, "Author: %s\n", module->author);
 

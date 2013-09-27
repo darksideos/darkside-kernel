@@ -48,8 +48,8 @@ unsigned int tree_index(unsigned char *line, unsigned int lineNumber)
 	{
 		unsigned char *noquotes = kmalloc(strlen(line) - 1);
 		memset(noquotes, 0, strlen(line) - 1);
+		memcpy(noquotes, line + 1, strlen(line) - 2);
 		
-		strncpy(noquotes, line + 1, strlen(line) - 1);
 		return hash(noquotes);
 	}
 	else
@@ -144,6 +144,8 @@ void parse_registry(os_info_t *os_info)
 				/* Write the module to the tree */
 				index_tree_node_set_data(parent, module);
 				module = 0;
+				
+				parent = index_tree_node_parent(parent);
 			}
 		}
 		
@@ -179,7 +181,6 @@ void parse_registry(os_info_t *os_info)
 		lineNumber++;
 	}
 	
-	index_tree_enumerate(&tree);
 	os_info->module_registry = tree;
 	
 	kprintf(LOG_INFO, "Parsed module registry\n");
