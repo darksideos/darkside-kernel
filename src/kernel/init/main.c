@@ -91,10 +91,16 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 	
-	kprintf(LOG_DEBUG, "Looking up node\n");
-	module_t *module = (module_t*) index_tree_lookup(&os_info->module_registry, 3, hash("DEVICE DRIVERS"), hash("BUSES"), hash("0A00"));
-	kprintf(LOG_DEBUG, "Found data @ %08X\n", module);
+	module_t *module;
+	
+	module = (module_t*) index_tree_lookup(&os_info->module_registry, 3, hash("DEVICE DRIVERS"), hash("BUSES"), hash("0A00"));
+	kprintf(LOG_DEBUG, "Author: %s\n", module->name);
+
+	module = (module_t*) index_tree_lookup(&os_info->module_registry, 2, hash("DEVICE DRIVERS"), hash("GRAPHICS DISPLAY DEVICES"), hash("pci"), hash("80860116"));
 	kprintf(LOG_DEBUG, "Author: %s\n", module->author);
+
+	module = (module_t*) index_tree_lookup(&os_info->module_registry, 2, hash("FILESYSTEMS"), hash("ext2"));
+	kprintf(LOG_DEBUG, "Author: %s\n", module->name);
 
 	/*thread_t *thread = thread_create(0, &t1, 0, 256);
 	thread_create(0, &t2, 0, 256);
