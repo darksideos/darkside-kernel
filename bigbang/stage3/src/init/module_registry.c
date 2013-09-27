@@ -130,7 +130,13 @@ void parse_registry(os_info_t *os_info)
 				}
 				else if(strnequal("@VERSION", line, 8))
 				{
-					/* EVENTUALLY use substr + indexof to find the version numbers */
+					unsigned char *saveptr2 = 0;
+					unsigned char *num = strtok(line + 9, ".", &saveptr2);
+					module->major = str2dec(num);
+					num = strtok(0, ".", &saveptr2);
+					module->minor = str2dec(num);
+					num = strtok(0, ".", &saveptr2);
+					module->patch = str2dec(num);
 				}
 				else
 				{

@@ -93,14 +93,15 @@ void kernel_main(os_info_t *os_info)
 	
 	module_t *module;
 	
-	module = (module_t*) index_tree_lookup(&os_info->module_registry, 3, hash("DEVICE DRIVERS"), hash("BUSES"), hash("acpi"), hash("0A00"));
+	module = (module_t*) index_tree_lookup(&os_info->module_registry, 4, hash("DEVICE DRIVERS"), hash("BUSES"), hash("acpi"), hash("0A00"));
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
-
+	
 	module = (module_t*) index_tree_lookup(&os_info->module_registry, 4, hash("DEVICE DRIVERS"), hash("GRAPHICS DISPLAY DEVICES"), hash("pci"), hash("80860116"));
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
 
 	module = (module_t*) index_tree_lookup(&os_info->module_registry, 2, hash("FILESYSTEMS"), hash("ext2"));
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
+	kprintf(LOG_DEBUG, "Version: MAJOR %d . MINOR %d . PATCH %d\n", module->major, module->minor, module->patch);
 
 	/*thread_t *thread = thread_create(0, &t1, 0, 256);
 	thread_create(0, &t2, 0, 256);
