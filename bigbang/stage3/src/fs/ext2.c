@@ -1,11 +1,11 @@
+#include <lib/libc/types.h>
+#include <lib/libc/math.h>
 #include <fs/ext2.h>
 #include <storage/ata.h>
 #include <storage/partition.h>
 #include <lib/libc/string.h>
 #include <mm/placement.h>
 #include <init/bochs.h>
-#include <lib/libc/math.h>
-#include <lib/libc/types.h>
 
 unsigned int get_inode_size(superblock_t *superblock)
 {
