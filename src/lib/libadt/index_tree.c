@@ -43,7 +43,7 @@ void index_tree_node_enumerate(index_tree_node_t *node, uint32_t level)
 		kprintf(LOG_NONE, "\t");
 	}
 
-	kprintf(LOG_DEBUG, "Data: 0x%08X\n", node->data);
+	kprintf(LOG_NONE, "Data: 0x%08X\n", node->data);
 
 	for (uint32_t i = 0; i < list_length(&node->children.buckets); i++)
 	{
@@ -54,7 +54,7 @@ void index_tree_node_enumerate(index_tree_node_t *node, uint32_t level)
 
 		bucket_t *bucket = list_get(&node->children.buckets, i);
 
-		kprintf(LOG_DEBUG, "+0x%08X\n", bucket->key);
+		kprintf(LOG_NONE, "+0x%08X\n", bucket->key);
 
 		index_tree_node_enumerate(map_get(&node->children, bucket->key), level + 1);
 	}

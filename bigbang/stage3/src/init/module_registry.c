@@ -31,7 +31,7 @@ unsigned int hash(unsigned char *key)
 	return hash_key;
 }
 
-unsigned int tree_index(unsigned char *line)
+unsigned int tree_index(unsigned char *line, unsigned int lineNumber)
 {
 	if(*line == '$')
 	{
@@ -54,6 +54,8 @@ unsigned int tree_index(unsigned char *line)
 	}
 	else
 	{
+		kprintf(LOG_PANIC, "Syntax error: module registry index unrecognized at line %d: %s\n", lineNumber, line);
+		while(1);
 		return 0;
 	}
 }
@@ -73,14 +75,7 @@ unsigned int separate_indents(unsigned char **line)
 }
 
 void parse_registry(os_info_t *os_info)
-{
-	index_tree_t test_tree = index_tree_create();
-	index_tree_insert(&test_tree, 0xDEADBEEF, 4, 0, 1, 2, 3);
-	index_tree_insert(&test_tree, 0xBEEFDEAD, 4, 0, 1, 2, 4);
-	index_tree_insert(&test_tree, 0x0BFF0BFF, 2, 1, 9);
-	
-	index_tree_enumerate(&test_tree);
-	
+{	
 	unsigned int modules = ext2_finddir(part, superblock, boot_inode, "modules");
 	inode_t *modules_inode = read_inode(part, superblock, modules);
 
@@ -96,7 +91,7 @@ void parse_registry(os_info_t *os_info)
 	unsigned int lineNumber = 0;
 	
 	module_t *module = 0;
-	int lastIndents = 0;
+	int oldLevel = 0;
 	
 	index_tree_t tree = index_tree_create();
 	struct index_tree_node *parent = tree.root;
@@ -104,15 +99,15 @@ void parse_registry(os_info_t *os_info)
 	while(line != 0)
 	{
 		/* Separate out tabs from data, returning the number of tabs and advancing the string pointer */
-		unsigned int indents = separate_indents(&line);
+		unsigned int tabLevel = separate_indents(&line);
+		unsigned int newLevel = oldLevel;
 		
 		/* We're in "module mode" */
 		if(module)
 		{
-			/* Continuing a module declaration */
-			if(indents == lastIndents)
+			/* Continuing a module declaration, so we're inside */
+			if(tabLevel == oldLevel + 1)
 			{
-				kprintf(LOG_DEBUG, "Continuing module declaration\n");
 				if(strnequal("@NAME", line, 5))
 				{
 					module->name = line + 6;
@@ -139,7 +134,7 @@ void parse_registry(os_info_t *os_info)
 				}
 				else
 				{
-					kprintf(LOG_PANIC, "Error: module registry command unrecognized at line %d: %s\n", line);
+					kprintf(LOG_PANIC, "Syntax error: module registry command unrecognized at line %d: %s\n", lineNumber, line);
 					while(1);
 				}
 			}
@@ -149,42 +144,42 @@ void parse_registry(os_info_t *os_info)
 				/* Write the module to the tree */
 				index_tree_node_set_data(parent, module);
 				module = 0;
-				
-				kprintf(LOG_DEBUG, "Writing module data to tree\n", indents);
 			}
 		}
 		
-		/* Sub out */
-		while (lastIndents > indents)
-		{
-			parent = index_tree_node_parent(parent);
-			lastIndents--;
-			kprintf(LOG_DEBUG, "Subbing out to level %d\n", indents);
-		}
-			
+		/* We're changing levels */
 		if(!module)
 		{
+			/* Sub out */
+			while (newLevel > tabLevel)
+			{
+				parent = index_tree_node_parent(parent);
+				newLevel--;
+			}
+			
 			/* We are beginning a module declaration */
 			if(strequal(line, "@MODULE"))
 			{
-				kprintf(LOG_DEBUG, "Beginning module declaration.\n");
 				module = kmalloc(sizeof(module_t));
 			}
 			/* We are "subbing in" -- going another level into the tree */
 			else if(!strequal(line, ""))
 			{
-				kprintf(LOG_DEBUG, "Subbing in to level %d\n", indents);
 				struct index_tree_node *child = index_tree_node_create(parent, 0);
-				index_tree_node_insert(parent, child, tree_index(line));
+				index_tree_node_insert(parent, child, tree_index(line, lineNumber));
 				parent = child;
+				
+				newLevel = tabLevel;
 			}
 		}
 		
-		lastIndents = indents;
+		oldLevel = newLevel;
+		kprintf(LOG_DEBUG, "Now on level %d, parent %08X\n", oldLevel, parent);
 		line = strtok(0, "\n", &saveptr);
 		lineNumber++;
 	}
 	
+	index_tree_enumerate(&tree);
 	os_info->module_registry = tree;
 	
 	kprintf(LOG_INFO, "Parsed module registry\n");
