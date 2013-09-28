@@ -18,7 +18,9 @@ static void print_atag_core(struct atag_core *data)
 		puts("\n");
 	}
 	else
+	{
 		puts("  No additional data\n");
+	}
 }
 
 static void print_atag_mem(struct atag_mem *data)
@@ -118,13 +120,12 @@ static void print_atag_cmdline(struct atag_cmdline *data)
 	puts("\"\n");
 }
 
+/* Dump all atags using previous functions */
 void print_atags(uint32_t address)
 {
 	/* Use virtual mapped physical memory to access the ATAGs */
 	struct atag_header *atags = (struct atag_header *) mem_p2v(address);
 	uint32_t tag;
-
-	//puts(COLOUR_PUSH BG_GREEN BG_HALF "Reading ATAGs\n\n" COLOUR_POP);
 
 	do
 	{
@@ -179,6 +180,7 @@ void print_atags(uint32_t address)
 				return;
 		}
 
+		/* Go to next atag structure */
 		atags = (struct atag_header *)((uint32_t)atags + (atags->size * 4));
 	} while(tag);
 }
