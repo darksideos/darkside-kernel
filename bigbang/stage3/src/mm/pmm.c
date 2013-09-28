@@ -26,7 +26,9 @@ unsigned int pmm_alloc_page()
 	unsigned int i;
 	for (i = 0; i < phys_mem_map_num_entries; i++)
 	{
-		if (mem_map[i].flags & MEM_MAP_FLAG_FREE)
+		if (!(mem_map[i].flags & MEM_MAP_FLAG_FREE) && (mem_map[i].flags & MEM_MAP_FLAG_VALID)
+			&& (mem_map[i].flags & MEM_MAP_FLAG_EXISTS) &&
+			!(mem_map[i].flags & MEM_MAP_FLAG_ACPI) && !(mem_map[i].flags & MEM_MAP_FLAG_ACPI_VOLATILE))
 		{
 			/* Do some calculations */
 			unsigned int start = (unsigned int) mem_map[i].base;
