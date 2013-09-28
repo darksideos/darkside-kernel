@@ -1,7 +1,7 @@
 #include <drivers/serial/gpio/gpio.h>
-/* Raspi Initilization Function */
-void raspi_main()
+
+/* Initialize the HAL on the BSP */
+void hal_init_bsp()
 {
-	/* Wait Forever */	
 	while(1);
 }
