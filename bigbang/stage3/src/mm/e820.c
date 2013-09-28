@@ -175,6 +175,7 @@ mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
 {
 	/* Translate the linked list back into an array */
 	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * mem_map_entries);
+	linked = first_linked;
 	
 	unsigned int index;
 	for (index = 0; index < mem_map_entries; index++)
@@ -183,6 +184,7 @@ mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
 		mem_map[index].length = linked->length;
 		
 		/* We start out assuming some stuff */
+		mem_map[index].flags = 0;
 		mem_map[index].flags |= MEM_MAP_FLAG_FREE;
 		mem_map[index].flags |= MEM_MAP_FLAG_VALID;
 		mem_map[index].flags |= MEM_MAP_FLAG_EXISTS;
