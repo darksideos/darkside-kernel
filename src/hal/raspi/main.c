@@ -1,8 +1,8 @@
 #include <drivers/serial/gpio/gpio.h>
-/* Raspi Initilization Function */
-void raspi_main()
-{
 
+/* Initialize the HAL on the BSP */
+void hal_init_bsp()
+{
 	/* Initilize GPIO 16 (internal LED) */
 	gpio_setmode(4, OUTPUT);
 	gpio_write(4, 1);

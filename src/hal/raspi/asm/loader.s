@@ -1,7 +1,10 @@
-/* This function is run on startup */
+/* Reserve an area for the stack */
+.section .bss
+	.lcomm stack, 65536
+
+/* This is the entry point of our kernel, it is referenced in the linker script */
 .global _start
 _start:
-	/* 0x8000 is the first part of memory that is not read-only */
-	mov sp, #0x8000
-	/* Jump to the raspi initilization function */
-	bl raspi_main
+	mov sp, #stack		/* Set up a new stack */
+	bl hal_init_bsp		/* Call our kernel main function */
+
