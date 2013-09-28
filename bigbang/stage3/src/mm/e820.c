@@ -3,9 +3,8 @@
 #include <init/os_info.h>
 #include <init/os_info_x86.h>
 
-unsigned int mem_map_entries;
-e820_linked_entry_t *linked;
 e820_linked_entry_t *first_linked;
+unsigned int mem_map_entries;
 
 /* This code will only work with physical addresses up to 4 GB */
 e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
@@ -30,7 +29,7 @@ void e820_init_mem_map(os_info_x86_t *os_info)
 	e820_entry_t *sorted = sort_memory_map(os_info->mem_map, os_info->mem_map_entries);
 	
 	/* Transform it into a linked-list */
-	linked = kmalloc(sizeof(e820_linked_entry_t));
+	e820_linked_entry_t *linked = kmalloc(sizeof(e820_linked_entry_t));
 	linked->prev = 0;
 	first_linked = linked;
 	
@@ -175,7 +174,7 @@ mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
 {
 	/* Translate the linked list back into an array */
 	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * mem_map_entries);
-	linked = first_linked;
+	e820_linked_entry_t *linked = first_linked;
 	
 	unsigned int index;
 	for (index = 0; index < mem_map_entries; index++)
