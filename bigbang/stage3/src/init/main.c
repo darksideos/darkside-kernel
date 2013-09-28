@@ -27,23 +27,31 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Translate the memory map */
 	os_info->mem_map = e820_convert_mem_map(os_info_x86, &os_info->mem_map_entries);
+
+	/* Initialize the boot PMM */
+	init_pmm(os_info->mem_map, os_info->mem_map_entries);
 	
+	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
 	superblock = read_superblock(part);
 	root_inode = read_inode(part, superblock, 2);
+
+	/* Read the kernel */
 	unsigned int boot = ext2_finddir(part, superblock, root_inode, "boot");
 	boot_inode = read_inode(part, superblock, boot);
 	
 	unsigned int kernel = ext2_finddir(part, superblock, boot_inode, "kernel-i386.elf");
 	inode_t *kernel_inode = read_inode(part, superblock, kernel);
 	
+	/* Parse the kernel ELF */
 	elf_header_t *kernel_elf = kmalloc(kernel_inode->low_size);
 	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
 	elf_load_executable(kernel_elf);
 	void (*exec_run)(os_info_t*) = kernel_elf->entry_point;
 	
+	/* Parse the module registry */
 	parse_registry(os_info);
 	
 	/* We don't want to push any extra values, so use a push and a jmp */
