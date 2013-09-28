@@ -13,6 +13,7 @@
 /* Range structure */
 typedef struct range
 {
+	uint64_t base;
 	uint64_t length;
 	uint32_t flags;
 } __attribute__ ((packed)) range_t;
