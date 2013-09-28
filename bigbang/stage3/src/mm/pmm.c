@@ -36,9 +36,8 @@ unsigned int pmm_alloc_page()
 			if ((page_align(start) <= end) && ((end - page_align(start)) >= 0x1000))
 			{
 				/* Split the memory map entry */
-				mem_map_entry_t used_entry = mem_map[i];
-
-				used_entry.length = 0x1000;
+				mem_map[i].length = 0x1000;
+				mem_map[i].flags &= ~MEM_MAP_FLAG_FREE;
 			}
 
 			continue;
