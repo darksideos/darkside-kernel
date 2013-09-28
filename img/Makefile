@@ -31,9 +31,10 @@ kernel-i386.elf: clean
 
 kernel-raspi.elf: clean
 	cd ../src/hal/raspi; make CCBASE=$(ARM)
+	cd ../src/drivers/serial; make CCBASE=$(ARM)
 	cd ../src/lib/libc; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
-	pwd
-	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a ../build-raspi/hal/raspi/*.o ../lib/libc-raspi.a
+#	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a ../build-raspi/hal/raspi/*.o ../lib/libc-raspi.a
+	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a $(shell find ../build-raspi -type f -name "*.o") ../lib/libc-raspi.a
 
 kernel-raspi.img: kernel-raspi.elf
 	$(ARM)-objcopy kernel-raspi.elf -O binary kernel-raspi.img
