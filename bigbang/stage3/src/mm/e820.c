@@ -3,6 +3,10 @@
 #include <init/os_info.h>
 #include <init/os_info_x86.h>
 
+unsigned int mem_map_entries;
+e820_linked_entry_t *linked;
+e820_linked_entry_t *first_linked;
+
 /* This code will only work with physical addresses up to 4 GB */
 e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
 {
@@ -21,14 +25,14 @@ e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
 	return map;
 }
 
-mem_map_entry_t* e820_convert_mem_map(os_info_x86_t *os_info, unsigned int *entries)
+void e820_init_mem_map(os_info_x86_t *os_info)
 {
 	e820_entry_t *sorted = sort_memory_map(os_info->mem_map, os_info->mem_map_entries);
 	
 	/* Transform it into a linked-list */
-	e820_linked_entry_t *linked = kmalloc(sizeof(e820_linked_entry_t));
+	linked = kmalloc(sizeof(e820_linked_entry_t));
 	linked->prev = 0;
-	e820_linked_entry_t *first_linked = linked;
+	first_linked = linked;
 	
 	int index;
 	for (index = 0; index < os_info->mem_map_entries; index++)
@@ -154,19 +158,26 @@ mem_map_entry_t* e820_convert_mem_map(os_info_x86_t *os_info, unsigned int *entr
 	}
 
 	/* Find the number of entries in the list */
-	*entries = 0;
+	mem_map_entries = 0;
 	linked = first_linked;
 	while (linked != 0)
 	{
-		(*entries)++;
+		mem_map_entries++;
 		linked = linked->next;
 	}
 	
-	/* Translate the linked list back into an array */
-	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * (*entries));
-	
 	linked = first_linked;
-	for (index = 0; index < *entries; index++)
+}
+
+/* Between init() and finalize(), the PMM makes changes */
+
+mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
+{
+	/* Translate the linked list back into an array */
+	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * mem_map_entries);
+	
+	unsigned int index;
+	for (index = 0; index < mem_map_entries; index++)
 	{
 		mem_map[index].base = linked->base;
 		mem_map[index].length = linked->length;
@@ -216,6 +227,8 @@ mem_map_entry_t* e820_convert_mem_map(os_info_x86_t *os_info, unsigned int *entr
 			
 		linked = linked->next;
 	}
+	
+	*entries = mem_map_entries;
 	
 	return mem_map;
 }
