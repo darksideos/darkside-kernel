@@ -1,3 +1,4 @@
+#include <drivers/serial/gpio/gpio.h>
 /* Raspi Initilization Function */
 void raspi_main()
 {
