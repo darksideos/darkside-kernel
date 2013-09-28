@@ -44,7 +44,7 @@ SECTIONS
 	/* Initial section, loads/runs at 0x8000 */
 	.init : {
 		../build-raspi/hal/raspi/loader.o(.text* .data* .bss* .rodata*)
-		../build-raspi/hal/raspi/initsys.o (.text* .data* .bss* .rodata*)
+		../build-raspi/hal/raspi/main.o (.text* .data* .bss* .rodata*)
 	} >initsys
 
 	_highkernelload = ALIGN(4k);
