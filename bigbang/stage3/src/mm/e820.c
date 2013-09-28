@@ -168,6 +168,7 @@ mem_map_entry_t* e820_convert_mem_map(os_info_x86_t *os_info, unsigned int *entr
 	linked = first_linked;
 	for (index = 0; index < *entries; index++)
 	{
+		mem_map[index].base = linked->base;
 		mem_map[index].length = linked->length;
 		
 		/* We start out assuming some stuff */
