@@ -68,6 +68,8 @@ void kernel_main(os_info_t *os_info)
 	/* Start the VGA text mode driver */
 	init_text_mode(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 	
+	report(os_info);
+	
 	/* Initialize the BSP */
 	hal_init_bsp(os_info);
 
@@ -94,12 +96,10 @@ void kernel_main(os_info_t *os_info)
 	
 	module_t *module;
 	
-	index_tree_enumerate(&os_info->module_registry);
-	
 	module = (module_t*) index_tree_lookup(&os_info->module_registry, 4, MODULE_TYPE_DEVICE_DRIVER, DEVICE_CLASS_BUS, hash("acpi"), hash("0A00"));
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
 	
-	module = (module_t*) index_tree_lookup(&os_info->module_registry, 5, MODULE_TYPE_DEVICE_DRIVER, DEVICE_CLASS_DISPLAY, DEVICE_DISPLAY_GRAPHICS, hash("pci"), hash("80860116"));
+	module = (module_t*) index_tree_lookup(&os_info->module_registry, 5, MODULE_TYPE_DEVICE_DRIVER, DEVICE_CLASS_DISPLAY, DEVICE_DISPLAY_GRAPHICS, hash("pci"), 80860116);
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
 
 	module = (module_t*) index_tree_lookup(&os_info->module_registry, 2, MODULE_TYPE_FILESYSTEM, hash("ext2"));

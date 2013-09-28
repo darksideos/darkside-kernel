@@ -12,10 +12,17 @@
 #include <init/kprintf.h>
 #include <lib/libadt/index_tree.h>
 
-extern unsigned int *pd;
+/* Reference the E820 linked list */
+extern e820_linked_entry_t *first_linked;
+extern unsigned int mem_map_entries;
 
+/* Active partition */
 partition_t *part;
+
+/* EXT2 superblock */
 superblock_t *superblock;
+
+/* EXT2 inodes for / and /boot */
 inode_t *root_inode;
 inode_t *boot_inode;
 
@@ -29,7 +36,7 @@ void main(os_info_x86_t *os_info_x86)
 	e820_init_mem_map(os_info_x86);
 
 	/* Initialize the boot PMM */
-	//init_pmm(os_info->mem_map, os_info->mem_map_entries);
+	init_pmm(first_linked, mem_map_entries);
 	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
@@ -54,7 +61,8 @@ void main(os_info_x86_t *os_info_x86)
 	/* Parse the module registry */
 	parse_registry(os_info);
 	
-	os_info->mem_map_entries = e820_finalize_mem_map(&os_info->mem_map_entries);
+	/* Finalize the E820 memory map */
+	os_info->mem_map = e820_finalize_mem_map(&os_info->mem_map_entries);
 	
 	/* We don't want to push any extra values, so use a push and a jmp */
 	asm ("push %0\n\tjmp *%1"
