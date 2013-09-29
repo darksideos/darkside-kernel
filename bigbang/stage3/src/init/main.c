@@ -14,7 +14,6 @@
 
 /* Reference the E820 linked list */
 extern e820_linked_entry_t *first_linked;
-extern unsigned int mem_map_entries;
 
 /* Active partition */
 partition_t *part;
@@ -33,10 +32,10 @@ void main(os_info_x86_t *os_info_x86)
 	os_info_t *os_info = kmalloc(sizeof(os_info_t));
 	
 	/* Begin to translate the memory map */
-	e820_init_mem_map(os_info_x86);
+	e820_init_mem_map(os_info_x86, &os_info->mem_map_entries);
 
 	/* Initialize the boot PMM */
-	init_pmm(first_linked, mem_map_entries);
+	init_pmm(first_linked, &os_info->mem_map_entries);
 	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
@@ -62,7 +61,7 @@ void main(os_info_x86_t *os_info_x86)
 	parse_registry(os_info);
 	
 	/* Finalize the E820 memory map */
-	os_info->mem_map = e820_finalize_mem_map(&os_info->mem_map_entries);
+	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);
 	
 	/* We don't want to push any extra values, so use a push and a jmp */
 	asm ("push %0\n\tjmp *%1"
