@@ -6,5 +6,6 @@
 .global _start
 _start:
 	mov sp, #stack		/* Set up a new stack */
-	bl hal_init_bsp		/* Call our kernel main function */
+	add sp, #65536		/* Make room for the stack */
+	bl hal_init_bsp		/* Call the kernel main function */
 
