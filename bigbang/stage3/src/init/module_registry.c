@@ -286,7 +286,6 @@ void parse_registry(os_info_t *os_info)
 		}
 		
 		oldLevel = newLevel;
-		kprintf(LOG_DEBUG, "Now on level %d, parent %08X\n", oldLevel, parent);
 		line = strtok(0, "\n", &saveptr);
 		lineNumber++;
 	}

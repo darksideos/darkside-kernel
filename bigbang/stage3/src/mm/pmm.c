@@ -10,9 +10,9 @@ unsigned int phys_mem_map_num_entries;
 /* Page align an address */
 unsigned int page_align(unsigned int address)
 {
-	if (address & (page_size - 1))
+	if (address & (0x1000 - 1))
 	{
-		return (address & ~(page_size - 1)) + 0x1000;
+		return (address & ~(0x1000 - 1)) + 0x1000;
 	}
 	else
 	{
