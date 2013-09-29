@@ -4,7 +4,6 @@
 #include <init/os_info_x86.h>
 
 e820_linked_entry_t *first_linked;
-unsigned int mem_map_entries;
 
 /* This code will only work with physical addresses up to 4 GB */
 e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
@@ -24,7 +23,7 @@ e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
 	return map;
 }
 
-void e820_init_mem_map(os_info_x86_t *os_info)
+void e820_init_mem_map(os_info_x86_t *os_info, unsigned int *entries)
 {
 	e820_entry_t *sorted = sort_memory_map(os_info->mem_map, os_info->mem_map_entries);
 	
@@ -157,11 +156,11 @@ void e820_init_mem_map(os_info_x86_t *os_info)
 	}
 
 	/* Find the number of entries in the list */
-	mem_map_entries = 0;
+	*entries = 0;
 	linked = first_linked;
 	while (linked != 0)
 	{
-		mem_map_entries++;
+		(*entries)++;
 		linked = linked->next;
 	}
 	
@@ -170,14 +169,14 @@ void e820_init_mem_map(os_info_x86_t *os_info)
 
 /* Between init() and finalize(), the PMM makes changes */
 
-mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
+mem_map_entry_t *e820_finalize_mem_map(unsigned int entries)
 {
 	/* Translate the linked list back into an array */
 	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * mem_map_entries);
 	e820_linked_entry_t *linked = first_linked;
 	
 	unsigned int index;
-	for (index = 0; index < mem_map_entries; index++)
+	for (index = 0; index < entries; index++)
 	{
 		mem_map[index].base = linked->base;
 		mem_map[index].length = linked->length;
@@ -228,8 +227,6 @@ mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
 			
 		linked = linked->next;
 	}
-	
-	*entries = mem_map_entries;
 	
 	return mem_map;
 }
