@@ -37,6 +37,11 @@ void main(os_info_x86_t *os_info_x86)
 	/* Initialize the boot PMM */
 	init_pmm(first_linked, &os_info->mem_map_entries);
 	
+	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
+	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
+	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
+	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
+	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
