@@ -3,6 +3,8 @@
 #include <mm/placement.h>
 #include <mm/pmm.h>
 
+#include <init/kprintf.h>
+
 /* Physical memory map */
 e820_linked_entry_t *phys_mem_map;
 unsigned int *phys_mem_map_num_entries;
@@ -30,9 +32,13 @@ unsigned int pmm_alloc_page()
 	{
 		if (linked->type == E820_FREE)
 		{
+			kprintf(LOG_DEBUG, "Found a free entry\n");
+
 			/* Do some calculations */
 			unsigned int start = (unsigned int) linked->base;
 			unsigned int end = (unsigned int) linked->base + linked->length;
+
+			kprintf(LOG_DEBUG, "Start: 0x%08X, End: 0x%08X\n", start, end);
 
 			/* Can we allocate here without going over the limit */
 			if ((page_align(start) <= end) && ((end - page_align(start)) >= 0x1000))
