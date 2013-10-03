@@ -3,16 +3,18 @@
 #include <mm/placement.h>
 #include <mm/pmm.h>
 
+#include <init/kprintf.h>
+
 /* Physical memory map */
 e820_linked_entry_t *phys_mem_map;
-unsigned int phys_mem_map_num_entries;
+unsigned int *phys_mem_map_num_entries;
 
 /* Page align an address */
 unsigned int page_align(unsigned int address)
 {
-	if (address & (0x1000 - 1))
+	if (address & (0xFFF))
 	{
-		return (address & ~(0x1000 - 1)) + 0x1000;
+		return (address & ~(0xFFF)) + 0x1000;
 	}
 	else
 	{
@@ -26,13 +28,17 @@ unsigned int pmm_alloc_page()
 	e820_linked_entry_t *linked = phys_mem_map;
 
 	unsigned int i;
-	for (i = 0; i < phys_mem_map_num_entries; i++)
+	for (i = 0; i < *phys_mem_map_num_entries; i++)
 	{
 		if (linked->type == E820_FREE)
 		{
+			kprintf(LOG_DEBUG, "Found a free entry\n");
+
 			/* Do some calculations */
 			unsigned int start = (unsigned int) linked->base;
 			unsigned int end = (unsigned int) linked->base + linked->length;
+
+			kprintf(LOG_DEBUG, "Start: 0x%08X, End: 0x%08X\n", start, end);
 
 			/* Can we allocate here without going over the limit */
 			if ((page_align(start) <= end) && ((end - page_align(start)) >= 0x1000))
@@ -54,6 +60,8 @@ unsigned int pmm_alloc_page()
 					after->attrib = 0;
 					after->spec_flags = 0;
 
+					(*phys_mem_map_num_entries)++;
+
 					/* Modify the E820 entry */
 					linked->next = after;
 					linked->length = (page_align(start) + 0x1000) - start;
@@ -69,7 +77,7 @@ unsigned int pmm_alloc_page()
 }
 
 /* Initialize the boot PMM */
-void init_pmm(e820_linked_entry_t *mem_map_linked, unsigned int mem_map_num_entries)
+void init_pmm(e820_linked_entry_t *mem_map_linked, unsigned int *mem_map_num_entries)
 {
 	phys_mem_map = mem_map_linked;
 	phys_mem_map_num_entries = mem_map_num_entries;
