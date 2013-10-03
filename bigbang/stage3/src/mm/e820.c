@@ -169,10 +169,10 @@ void e820_init_mem_map(os_info_x86_t *os_info, unsigned int *entries)
 }
 
 /* Between init() and finalize(), the PMM makes changes */
-mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
+mem_map_entry_t *e820_finalize_mem_map(unsigned int entries)
 {
 	/* Translate the linked list back into an array */
-	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * mem_map_entries);
+	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * entries);
 	e820_linked_entry_t *linked = first_linked;
 	
 	unsigned int index;
