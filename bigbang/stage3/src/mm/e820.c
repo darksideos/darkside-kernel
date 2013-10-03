@@ -2,6 +2,7 @@
 #include <mm/e820.h>
 #include <init/os_info.h>
 #include <init/os_info_x86.h>
+#include <init/kprintf.h>
 
 e820_linked_entry_t *first_linked;
 unsigned int mem_map_entries;
@@ -25,7 +26,7 @@ e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
 }
 
 void e820_init_mem_map(os_info_x86_t *os_info)
-{
+{	
 	e820_entry_t *sorted = sort_memory_map(os_info->mem_map, os_info->mem_map_entries);
 	
 	/* Transform it into a linked-list */
@@ -171,7 +172,7 @@ void e820_init_mem_map(os_info_x86_t *os_info)
 /* Between init() and finalize(), the PMM makes changes */
 
 mem_map_entry_t *e820_finalize_mem_map(unsigned int *entries)
-{
+{	
 	/* Translate the linked list back into an array */
 	mem_map_entry_t *mem_map = kmalloc(sizeof(mem_map_entry_t) * mem_map_entries);
 	e820_linked_entry_t *linked = first_linked;
