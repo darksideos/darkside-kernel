@@ -25,6 +25,7 @@ e820_entry_t* sort_memory_map(e820_entry_t* map, unsigned int num_entries)
 }
 
 void e820_init_mem_map(os_info_x86_t *os_info, unsigned int *entries)
+{
 	e820_entry_t *sorted = sort_memory_map(os_info->mem_map, os_info->mem_map_entries);
 	
 	/* Transform it into a linked-list */
