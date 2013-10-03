@@ -43,12 +43,16 @@ unsigned int pmm_alloc_page()
 			/* Can we allocate here without going over the limit */
 			if ((page_align(start) <= end) && ((end - page_align(start)) >= 0x1000))
 			{
+				kprintf(LOG_DEBUG, "We found free memory at 0x%08X\n", page_align(start));
+
 				/* Mark this memory as used */
 				linked->type = E820_RESERVED;
 
 				/* Can we reclaim a page or more afterwards? */
 				if ((end - page_align(start)) >= 0x1000)
 				{
+					kprintf(LOG_DEBUG, "0x%08X bytes can be reclaimed\n", (end - page_align(start)));
+
 					/* Add a new entry after it */
 					e820_linked_entry_t *after = (e820_linked_entry_t*) kmalloc(sizeof(e820_linked_entry_t));
 
@@ -73,6 +77,7 @@ unsigned int pmm_alloc_page()
 	}
 
 	/* No free entries */
+	kprintf(LOG_DEBUG, "No free entries :( \n");
 	return 0;
 }
 
