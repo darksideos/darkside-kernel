@@ -49,9 +49,9 @@ unsigned int pmm_alloc_page()
 				linked->type = E820_RESERVED;
 
 				/* Can we reclaim a page or more afterwards? */
-				if ((end - page_align(start)) >= 0x1000)
+				if ((end - (page_align(start) + 0x1000)) >= 0x1000)
 				{
-					kprintf(LOG_DEBUG, "0x%08X bytes can be reclaimed\n", (end - page_align(start)));
+					kprintf(LOG_DEBUG, "0x%08X bytes can be reclaimed\n", (end - (page_align(start) + 0x1000)));
 
 					/* Add a new entry after it */
 					e820_linked_entry_t *after = (e820_linked_entry_t*) kmalloc(sizeof(e820_linked_entry_t));
@@ -59,7 +59,7 @@ unsigned int pmm_alloc_page()
 					after->next = linked->next;
 					after->prev = linked;
 					after->base = page_align(start) + 0x1000;
-					after->length = end - page_align(start);
+					after->length = end - (page_align(start) + 0x1000);
 					after->type = E820_FREE;
 					after->attrib = 0;
 					after->spec_flags = 0;
