@@ -34,3 +34,9 @@ for entry in coderoots.items():
 				codeFiles.append(os.path.join(entry[0], file))
 
 print(codeFiles)
+
+extensions = []
+for exts in conf.getElementsByTagName("extensions"):
+	extensions.extend(exts.firstChild.data.split(" "))
+
+print(extensions)
