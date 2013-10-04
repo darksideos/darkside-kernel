@@ -11,8 +11,8 @@
 
 typedef struct mem_map_entry
 {
-	unsigned long long length;
 	unsigned long long base;
+	unsigned long long length;
 	unsigned int flags;
 } __attribute__ ((packed)) mem_map_entry_t;
 
