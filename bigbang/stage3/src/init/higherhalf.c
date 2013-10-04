@@ -12,13 +12,13 @@ void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_l
 	/* Map the multiboot, text, data, and BSS sections to their addresses */
 	unsigned int address;
 
-	/* Lower half */
+	/* Lower half: identity map first megabyte */
 	for (address = 0; address < 0x100000; address += 0x1000)
 	{
 		pt_lower[address / 0x1000] = address | PAGE_KERNEL;
 	}
 
-	/* Higher half */
+	/* Higher half: identity map megabytes 1 through 3 (inclusive) to 0x80000000 */
 	for (address = 0x100000; address < 0x400000; address += 0x1000)
 	{
 		pt_higher[(address - 0x100000) / 0x1000] = address | PAGE_KERNEL;
@@ -36,9 +36,9 @@ void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_l
 
 	/* Now enable paging! */
 	unsigned int cr0;
-    asm volatile("mov %%cr0, %0" : "=r" (cr0));
-    cr0 |= 0x80000000;
-    asm volatile("mov %0, %%cr0" :: "r"(cr0));
+	asm volatile("mov %%cr0, %0" : "=r" (cr0));
+	cr0 |= 0x80000000;
+	asm volatile("mov %0, %%cr0" :: "r"(cr0));
 
 	/* Call kernel main */
 	asm ("push %0\n\tjmp *%1"
