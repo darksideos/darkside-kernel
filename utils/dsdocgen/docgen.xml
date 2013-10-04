@@ -1,5 +1,6 @@
 <docgenconfig>
 	<coderoot>../../src</coderoot>
-	<coderoot subdirs="no">../../include</coderoot>
+	<coderoot>../../include</coderoot>
 	<extensions>.c .h .cpp .hpp</extensions>
+	<output type="html">htmlinc</output>
 </docgenconfig>
