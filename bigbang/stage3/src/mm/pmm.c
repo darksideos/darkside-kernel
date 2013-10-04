@@ -69,6 +69,9 @@ unsigned int pmm_alloc_page()
 					/* Modify the E820 entry */
 					linked->next = after;
 					linked->length = (page_align(start) + 0x1000) - start;
+
+					kprintf(LOG_DEBUG, "New Base: 0x%08X, New Length: 0x%08X\n", start, (unsigned int) linked->length);
+					kprintf(LOG_DEBUG, "After Base: 0x%08X, After Length: 0x%08X\n", (unsigned int) after->base, (unsigned int) after->length);
 				}
 
 				return page_align(start);
