@@ -78,6 +78,8 @@ unsigned int pmm_alloc_page()
 				return page_align(start);
 			}
 		}
+
+		linked = linked->next;
 	}
 
 	/* No free entries */
