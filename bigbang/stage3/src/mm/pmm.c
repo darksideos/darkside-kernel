@@ -28,6 +28,7 @@ unsigned int pmm_alloc_page()
 	e820_linked_entry_t *linked = phys_mem_map;
 
 	unsigned int i;
+	kprintf(LOG_DEBUG, "Number of mem map entries: %d\n", *phys_mem_map_num_entries);
 	for (i = 0; i < *phys_mem_map_num_entries; i++)
 	{
 		if (linked->type == E820_FREE)
