@@ -4,6 +4,14 @@
 /* Create a GPIO Object */
 gpio_t* gpio = (gpio_t*)0x20200000;
 
+/* Sleep for a short time (several hundread ns) */
+void shortsleep()
+{
+	int i;
+	for(i = 0; i < 10000; i++) __asm__ __volatile__("nop");
+}
+
+
 /* Set the mode of a pin to a function from enum gpio_function */
 bool gpio_setmode(int pin, gpio_function func)
 {
@@ -14,9 +22,12 @@ bool gpio_setmode(int pin, gpio_function func)
 	unsigned int regindex = pin % 10;	
 	unsigned int regnum = (pin - regindex) / 10;
 	unsigned int mask = ~(0b111 << (regindex * 3));
-
 	/* Set the GPIO Function Select Registers */
 	gpio->gpfsel[regnum] &= mask;
+	/* Delay before setting function 
+	every pin must be set as input before output/ALT */
+	shortsleep();
+	/* Now set the function */
 	gpio->gpfsel[regnum] |= (func << (regindex * 3));
 	return true;
 }
