@@ -15,4 +15,7 @@
 
 #define PAGE_FRAME(page)	page & 0xFFFFF000
 
+/* Map a page to a physical address */
+void map_page(unsigned int virtual_address, unsigned int physical_address);
+
 #endif

@@ -14,7 +14,9 @@ start:
     mov ecx, pt_lower
     mov edx, pt_higher
     mov esi, pt_bitmap
+    mov edi, pt_modules
     
+    push edi
     push esi
     push edx
     push ecx
@@ -39,12 +41,15 @@ global pd
 global pt_lower
 global pt_higher
 global pt_bitmap
+global pt_modules
 
 pd:
 	resb 4096
 pt_lower:
 	resb 4096
 pt_higher:
+	resb 4096
+pt_modules:
 	resb 4096
 pt_bitmap:
 	resb 4096
