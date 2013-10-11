@@ -6,8 +6,8 @@
 #include <init/kprintf.h>
 
 /* Physical memory map */
-e820_linked_entry_t *phys_mem_map;
-unsigned int *phys_mem_map_num_entries;
+static e820_linked_entry_t *phys_mem_map;
+static unsigned int *phys_mem_map_num_entries;
 
 /* Page align an address */
 unsigned int page_align(unsigned int address)
