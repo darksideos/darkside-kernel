@@ -1,13 +1,27 @@
 #include <init/higherhalf.h>
 #include <init/main.h>
 
-void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_lower, unsigned int *pt_higher, unsigned int *pt_bitmap)
+/* Keep the page directory and page tables */
+unsigned int *pd;
+unsigned int *pt_lower;
+unsigned int *pt_higher;
+unsigned int *pt_bitmap;
+unsigned int *pt_modules;
+
+void load_higherhalf(unsigned int *os_info, unsigned int *dir, unsigned int *lower, unsigned int *higher, unsigned int *bitmap, unsigned int *modules)
 {
 	/* Enable global pages */
 	unsigned int cr4;
 	asm volatile ("mov %%cr4, %0" : "=r" (cr4));
 	cr4 |= 0x80;
 	asm volatile ("mov %0, %%cr4" :: "r" (cr4));
+
+	/* Save the PD and PT addresses */
+	pd = dir;
+	pt_lower = lower;
+	pt_higher = higher;
+	pt_bitmap = bitmap;
+	pt_modules = modules;
 
 	/* Map the multiboot, text, data, and BSS sections to their addresses */
 	unsigned int address;
@@ -28,6 +42,7 @@ void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_l
 	pd[0] = (unsigned int) pt_lower | PAGE_KERNEL;
 	pd[512] = (unsigned int) pt_higher | PAGE_KERNEL;
 	pd[575] = (unsigned int) pt_bitmap | PAGE_KERNEL;
+	pd[704] = (unsigned int) pt_modules | PAGE_KERNEL;
 	pd[1022] = 0;
 	pd[1023] = (unsigned int) pd | PAGE_KERNEL;
 
@@ -45,4 +60,14 @@ void load_higherhalf(unsigned int *os_info, unsigned int *pd, unsigned int *pt_l
 	:
 	: "r" (os_info), "r"(&main)
 	);
+}
+
+/* Map a page to a physical address */
+void map_page(unsigned int virtual_address, unsigned int physical_address)
+{
+	/* Modules */
+	if ((virtual_address >= 0xB0000000) && (virtual_address <= 0xB0400000))
+	{
+		pt_modules[(virtual_address - 0xB0000000) / 0x1000] = address | PAGE_KERNEL;
+	}
 }
