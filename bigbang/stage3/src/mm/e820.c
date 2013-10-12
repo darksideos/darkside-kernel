@@ -171,7 +171,7 @@ void e820_init_mem_map(os_info_x86_t *os_info, unsigned int *entries)
 /* Claim the first 1 MB of the E820 map */
 void e820_claim_1mb(unsigned int *entries)
 {
-	e820_entry_linked_entry_t *linked = first_linked;
+	e820_linked_entry_t *linked = first_linked;
 
 	/* Count the number of entries that make up the first 1 MB of physical memory */
 	unsigned int index, end_index;
