@@ -168,6 +168,70 @@ void e820_init_mem_map(os_info_x86_t *os_info, unsigned int *entries)
 	linked = first_linked;
 }
 
+/* Claim the first 1 MB of the E820 map */
+void e820_claim_1mb(unsigned int *entries)
+{
+	e820_entry_linked_entry_t *linked = first_linked;
+
+	/* Count the number of entries that make up the first 1 MB of physical memory */
+	unsigned int index, end_index;
+	for (index = 0; index < *entries; index++)
+	{
+		if (linked->base + linked->length >= 0x100000)
+		{
+			if (linked->base + linked->length > 0x100000)
+			{
+				/* Add a new entry after it */
+				e820_linked_entry_t *after = (e820_linked_entry_t*) kmalloc(sizeof(e820_linked_entry_t));
+
+				after->next = linked->next;
+				after->prev = linked;
+				after->base = 0x100000;
+				after->length = (linked->base + linked->length) - (0x100000);
+				after->type = linked->type;
+				after->attrib = linked->attrib;
+				after->spec_flags = linked->spec_flags;
+
+				(*entries)++;
+
+				/* Modify the E820 entry */
+				linked->next = after;
+				linked->length = 0x100000 - linked->base;
+			}
+
+			end_index = index + 1;
+			break;
+		}
+
+		linked = linked->next;
+	}
+
+	/* Reserve the first 1 MB */
+	linked = first_linked;
+	for (index = 0; index < end_index; index++)
+	{
+		linked->type = E820_RESERVED;
+		linked = linked->next;
+	}
+
+	/* Combine adjacent regions of the same type */
+	linked = first_linked;
+	while (linked != 0)
+	{
+		if (linked->next)
+		{
+			if (linked->type == linked->next->type && linked->attrib == linked->next->attrib && linked->spec_flags == linked->next->spec_flags)
+			{
+				linked->length += linked->next->length;
+				linked->next->next->prev = linked;
+				linked->next = linked->next->next;
+			}
+		}
+		
+		linked = linked->next;
+	}
+}
+
 /* Between init() and finalize(), the PMM makes changes */
 mem_map_entry_t *e820_finalize_mem_map(unsigned int entries)
 {
