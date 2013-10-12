@@ -34,6 +34,9 @@ void main(os_info_x86_t *os_info_x86)
 	/* Begin to translate the memory map */
 	e820_init_mem_map(os_info_x86, &os_info->mem_map_entries);
 
+	/* Claim the first 1 MB of physical memory (an ugly solution that we'll need to fix later) */
+	e820_claim_1mb(&os_info->mem_map_entries);
+
 	/* Initialize the boot PMM */
 	init_pmm(first_linked, &os_info->mem_map_entries);
 	
