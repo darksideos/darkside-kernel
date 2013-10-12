@@ -68,6 +68,6 @@ void map_page(unsigned int virtual_address, unsigned int physical_address)
 	/* Modules */
 	if ((virtual_address >= 0xB0000000) && (virtual_address <= 0xB0400000))
 	{
-		pt_modules[(virtual_address - 0xB0000000) / 0x1000] = address | PAGE_KERNEL;
+		pt_modules[(virtual_address - 0xB0000000) / 0x1000] = physical_address | PAGE_KERNEL;
 	}
 }
