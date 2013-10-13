@@ -82,6 +82,8 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the scheduler */
 	init_scheduler();
 
+	kprintf(LOG_DEBUG, "YEEEEEEEEEEEEEAAAAAAAAAAAAAH\n");
+
 	/* Initialize the kernel modules */
 	
 	/* Register the default executable formats */
@@ -94,7 +96,7 @@ void kernel_main(os_info_t *os_info)
 	
 	/* Create and run the init process */
 	
-	module_t *module;
+	/*module_t *module;
 	
 	module = (module_t*) index_tree_lookup(&os_info->module_registry, 4, MODULE_TYPE_DEVICE_DRIVER, DEVICE_CLASS_BUS, hash("acpi"), hash("0A00"));
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
@@ -104,7 +106,7 @@ void kernel_main(os_info_t *os_info)
 
 	module = (module_t*) index_tree_lookup(&os_info->module_registry, 2, MODULE_TYPE_FILESYSTEM, hash("ext2"));
 	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
-	kprintf(LOG_DEBUG, "Version: MAJOR %d . MINOR %d . PATCH %d\n", module->major, module->minor, module->patch);
+	kprintf(LOG_DEBUG, "Version: MAJOR %d . MINOR %d . PATCH %d\n", module->major, module->minor, module->patch);*/
 
 	/*thread_t *thread = thread_create(0, &t1, 0, 256);
 	thread_create(0, &t2, 0, 256);
