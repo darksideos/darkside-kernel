@@ -46,6 +46,17 @@ unsigned int pmm_alloc_page()
 			{
 				//kprintf(LOG_DEBUG, "We found free memory at 0x%08X\n", page_align(start));
 
+				/* Can we just extend a previous entry of reserved memory? */
+				if (linked->prev->type == E820_RESERVED)
+				{
+					linked->prev->length += (page_align(start) - start) + 0x1000;
+
+					linked->base = linked->prev->base + linked->prev->length;
+					linked->length = (page_align(start) + 0x1000) - start;
+
+					return page_align(start);
+				}
+
 				/* Mark this memory as used */
 				linked->type = E820_RESERVED;
 
