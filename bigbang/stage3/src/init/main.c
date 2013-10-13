@@ -70,6 +70,8 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Finalize the E820 memory map */
 	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);
+
+	while(1);
 	
 	/* We don't want to push any extra values, so use a push and a jmp */
 	asm ("push %0\n\tjmp *%1"
