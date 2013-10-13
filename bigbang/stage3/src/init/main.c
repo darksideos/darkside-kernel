@@ -43,7 +43,6 @@ void main(os_info_x86_t *os_info_x86)
 	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
 	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
 	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
-	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
 
 	while(1);
 	
