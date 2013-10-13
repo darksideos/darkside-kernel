@@ -20,6 +20,4 @@ void report(os_info_t *os_info)
 	}
 	
 	kprintf(LOG_NONE, "\n");
-
-	while(1);
 }
