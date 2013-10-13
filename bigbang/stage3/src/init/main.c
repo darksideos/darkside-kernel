@@ -40,12 +40,6 @@ void main(os_info_x86_t *os_info_x86)
 	/* Initialize the boot PMM */
 	init_pmm(first_linked, &os_info->mem_map_entries);
 	
-	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
-	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
-	kprintf(LOG_DEBUG, "Page: %08X\n", pmm_alloc_page());
-
-	while(1);
-	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
@@ -64,10 +58,9 @@ void main(os_info_x86_t *os_info_x86)
 	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
 	elf_load_executable(kernel_elf);
-	void (*exec_run)(os_info_t*) = kernel_elf->entry_point;
 	
 	/* Parse the module registry */
-	parse_registry(os_info);
+	//parse_registry(os_info);
 	
 	/* Finalize the E820 memory map */
 	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);
