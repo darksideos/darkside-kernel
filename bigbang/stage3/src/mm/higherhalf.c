@@ -2,11 +2,11 @@
 #include <init/main.h>
 
 /* Keep the page directory and page tables */
-unsigned int *pd;
-unsigned int *pt_lower;
-unsigned int *pt_higher;
-unsigned int *pt_bitmap;
-unsigned int *pt_modules;
+static unsigned int *pd;
+static unsigned int *pt_lower;
+static unsigned int *pt_higher;
+static unsigned int *pt_bitmap;
+static unsigned int *pt_modules;
 
 void load_higherhalf(unsigned int *os_info, unsigned int *dir, unsigned int *lower, unsigned int *higher, unsigned int *bitmap, unsigned int *modules)
 {
