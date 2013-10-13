@@ -33,10 +33,10 @@ void load_higherhalf(unsigned int *os_info, unsigned int *dir, unsigned int *low
 	}
 
 	/* Higher half: identity map megabytes 1 through 3 (inclusive) to 0x80000000 */
-	for (address = 0x100000; address < 0x400000; address += 0x1000)
-	{
-		pt_higher[(address - 0x100000) / 0x1000] = address | PAGE_KERNEL;
-	}
+	//for (address = 0x100000; address < 0x400000; address += 0x1000)
+	//{
+		//pt_higher[(address - 0x100000) / 0x1000] = address | PAGE_KERNEL;
+	//}
 
 	/* Add the page tables into the page directory */
 	pd[0] = (unsigned int) pt_lower | PAGE_KERNEL;
@@ -65,8 +65,13 @@ void load_higherhalf(unsigned int *os_info, unsigned int *dir, unsigned int *low
 /* Map a page to a physical address */
 void map_page(unsigned int virtual_address, unsigned int physical_address)
 {
+	/* Higher half */
+	if ((virtual_address >= 0x80000000) && (virtual_address <= 0x80400000))
+	{
+		pt_higher[(virtual_address - 0x80000000) / 0x1000] = physical_address | PAGE_KERNEL;
+	}
 	/* Modules */
-	if ((virtual_address >= 0xB0000000) && (virtual_address <= 0xB0400000))
+	else if ((virtual_address >= 0xB0000000) && (virtual_address <= 0xB0400000))
 	{
 		pt_modules[(virtual_address - 0xB0000000) / 0x1000] = physical_address | PAGE_KERNEL;
 	}
