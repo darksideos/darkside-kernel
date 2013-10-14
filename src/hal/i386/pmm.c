@@ -94,7 +94,7 @@ void init_pmm(range_t *ranges, uint32_t num_ranges)
 	}
 	
 	index = num_ranges - 1;
-	while(!(ranges[index].flags & RANGE_FLAG_FREE) && (size <= 0x100000000))
+	while(!(ranges[index].flags & RANGE_FLAG_FREE))
 	{
 		size -= ranges[index].length;
 		index--;
