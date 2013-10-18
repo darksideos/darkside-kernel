@@ -51,32 +51,21 @@ page_t *get_page(uint32_t dir, uint32_t virtual_address, bool make, bool present
 	/* The page directory is mapped as the secondary recursive page directory */
 	else if (PAGE_FRAME(directory->tables[1022]) == dir)
 	{
-		kprintf(LOG_DEBUG, "Page diectory mapped in is secondary recursive page directory\n");
-
 		/* Choose the secondary recursive page directory */
-		kprintf(LOG_DEBUG, "Choosing secondary recursive page directory\n");
 		directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
 	}
 	/* The page directory is not mapped in */
 	else
 	{
-		kprintf(LOG_DEBUG, "Page directory not mapped in\n");
-
 		/* Map it in as the secondary recursive page directory */
-		kprintf(LOG_DEBUG, "Mapping 0x%08X in as the secondary recursive page directory\n", dir);
 		directory->tables[1022] = dir | PAGE_KERNEL;
-		kprintf(LOG_DEBUG, "New value of PDE 1022: 0x%08X\n", directory->tables[1022]);
 
 		/* Flush the entire TLB */
-		kprintf(LOG_DEBUG, "Flushing TLB\n");
 		flush_tlb();
 
 		/* Choose the secondary recursive page directory */
 		directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1022];
 	}
-
-	kprintf(LOG_DEBUG, "Directory: 0x%08X\n", directory);
-	kprintf(LOG_DEBUG, "Table: 0x%08X\n", table);
 
 	/* If the page table already exists, return the page */
 	if (directory->tables[table_index])
@@ -233,37 +222,27 @@ void init_vmm()
 {	
 	/* Set the address of the current directory */
 	asm volatile ("mov %%cr3, %0" : "=r"(current_directory));
-
-	kprintf(LOG_DEBUG, "Current directory: 0x%08X\n", current_directory);
 	
 	/* Create the kernel directory */
 	kernel_directory = create_address_space();
 	page_directory_t *directory = &((page_directory_t*) PAGE_STRUCTURES_START)[1023];
 	directory->tables[1023] = directory->tables[1022];
-
-	kprintf(LOG_DEBUG, "Created kernel directory\n");
 	
 	/* Flush the entire TLB */
 	flush_tlb();
-
-	kprintf(LOG_DEBUG, "TLB flushed\n");
 
 	uint32_t i;
 	
 	/* Identity map the first 1 MB of the address space, so that the VGA framebuffer and VM86 tasks will work */
 	for (i = 0x1000; i < 0x100000; i += 0x1000)
 	{
-		kprintf(LOG_DEBUG, "Mapping 0x%08X\n", i);
 		map_page(kernel_directory, i, i, true, true, true/*false*/, true);
-		kprintf(LOG_DEBUG, "Mapped 0x%08X\n", i);
 	}
 
 	/* Map our kernel into the kernel directory */
 	for (i = 0; i < KERNEL_PHYSICAL_SIZE; i += 0x1000)
 	{
-		kprintf(LOG_DEBUG, "Mapping 0x%08X\n", i);
 		map_page(kernel_directory, KERNEL_VIRTUAL_START + i, KERNEL_PHYSICAL_START + i, true, true, true/*false*/, true);
-		kprintf(LOG_DEBUG, "Mapped 0x%08X\n", i);
 	}
 
 	/* Map the PMM bitmap into the kernel directory */
