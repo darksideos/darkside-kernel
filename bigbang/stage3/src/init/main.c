@@ -53,10 +53,11 @@ void main(os_info_x86_t *os_info_x86)
 	unsigned int kernel = ext2_finddir(part, superblock, boot_inode, "kernel-i386.elf");
 	inode_t *kernel_inode = read_inode(part, superblock, kernel);
 	
-	/* Parse the kernel ELF */
+	/* Read the kernel ELF into memory */
 	elf_header_t *kernel_elf = kmalloc(kernel_inode->low_size);
 	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
+	/* Load the kernel into memory */
 	elf_load_executable(kernel_elf);
 
 	kprintf(LOG_DEBUG, "Mapped each section of the kernel into memory\n");

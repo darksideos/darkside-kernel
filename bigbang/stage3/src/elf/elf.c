@@ -30,9 +30,11 @@ void elf_read_header(elf_header_t *header)
 /* Load an ELF executable */
 void elf_load_executable(elf_header_t *header)
 {
+	/* Get a pointer to the program header */
 	elf_program_header_t *program_header = (elf_program_header_t*) (((unsigned char*) header) + header->program_header_offset);
+
+	/* Go through each section in the program header and load it */
 	int index;
-	
 	for(index = 0; index < header->num_program_header_entries; index++)
 	{
 		if(program_header->type == ELF_PT_LOAD)
@@ -52,17 +54,16 @@ void elf_load_executable(elf_header_t *header)
 				memset(program_header->virtual_address + program_header->file_size, 0, program_header->mem_size - program_header->file_size);
 			}
 			
+			/* Copy the data from the executable into memory */
 			memcpy(program_header->virtual_address, ((unsigned char*) header) + program_header->offset, program_header->file_size);
 		}
 		
+		/* Go to the next section in the program header */
 		program_header++;
 	}
 }
 
-/* Run an ELF executable */
-int elf_run_executable(elf_header_t *header)
+/* Load an ELF relocatable file */
+void elf_load_relocatable(elf_header_t *header)
 {
-	elf_load_executable(header);
-	int (*exec_run)() = header->entry_point;
-	return exec_run();
 }
