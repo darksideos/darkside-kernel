@@ -23,7 +23,7 @@ void hal_init_bsp(os_info_t *os_info)
 
 	/* Initialize the PMM and VMM */
  	init_pmm(os_info->ranges, os_info->num_ranges);
- 	init_vmm();
+	init_vmm();
 
 	/* Print a log message */
 	kprintf(LOG_INFO, "BSP Initialized\n\n");
