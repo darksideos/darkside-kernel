@@ -1,16 +1,6 @@
 #ifndef __ELF_H
 #define __ELF_H
 
-#define ELF_PT_NULL			0
-#define ELF_PT_LOAD			1
-#define ELF_PT_DYNAMIC		2
-#define ELF_PT_INTERP		3
-#define ELF_PT_NOTE			4
-#define ELF_PT_SHLIB		5
-#define ELF_PT_PHDR			6
-#define ELF_PT_LOPROC		0x70000000
-#define ELF_PT_HIPROC		0x7FFFFFFF
-
 /* ELF program header */
 typedef struct elf_program_header
 {
@@ -77,5 +67,6 @@ typedef struct elf_symbol
 unsigned int check_elf_magic(elf_header_t *header);
 void elf_read_header(elf_header_t *header);
 void elf_load_executable(elf_header_t *header);
+void elf_load_relocatable(elf_header_t *header, unsigned int base_address);
 
 #endif
