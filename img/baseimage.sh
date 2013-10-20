@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ ! -e "ext2.img" ]
 	then
 		echo "Base images not downloaded, downloading"
