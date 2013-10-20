@@ -1,4 +1,4 @@
-#include <init/higherhalf.h>
+#include <mm/higherhalf.h>
 #include <init/main.h>
 
 /* Keep the page directory and page tables */
