@@ -14,7 +14,8 @@ void elf_load_relocatable(elf_header_t *header, unsigned int base_address)
 	int index;
 	for(index = 0; index < header->num_section_header_entries; index++)
 	{
-		if(section_header->type == ELF_ST_PROGBITS)
+		/* Section with data in the file */
+		if (section_header->type == ELF_ST_PROGBITS)
 		{
 			/* Allocate pages for the section and map them */
 			unsigned int address;
@@ -25,6 +26,19 @@ void elf_load_relocatable(elf_header_t *header, unsigned int base_address)
 			
 			/* Copy the data from the executable into memory */
 			memcpy(section_address, ((unsigned char*) header) + section_header->offset, section_header->size);
+		}
+		/* Section with no data in the file */
+		else if (section_header->type == ELF_ST_NOBITS)
+		{
+			/* Allocate pages for the section and map them */
+			unsigned int address;
+			for (address = section_address; address < section_address + section_header->size; address += 0x1000)
+			{
+				map_page(address, pmm_alloc_page());
+			}
+			
+			/* Fill the memory with zeroes */
+			memset(section_address, 0, section_header->size);
 		}
 		
 		/* Go to the next section in the program header */
