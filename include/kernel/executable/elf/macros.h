@@ -1,5 +1,5 @@
-#ifndef __ELF_TYPES_H
-#define __ELF_TYPES_H
+#ifndef __MACROS_H
+#define __MACROS_H
 
 #define ELF_CLASS_32						1
 #define ELF_CLASS_64						2
@@ -241,13 +241,5 @@
 #define ELF_R_386_PC32						2
 #define ELF_R_386_GOT32						3
 #define ELF_R_386_GLT32						4
-
-/* Helper methods to get a string representation of data */
-unsigned char *elf_get_type(unsigned short type);
-unsigned char *elf_get_arch(unsigned short arch);
-unsigned char *elf_get_class(unsigned char _class);
-unsigned char *elf_get_encoding(unsigned char encoding);
-unsigned char *elf_get_symbol_type(unsigned char type);
-unsigned char *elf_get_symbol_bind(unsigned char bind);
 
 #endif

@@ -1,5 +1,5 @@
 #include <lib/libc/types.h>
-#include <kernel/modules/elf.h>
+#include <kernel/executable/elf/elf.h>
 
 /* Get an ELF section by index */
 elf_section_header_t *elf_get_section(elf_header_t *header, uint32_t num)
@@ -23,7 +23,7 @@ elf_section_header_t *elf_get_section_by_type(elf_header_t *header, uint32_t typ
 }
 
 /* Get an ELF section by name */
-elf_section_header_t *elf_get_section_by_name(elf_header_t *header, uint8_t* name)
+/*elf_section_header_t *elf_get_section_by_name(elf_header_t *header, uint8_t* name)
 {
 	elf_section_header_t *entry = (elf_section_header_t*) header;
 	entry += header->section_header_offset;
@@ -32,7 +32,7 @@ elf_section_header_t *elf_get_section_by_name(elf_header_t *header, uint8_t* nam
 		entry += header->section_header_entry_size;
 	}
 	return entry;
-}
+}*/
 
 /* Get the data from an ELF section */
 uint8_t *elf_get_section_data(elf_header_t *header, elf_section_header_t *section)

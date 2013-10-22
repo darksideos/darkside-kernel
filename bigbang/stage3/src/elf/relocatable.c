@@ -1,4 +1,5 @@
 #include <elf/elf.h>
+#include <elf/elf_types.h>
 #include <init/kprintf.h>
 #include <mm/higherhalf.h>
 #include <mm/pmm.h>

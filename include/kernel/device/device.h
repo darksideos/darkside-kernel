@@ -20,7 +20,7 @@ typedef struct device
 	driver_t *driver;
 
 	/* Device resources */
-	resource_list_t resources
+	resource_list_t resources;
 
 	/* Power state */
 	uint8_t power_state;
