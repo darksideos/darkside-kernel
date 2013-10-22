@@ -1,6 +1,9 @@
 #include <lib/libc/types.h>
-#include <kernel/exec/executable.h>
-#include <kernel/exec/elf/executable.h>
+#include <lib/libc/string.h>
+#include <kernel/executable/executable.h>
+#include <kernel/executable/elf/elf.h>
+#include <kernel/executable/elf/macros.h>
+#include <kernel/executable/elf/section.h>
 #include <kernel/init/hal.h>
 #include <kernel/mm/heap.h>
 
@@ -42,5 +45,5 @@ executable_t *elf_load_executable(elf_header_t *header)
 		program_header++;
 	}
 
-	return exectutable;
+	return executable;
 }
