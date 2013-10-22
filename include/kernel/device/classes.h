@@ -10,7 +10,8 @@
 #define DEVICE_CLASS_SOUND			0x05	/* Sound device */
 #define DEVICE_CLASS_BUS			0x06	/* Bus */
 #define DEVICE_CLASS_CONTROLLER		0x07	/* Controller */
-#define DEVICE_CLASS_OTHER			0x08	/* Other device */
+#define DEVICE_CLASS_PSEUDO			0x08	/* Psuedo device */
+#define DEVICE_CLASS_OTHER			0x09	/* Other device */
 
 /* System devices */
 #define DEVICE_SYSTEM_PROCESSOR		0x0000	/* Processor */
@@ -27,7 +28,7 @@
 #define DEVICE_STORAGE_HDD			0x0200	/* Hard drive */
 #define DEVICE_STORAGE_DISC			0x0201	/* Disc drive */
 #define DEVICE_STORAGE_FLOPPY		0x0202	/* Floppy drive */
-#define DEVICE_STORAGE_USBMASS
+#define DEVICE_STORAGE_USBMASS		0x0203	/* USB mass storage */
 
 /* Network devices */
 #define DEVICE_NETWORK_ETHERNET		0x0300	/* Ethernet device */
