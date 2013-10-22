@@ -24,8 +24,3 @@ void elf_read_header(elf_header_t *header)
 		kprintf(LOG_DEBUG, "Version:\tInvalid\n");
 	}
 }
-
-/* Load an ELF relocatable file */
-void elf_load_relocatable(elf_header_t *header)
-{
-}

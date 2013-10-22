@@ -82,11 +82,11 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the scheduler */
 	init_scheduler();
 
-	kprintf(LOG_DEBUG, "YEEEEEEEEEEEEEAAAAAAAAAAAAAH\n");
-
 	/* Initialize the kernel modules */
 	
 	/* Register the default executable formats */
+
+	/* Mount the root filesystem */
 
 	/* Initialize the device manager */
 
