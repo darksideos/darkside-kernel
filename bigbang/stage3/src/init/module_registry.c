@@ -290,6 +290,10 @@ void parse_registry(os_info_t *os_info)
 		lineNumber++;
 	}
 	
+	if (module)
+	{	
+		index_tree_node_set_data(parent, module);
+	}
 	os_info->module_registry = tree;
 	
 	kprintf(LOG_INFO, "Parsed module registry\n");
