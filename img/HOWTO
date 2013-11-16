@@ -1,4 +1,4 @@
 First, dd an image with the specified # of cylinders (each cylinder is 516096 bytes).
 Then, use fdisk and create one partition..
 Then, copy the mbr with dd (the first 2048 sectors) into mbr.img
-Then, copy the first partition into fat1.img by skipping the first 2048 sectors.
+Then, copy the first partition into ext2.img by skipping the first 2048 sectors.
