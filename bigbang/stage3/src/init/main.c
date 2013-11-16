@@ -63,7 +63,7 @@ void main(os_info_x86_t *os_info_x86)
 	kprintf(LOG_DEBUG, "Mapped each section of the kernel into memory\n");
 	
 	/* Parse the module registry */
-	//parse_registry(os_info);
+	parse_registry(os_info);
 	
 	/* Finalize the E820 memory map */
 	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);
