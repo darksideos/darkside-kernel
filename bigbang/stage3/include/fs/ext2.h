@@ -2,6 +2,7 @@
 #define __EXT2_H
 
 #include <storage/partition.h>
+#include <fs/fs.h>
 
 #define EXT2_FS_STATE_CLEAN			1
 #define EXT2_FS_STATE_ERRORS		2
@@ -136,6 +137,14 @@ typedef struct dirent
 	unsigned char *name;
 } __attribute__ ((packed));
 
+typedef struct ext2_fs_context
+{
+	fs_context_t context;
+	
+	/* EXT2 superblock */
+	superblock_t *superblock;
+} ext2_fs_context_t;
+
 /* Reading from the drive */
 inode_t *read_inode(partition_t *part, superblock_t *superblock, unsigned int inode);
 unsigned char *read_block(partition_t *part, superblock_t *superblock, unsigned int block);
@@ -144,5 +153,6 @@ struct dirent *ext2_readdir(partition_t *part, superblock_t *superblock, inode_t
 unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *parent, unsigned char *name);
 superblock_t *read_superblock(partition_t *part);
 extended_superblock_t *get_extended_superblock(superblock_t *superblock);
+fs_context_t *ext2_fs_context_init(partition_t *part);
 
 #endif
