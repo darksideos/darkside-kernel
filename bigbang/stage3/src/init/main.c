@@ -43,6 +43,8 @@ void main(os_info_x86_t *os_info_x86)
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
 	
+	fs_context_t *context = fs_context_init(part);
+	
 	superblock = read_superblock(part);
 	root_inode = read_inode(part, superblock, 2);
 
@@ -61,6 +63,12 @@ void main(os_info_x86_t *os_info_x86)
 	elf_load_executable(kernel_elf);
 
 	kprintf(LOG_DEBUG, "Mapped each section of the kernel into memory\n");
+	
+	unsigned int length = fs_length(context, "/boot/modules/test.mod");
+	kprintf(0, "%d\n", length);
+ 	unsigned char *data = kmalloc(length);
+ 	fs_read(context, "/boot/modules/test.mod", data, length);
+ 	kprintf(0, data);
 	
 	/* Parse the module registry */
 	parse_registry(os_info);

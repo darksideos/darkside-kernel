@@ -5,7 +5,7 @@
 
 typedef struct fs_context
 {
-	partition_t partition;
+	partition_t *partition;
 } fs_context_t;
 
 fs_context_t *fs_context_init(partition_t *partition);
