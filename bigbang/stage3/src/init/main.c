@@ -4,6 +4,7 @@
 #include <storage/mbr.h>
 #include <storage/partition.h>
 #include <fs/ext2.h>
+#include <fs/fs.h>
 #include <elf/elf.h>
 #include <init/os_info_x86.h>
 #include <init/os_info.h>
@@ -42,6 +43,11 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
+	fs_context_t *root = fs_context_init(part);
+
+	fs_read(root, 0xBADC0DE, 0xDEADBEEF);
+
+	while(1);
 	
 	superblock = read_superblock(part);
 	root_inode = read_inode(part, superblock, 2);
