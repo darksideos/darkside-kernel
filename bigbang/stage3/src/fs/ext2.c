@@ -191,6 +191,6 @@ extended_superblock_t *get_extended_superblock(superblock_t *superblock)
 fs_context_t *ext2_fs_context_init(partition_t *part)
 {
 	ext2_fs_context_t *context = kmalloc(sizeof(ext2_fs_context_t));
-	context->context.partition = *part;
+	context->context.partition = part;
 	context->superblock = read_superblock(part);
 }
