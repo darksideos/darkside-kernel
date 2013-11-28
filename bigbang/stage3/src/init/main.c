@@ -49,9 +49,11 @@ void main(os_info_x86_t *os_info_x86)
 
 	kprintf(LOG_DEBUG, "0x%08X\n", kinode);
 
-	while(1);
+	unsigned char buf[4];
 
-	fs_read(fs, 0xBADD00D, 0xBADC0DE, 0xDEADBEEF);
+	fs_read(fs, kinode, &buf[0], 4);
+
+	kprintf(LOG_DEBUG, "%c%c%c%c\n", buf[0],buf[1],buf[2],buf[3]);
 
 	while(1);
 	
