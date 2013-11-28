@@ -43,9 +43,15 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
-	fs_context_t *root = fs_context_init(part);
+	fs_context_t *fs = fs_context_init(part);
 
-	fs_read(root, 0xBADC0DE, 0xDEADBEEF);
+	void *kinode = fs_open(fs, "/boot/kernel-i386.elf");
+
+	kprintf(LOG_DEBUG, "0x%08X\n", kinode);
+
+	while(1);
+
+	fs_read(fs, 0xBADD00D, 0xBADC0DE, 0xDEADBEEF);
 
 	while(1);
 	
