@@ -25,14 +25,12 @@ void *fs_open(fs_context_t *context, unsigned char *path)
 		{
 			kprintf(LOG_DEBUG, "%s\n", name);
 
-			unsigned int inode = ext2_finddir(ext2_context->context.partition, ext2_context->superblock, current_inode, name);
-			current_inode = read_inode(ext2_context->context.partition, ext2_context->superblock, inode);
+			/*unsigned int inode = ext2_finddir(ext2_context->context.partition, ext2_context->superblock, current_inode, name);
+			current_inode = read_inode(ext2_context->context.partition, ext2_context->superblock, inode);*/
 		}
 
 		name = strtok(0, "/", &saveptr);
 	}
-
-	kprintf(LOG_DEBUG, "0x%08X\n", current_inode);
 
 	return current_inode;
 }
