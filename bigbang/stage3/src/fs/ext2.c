@@ -161,7 +161,7 @@ unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *
 	unsigned char *data = kmalloc(parent->low_size);
 	ext2_read(part, superblock, parent, data, parent->low_size);
 	int index = 0;
-	
+
 	while(true)
 	{
 		data += ((inode_dirent_t*) data)->size;

@@ -95,11 +95,6 @@ void kernel_main(os_info_t *os_info)
 	/* Load init from the root filesystem */
 	
 	/* Create and run the init process */
-	module_t *module;
-
-	module = (module_t*) index_tree_lookup(&os_info->module_registry, 2, 100, hash("test"));
-	kprintf(LOG_DEBUG, "Name: %s\n", module->name);
-	kprintf(LOG_DEBUG, "Version: MAJOR %d . MINOR %d . PATCH %d\n", module->major, module->minor, module->patch);
 
 	/*thread_t *thread = thread_create(0, &t1, 0, 256);
 	thread_create(0, &t2, 0, 256);
