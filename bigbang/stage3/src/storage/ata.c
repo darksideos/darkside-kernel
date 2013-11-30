@@ -2,6 +2,8 @@
 #include <mm/placement.h>
 #include <storage/ata.h>
 
+#include <init/kprintf.h>
+
 /* Wait for the ATA drive to be ready */
 void ata_wait(unsigned char drive)
 {
