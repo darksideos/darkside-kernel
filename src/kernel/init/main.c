@@ -81,6 +81,8 @@ void kernel_main(os_info_t *os_info)
 
 	/* Initialize the scheduler */
 	init_scheduler();
+
+	kprintf(LOG_DEBUG, "NOAH\n");
 	
 	module_t *module = index_tree_lookup(&os_info->module_registry, 2, 100, hash("test"));
 	kprintf(LOG_DEBUG, module->author);

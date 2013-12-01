@@ -23,8 +23,7 @@ partition_t *part;
 superblock_t *superblock;
 
 /* EXT2 inodes for / and /boot */
-inode_t *root_inode;
-inode_t *boot_inode;
+fs_context_t *fs;
 
 void main(os_info_x86_t *os_info_x86)
 {
@@ -43,12 +42,10 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
-
-	fs_context_t *fs = fs_context_init(part);
+	fs = fs_context_init(part);
 	
 	/* Read the kernel ELF into memory */
 	inode_t *kernel_inode = fs_open(fs, "/boot/kernel-i386.elf");
-
 	elf_header_t *kernel_elf = kmalloc(kernel_inode->low_size);
 	fs_read(fs, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
@@ -58,7 +55,6 @@ void main(os_info_x86_t *os_info_x86)
 	inode_t *test_inode = fs_open(fs, "/boot/modules/test.mod");
  	unsigned char *test_data = kmalloc(test_inode->low_size);
  	fs_read(fs, test_inode, test_data, test_inode->low_size);
- 	kprintf(0, test_data);
 	
 	/* Parse the module registry */
 	parse_registry(os_info);
