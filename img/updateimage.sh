@@ -24,3 +24,8 @@ if [[ "$(uname -s)" == CYGWIN* ]]
 fi
 
 dd if=ext2.img of=os.img bs=512 seek=2048 conv=notrunc
+
+if [[ "$(uname -s)" == CYGWIN* ]]
+	then
+		cp os.img "/cygdrive/c/Program Files (x86)/Bochs-2.6/os.img"
+fi

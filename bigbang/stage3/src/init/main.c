@@ -4,6 +4,7 @@
 #include <storage/mbr.h>
 #include <storage/partition.h>
 #include <fs/ext2.h>
+#include <fs/fs.h>
 #include <elf/elf.h>
 #include <init/os_info_x86.h>
 #include <init/os_info.h>
@@ -42,27 +43,22 @@ void main(os_info_x86_t *os_info_x86)
 	
 	/* Initialize the EXT2 code */
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
-	
-	fs_context_t *context = fs_context_init(part);
-	
-	superblock = read_superblock(part);
-	root_inode = read_inode(part, superblock, 2);
 
-	/* Read the kernel */
-	unsigned int boot = ext2_finddir(part, superblock, root_inode, "boot");
-	boot_inode = read_inode(part, superblock, boot);
+	fs_context_t *fs = fs_context_init(part);
+
+	os_info->elf = kmalloc(0x85c);
 	
-	unsigned int kernel = ext2_finddir(part, superblock, boot_inode, "kernel-i386.elf");
-	inode_t *kernel_inode = read_inode(part, superblock, kernel);
+	void *vga = fs_open(fs, "/vga.o");
+	fs_read(fs, vga, os_info->elf, 0x85c);
 	
 	/* Read the kernel ELF into memory */
+	inode_t *kernel_inode = fs_open(fs, "/boot/kernel-i386.elf");
+
 	elf_header_t *kernel_elf = kmalloc(kernel_inode->low_size);
-	ext2_read(part, superblock, kernel_inode, kernel_elf, kernel_inode->low_size);
+	fs_read(fs, kernel_inode, kernel_elf, kernel_inode->low_size);
 	
 	/* Load the kernel into memory */
 	elf_load_executable(kernel_elf);
-
-	kprintf(LOG_DEBUG, "Mapped each section of the kernel into memory\n");
 	
 	unsigned int length = fs_length(context, "/boot/modules/test.mod");
 	kprintf(0, "%d\n", length);
@@ -71,7 +67,7 @@ void main(os_info_x86_t *os_info_x86)
  	kprintf(0, data);
 	
 	/* Parse the module registry */
-	parse_registry(os_info);
+	//parse_registry(os_info);
 	
 	/* Finalize the E820 memory map */
 	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);
