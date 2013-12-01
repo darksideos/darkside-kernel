@@ -161,7 +161,7 @@ unsigned int ext2_finddir(partition_t *part, superblock_t *superblock, inode_t *
 	unsigned char *data = kmalloc(parent->low_size);
 	ext2_read(part, superblock, parent, data, parent->low_size);
 	int index = 0;
-	
+
 	while(true)
 	{
 		data += ((inode_dirent_t*) data)->size;
@@ -193,6 +193,6 @@ fs_context_t *ext2_fs_context_init(partition_t *part)
 	ext2_fs_context_t *context = kmalloc(sizeof(ext2_fs_context_t));
 	context->context.partition = part;
 	context->superblock = read_superblock(part);
-	
+
 	return context;
 }
