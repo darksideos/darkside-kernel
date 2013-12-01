@@ -55,11 +55,10 @@ void main(os_info_x86_t *os_info_x86)
 	/* Load the kernel into memory */
 	elf_load_executable(kernel_elf);
 	
-	unsigned int length = fs_length(fs, "/boot/modules/test.mod");
-	kprintf(0, "%d\n", length);
- 	unsigned char *data = kmalloc(length);
- 	fs_read(fs, "/boot/modules/test.mod", data, length);
- 	kprintf(0, data);
+	inode_t *test_inode = fs_open(fs, "/boot/modules/test.mod");
+ 	unsigned char *test_data = kmalloc(test_inode->low_size);
+ 	fs_read(fs, test_inode, test_data, test_inode->low_size);
+ 	kprintf(0, test_data);
 	
 	/* Parse the module registry */
 	parse_registry(os_info);
