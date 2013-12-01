@@ -53,9 +53,9 @@
 #define ELF_ST_LOUSER						0x80000000
 #define ELF_ST_HIUSER						0xffffffff
 
-#define ELF32_ST_BIND(i)	((i)>>4)
-#define ELF32_ST_TYPE(i)	((i)&0xf)
-#define ELF32_ST_INFO(b,t)	(((b)<<4)+((t)&0xf))
+#define ELF32_ST_BIND(i)					((i)>>4)
+#define ELF32_ST_TYPE(i)					((i)&0xf)
+#define ELF32_ST_INFO(b,t)					(((b)<<4)+((t)&0xf))
 
 #define ELF_ARCH_NONE						0
 #define ELF_ARCH_M32						1
