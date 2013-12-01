@@ -1,5 +1,6 @@
 #include <init/module_registry.h>
 #include <fs/ext2.h>
+#include <fs/fs.h>
 #include <lib/libc/string.h>
 #include <init/os_info.h>
 #include <init/kprintf.h>
@@ -10,10 +11,7 @@
 #include <lib/libadt/map.h>
 #include <lib/libadt/index_tree.h>
 
-extern partition_t *part;
-extern superblock_t *superblock;
-extern inode_t *root_inode;
-extern inode_t *boot_inode;
+extern fs_context_t *fs;
 
 /* Hash a key */
 unsigned int hash(unsigned char *key)
@@ -180,15 +178,11 @@ unsigned int separate_indents(unsigned char **line)
 
 void parse_registry(os_info_t *os_info)
 {	
-	unsigned int modules = ext2_finddir(part, superblock, boot_inode, "modules");
-	inode_t *modules_inode = read_inode(part, superblock, modules);
-
-	unsigned int registry = ext2_finddir(part, superblock, modules_inode, "registry");
-	inode_t *registry_inode = read_inode(part, superblock, registry);
+	/* Read the module registry into memory */
+	inode_t *registry_inode = fs_open(fs, "/boot/modules/registry");
 	
 	unsigned char *registry_data = kmalloc(registry_inode->low_size + 1);
-	memset(registry_data, 0, registry_inode->low_size + 1);
-	ext2_read(part, superblock, registry_inode, registry_data, registry_inode->low_size);
+	fs_read(fs, registry_inode, registry_data, registry_inode->low_size);
 	
 	unsigned char *saveptr = 0;
 	unsigned char *line = strtok(registry_data, "\n", &saveptr);
