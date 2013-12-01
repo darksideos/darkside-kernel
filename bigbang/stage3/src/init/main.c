@@ -45,11 +45,6 @@ void main(os_info_x86_t *os_info_x86)
 	part = get_mbr_partition(0, get_active_mbr_entry(0));
 
 	fs_context_t *fs = fs_context_init(part);
-
-	os_info->elf = kmalloc(0x85c);
-	
-	void *vga = fs_open(fs, "/vga.o");
-	fs_read(fs, vga, os_info->elf, 0x85c);
 	
 	/* Read the kernel ELF into memory */
 	inode_t *kernel_inode = fs_open(fs, "/boot/kernel-i386.elf");
