@@ -60,14 +60,14 @@ void main(os_info_x86_t *os_info_x86)
 	/* Load the kernel into memory */
 	elf_load_executable(kernel_elf);
 	
-	unsigned int length = fs_length(context, "/boot/modules/test.mod");
+	unsigned int length = fs_length(fs, "/boot/modules/test.mod");
 	kprintf(0, "%d\n", length);
  	unsigned char *data = kmalloc(length);
- 	fs_read(context, "/boot/modules/test.mod", data, length);
+ 	fs_read(fs, "/boot/modules/test.mod", data, length);
  	kprintf(0, data);
 	
 	/* Parse the module registry */
-	//parse_registry(os_info);
+	parse_registry(os_info);
 	
 	/* Finalize the E820 memory map */
 	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);
