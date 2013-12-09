@@ -45,5 +45,6 @@ void page_fault_handler(struct i386_regs *r)
 	/* Display an error message and kill the current thread */
 	kprintf(LOG_ALERT, "Unhandled Page Fault Exception at 0x%08x, error code 0x%08X\nPresent: %s, Access: %s, Mode: %s\n", faulting_address, r->err_code, r->err_code & 0x1 ? "yes" : "no", r->err_code & 0x2 ? "write" : "read", r->err_code & 0x4 ? "user" : "supervisor");
 	dump_registers(r);
+	stack_trace(r, 8);
 	while(1);
 }

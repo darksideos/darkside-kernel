@@ -162,6 +162,7 @@ extern void fault_handler(struct i386_regs *r)
 		{
 			kprintf(LOG_PANIC, "Unhandled %s Exception at %08x\n", exceptions[r->int_no], r->eip);
 			dump_registers(r);
+			stack_trace(r, 8);
 			while(1);
 		}
 	}
@@ -184,5 +185,18 @@ void dump_registers(void *regs)
 	asm volatile("mov %%cr3, %0" : "=r" (cr3));
 	asm volatile("mov %%cr4, %0" : "=r" (cr4));
 
-	kprintf(LOG_INFO, "CR0: %08x CR2: %08x CR3: %08x CR4: %08x\n", cr0, cr2, cr3, cr4);
+	kprintf(LOG_INFO, "CR0: %08x CR2: %08x CR3: %08x CR4: %08x\n\n", cr0, cr2, cr3, cr4);
+}
+
+/* Stack trace */
+void stack_trace(void *regs, uint8_t num_levels)
+{
+	uint32_t *stack_top = ((struct i386_regs*) regs)->esp;
+
+	kprintf(LOG_INFO, "Stack Trace\n\n");
+	for (uint8_t i = 0; i < num_levels; i++)
+	{
+		kprintf(LOG_INFO, "%08X\n", *stack_top);
+		stack_top--;
+	}
 }
