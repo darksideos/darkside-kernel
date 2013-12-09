@@ -55,6 +55,7 @@ void main(os_info_x86_t *os_info_x86)
 	inode_t *test_inode = fs_open(fs, "/boot/modules/test.mod");
  	unsigned char *test_data = kmalloc(test_inode->low_size);
  	fs_read(fs, test_inode, test_data, test_inode->low_size);
+ 	os_info->elf = test_data;
 	
 	/* Parse the module registry */
 	parse_registry(os_info);

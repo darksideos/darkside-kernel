@@ -19,6 +19,10 @@
 #include <lib/libadt/list.h>
 #include <lib/libadt/index_tree.h>
 
+#include <kernel/executable/elf/section.h>
+#include <kernel/executable/elf/elf.h>
+#include <kernel/executable/elf/symbol.h>
+
 uint16_t *vidmem = 0xB8000;
 
 void t1()
@@ -82,10 +86,13 @@ void kernel_main(os_info_t *os_info)
 	/* Initialize the scheduler */
 	init_scheduler();
 
-	kprintf(LOG_DEBUG, "NOAH\n");
+	elf_header_t *elf = os_info->elf;
+	elf_symbol_t *sym = elf_symbol_lookup(elf, "main");
+	kprintf(LOG_DEBUG, "Found it!\n");
 	
-	module_t *module = index_tree_lookup(&os_info->module_registry, 2, 100, hash("test"));
-	kprintf(LOG_DEBUG, module->author);
+	uint32_t (*main)() = elf_get_section_data(elf, elf_get_section(elf, sym->section_index)) + sym->value;
+	kprintf(LOG_INFO, "%d\n", main());
+	kprintf(LOG_DEBUG, "AYYYYY!");
 
 	/* Initialize the kernel modules */
 	
