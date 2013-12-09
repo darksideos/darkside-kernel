@@ -1,6 +1,8 @@
 #ifndef __SECTION_H
 #define __SECTION_H
 
+#include <kernel/executable/elf/elf.h>
+
 /* Get an ELF section by index */
 
 elf_section_header_t *elf_get_section(elf_header_t *header, uint32_t num);
