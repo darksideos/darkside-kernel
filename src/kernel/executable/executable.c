@@ -1,4 +1,5 @@
 #include <lib/libadt/dict.h>
+#include <kernel/executable/executable.h>
 
 executable_t *executable_create(uint64_t base, uint64_t length, uint64_t entry_point)
 {

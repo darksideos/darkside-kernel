@@ -20,5 +20,6 @@ uint8_t *strlower(uint8_t *str);
 uint8_t *strupper(uint8_t *str);
 uint8_t *strcat(uint8_t *s1, uint8_t *s2);
 uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr);
+uint8_t *strdup(uint8_t *str);
 
 #endif

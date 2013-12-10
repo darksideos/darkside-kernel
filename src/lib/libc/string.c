@@ -202,3 +202,11 @@ uint8_t *strtok(uint8_t *str, uint8_t *delimeter, uint8_t **saveptr)
 	
 	return retval;
 }
+
+uint8_t *strdup(uint8_t *str)
+{
+	uint8_t *ret = kmalloc(strlen(str));
+	strcpy(ret, str);
+	
+	return ret;
+}
