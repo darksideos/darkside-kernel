@@ -1,15 +1,20 @@
 #include <lib/libc/types.h>
+#include <lib/libc/string.h>
+
 #include <kernel/executable/elf/elf.h>
 #include <kernel/executable/elf/relocatable.h>
 #include <kernel/executable/elf/macros.h>
 #include <kernel/executable/elf/section.h>
 #include <kernel/executable/elf/symbol.h>
 #include <kernel/executable/executable.h>
+
 #include <kernel/console/kprintf.h>
 
 #include <kernel/init/hal.h>
 
-executable_t *elf_load_object(elf_header_t *header, uint32_t base_address)
+extern uint32_t current_directory;
+
+executable_t *elf_load_object(elf_header_t *header, uint32_t base_address, bool user)
 {
 	/* We iterate through the sections */
 	elf_section_header_t *first_section = elf_get_section(header, 0);
@@ -17,9 +22,10 @@ executable_t *elf_load_object(elf_header_t *header, uint32_t base_address)
 	elf_section_header_t *section = first_section;
 	for(uint32_t index = 0; index < header->num_section_header_entries; index++)
 	{
-		if(section->type == ELF_ST_PROGBITS && section->size != 0)
+		if((section->flags & ELF_SHF_ALLOC) && section->size != 0)
 		{
 			kprintf(0, "Load section %s to %08X\n", elf_get_string(header, section->name), base_address);
+			section->address = base_address;
 			
 			/* Is this section relocatable? */
 			elf_section_header_t *rel_sec = first_section;
@@ -33,6 +39,14 @@ executable_t *elf_load_object(elf_header_t *header, uint32_t base_address)
 				rel_sec++;
 			}
 			
+			/* Before we can memcpy(), we need to allocate blank pages */
+			for (uint32_t page_address = base_address; page_address < base_address + section->size; page_address += 0x1000)
+			{
+				/* We need to change this */
+				map_page(current_directory, page_address, pmm_alloc_page(), true, true, user, false);
+			}
+			
+			memcpy(base_address, elf_get_section_data(header, section), section->size);
 			base_address = page_align(base_address + section->size);
 		}
 		

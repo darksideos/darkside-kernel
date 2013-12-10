@@ -220,6 +220,11 @@
 #define ELF_ARCH_XCORE						203
 #define ELF_ARCH_MCHP_PIC					204
 
+#define ELF_SHF_WRITE						0x01
+#define ELF_SHF_ALLOC						0x02
+#define ELF_SHF_EXECINSTR					0x04
+#define ELF_SHF_MASKPROC					0xF0000000
+
 #define ELF_SYMBOL_TYPE_NOTYPE				0
 #define ELF_SYMBOL_TYPE_OBJECT				1
 #define ELF_SYMBOL_TYPE_FUNC				2
