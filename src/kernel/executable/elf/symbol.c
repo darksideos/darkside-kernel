@@ -8,13 +8,10 @@
 elf_symbol_t *elf_symbol_lookup(elf_header_t *header, uint8_t *name)
 {
 	elf_symbol_t *sym = (elf_symbol_t*) elf_get_section_data(header, elf_get_section_by_type(header, ELF_ST_SYMTAB));
-	sym++;
-	kprintf(0, "Trying symbol %s", elf_get_string(header, sym->name));
 	
-	while(!strequal(elf_get_string(header, sym->name), name))
+	while(!((ELF32_ST_TYPE(sym->info) == ELF_SYMBOL_TYPE_FUNC) || strequal(elf_get_string(header, sym->name), name)))
 	{
 		sym++;
-		kprintf(0, "Trying symbol %s", elf_get_string(header, sym->name));
 	}
 	
 	return sym;

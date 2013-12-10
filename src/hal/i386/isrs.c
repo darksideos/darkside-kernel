@@ -180,10 +180,10 @@ void dump_registers(void *regs)
 	kprintf(LOG_INFO, "EFLAGS: %08x\n", ((struct i386_regs*) regs)->eflags);
 
 	uint32_t cr0, cr2, cr3, cr4;
-	asm volatile("mov %%cr0, %0" : "=r" (cr0));
-	asm volatile("mov %%cr2, %0" : "=r" (cr2));
-	asm volatile("mov %%cr3, %0" : "=r" (cr3));
-	asm volatile("mov %%cr4, %0" : "=r" (cr4));
+	__asm__ volatile("mov %%cr0, %0" : "=r" (cr0));
+	__asm__ volatile("mov %%cr2, %0" : "=r" (cr2));
+	__asm__ volatile("mov %%cr3, %0" : "=r" (cr3));
+	__asm__ volatile("mov %%cr4, %0" : "=r" (cr4));
 
 	kprintf(LOG_INFO, "CR0: %08x CR2: %08x CR3: %08x CR4: %08x\n\n", cr0, cr2, cr3, cr4);
 }

@@ -5,6 +5,7 @@ if [ "$(uname -s)" == "Darwin" ]
 		sudo fuse-ext2 -o rw,force ext2.img /mnt/hdd
 		read -p "Waiting... "
 		sudo cp ../build-i386/kernel-i386.elf /mnt/hdd/boot
+		sudo cp ../build-i386/symtab /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
@@ -14,6 +15,7 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo losetup /dev/loop0 ext2.img
 		sudo mount /dev/loop0 /mnt/hdd
 		sudo cp ../build-i386/kernel-i386.elf /mnt/hdd/boot
+		sudo cp ../build-i386/symtab /mnt/hdd/boot
 		sudo umount /dev/loop0
 		sudo losetup -d /dev/loop0
 fi
