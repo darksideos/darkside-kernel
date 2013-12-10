@@ -24,6 +24,8 @@ typedef struct os_info
 	
 	/* Module registry and loaded modules */
 	index_tree_t module_registry;
+	
+	unsigned char *symtab;
 
 	void *elf;
 } __attribute__ ((packed)) os_info_t;

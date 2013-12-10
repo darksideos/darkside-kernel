@@ -14,7 +14,7 @@
 /* Set the FPU control word */
 void set_fpu_cw(const uint16_t cw)
 {
-	asm volatile("fldcw %0" :: "m"(cw));
+	__asm__ volatile("fldcw %0" :: "m"(cw));
 }
 
 /* Initialize the FPU */
@@ -34,9 +34,9 @@ void init_fpu()
 
 	/* Write the FPU flags */
 	uint32_t cr4;
-	asm volatile("mov %%cr4, %0" : "=r" (cr4));
+	__asm__ volatile("mov %%cr4, %0" : "=r" (cr4));
 	cr4 |= fpu_flags;
-	asm volatile("mov %0, %%cr4" :: "r" (cr4));
+	__asm__ volatile("mov %0, %%cr4" :: "r" (cr4));
 
 	/* Set the FPU control words */
 	set_fpu_cw(0x37F);
