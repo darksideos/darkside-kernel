@@ -1,7 +1,0 @@
-<docgenconfig>
-	<coderoot>../../src</coderoot>
-	<coderoot>../../include</coderoot>
-	<extensions>.c .h .cpp .hpp</extensions>
-	<output type="html">htmlinc</output>
-	<exclude>*acpica*</exclude>
-</docgenconfig>
