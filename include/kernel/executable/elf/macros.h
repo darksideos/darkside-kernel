@@ -53,13 +53,13 @@
 #define ELF_ST_LOUSER						0x80000000
 #define ELF_ST_HIUSER						0xffffffff
 
-#define ELF32_ST_BIND(i)					((i)>>4)
-#define ELF32_ST_TYPE(i)					((i)&0xf)
-#define ELF32_ST_INFO(b,t)					(((b)<<4)+((t)&0xf))
+#define ELF32_ST_BIND(i)					((i) >> 4)
+#define ELF32_ST_TYPE(i)					((i) & 0xf)
+#define ELF32_ST_INFO(b,t)					(((b) << 4) + ((t) & 0xf))
 
-#define ELF32_R_SYM(i)						((i)>>8)
+#define ELF32_R_SYM(i)						((i) >> 8)
 #define ELF32_R_TYPE(i)						((unsigned char) (i))
-#define ELF32_R_INFO(s,t)					(((s)<<8) + (unsigned char) (t))
+#define ELF32_R_INFO(s,t)					(((s) << 8) + (unsigned char) (t))
 
 #define ELF_ARCH_NONE						0
 #define ELF_ARCH_M32						1

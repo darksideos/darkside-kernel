@@ -91,9 +91,8 @@ void kernel_main(os_info_t *os_info)
 	/* Load the file to 0xA0000000 in kernelspace */
 	executable_t *exec = elf_load_object(elf, 0xA0000000, false);
 	
-	//elf_symbol_t *sym = elf_symbol_lookup(elf, "main");
-	//uint32_t (*main)() = elf_get_section_data(elf, elf_get_section(elf, sym->section_index)) + sym->value;
-	//kprintf(0, "%d", main());
+	uint32_t (*main)() = dict_get(&(exec->symbols), "main");
+	kprintf(0, "%d", main());
 
 	/* Initialize the kernel modules */
 	

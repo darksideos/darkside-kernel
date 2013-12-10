@@ -11,7 +11,7 @@ typedef struct executable
 	uint64_t length;
 
 	/* Entry point */
-	uint64_t entry;
+	uint64_t entry_point;
 
 	/* Symbols */
 	dict_t symbols;
