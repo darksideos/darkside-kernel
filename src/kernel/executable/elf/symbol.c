@@ -4,7 +4,7 @@
 #include <kernel/executable/elf/macros.h>
 #include <kernel/executable/elf/section.h>
 
-/* Get an ELF section by name */
+/* Get an ELF symbol by name */
 elf_symbol_t *elf_symbol_lookup(elf_header_t *header, uint8_t *name)
 {
 	elf_symbol_t *sym = (elf_symbol_t*) elf_get_section_data(header, elf_get_section_by_type(header, ELF_ST_SYMTAB));
@@ -15,4 +15,11 @@ elf_symbol_t *elf_symbol_lookup(elf_header_t *header, uint8_t *name)
 	}
 	
 	return sym;
+}
+
+/* Get an ELF symbol by number */
+elf_symbol_t *elf_get_symbol(elf_header_t *header, uint32_t num)
+{
+	elf_symbol_t *sym = (elf_symbol_t*) elf_get_section_data(header, elf_get_section_by_type(header, ELF_ST_SYMTAB));
+	return sym + num;
 }

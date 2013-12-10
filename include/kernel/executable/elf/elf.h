@@ -63,4 +63,11 @@ typedef struct elf_symbol
 	unsigned short section_index;
 } __attribute__((packed)) elf_symbol_t;
 
+/* ELF relocatable entry w/o addend */
+typedef struct elf_rel32
+{
+	unsigned int offset;
+	unsigned int info;
+} __attribute__((packed)) elf_rel32_t;
+
 #endif
