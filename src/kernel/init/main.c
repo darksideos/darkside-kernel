@@ -22,6 +22,7 @@
 #include <kernel/executable/elf/section.h>
 #include <kernel/executable/elf/elf.h>
 #include <kernel/executable/elf/symbol.h>
+#include <kernel/executable/executable.h>
 
 uint16_t *vidmem = 0xB8000;
 
@@ -87,13 +88,11 @@ void kernel_main(os_info_t *os_info)
 	init_scheduler();
 
 	elf_header_t *elf = os_info->elf;
-	elf_symbol_t *sym = elf_symbol_lookup(elf, "main");
-	kprintf(LOG_DEBUG, "Found it!\n");
-	kprintf(LOG_DEBUG, "Symtab: %d\n", os_info->symtab);
+	executable_t *exec = elf_load_object(elf, 0xA0000000);
 	
-	uint32_t (*main)() = elf_get_section_data(elf, elf_get_section(elf, sym->section_index)) + sym->value;
-	kprintf(LOG_INFO, "%d\n", main());
-	kprintf(LOG_DEBUG, "AYYYYY!");
+	//elf_symbol_t *sym = elf_symbol_lookup(elf, "main");
+	//uint32_t (*main)() = elf_get_section_data(elf, elf_get_section(elf, sym->section_index)) + sym->value;
+	//kprintf(0, "%d", main());
 
 	/* Initialize the kernel modules */
 	
