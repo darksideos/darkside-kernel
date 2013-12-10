@@ -56,6 +56,12 @@ void main(os_info_x86_t *os_info_x86)
  	unsigned char *test_data = kmalloc(test_inode->low_size);
  	fs_read(fs, test_inode, test_data, test_inode->low_size);
  	os_info->elf = test_data;
+ 	
+ 	inode_t *symtab_inode = fs_open(fs, "/boot/symtab");
+ 	unsigned char *symtab_data = kmalloc(symtab_inode->low_size);
+ 	fs_read(fs, symtab_inode, symtab_data, symtab_inode->low_size);
+ 	os_info->symtab = symtab_data;
+ 	kprintf(LOG_DEBUG, symtab_data);
 	
 	/* Parse the module registry */
 	parse_registry(os_info);

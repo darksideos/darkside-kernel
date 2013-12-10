@@ -89,6 +89,7 @@ void kernel_main(os_info_t *os_info)
 	elf_header_t *elf = os_info->elf;
 	elf_symbol_t *sym = elf_symbol_lookup(elf, "main");
 	kprintf(LOG_DEBUG, "Found it!\n");
+	kprintf(LOG_DEBUG, "Symtab: %d\n", os_info->symtab);
 	
 	uint32_t (*main)() = elf_get_section_data(elf, elf_get_section(elf, sym->section_index)) + sym->value;
 	kprintf(LOG_INFO, "%d\n", main());

@@ -45,7 +45,7 @@ void syscall_handler(struct i386_regs *r)
  
  	/* Push the arguments onto the stack and call the syscall, then store the return the value in EAX */
  	int32_t ret;
- 	asm volatile (" \
+ 	__asm__ volatile (" \
  				  push %1; \
  				  push %2; \
  				  push %3; \

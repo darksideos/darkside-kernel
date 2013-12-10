@@ -118,7 +118,7 @@ void init_pmm(range_t *ranges, uint32_t num_ranges)
 			((uint32_t*) 0xFFE3F000)[512 + mapped] = phys_bitmap_page | PAGE_KERNEL;
 			
 			/* Invalidate the TLB entry */
-			asm volatile ("invlpg (%0)" :: "a" (phys_bitmap_page));
+			__asm__ volatile ("invlpg (%0)" :: "a" (phys_bitmap_page));
 			
 			/* We have mapped a page of the PMM bitmap */
 			mapped++;

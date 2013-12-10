@@ -92,19 +92,19 @@ void eoi(int32_t irq)
 /* Disable and enable IRQs */
 void disable_interrupts()
 {
-	asm volatile ("cli");
+	__asm__ volatile ("cli");
 }
 
 void enable_interrupts()
 {
-	asm volatile ("sti");
+	__asm__ volatile ("sti");
 }
 
 /* Get and set the interrupt state */
 uint32_t get_interrupt_state()
 {
 	uint32_t eflags;
-	asm volatile("pushf; pop %0" : "=r" (eflags));
+	__asm__ volatile("pushf; pop %0" : "=r" (eflags));
 	return eflags & 0x200;
 }
 

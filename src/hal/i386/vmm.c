@@ -139,7 +139,7 @@ void map_page(uint32_t dir, uint32_t virtual_address, uint32_t physical_address,
 	*((uint32_t*) page) = physical_address | flags;
 
 	/* Invalidate the TLB entry */
-	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
+	__asm__ volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Unmap a virtual address */
@@ -159,7 +159,7 @@ void unmap_page(uint32_t dir, uint32_t virtual_address)
 	*((uint32_t*)page) = 0;
 
 	/* Invalidate the TLB entry */
-	asm volatile ("invlpg (%0)" :: "a" (virtual_address));
+	__asm__ volatile ("invlpg (%0)" :: "a" (virtual_address));
 }
 
 /* Create a new blank page directory */
@@ -195,13 +195,13 @@ uint32_t create_address_space()
 void switch_address_space(uint32_t dir)
 {
     current_directory = dir;
-    asm volatile("mov %0, %%cr3" :: "r"(dir));
+    __asm__ volatile("mov %0, %%cr3" :: "r"(dir));
 }
 
 /* Flush the entire TLB */
 void flush_tlb()
 {
-	asm volatile("mov %0, %%cr3" :: "r"(current_directory));
+	__asm__ volatile("mov %0, %%cr3" :: "r"(current_directory));
 }
 
 /* Page align an address */
@@ -221,7 +221,7 @@ uint32_t page_align(uint32_t address)
 void init_vmm()
 {	
 	/* Set the address of the current directory */
-	asm volatile ("mov %%cr3, %0" : "=r"(current_directory));
+	__asm__ volatile ("mov %%cr3, %0" : "=r"(current_directory));
 	
 	/* Create the kernel directory */
 	kernel_directory = create_address_space();
