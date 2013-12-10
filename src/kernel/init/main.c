@@ -88,7 +88,8 @@ void kernel_main(os_info_t *os_info)
 	init_scheduler();
 
 	elf_header_t *elf = os_info->elf;
-	executable_t *exec = elf_load_object(elf, 0xA0000000);
+	/* Load the file to 0xA0000000 in kernelspace */
+	executable_t *exec = elf_load_object(elf, 0xA0000000, false);
 	
 	//elf_symbol_t *sym = elf_symbol_lookup(elf, "main");
 	//uint32_t (*main)() = elf_get_section_data(elf, elf_get_section(elf, sym->section_index)) + sym->value;
