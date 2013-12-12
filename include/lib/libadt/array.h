@@ -1,30 +1,24 @@
-#ifndef __LIST_H
-#define __LIST_H
+#ifndef __ARRAY_H
+#define __ARRAY_H
 
-#include <lib/libc/stdint.h>
+#include <lib/libc/types.h>
 
-/* Linked list entry structure */
-typedef struct list_entry
+/* Dynamic array structure */
+typedef struct array
 {
-	struct list_entry *next;
-	struct list_entry *prev;
-	void *value;
-} linkedlist_entry_t;
+	void *data;			/* Data in the array */
+	uint32_t itemsz;	/* Size of each item */	
+	uint32_t occupied;	/* Number of items */
+	uint32_t allocated;	/* Length of the data */
+} array_t;
 
-/* Linked list structure */
-typedef struct list
-{
-	list_entry_t *head; /* Head of the list */
-	list_entry_t *tail; /* Tail of the list */
-	uint32_t length;	/* Number of items in the list */
-} linkedlist_t;
-
-/* Linked list methods */
-list_t list_create();
-void list_destroy(list_t *list);
-void list_insert_head(list_t *list, void *value);
-void list_insert_tail(list_t *list, void *value);
-void *list_remove_head(list_t *list);
-void *list_remove_tail(list_t *list); 
+/* Dynamic array methods */
+array_t array_create(uint32_t itemsz, uint32_t preallocated);
+void array_destroy(array_t *array);
+uint32_t array_append(array_t *array, void *item);
+void array_remove(array_t *array, uint32_t index);
+void *array_get(array_t *array, uint32_t index);
+void array_set(array_t *array, uint32_t index, void *item);
+uint32_t array_length(array_t *array);
 
 #endif
