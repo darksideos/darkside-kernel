@@ -107,8 +107,8 @@ find_active_part:
 	mul cx
 	mov bx, [MBR(eax, bootable)]
 	
-	cmp bx, 1
-	jz .success
+	bt bx, 7
+	jc .success
 	inc ax
 	jmp .loop
 .fail:
@@ -150,16 +150,16 @@ error:
 	mov ah, 0x13				; interrupt #
 	mov bh, 0x00				; page #
 	mov bl, 0x04				; color (red)
-	mov cx, 45					; string length
+	mov cx, 30					; string length
 	mov dh, 0x00				; row
 	mov dl, 0x00				; column
 	int 0x10
 	
 	jmp $						; Hang forever
 
-error_mem_map db "Unable to get E820 map"
-error_mbr db "No active partitions in MBR"
-error_stage2 db "Unable to load stage2"
+error_mem_map db "Unable to get E820 map........"
+error_mbr	  db "No active partitions in MBR..."
+error_stage2  db "Unable to load stage2........."
 
 ; Fill the remaining 510 bytes with zeroes
 times 510 - ($ - $$) db 0
