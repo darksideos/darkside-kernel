@@ -2,6 +2,7 @@
 #define __OS_INFO_H
 
 #include <lib/libadt/index_tree.h>
+#include <lib/libadt/dict.h>
 
 #define MEM_MAP_FLAG_FREE			0x01
 #define MEM_MAP_FLAG_VALID			0x02
@@ -25,7 +26,7 @@ typedef struct os_info
 	/* Module registry and loaded modules */
 	index_tree_t module_registry;
 	
-	unsigned char *symtab;
+	dict_t symtab;
 
 	void *elf;
 } __attribute__ ((packed)) os_info_t;

@@ -28,7 +28,7 @@ kernel-i386.elf: clean
 	cd ../src/lib/libadt; make BLD_TARGET=i386 CCBASE=$(i386) CFLAGS="$(CFLAGS_i386)"
 	$(i386)-ld -T linker.ld -Map map.txt -o ../build-i386/$@ ../build-i386/hal/i386/asm/*.o ../build-i386/hal/i386/*.o `find ../build-i386/kernel -type f -name *.o` ../build-i386/drivers/graphics/vga/*.o ../build-i386/drivers/input/ps2/*.o ../build-i386/drivers/storage/ide/ata/*.o -L../lib -lc-i386 -lgcc-i386 -ladt-i386
 	$(i386)-objdump -S ../build-i386/$@ > ../build-i386/disasm.s
-	$(i386)-nm ../build-i386/$@ > ../build-i386/symtab
+	$(i386)-nm ../build-i386/$@ | awk '{ print $$1, $$3; }' > ../build-i386/symtab
 
 kernel-raspi.elf: clean
 	cd ../src/hal/raspi; make CCBASE=$(ARM)
