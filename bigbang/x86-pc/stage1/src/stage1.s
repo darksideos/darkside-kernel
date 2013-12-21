@@ -32,6 +32,8 @@ init_video:
 	mov ah, 0x00
 	int 0x10
 	
+jmp $
+	
 ; Get the BIOS memory map
 do_e820:
 	xor bp, bp						; Keep the number of entries in BP
