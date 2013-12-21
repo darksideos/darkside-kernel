@@ -3,6 +3,7 @@
 
 #include <lib/libc/types.h>
 #include <kernel/mm/range.h>
+#include <lib/libadt/dict.h>
 #include <lib/libadt/index_tree.h>
 
 /* An OS module struct */
@@ -30,7 +31,7 @@ typedef struct os_info
 	/* Module registry and loaded modules */
 	index_tree_t module_registry;
 	
-	uint8_t *symtab;
+	dict_t symtab;
 
 	void *elf;
 } __attribute__ ((packed)) os_info_t;

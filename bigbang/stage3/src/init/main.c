@@ -12,6 +12,7 @@
 
 #include <init/kprintf.h>
 #include <lib/libadt/index_tree.h>
+#include <lib/libadt/dict.h>
 
 /* Reference the E820 linked list */
 extern e820_linked_entry_t *first_linked;
@@ -24,6 +25,27 @@ superblock_t *superblock;
 
 /* EXT2 inodes for / and /boot */
 fs_context_t *fs;
+
+dict_t parse_symtab()
+{
+	inode_t *symtab_inode = fs_open(fs, "/boot/symtab");
+	unsigned char *symtab_data = kmalloc(symtab_inode->low_size);
+	fs_read(fs, symtab_inode, symtab_data, symtab_inode->low_size);
+ 	
+	unsigned char *saveptr = 0;
+	unsigned char *line = strtok(symtab_data, "\n", &saveptr);
+	
+	dict_t symtab = dict_create();
+	
+	while(line != 0 && !strequal(line, ""))
+	{
+		line[8] = 0;
+		dict_append(&symtab, strdup(line + 9), hex2int(line));
+		line = strtok(0, "\n", &saveptr);
+	}
+	
+	return symtab;
+ }
 
 void main(os_info_x86_t *os_info_x86)
 {
@@ -53,18 +75,14 @@ void main(os_info_x86_t *os_info_x86)
 	elf_load_executable(kernel_elf);
 	
 	inode_t *test_inode = fs_open(fs, "/boot/modules/test.mod");
- 	unsigned char *test_data = kmalloc(test_inode->low_size);
- 	fs_read(fs, test_inode, test_data, test_inode->low_size);
- 	os_info->elf = test_data;
- 	
- 	inode_t *symtab_inode = fs_open(fs, "/boot/symtab");
- 	unsigned char *symtab_data = kmalloc(symtab_inode->low_size);
- 	fs_read(fs, symtab_inode, symtab_data, symtab_inode->low_size);
- 	os_info->symtab = symtab_data;
- 	//kprintf(LOG_DEBUG, symtab_data);
+	unsigned char *test_data = kmalloc(test_inode->low_size);
+	fs_read(fs, test_inode, test_data, test_inode->low_size);
+	os_info->elf = test_data;
 	
 	/* Parse the module registry */
 	parse_registry(os_info);
+	
+	os_info->symtab = parse_symtab();
 	
 	/* Finalize the E820 memory map */
 	os_info->mem_map = e820_finalize_mem_map(os_info->mem_map_entries);

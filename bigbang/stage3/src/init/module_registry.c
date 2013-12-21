@@ -144,7 +144,7 @@ unsigned int tree_index(unsigned char *line, unsigned int lineNumber)
 	}
 	else if(*line == '#')
 	{
-		return str2dec(line + 1);
+		return dec2int(line + 1);
 	}
 	else if(*line == '"')
 	{
@@ -230,11 +230,11 @@ void parse_registry(os_info_t *os_info)
 				{
 					unsigned char *saveptr2 = 0;
 					unsigned char *num = strtok(line + 9, ".", &saveptr2);
-					module->major = str2dec(num);
+					module->major = dec2int(num);
 					num = strtok(0, ".", &saveptr2);
-					module->minor = str2dec(num);
+					module->minor = dec2int(num);
 					num = strtok(0, ".", &saveptr2);
-					module->patch = str2dec(num);
+					module->patch = dec2int(num);
 				}
 				else
 				{
