@@ -1,6 +1,6 @@
 %include "stage1.inc"
 
-[ORG 0x7C00]
+[ORG ORG_LOC]
 [BITS 16]
 	jmp 0x0000:start
 	
@@ -13,13 +13,13 @@ start:
 	mov es, ax
 	mov ss, ax
 .mbr_relocate:
-	mov si, bootstrap_start
+	mov si, ORG_LOC
 	mov di, RELOC_LOC
-	mov cx, (boostrap_end - bootstrap_start)
+	mov cx, 0x200
 	
 	cld
 	rep movsb
-	jmp RELOC_LOC
+	jmp (bootstrap_start - RELOC_LOC)
 
 ; Start of the bootstrap code
 bootstrap_start:
@@ -98,13 +98,11 @@ error:
 	mov dh, 0x00				; row
 	mov dl, 0x00				; column
 	int 0x10
-	jmp $
+	
+	jmp $						; Hang forever
 
 error_mbr db "No active partitions in MBR. Aborting..."
 error_stage2 db "Unable to load stage2 from disk. Aborting..."
-
-; End of the bootstrap code
-bootstrap_end:
 
 ; Fill the remaining 446 bytes with zeroes
 times 446 - ($ - $$) db 0
