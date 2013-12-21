@@ -51,4 +51,4 @@ raspi-upload:
 
 i386:
 	cd ../bigbang/x86-pc/img; make
-	#./updateimage.sh
+	./updateimage.sh
