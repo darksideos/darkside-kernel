@@ -3,19 +3,30 @@
 [ORG ORG_LOC]
 [BITS 16]
 	jmp 0x0000:start
+	
+; Initialize and relocate the MBR
+start:
+	; Initialize the segment registers
+	xor eax, eax
+	
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+.mbr_relocate:
+	mov si, ORG_LOC
+	mov di, RELOC_LOC
+	mov cx, 0x200
+	
+	cld
+	rep movsb
+	jmp (bootstrap_start - RELOC_LOC)
 
 ; Start of the bootstrap code
-start:
-	; Initialize the GPRs
+bootstrap_start:
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx
 	xor edx, edx
-	
-	; Initialize the segment registers
-	mov ds, ax
-	mov es, ax
-	mov ss, ax
 .setup_data:
 	mov [DATA(drive)], dl
 .setup_dap:
@@ -106,16 +117,6 @@ find_active_part:
 .success:
 	mov [DATA(partition)], ax
 	
-; Relocate the MBR
-mbr_relocate:
-	mov si, ORG_LOC
-	mov di, RELOC_LOC
-	mov cx, 0x200
-	
-	cld
-	rep movsb
-	jmp (load_stage2 - RELOC_LOC)
-
 ; Load stage2 from the partition
 load_stage2:
 	; Get the start of the partition
@@ -136,8 +137,8 @@ load_stage2:
 	int 0x13
 	
 	; Hang if the disk read failed
-	mov ax, (error_stage2 - RELOC_LOC)
-	jc (error - RELOC_LOC)
+	mov ax, error_stage2
+	jc error
 	
 	; Jump to stage2
 	jmp 0x0000:STAGE2_LOC
