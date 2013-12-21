@@ -32,15 +32,13 @@ init_video:
 	mov ah, 0x00
 	int 0x10
 	
-jmp $
-	
 ; Get the BIOS memory map
 do_e820:
 	xor bp, bp						; Keep the number of entries in BP
 	
-	mov ax, 0x00
-	mov es, ax						; Segment
-	mov di, DATA(e820_map)			; Offset
+	mov di, E820_LOC				; Address of E820 map
+	mov [DATA(e820_map)], edi		; goes into the data structure
+	
 	xor ebx, ebx					; Clear EBX
 	mov edx, 0x534D4150				; Move "SMAP" into EDX
 	mov eax, 0xE820

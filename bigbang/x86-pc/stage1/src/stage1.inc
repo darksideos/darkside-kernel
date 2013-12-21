@@ -14,6 +14,9 @@ endstruc
 %define DATA_LOC	0x0660									; Location of the local data structure in memory
 %define DATA(x)		DATA_LOC + data. %+ x					; Macro for accessing the local data structure
 
+; E820 map
+%define E820_LOC	0x0670
+
 ; DAP structure
 struc dap
 	.size			resb 1
