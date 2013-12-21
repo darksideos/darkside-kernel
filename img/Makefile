@@ -49,7 +49,6 @@ raspi-upload:
 	stty -F $(PORT) 115200	
 	sx -vv kernel-raspi.img < $(PORT) > $(PORT)
 
-i386: kernel-i386.elf
-	./baseimage.sh
-	cd ../bigbang/img; make
-	./updateimage.sh
+i386:
+	cd ../bigbang/x86-pc/img; make
+	#./updateimage.sh
