@@ -160,10 +160,6 @@ error_mem_map db "Unable to get E820 map........"
 error_mbr	  db "No active partitions in MBR..."
 error_stage2  db "Unable to load stage2........."
 
-; Fill the remaining 510 bytes with zeroes
-times 510 - ($ - $$) db 0
-
-; Boot signature
-db 0x55
-db 0xAA
+; Fill the remaining 440 bytes with zeroes
+times 440 - ($ - $$) db 0
 	
