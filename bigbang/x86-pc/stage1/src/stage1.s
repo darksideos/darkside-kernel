@@ -52,7 +52,10 @@ find_active_part:
 	jge .fail
 	
 	; Find out if the partition is active
-	mov bx, MBR(ax, bootable)
+	mov cx, 0x10
+	mul cx
+	mov bx, [MBR(eax, bootable)]
+	
 	cmp bx, 1
 	jz .success
 	inc ax
@@ -66,7 +69,9 @@ find_active_part:
 ; Load stage2 from the partition
 load_stage2:
 	; Get the start of the partition
-	mov eax, [MBR(ax, lba_start)]
+	mov cx, 0x10
+	mul cx
+	mov eax, [MBR(eax, lba_start)]
 	
 	; Set up the DAP
 	mov [DAP(buffer)], dword STAGE2_LOC
@@ -104,8 +109,8 @@ error:
 error_mbr db "No active partitions in MBR. Aborting..."
 error_stage2 db "Unable to load stage2 from disk. Aborting..."
 
-; Fill the remaining 446 bytes with zeroes
-times 446 - ($ - $$) db 0
+; Fill the remaining 510 bytes with zeroes
+times 510 - ($ - $$) db 0
 
 ; Boot signature
 db 0x55
