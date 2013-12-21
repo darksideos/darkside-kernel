@@ -91,6 +91,7 @@ void kernel_main(os_info_t *os_info)
 	/* Load the file to 0xA0000000 in kernelspace */
 	executable_t *exec = elf_load_object(elf, 0xA0000000, false);
 	
+	kprintf(0, "%d %d", hex2int("10"), hex2int("A"));
 	uint32_t (*main)() = dict_get(&(exec->symbols), "main");
 	kprintf(0, "%d", main());
 
