@@ -83,7 +83,7 @@ do_e820:
 	mov ax, error_mem_map
 	jmp error
 	
-; Find the active MBR partition, placing it in the local data structure
+; Find the active MBR partition, placing it in the local data structure (error here)
 find_active_part:
 	mov ax, 0
 .loop:
