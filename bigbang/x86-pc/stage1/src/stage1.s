@@ -83,22 +83,24 @@ do_e820:
 	mov ax, error_mem_map
 	jmp error
 	
-; Find the active MBR partition, placing it in the local data structure (error here)
+; Find the active MBR partition, placing it in the local data structure
 find_active_part:
 	mov ax, 0
+	mov dx, 0
 .loop:
 	; Make sure we only read the first 4 entries
 	cmp ax, 4
 	jge .fail
 	
 	; Find out if the partition is active
-	mov cx, 0x10
-	mul cx
-	mov bx, [MBR(eax, bootable)]
-	
+	mov bx, [MBR(edx, bootable)]
+	jmp $
 	bt bx, 7
 	jc .success
+	
+	; If not, loop
 	inc ax
+	add dx, 0x10
 	jmp .loop
 .fail:
 	mov ax, error_mbr
