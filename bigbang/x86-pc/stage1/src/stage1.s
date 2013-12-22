@@ -86,7 +86,7 @@ do_e820:
 ; Find the active MBR partition, placing it in the local data structure
 find_active_part:
 	mov ax, 0
-	mov dx, 0
+	mov edx, 0
 .loop:
 	; Make sure we only read the first 4 entries
 	cmp ax, 4
@@ -94,7 +94,6 @@ find_active_part:
 	
 	; Find out if the partition is active
 	mov bx, [MBR(edx, bootable)]
-	jmp $
 	bt bx, 7
 	jc .success
 	
@@ -121,9 +120,7 @@ mbr_relocate:
 ; Load stage2 from the partition
 load_stage2:
 	; Get the start of the partition
-	mov cx, 0x10
-	mul cx
-	mov eax, [MBR(eax, lba_start)]
+	mov eax, [MBR(edx, lba_start)]
 	
 	; Set up the DAP
 	mov [DAP(buffer)], dword STAGE2_LOC
