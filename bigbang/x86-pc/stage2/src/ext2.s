@@ -53,6 +53,11 @@ partition_read:
 .success:
 	ret
 
+; First we read the superblock (1st sector of disk)
+mov eax, SUPERBLK_LOC
+mov ebx, 1
+mov ecx, 1
+
 ; Error function
 error:
 	mov bp, ax					; message
