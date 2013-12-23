@@ -1,7 +1,7 @@
 ; Code location constants
-%define ORG_LOC		0x7C00									; Initial MBR position in memory (where BIOS loads it)
-%define RELOC_LOC	0x0800									; Relocation position (where the MBR code is copied)
-%define STAGE2_LOC	0x7C00									; Location of stage2
+%define ORG_LOC		0x7C00									; Initial MBR position in memory (where stage1 loads it)
+%define RELOC_LOC	0x0800									; Relocation position (where the VBR code is copied)
+%define STAGE3_LOC	0x7C00									; Location of stage3
 
 ; Local data structure
 struc data
@@ -15,9 +15,6 @@ endstruc
 %define DATA_LOC	0x0660									; Location of the local data structure in memory
 %define DATA(x)		DATA_LOC + data. %+ x					; Macro for accessing the local data structure
 
-; E820 map
-%define E820_LOC	0x0670
-
 ; DAP structure
 struc dap
 	.size			resb 1
@@ -29,15 +26,3 @@ struc dap
 endstruc
 %define DAP_LOC		0x0600									; Location of the DAP in memory
 %define DAP(x)		DAP_LOC + dap. %+ x						; Macro for accessing the DAP
-
-; MBR partition table structure
-struc mbr_entry
-	.bootable		resb 1
-	.chs_start		resb 3
-	.type			resb 1
-	.chs_end		resb 3
-	.lba_start		resd 1
-	.lba_length		resd 1
-endstruc
-%define MBR_LOC		ORG_LOC + 0x1BE					; Location of the MBR partition table in memory
-%define MBR(n, x)	MBR_LOC + n + mbr_entry. %+ x	; Macro for accessing the MBR partition tables
