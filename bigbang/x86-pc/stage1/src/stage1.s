@@ -6,12 +6,9 @@
 
 ; Start of the bootstrap code
 start:
-	; Initialize the GPRs
-	xor eax, eax
-	xor ebx, ebx
-	xor ecx, ecx
-	
 	; Initialize the segment registers
+	xor ax, ax
+	
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
