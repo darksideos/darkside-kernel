@@ -14,6 +14,9 @@ endstruc
 %define DATA_LOC	0x0660									; Location of the local data structure in memory
 %define DATA(x)		DATA_LOC + data. %+ x					; Macro for accessing the local data structure
 
+; E820 map
+%define E820_LOC	0x0670
+
 ; DAP structure
 struc dap
 	.size			resb 1
@@ -35,5 +38,5 @@ struc mbr_entry
 	.lba_start		resd 1
 	.lba_length		resd 1
 endstruc
-%define MBR_LOC		RELOC_LOC + 0x1BE						; Location of the MBR partition table in memory
+%define MBR_LOC		ORG_LOC + 0x1BE					; Location of the MBR partition table in memory
 %define MBR(n, x)	MBR_LOC + n + mbr_entry. %+ x	; Macro for accessing the MBR partition tables
