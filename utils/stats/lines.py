@@ -3,7 +3,7 @@ import datetime
 import matplotlib.pyplot as plt
 
 START_TIME = 1367975426
-ACPICA_LINES = 
+ACPICA_LINES = 110434
 
 text = open("log.txt", "r").read()
 pattern = "commit [0-9a-z]{40}\n"
@@ -33,7 +33,7 @@ for stat in reversed(commit_stats):
 		months = (date - START_TIME) / 2635200
 		
 		x.append(months)
-		y.append(lines)
+		y.append(max(lines - ACPICA_LINES, 0))
 		print((date, lines))
 
 plt.plot(x, y)
