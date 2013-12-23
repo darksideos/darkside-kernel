@@ -1,7 +1,8 @@
 ; Code location constants
-%define ORG_LOC		0x7C00									; Initial MBR position in memory (where stage1 loads it)
-%define RELOC_LOC	0x0800									; Relocation position (where the VBR code is copied)
-%define STAGE3_LOC	0x7C00									; Location of stage3
+%define ORG_LOC			0x7C00									; Initial MBR position in memory (where stage1 loads it)
+%define RELOC_LOC		0x0800									; Relocation position (where the VBR code is copied)
+%define STAGE3_LOC		0x7C00									; Location of stage3
+%define SUPERBLK_LOC	0x4000									; Location of the EXT2 superblock
 
 ; Local data structure
 struc data
