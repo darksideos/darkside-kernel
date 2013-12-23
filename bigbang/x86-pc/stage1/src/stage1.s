@@ -10,7 +10,6 @@ start:
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx
-	xor edx, edx
 	
 	; Initialize the segment registers
 	mov ds, ax
@@ -32,7 +31,7 @@ init_video:
 	mov ah, 0x00
 	int 0x10
 	
-jmp find_active_part
+;jmp find_active_part
 	
 ; Get the BIOS memory map
 do_e820:
@@ -61,7 +60,7 @@ do_e820:
 	mov ecx, 24						; ECX also trashed
 	int 0x15
 	jc short .e820f					; Carry means "end of list already reached"
-	mov edx, 0x0534D4150			; repair potentially trashed register
+	mov edx, 0x534D4150				; repair potentially trashed register
 .jmpin:
 	jcxz .skipent					; Skip any 0 length entries
 	cmp cl, 20						; Got a 24 byte ACPI 3.X response?
@@ -87,8 +86,8 @@ do_e820:
 	
 ; Find the active MBR partition, placing it in the local data structure
 find_active_part:
-	mov ax, 0
-	mov edx, 0
+	xor ax, ax
+	xor edx, edx
 .loop:
 	; Make sure we only read the first 4 entries
 	cmp ax, 4
@@ -111,13 +110,13 @@ find_active_part:
 	
 ; Relocate the MBR
 mbr_relocate:
-	mov si, ORG_LOC
-	mov di, RELOC_LOC
-	mov cx, 0x200
+	mov esi, ORG_LOC
+	mov edi, RELOC_LOC
+	mov ecx, 0x200
 	
 	cld
 	rep movsb
-	jmp (load_stage2 - RELOC_LOC)
+	jmp (load_stage2 - RELOC_LOC)	; Error here
 
 ; Load stage2 from the partition
 load_stage2:
