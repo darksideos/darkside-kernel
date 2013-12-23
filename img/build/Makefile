@@ -32,12 +32,12 @@ kernel-i386.elf: clean
 	$(i386)-nm $(ROOT)/build-i386/$@ > $(ROOT)/build-i386/symtab
 
 kernel-raspi.elf: clean
-	cd ../src/hal/raspi; make CCBASE=$(ARM)
-	cd ../src/drivers/serial; make CCBASE=$(ARM)
-	cd ../src/lib/libc; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
+	cd $(ROOT)/src/hal/raspi; make CCBASE=$(ARM)
+	cd $(ROOT)/src/drivers/serial; make CCBASE=$(ARM)
+	cd $(ROOT)/src/lib/libc; make CCBASE=$(ARM) BLD_TARGET=raspi CFLAGS="$(CFLAGS_RASPI)"
 #	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a ../build-raspi/hal/raspi/*.o ../lib/libc-raspi.a
-	OFILES=$(shell find ../build-raspi/ -type f -name "*.o" | tr '\n' ' ')
-	$(ARM)-ld -T linker.pi -o $@ ../lib/raspi-libgcc.a ../lib/libc-raspi.a ../build-raspi/drivers/serial/gpio/*.o ../build-raspi/hal/raspi/*.o
+	OFILES=$(shell find $(ROOT)/build-raspi/ -type f -name "*.o" | tr '\n' ' ')
+	$(ARM)-ld -T linker.pi -o $@ $(ROOT)/lib/raspi-libgcc.a $(ROOT)/lib/libc-raspi.a $(ROOT)/build-raspi/drivers/serial/gpio/*.o ../build-raspi/hal/raspi/*.o
 
 kernel-raspi.img: kernel-raspi.elf
 	$(ARM)-objcopy kernel-raspi.elf -O binary kernel-raspi.img
@@ -52,4 +52,4 @@ raspi-upload:
 
 i386:
 	cd $(ROOT)/bigbang/x86-pc/img; make
-	#./updateimage.sh
+	../utils/updateimage.sh
