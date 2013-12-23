@@ -1,6 +1,6 @@
 [ORG 0x7C00]
 [BITS 16]
-	jmp 0x0000:start
+jmp 0x0000:start
 
 ; Start of the bootstrap code
 start:
@@ -14,7 +14,10 @@ start:
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
-	
+
+mov ax, 0xDEADBEEF
+jmp $
+
 mov ax, error_stage3
 jmp error
 
