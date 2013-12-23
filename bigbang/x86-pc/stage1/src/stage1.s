@@ -136,7 +136,7 @@ load_stage2:
 	
 	; Hang if the disk read failed
 	mov ax, (error_stage2 - RELOC_LOC)
-	jc (error - RELOC_LOC)
+	jc near (error - RELOC_LOC)
 	
 	; Jump to stage2
 	jmp 0x0000:STAGE2_LOC
