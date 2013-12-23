@@ -116,11 +116,10 @@ mbr_relocate:
 	
 	cld
 	rep movsb
-	jmp (load_stage2 - RELOC_LOC)	; Error here
+	jmp (RELOC_LOC + load_stage2 - ORG_LOC)
 
 ; Load stage2 from the partition
 load_stage2:
-	jmp $
 	; Get the start of the partition
 	mov eax, [MBR(edx, lba_start)]
 	
@@ -137,8 +136,8 @@ load_stage2:
 	int 0x13
 	
 	; Hang if the disk read failed
-	mov ax, (error_stage2 - RELOC_LOC)
-	jc near (error - RELOC_LOC)
+	mov ax, (RELOC_LOC + error_stage2 - ORG_LOC)
+	jc near (RELOC_LOC + error - ORG_LOC)
 	
 	; Jump to stage2
 	jmp 0x0000:STAGE2_LOC
