@@ -3,36 +3,25 @@
 [ORG ORG_LOC]
 [BITS 16]
 	jmp 0x0000:start
-	
-; Initialize and relocate the MBR
-start:
-	; Initialize the segment registers
-	xor eax, eax
-	
-	mov ds, ax
-	mov es, ax
-	mov ss, ax
-.mbr_relocate:
-	mov si, ORG_LOC
-	mov di, RELOC_LOC
-	mov cx, 0x200
-	
-	cld
-	rep movsb
-	jmp (bootstrap_start - RELOC_LOC)
 
 ; Start of the bootstrap code
-bootstrap_start:
+start:
+	; Initialize the GPRs
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx
 	xor edx, edx
+	
+	; Initialize the segment registers
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
 .setup_data:
 	mov [DATA(drive)], dl
 .setup_dap:
 	mov [DAP(size)], byte 0x10
 	mov [DAP(reserved)], byte 0x00
-	mov [DAP(lba_length)], word 0x0001
+	mov [DAP(lba_length)], word 0x0002
 	mov [DAP(buffer)], dword 0x0
 	mov [DAP(lba_start_l)], dword 0x0
 	mov [DAP(lba_start_h)], dword 0x0
@@ -47,9 +36,9 @@ init_video:
 do_e820:
 	xor bp, bp						; Keep the number of entries in BP
 	
-	mov ax, 0x00
-	mov es, ax						; Segment
-	mov di, DATA(e820_map)			; Offset
+	mov di, E820_LOC				; Address of E820 map
+	mov [DATA(e820_map)], edi		; goes into the data structure
+	
 	xor ebx, ebx					; Clear EBX
 	mov edx, 0x534D4150				; Move "SMAP" into EDX
 	mov eax, 0xE820
@@ -97,19 +86,20 @@ do_e820:
 ; Find the active MBR partition, placing it in the local data structure
 find_active_part:
 	mov ax, 0
+	mov edx, 0
 .loop:
 	; Make sure we only read the first 4 entries
 	cmp ax, 4
 	jge .fail
 	
 	; Find out if the partition is active
-	mov cx, 0x10
-	mul cx
-	mov bx, [MBR(eax, bootable)]
-	
+	mov bx, [MBR(edx, bootable)]
 	bt bx, 7
 	jc .success
+	
+	; If not, loop
 	inc ax
+	add dx, 0x10
 	jmp .loop
 .fail:
 	mov ax, error_mbr
@@ -117,12 +107,20 @@ find_active_part:
 .success:
 	mov [DATA(partition)], ax
 	
+; Relocate the MBR
+mbr_relocate:
+	mov si, ORG_LOC
+	mov di, RELOC_LOC
+	mov cx, 0x200
+	
+	cld
+	rep movsb
+	jmp (load_stage2 - RELOC_LOC)
+
 ; Load stage2 from the partition
 load_stage2:
 	; Get the start of the partition
-	mov cx, 0x10
-	mul cx
-	mov eax, [MBR(eax, lba_start)]
+	mov eax, [MBR(edx, lba_start)]
 	
 	; Set up the DAP
 	mov [DAP(buffer)], dword STAGE2_LOC
@@ -137,8 +135,8 @@ load_stage2:
 	int 0x13
 	
 	; Hang if the disk read failed
-	mov ax, error_stage2
-	jc error
+	mov ax, (error_stage2 - RELOC_LOC)
+	jc (error - RELOC_LOC)
 	
 	; Jump to stage2
 	jmp 0x0000:STAGE2_LOC
@@ -161,10 +159,6 @@ error_mem_map db "Unable to get E820 map........"
 error_mbr	  db "No active partitions in MBR..."
 error_stage2  db "Unable to load stage2........."
 
-; Fill the remaining 510 bytes with zeroes
-times 510 - ($ - $$) db 0
-
-; Boot signature
-db 0x55
-db 0xAA
+; Fill the remaining 440 bytes with zeroes
+times 440 - ($ - $$) db 0
 	
