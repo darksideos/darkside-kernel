@@ -120,6 +120,7 @@ mbr_relocate:
 
 ; Load stage2 from the partition
 load_stage2:
+	jmp $
 	; Get the start of the partition
 	mov eax, [MBR(edx, lba_start)]
 	
