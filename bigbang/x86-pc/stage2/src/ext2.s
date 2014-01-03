@@ -9,9 +9,16 @@
 start:
 	; Set up a stack
 	mov esp, ORG_LOC
-.setup_data:
-	mov eax, [DAP(lba_start_l)]
-	mov [DATA(lba_start)], eax
+.setup_dap:
+	mov [DAP(size)], byte 0x10
+	mov [DAP(reserved)], byte 0x00
+	mov [DAP(lba_length)], word 0x0002
+	mov [DAP(buffer)], dword 0x0
+	mov [DAP(lba_start_l)], dword 0x0
+	mov [DAP(lba_start_h)], dword 0x0
+	
+mov ax, error_stage3
+jmp error
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -53,11 +60,6 @@ partition_read:
 .success:
 	ret
 
-; First we read the superblock (1st sector of disk)
-mov eax, SUPERBLK_LOC
-mov ebx, 1
-mov ecx, 1
-
 ; Error function
 error:
 	mov bp, ax					; message
@@ -71,12 +73,6 @@ error:
 	int 0x10
 	
 	jmp $						; Hang forever
-
-ext2_superblock dd 0
-root_inode		dd 0
-boot_inode		dd 0
-loader_inode	dd 0
-stage3_inode	dd 0
 
 error_stage3	db "Unable to load stage3..."
 
