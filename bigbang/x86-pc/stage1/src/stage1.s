@@ -12,9 +12,6 @@ start:
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
-	
-	; Set up a stack
-	mov esp, ORG_LOC
 .setup_data:
 	mov [DATA(drive)], dl
 .setup_dap:
@@ -33,11 +30,10 @@ init_video:
 	
 ; Find the active MBR partition, placing it in the local data structure
 find_active_part:
-	xor ax, ax
 	xor ecx, ecx
 .loop:
 	; Make sure we only read the first 4 entries
-	cmp ax, 4
+	cmp cx, 0x40
 	jge .fail
 	
 	; Find out if the partition is active
@@ -46,14 +42,13 @@ find_active_part:
 	jc .success
 	
 	; If not, loop
-	inc ax
 	add cx, 0x10
 	jmp .loop
 .fail:
 	mov ax, error_mbr
 	jmp error
 .success:
-	mov [DATA(partition)], ax
+	mov [DATA(partition)], cx
 	
 ; Relocate the MBR
 mbr_relocate:
@@ -67,10 +62,11 @@ mbr_relocate:
 
 ; Load stage2 from the partition
 load_stage2:
-	; Set up ES:SI for the VBR handoff and push on the stack
+	; Set up ES:SI for the VBR handoff
 	mov esi, (RELOC_LOC + MBR_LOC - ORG_LOC)
+	mov ecx, [DATA(partition)]
 	add esi, ecx
-	push esi
+	mov [DATA(partition)], esi
 	
 	; Get the start of the partition
 	mov eax, [MBR(ecx, lba_start)]
@@ -93,7 +89,7 @@ load_stage2:
 	
 	; Jump to stage2
 	mov dl, [DATA(drive)]
-	pop esi
+	mov esi, [DATA(partition)]
 	
 	jmp 0x0000:STAGE2_LOC
 	
