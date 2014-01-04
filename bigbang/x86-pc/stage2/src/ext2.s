@@ -33,6 +33,16 @@ read_superblock:
 	mov edx, [SUPERBLOCK(block_size)]
 	shl edx, 1024
 	mov [SUPERBLOCK(block_size)], edx
+	
+	; Calculate and store the inode size
+	mov edx, [SUPERBLOCK(major_version)]
+	cmp edx, 1
+	jge read_stage3
+	mov [EXT_SUPERBLOCK(inode_size)], 128
+
+; Read stage3
+read_stage3:
+	jmp $
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -82,23 +92,24 @@ read_block:
 ; Read an inode (eax = Buffer, ebx = Inode)
 read_inode:
 	; Calculate the block group, placing it in EAX
-	push eax
+	push eax										; Save the buffer
 	mov eax, ebx
 	dec eax											; EAX = (inode - 1)
+	push eax										; Save (inode - 1)
 	mov ebx, [SUPERBLOCK(inodes_per_group)]			; EBX = (superblock->inodes_per_group)
 	div ebx											; EAX = (inode - 1) / (superblock->inodes_per_group)
 	
 	; Calculate the table block and index, placing them in EAX and EBX
 	push eax										; Save the block group
-	mov eax, [SUPERBLOCK(block_size)]
-	mov ecx, 32
-	div ecx
+	mov eax, [SUPERBLOCK(block_size)]				; EAX = (superblock->block_size)
+	mov ecx, 32										; ECX = 32
+	div ecx											; EAX = (superblock->block_size) / 32
 	
-	mov ecx, eax
+	mov ecx, eax									; ECX = (superblock->block_size) / 32
 	pop eax											; Restore the block group
-	div ecx
+	div ecx											; EAX = block_group / ((superblock->block_size) / 32)
 	
-	mov ebx, edx
+	mov ebx, edx									; EBX = block_group % ((superblock->block_size) / 32)
 	
 	; Calculate the block containing the block group descriptor, storing it in EAX
 	push eax										; Save the table block
@@ -112,6 +123,26 @@ read_inode:
 	mov ebx, eax
 	mov eax, BGDESC_LOC
 	call read_block
+	
+	; Calculate the table block and index, placing them in EAX and EBX
+	pop eax											; EAX = (inode - 1)
+	push eax										; Save (inode - 1)
+	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = inode_size
+	mul ebx											; EAX = (inode - 1) * inode_size
+	mov ebx, [SUPERBLOCK(block_size)]				; EBX = block_size
+	div ebx											; EAX = ((inode - 1) * inode_size) / block_size
+	mov edx, eax									; EDX = ((inode - 1) * inode_size) / block_size
+	
+	mov eax, [SUPERBLOCK(block_size)]				; EAX = block_size
+	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = inode_size
+	div ebx											; EAX = (block_size / inode_size)
+	mov ebx, eax									; EBX = (block_size / inode_size)
+	pop eax											; EAX = (inode - 1)
+	push edx										; Save ((inode - 1) * inode_size) / block_size
+	div ebx											; EDX = (inode - 1) % (block_size / inode_size)
+	
+	pop eax											; EAX = ((inode - 1) * inode_size) / block_size
+	mov ebx, edx									; EBX = (inode - 1) % (block_size / inode_size)
 
 ; Error function
 error:
