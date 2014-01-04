@@ -32,7 +32,7 @@ endstruc
 struc ext_superblock
 	.first_nonreserved_inode	resd 1
 	.inode_size					resw 1
-	.short superblock_group		resw 1
+	.superblock_group			resw 1
 	.optional_features			resd 1
 	.required_features			resd 1
 	.readonly_features			resd 1
@@ -60,4 +60,31 @@ struc bgdesc
 	.directories				resw 1
 endstruc
 %define BGDESC_LOC				0x1000
-%define BGDESC(x)				BGDESC_LOC + bgdesc. %+ x
+%define BGDESC(n, x)			BGDESC_LOC + n + bgdesc. %+ x
+
+; Inode structure
+struc inode
+	.type_perm					resw 1
+	.uid						resw 1
+	.low_size					resd 1
+	.accessed_time				resd 1
+	.creation_time				resd 1
+	.modified_time				resd 1
+	.deletion_time				resd 1
+	.gid						resw 1
+	.hard_links					resw 1
+	.sectors					resd 1
+	.flags						resd 1
+	.os1						resd 1
+	.direct_block				resd 12
+	.single_block				resd 1
+	.double_block				resd 1
+	.triple_block				resd 1
+	.generation					resd 1
+	.extended_attribute			resd 1
+	.upper_size_dir_acl			resd 1
+	.fragment					resd 1
+	.os2						resb 12
+endstruc
+%define INODE_LOC				0x4000
+%define INODE(n, x)				INODE_LOC + n + inode. %+ x
