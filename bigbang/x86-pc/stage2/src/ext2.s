@@ -26,6 +26,11 @@ read_superblock:
 	mov ecx, 1
 	call partition_read
 	
+	; Check the signature
+	mov ax, [SUPERBLOCK(signature)]
+	cmp ax, 0xEF53
+	jne .fail
+.success	
 	; Calculate and store the block size
 	mov edx, [SUPERBLOCK(block_size)]
 	shl edx, 1024
@@ -36,6 +41,9 @@ read_superblock:
 	cmp edx, 1
 	jge read_stage3
 	mov [EXT_SUPERBLOCK(inode_size)], word 128
+.fail:
+	mov ax, error_stage3
+	jmp error
 
 ; Read stage3
 read_stage3:
