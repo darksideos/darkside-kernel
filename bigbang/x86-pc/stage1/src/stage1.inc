@@ -5,8 +5,8 @@
 
 ; Local data structure
 struc data
-	.drive			resb 1
-	.partition		resb 1
+	.drive			resw 1
+	.partition		resw 1
 endstruc
 %define DATA_LOC	0x0660									; Location of the local data structure in memory
 %define DATA(x)		DATA_LOC + data. %+ x					; Macro for accessing the local data structure
