@@ -9,6 +9,10 @@
 start:
 	; Set up a stack
 	mov esp, ORG_LOC
+.setup_data:
+	mov [DATA(drive)], dl
+	mov eax, [MBR(esi, lba_start)]
+	mov [DATA(part_start)], eax
 .setup_dap:
 	mov [DAP(size)], byte 0x10
 	mov [DAP(reserved)], byte 0x00
@@ -25,7 +29,7 @@ partition_read:
 	; Set up the DAP
 	mov [DAP(buffer)], eax
 	
-	;mov eax, [DATA(lba_start)]
+	mov eax, [DATA(part_start)]
 	add eax, ebx
 	mov [DAP(lba_start_l)], eax
 	
