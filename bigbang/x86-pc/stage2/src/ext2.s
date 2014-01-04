@@ -20,6 +20,19 @@ start:
 	
 mov ax, error_stage3
 jmp error
+	
+; Read the superblock
+read_superblock:
+	; Read the superblock into memory
+	mov eax, SUPERBLOCK_LOC
+	mov ebx, 2
+	mov ecx, 1
+	call partition_read
+	
+	; Calculate and store the block size
+	mov edx, [SUPERBLOCK(block_size)]
+	shl edx, 1024
+	mov [SUPERBLOCK(block_size)], edx
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -30,36 +43,75 @@ partition_read:
 	add eax, ebx
 	mov [DAP(lba_start_l)], eax
 	
+	mov [DAP(lba_length)], cx
+	
 	; Set up the arguments
 	xor eax, eax
 	
 	mov si, DAP_LOC
 	mov ah, 0x42
 	mov dl, [DATA(drive)]
-.loop:
-	; Check if done
-	cmp ecx, 0
-	je .success
-	
+
 	; Read from the disk
-	push ecx
+	pushad
 	int 0x13
-	pop ecx
+	popad
 	
 	; Hang if the disk read failed
 	jc .fail
-	
-	; Modify parameters and reenter the function
-	add [DAP(buffer)], dword 512
-	add [DAP(lba_start_l)], dword 1
-	sub ecx, 1
-	
-	jmp .loop
+.success:
+	ret
 .fail:
 	mov ax, error_stage3
 	jmp error
-.success:
+	
+; Read a block (eax = Buffer, ebx = Block)
+read_block:
+	; Calculate the starting sector
+	mov ecx, [SUPERBLOCK(block_size)]
+	imul ebx, ecx
+	shr ebx, 9
+	
+	; Calculate the number of sectors
+	shr ecx, 9
+	
+	; Read the block into memory and return
+	call partition_read
 	ret
+	
+; Read an inode (eax = Buffer, ebx = Inode)
+read_inode:
+	; Calculate the block group, placing it in EAX
+	push eax
+	mov eax, ebx
+	dec eax											; EAX = (inode - 1)
+	mov ebx, [SUPERBLOCK(inodes_per_group)]			; EBX = (superblock->inodes_per_group)
+	div ebx											; EAX = (inode - 1) / (superblock->inodes_per_group)
+	
+	; Calculate the table block and index, placing them in EAX and EBX
+	push eax										; Save the block group
+	mov eax, [SUPERBLOCK(block_size)]
+	mov ecx, 32
+	div ecx
+	
+	mov ecx, eax
+	pop eax											; Restore the block group
+	div ecx
+	
+	mov ebx, edx
+	
+	; Calculate the block containing the block group descriptor, storing it in EAX
+	push eax										; Save the table block
+	mov eax, 2048									; EAX = 2048
+	mov ecx, [SUPERBLOCK(block_size)]				; ECX = (superblock->block_size)
+	div ecx											; EAX = 2048 / (superblock->block_size)
+	pop ecx											; Restore the table block to ECX
+	add eax, ecx									; EAX += table_block
+	
+	; Read the block group descriptor
+	mov ebx, eax
+	mov eax, BGDESC_LOC
+	call read_block
 
 ; Error function
 error:
