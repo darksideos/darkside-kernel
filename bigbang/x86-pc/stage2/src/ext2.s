@@ -25,7 +25,7 @@ partition_read:
 	; Set up the DAP
 	mov [DAP(buffer)], eax
 	
-	mov eax, [DATA(lba_start)]
+	;mov eax, [DATA(lba_start)]
 	add eax, ebx
 	mov [DAP(lba_start_l)], eax
 	
