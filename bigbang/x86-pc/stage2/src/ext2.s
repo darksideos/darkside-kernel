@@ -23,7 +23,7 @@ read_superblock:
 	; Read the superblock into memory
 	mov eax, SUPERBLOCK_LOC
 	mov ebx, 2
-	mov ecx, 1
+	mov ecx, 2
 	call partition_read
 	
 	; Check the signature
@@ -41,12 +41,16 @@ read_superblock:
 	cmp edx, 1
 	jge read_stage3
 	mov [EXT_SUPERBLOCK(inode_size)], word 128
+	jge read_stage3
 .fail:
 	mov ax, error_stage3
 	jmp error
 
 ; Read stage3
 read_stage3:
+	mov eax, INODE_LOC
+	mov ebx, 2
+	call read_inode
 	jmp $
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
@@ -60,17 +64,13 @@ partition_read:
 	
 	mov [DAP(lba_length)], cx
 	
-	; Set up the arguments
+	; Read from the disk
 	xor eax, eax
 	
 	mov si, DAP_LOC
 	mov ah, 0x42
 	mov dl, [DATA(drive)]
-
-	; Read from the disk
-	pushad
 	int 0x13
-	popad
 	
 	; Hang if the disk read failed
 	jc .fail
@@ -164,9 +164,10 @@ read_inode:
 	mov ecx, [BGDESC(edi, inode_table_block)]		; ECX = inode_table_block
 	add ecx, eax									; ECX = inode_table_block + table_block
 	
+	pop eax											; Restore the buffer into EAX
+	
 	push ebx										; Save table_index
 	
-	mov eax, INODE_LOC
 	mov ebx, ecx									; EBX = inode_table_block + table_block
 	call read_block
 	
