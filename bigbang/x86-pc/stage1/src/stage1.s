@@ -69,11 +69,11 @@ mbr_relocate:
 load_stage2:
 	; Set up ES:SI for the VBR handoff and push on the stack
 	mov esi, (RELOC_LOC + MBR_LOC - ORG_LOC)
-	add esi, edx
+	add esi, ecx
 	push esi
 	
 	; Get the start of the partition
-	mov eax, [MBR(edx, lba_start)]
+	mov eax, [MBR(ecx, lba_start)]
 	
 	; Set up the DAP
 	mov [DAP(buffer)], dword STAGE2_LOC
