@@ -71,7 +71,7 @@ partition_read:
 	mov si, DAP_LOC
 	mov ah, 0x42
 	mov dl, [DATA(drive)]
-	int 0x13	; Disk read error
+	int 0x13
 	
 	; Hang if the disk read failed
 	jc .fail
@@ -92,6 +92,7 @@ read_block:
 	shr ecx, 9
 	
 	; Read the block into memory and return
+	jmp $
 	call partition_read
 	ret
 	
