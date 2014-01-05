@@ -52,10 +52,11 @@ read_stage3:
 	mov eax, INODE_LOC
 	mov ebx, 2
 	call read_inode
-	mov ebx, [INODE(eax, hard_links)]
-	jmp $
-	jmp $
-	jmp $
+	mov ebx, [INODE(eax, type_perm)]
+	mov ecx, [INODE(eax, low_size)]
+	mov edx, [INODE(eax, hard_links)]
+	mov esi, [INODE(eax, uid)]
+	mov edi, [INODE(eax, gid)]
 	jmp $
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
