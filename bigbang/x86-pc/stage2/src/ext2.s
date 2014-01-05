@@ -33,6 +33,7 @@ read_superblock:
 .success	
 	; Calculate and store the block size
 	mov edx, [SUPERBLOCK(block_size)]
+	jmp $
 	shl edx, 1024
 	mov [SUPERBLOCK(block_size)], edx
 	
