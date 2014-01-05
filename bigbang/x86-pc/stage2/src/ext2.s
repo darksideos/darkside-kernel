@@ -50,9 +50,9 @@ read_superblock:
 ; Read stage3
 read_stage3:
 	mov eax, INODE_LOC
-	mov ebx, 15
+	mov ebx, 2
 	call read_inode
-	mov ebx, [INODE(eax, low_size)]
+	mov ebx, [INODE(eax, hard_links)]
 	jmp $
 	jmp $
 	jmp $
@@ -159,19 +159,13 @@ read_inode:
 	div ebx											; EAX = ((inode - 1) * inode_size) / block_size
 	mov ecx, eax									; ECX = ((inode - 1) * inode_size) / block_size
 	
-	; Error possibly here
 	xor edx, edx
-	mov eax, [SUPERBLOCK(block_size)]				; EAX = block_size
-	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = inode_size
-	div ebx											; EAX = (block_size / inode_size)
-	xor edx, edx
-	mov ebx, eax									; EBX = (block_size / inode_size)
 	pop eax											; EAX = (inode - 1)
-	push ecx										; Save ((inode - 1) * inode_size) / block_size
-	div ebx											; EDX = (inode - 1) % (block_size / inode_size)
+	mov ebx, [SUPERBLOCK(inodes_per_group)]			; EBX = (superblock->inodes_per_group)
+	div ebx											; EDX = (inode - 1) % (superblock->inodes_per_group)
 	
-	pop eax											; EAX = ((inode - 1) * inode_size) / block_size
-	mov ebx, edx									; EBX = (inode - 1) % (block_size / inode_size)
+	mov eax, ecx									; EAX = ((inode - 1) * inode_size) / block_size
+	mov ebx, edx									; EBX = (inode - 1) % (superblock->inodes_per_group)
 	
 	; Read the block
 	mov ecx, [BGDESC(edi, inode_table_block)]		; ECX = inode_table_block
