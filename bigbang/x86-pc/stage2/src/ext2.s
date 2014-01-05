@@ -36,7 +36,6 @@ read_superblock:
 	mov edx, 1024
 	shl edx, cl
 	mov [SUPERBLOCK(block_size)], edx
-	jmp $
 	
 	; Calculate and store the inode size
 	mov edx, [SUPERBLOCK(major_version)]
@@ -104,8 +103,6 @@ read_bgdesc:
 	mov eax, [SUPERBLOCK(block_size)]				; EAX = (superblock->block_size)
 	mov ecx, 32										; ECX = 32
 	div ecx											; EAX = (superblock->block_size) / 32
-	
-	jmp $
 	
 	xor edx, edx
 	mov ecx, eax									; ECX = (superblock->block_size) / 32
