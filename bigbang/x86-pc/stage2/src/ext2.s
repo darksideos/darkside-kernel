@@ -71,7 +71,7 @@ partition_read:
 	mov si, DAP_LOC
 	mov ah, 0x42
 	mov dl, [DATA(drive)]
-	int 0x13
+	int 0x13	; Disk read error
 	
 	; Hang if the disk read failed
 	jc .fail
@@ -125,6 +125,8 @@ read_bgdesc:
 	mov ebx, eax									; EBX = Block
 	mov eax, BGDESC_LOC								; EAX = Buffer
 	call read_block
+	
+	jmp $
 	
 	; Return the offset
 	mov eax, edi									; Restore the table index to EAX
