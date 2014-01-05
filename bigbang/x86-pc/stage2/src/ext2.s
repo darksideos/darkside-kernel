@@ -98,10 +98,12 @@ read_block:
 read_bgdesc:
 	; Calculate the table block and index, placing them in EAX and EBX
 	mov esi, eax									; Save the block group
+	xor edx, edx
 	mov eax, [SUPERBLOCK(block_size)]				; EAX = (superblock->block_size)
 	mov ecx, 32										; ECX = 32
 	div ecx											; EAX = (superblock->block_size) / 32
 	
+	xor edx, edx
 	mov ecx, eax									; ECX = (superblock->block_size) / 32
 	mov eax, esi									; Restore the block group to EAX
 	div ecx											; EAX = block_group / ((superblock->block_size) / 32)
@@ -110,6 +112,7 @@ read_bgdesc:
 	
 	; Calculate the block containing the block group descriptor, storing it in EAX
 	mov esi, eax									; Save the table block
+	xor edx, edx
 	mov eax, 2048									; EAX = 2048
 	mov ecx, [SUPERBLOCK(block_size)]				; ECX = (superblock->block_size)
 	div ecx											; EAX = 2048 / (superblock->block_size)
@@ -145,16 +148,19 @@ read_inode:
 	push eax										; Save (inode - 1)
 	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = inode_size
 	mul ebx											; EAX = (inode - 1) * inode_size
+	xor edx, edx
 	mov ebx, [SUPERBLOCK(block_size)]				; EBX = block_size
 	div ebx											; EAX = ((inode - 1) * inode_size) / block_size
-	mov edx, eax									; EDX = ((inode - 1) * inode_size) / block_size
+	mov ecx, eax									; ECX = ((inode - 1) * inode_size) / block_size
 	
+	xor edx, edx
 	mov eax, [SUPERBLOCK(block_size)]				; EAX = block_size
 	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = inode_size
 	div ebx											; EAX = (block_size / inode_size)
+	xor edx, edx
 	mov ebx, eax									; EBX = (block_size / inode_size)
 	pop eax											; EAX = (inode - 1)
-	push edx										; Save ((inode - 1) * inode_size) / block_size
+	push ecx										; Save ((inode - 1) * inode_size) / block_size
 	div ebx											; EDX = (inode - 1) % (block_size / inode_size)
 	
 	pop eax											; EAX = ((inode - 1) * inode_size) / block_size
