@@ -53,6 +53,9 @@ read_stage3:
 	mov ebx, 2
 	call read_inode
 	jmp $
+	jmp $
+	jmp $
+	jmp $
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -92,7 +95,6 @@ read_block:
 	shr ecx, 9
 	
 	; Read the block into memory and return
-	jmp $
 	call partition_read
 	ret
 	
@@ -127,8 +129,6 @@ read_bgdesc:
 	mov eax, BGDESC_LOC								; EAX = Buffer
 	call read_block
 	
-	jmp $
-	
 	; Return the offset
 	mov eax, edi									; Restore the table index to EAX
 	mov ebx, 32										; EBX = 32
@@ -139,6 +139,7 @@ read_bgdesc:
 read_inode:
 	; Calculate the block group, placing it in EAX
 	push eax										; Save the buffer
+	xor edx, edx
 	mov eax, ebx
 	dec eax											; EAX = (inode - 1)
 	push eax										; Save (inode - 1)
