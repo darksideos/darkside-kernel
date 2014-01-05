@@ -32,10 +32,11 @@ read_superblock:
 	jne .fail
 .success	
 	; Calculate and store the block size
-	mov edx, [SUPERBLOCK(block_size)]
-	jmp $
-	shl edx, 1024
+	mov ecx, [SUPERBLOCK(block_size)]
+	mov edx, 1024
+	shl edx, cl
 	mov [SUPERBLOCK(block_size)], edx
+	jmp $
 	
 	; Calculate and store the inode size
 	mov edx, [SUPERBLOCK(major_version)]
