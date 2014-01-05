@@ -50,8 +50,9 @@ read_superblock:
 ; Read stage3
 read_stage3:
 	mov eax, INODE_LOC
-	mov ebx, 2
+	mov ebx, 15
 	call read_inode
+	mov ebx, [INODE(eax, low_size)]
 	jmp $
 	jmp $
 	jmp $
@@ -158,6 +159,7 @@ read_inode:
 	div ebx											; EAX = ((inode - 1) * inode_size) / block_size
 	mov ecx, eax									; ECX = ((inode - 1) * inode_size) / block_size
 	
+	; Error possibly here
 	xor edx, edx
 	mov eax, [SUPERBLOCK(block_size)]				; EAX = block_size
 	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = inode_size
