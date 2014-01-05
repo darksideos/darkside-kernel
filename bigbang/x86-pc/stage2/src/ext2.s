@@ -103,6 +103,8 @@ read_bgdesc:
 	mov ecx, 32										; ECX = 32
 	div ecx											; EAX = (superblock->block_size) / 32
 	
+	jmp $
+	
 	xor edx, edx
 	mov ecx, eax									; ECX = (superblock->block_size) / 32
 	mov eax, esi									; Restore the block group to EAX
@@ -120,13 +122,13 @@ read_bgdesc:
 	add eax, ecx									; EAX += table_block
 	
 	; Read the block group descriptor
-	push ebx										; Save the table index
+	mov edi, ebx									; Save the table index
 	mov ebx, eax									; EBX = Block
 	mov eax, BGDESC_LOC								; EAX = Buffer
 	call read_block
 	
 	; Return the offset
-	pop eax											; Restore the table index to EAX
+	mov eax, edi									; Restore the table index to EAX
 	mov ebx, 32										; EBX = 32
 	mul ebx											; EAX = table_index * 32
 	ret
