@@ -102,39 +102,24 @@ read_block:
 	
 ; Read a block group descriptor (EAX = Block Group)
 read_bgdesc:
-	; Calculate the table block and index, placing them in EAX and EBX
-	mov esi, eax									; Save the block group
+	; Calculate the block and offset, storing them in EAX and EDX
+	mov ebx, 32										; EBX = sizeof(bgdesc_t)
+	mul ebx											; EAX = block_group * sizeof(bgdesc_t)
 	xor edx, edx
-	mov eax, [SUPERBLOCK(block_size)]				; EAX = (superblock->block_size)
-	mov ecx, 32										; ECX = 32
-	div ecx											; EAX = (superblock->block_size) / 32
+	mov ebx, [SUPERBLOCK(block_size)]				; EBX = (superblock->block_size)
+	div ebx											; EAX = (block_group * sizeof(bgdesc_t)) / (superblock->block_size)
+													; EDX = (block_group * sizeof(bgdesc_t)) % (superblock->block_size)
+	add eax, [SUPERBLOCK(superblock_block)]
+	inc eax
 	
-	xor edx, edx
-	mov ecx, eax									; ECX = (superblock->block_size) / 32
-	mov eax, esi									; Restore the block group to EAX
-	div ecx											; EAX = block_group / ((superblock->block_size) / 32)
-	
-	mov ebx, edx									; EBX = block_group % ((superblock->block_size) / 32)
-	
-	; Calculate the block containing the block group descriptor, storing it in EAX
-	mov esi, eax									; Save the table block
-	xor edx, edx
-	mov eax, 2048									; EAX = 2048
-	mov ecx, [SUPERBLOCK(block_size)]				; ECX = (superblock->block_size)
-	div ecx											; EAX = 2048 / (superblock->block_size)
-	mov ecx, esi									; Restore the table block to ECX
-	add eax, ecx									; EAX += table_block
-	
-	; Read the block group descriptor
-	mov edi, ebx									; Save the table index
-	mov ebx, eax									; EBX = Block
-	mov eax, BGDESC_LOC								; EAX = Buffer
+	; Read the block
+	push edx										; Save the offset
+	mov ebx, eax
+	mov eax, BGDESC_LOC
 	call read_block
 	
 	; Return the offset
-	mov eax, edi									; Restore the table index to EAX
-	mov ebx, 32										; EBX = 32
-	mul ebx											; EAX = table_index * 32
+	pop eax											; Restore the offset into EAX
 	ret
 
 ; Read an inode (eax = Buffer, ebx = Inode)
