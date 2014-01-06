@@ -52,11 +52,6 @@ read_stage3:
 	mov eax, INODE_LOC
 	mov ebx, 2
 	call read_inode
-	mov ebx, [INODE(eax, type_perm)]
-	mov ecx, [INODE(eax, low_size)]
-	mov edx, [INODE(eax, hard_links)]
-	mov esi, [INODE(eax, uid)]
-	mov edi, [INODE(eax, gid)]
 	jmp $
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
@@ -142,7 +137,6 @@ read_inode:
 	div ebx											; EDX = (inode - 1) % (superblock->inodes_per_group)
 	
 	; Calculate the block and offset, storing them in EAX and EDX
-	mov esi, edx									; Save the table index
 	mov eax, edx									; EAX = table_index
 	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = (ext_superblock->inode_size)
 	mul ebx											; EAX = table_index * (ext_superblock->inode_size)
