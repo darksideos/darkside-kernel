@@ -3,7 +3,7 @@
 all:
 	cd ../stage1; make
 	cd ../stage2; make
-	#cd ../stage3; make
+	cd ../stage3; make
 	
 	find . -type f -name "mbr.img" -exec rm {} \;
 	cp mbr_master.img mbr.img
