@@ -1,7 +1,7 @@
 %include "loader.inc"
 
-[ORG ORG_LOC]
 [BITS 16]
+section .text
 	jmp 0x0000:start
 
 ; Start of the bootstrap code
@@ -162,9 +162,6 @@ error:
 	
 	jmp $						; Hang forever
 
-error_e820		db "Unable to get E820 map..."
-error_a20		db "Unable to enable A20....."
-
 [BITS 32]
 ; Protected mode entry
 pm_entry:
@@ -177,3 +174,7 @@ pm_entry:
 	mov ss, ax
 	
 	; Jump to our C code
+	
+section .rodata
+error_e820		db "Unable to get E820 map..."
+error_a20		db "Unable to enable A20....."

@@ -1,9 +1,8 @@
-ENTRY(start)
 OUTPUT_FORMAT("elf32-i386")
 
 SECTIONS
 {
-	. = 0x2000;
+	. = 0x7C00;
 	
 	.text : ALIGN(4096)
 	{
