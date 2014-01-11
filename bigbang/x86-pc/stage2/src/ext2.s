@@ -50,8 +50,9 @@ read_superblock:
 ; Read stage3
 read_stage3:
 	mov eax, INODE_LOC
-	mov ebx, 2
+	mov ebx, 12		; Kernel
 	call read_inode
+	mov ebx, [INODE(eax, low_size)]
 	jmp $
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)

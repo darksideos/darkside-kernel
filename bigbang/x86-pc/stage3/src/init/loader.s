@@ -1,3 +1,5 @@
+%include "loader.inc"
+
 [ORG ORG_LOC]
 [BITS 16]
 	jmp 0x0000:start
@@ -51,9 +53,127 @@ do_e820:
 	test ebx, ebx					; if ebx resets to 0, list is complete
 	jne short .e820lp
 .e820f:
-	mov [DATA(e820_entries)], bp	; Store the entry count in the OS info structure
+	mov [DATA(e820_entries)], ebp	; Store the entry count in the OS info structure
 	clc								; There is a carry flag at this point, so it must be cleared
-	jmp find_active_part			; Leave the function
+	jmp a20_enabled					; Leave the function
 .failed:
-	mov ax, error_mem_map
+	mov ax, error_e820
 	jmp error
+	
+; If A20 is already enabled, switch to protected mode
+a20_enabled:
+	call a20_check
+	cmp eax, 1
+	je real_to_pm
+
+; Try to use the BIOS to enable A20
+a20_bios:
+	; Execute the BIOS interrupt
+	mov ax, 0x2401
+	int 0x15
+	
+	; If there was an error, try the next method
+	jc a20_kbc
+	
+	; Check if A20 is enabled
+	call a20_check
+	cmp eax, 1
+	je real_to_pm
+
+; Try to use the keyboard controller to enable A20
+a20_kbc:
+	jmp $
+
+; Try to use fast A20
+a20_fast:
+	in al, 0x92
+	test al, 2
+	jnz .after
+	or al, 2
+	and al, 0xFE
+	out 0x92, al
+.after:
+	; Check if A20 is enabled
+	call a20_check
+	cmp eax, 1
+	je real_to_pm
+
+; If we got here, A20 can't be enabled, so hang
+mov ax, error_a20
+jmp error
+
+; Check if A20 is enabled
+a20_check:
+	jmp $
+
+; Switch from real mode to protected mode
+real_to_pm:
+	; Set up the null GDT descriptor
+	mov eax, 0
+	mov [GDT(eax, limit_low)], word 0
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0
+	mov [GDT(eax, granularity)], byte 0
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the code GDT descriptor
+	mov eax, 0x08
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x9A
+	mov [GDT(eax, granularity)], byte 0xCF
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the data GDT descriptor
+	mov eax, 0x10
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x92
+	mov [GDT(eax, granularity)], byte 0xCF
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Load the GDT pointer
+	mov [GDTR(limit)], word 0x17
+	mov [GDTR(base)], dword GDT_LOC
+	lgdt [GDTR_LOC]
+	
+	; Switch to protected mode
+	mov eax, cr0
+	or al, 1
+	mov cr0, eax
+	
+	; Jump to our protected mode entry point
+	jmp 0x08:pm_entry
+
+; Error function
+error:
+	mov bp, ax					; message
+	mov al, 0x01				; write mode
+	mov ah, 0x13				; interrupt #
+	mov bh, 0x00				; page #
+	mov bl, 0x04				; color (red)
+	mov cx, 25					; string length
+	mov dh, 0x00				; row
+	mov dl, 0x00				; column
+	int 0x10
+	
+	jmp $						; Hang forever
+
+error_e820		db "Unable to get E820 map..."
+error_a20		db "Unable to enable A20....."
+
+[BITS 32]
+; Protected mode entry
+pm_entry:
+	; Reload the segment registers
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+	
+	; Jump to our C code
