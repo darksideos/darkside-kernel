@@ -50,7 +50,7 @@ read_superblock:
 ; Read stage3
 read_stage3:
 	mov eax, INODE_LOC
-	mov ebx, 12		; Kernel
+	mov ebx, 19
 	call read_inode
 	mov ebx, [INODE(eax, low_size)]
 	jmp $

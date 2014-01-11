@@ -3,4 +3,4 @@ ROOT = ../..
 .PHONY: all
 
 all:
-	nasm -f bin -o $(ROOT)/build/init/loader.o loader.s
+	nasm -f elf -o $(ROOT)/build/init/loader.o loader.s
