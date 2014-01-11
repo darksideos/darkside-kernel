@@ -1,5 +1,5 @@
 ; Code location constants
-%define ORG_LOC			0x7C00									; stage3's position in memory (where stage2 loads it)
+%define ORG_LOC			0x8000									; stage3's position in memory (where stage2 loads it)
 %define E820_LOC		0x0800									; Location of the E820 map
 
 ; Local data structure

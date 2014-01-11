@@ -49,11 +49,17 @@ read_superblock:
 
 ; Read stage3
 read_stage3:
+	; Read the inode for stage3
 	mov eax, INODE_LOC
 	mov ebx, 19
 	call read_inode
-	mov ebx, [INODE(eax, low_size)]
-	jmp $
+	
+	; Load stage3's data from the disk
+	mov ebx, STAGE3_LOC
+	call ext2_read
+	
+	; Jump to stage3
+	jmp 0x0000:STAGE3_LOC
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -156,6 +162,24 @@ read_inode:
 	; Return the offset
 	pop eax											; Restore the offset into EAX
 	ret
+	
+; Read a block pointer (EAX = Buffer, EBX = Length, ECX = Level)
+read_block_pointer:
+	; Check if we're reading an indirect block pointer
+	cmp ecx, 1
+	jge .indirect
+.direct:
+	; Check whether we're reading the block size or less
+	mov edx, [SUPERBLOCK(block_size)]
+	cmp ebx, edx
+	jl .direct_continue
+	mov ebx, edx
+.direct_continue:
+	jmp $
+	
+; Read data from an inode (EAX = Inode, EBX = Buffer)
+ext2_read:
+	jmp $
 
 ; Error function
 error:
