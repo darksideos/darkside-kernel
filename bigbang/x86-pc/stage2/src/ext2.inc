@@ -88,3 +88,6 @@ struc inode
 endstruc
 %define INODE_LOC				0x4000
 %define INODE(n, x)				INODE_LOC + n + inode. %+ x
+
+; Block pointers
+%define BLOCK_PTRS_LOC			0x6000
