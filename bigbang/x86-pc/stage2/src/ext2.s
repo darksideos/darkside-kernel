@@ -51,7 +51,7 @@ read_superblock:
 read_stage3:
 	; Read the inode for stage3
 	mov eax, INODE_LOC
-	mov ebx, 19
+	mov ebx, 20
 	call read_inode
 	
 	; Load stage3's data from the disk
@@ -194,6 +194,10 @@ read_block_pointer:
 	pop eax
 	ret
 .indirect:
+	; Make sure we're not way over the max level
+	cmp edx, 3
+	ja .fail
+	
 	; Read the indirect block pointers
 	push eax										; Save the buffer
 	push ecx										; Save the length
@@ -258,7 +262,6 @@ read_block_pointer:
 	pop edi											; EDI = blocks_read
 	pop esi											; ESI = bytes_left
 	pop edx
-	dec edx											; EDX = level - 1
 	
 	; Update blocks read and bytes read
 	sub esi, eax
@@ -272,6 +275,9 @@ read_block_pointer:
 	sub eax, esi									; EAX = length - bytes_left									
 .end:
 	ret
+.fail:
+	mov ax, error_stage3
+	jmp error
 	
 ; Read data from an inode (EAX = Inode, EBX = Buffer, ECX = Length)
 ext2_read:
