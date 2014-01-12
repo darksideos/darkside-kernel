@@ -166,7 +166,6 @@ read_inode:
 
 ; Raise a number to a power (EAX = Base, EBX = Exponent)
 pow:
-	jmp $
 	cmp ebx, 1
 	jne .loop
 	ret
@@ -235,13 +234,13 @@ read_block_pointer:
 	cmp esi, 0										; If bytes_left == 0
 	je .loop_end									; Goto .loop_end
 	mov ecx, [SUPERBLOCK_LOC + 0x400]				; ECX = block_size / 4
-	cmp ecx, edi									; If blocks_read >= block_size / 4
+	cmp edi, ecx									; If blocks_read >= block_size / 4
 	jge .loop_end									; Goto .loop_end
 	
 	; Set up function args
 	pop eax											; EAX = buffer
 	add eax, [SUPERBLOCK(block_size)]				; EAX = buffer + block_size
-	mov ebp, esi
+	mov ebp, edi
 	shl ebp, 4
 	mov ebx, [BLOCK_PTRS_LOC + ebp]					; EBX = block_ptrs[blocks_read]
 	mov ecx, esi

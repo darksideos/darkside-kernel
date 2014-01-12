@@ -82,7 +82,7 @@ a20_bios:
 
 ; Try to use the keyboard controller to enable A20
 a20_kbc:
-	jmp $
+	jmp stuff
 
 ; Try to use fast A20
 a20_fast:
@@ -104,7 +104,7 @@ jmp error
 
 ; Check if A20 is enabled
 a20_check:
-	jmp $
+	jmp stuff
 
 ; Switch from real mode to protected mode
 real_to_pm:
@@ -174,6 +174,13 @@ pm_entry:
 	mov ss, ax
 	
 	; Jump to our C code
+	
+times 12288 - ($ - $$) db 0
+
+[BITS 16]
+stuff:
+	mov ax, error_a20
+	jmp error
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
