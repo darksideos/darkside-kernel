@@ -243,7 +243,6 @@ read_block_pointer:
 	
 	; Set up function args
 	pop eax											; EAX = buffer
-	add eax, [SUPERBLOCK(block_size)]				; EAX = buffer + block_size
 	mov ebp, edi
 	shl ebp, 4
 	mov ebx, [BLOCK_PTRS_LOC + ebp]					; EBX = block_ptrs[blocks_read]
@@ -266,6 +265,11 @@ read_block_pointer:
 	; Update blocks read and bytes read
 	sub esi, eax
 	inc edi
+	
+	; Update buffer pointer
+	pop eax
+	add eax, [SUPERBLOCK(block_size)]				; EAX = buffer + block_size
+	push eax
 	
 	; Reenter the loop
 	jmp .indirect_loop
@@ -305,9 +309,6 @@ ext2_read:
 	push eax										; Save the buffer
 	push esi										; Save bytes_left
 	push edi										; Save direct_blocks_read
-	
-	;cmp edi, 1
-	;je .infinite
 	
 	; Read the direct block pointer
 	call read_block_pointer
@@ -350,8 +351,6 @@ ext2_read:
 .fail:
 	mov ax, error_stage3
 	ret
-.infinite:
-	jmp $
 
 ; Error function
 error:
