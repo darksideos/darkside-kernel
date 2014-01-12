@@ -56,6 +56,7 @@ read_stage3:
 	
 	; Load stage3's data from the disk
 	mov ebx, STAGE3_LOC
+	mov ecx, [INODE(eax, low_size)]
 	call ext2_read
 	
 	; Jump to stage3
@@ -165,6 +166,7 @@ read_inode:
 
 ; Raise a number to a power (EAX = Base, EBX = Exponent)
 pow:
+	jmp $
 	cmp ebx, 1
 	jne .loop
 	ret
@@ -180,7 +182,7 @@ pow:
 read_block_pointer:
 	; Check if we're reading an indirect block pointer
 	cmp edx, 0
-	jge .indirect
+	ja .indirect
 .direct:
 	; Check whether we're reading the block size or less
 	mov esi, [SUPERBLOCK(block_size)]
@@ -281,6 +283,12 @@ ext2_read:
 	; Save the inode to EBP
 	mov ebp, eax
 .read_direct:
+	; Check the two loop conditions
+	cmp esi, 0										; If bytes_left == 0
+	je .success										; Goto .success
+	cmp edi, 48										; If blocks_read >= 12
+	jge .read_single								; Goto .read_single
+	
 	; Set up args
 	mov eax, ebx
 	mov ebx, [INODE(ebp, direct_block) + edi]
@@ -293,12 +301,15 @@ ext2_read:
 	push esi										; Save bytes_left
 	push edi										; Save direct_blocks_read
 	
+	;cmp edi, 1
+	;je .infinite
+	
 	; Read the direct block pointer
 	call read_block_pointer
 	
 	; Restore regs
 	pop edi
-	inc edi
+	add edi, 4
 	pop esi
 	pop ebx
 	add ebx, [SUPERBLOCK(block_size)]
@@ -310,7 +321,32 @@ ext2_read:
 	; Reenter the loop
 	jmp .read_direct
 .read_single:
-.end:
+	; Set up args
+	mov eax, ebx
+	mov ebx, [INODE(ebp, single_block)]
+	mov ecx, esi
+	mov edx, 1
+	
+	; Save bytes_left
+	push esi										; Save bytes_left
+	
+	; Read the direct block pointer
+	call read_block_pointer
+	
+	; Restore bytes_left and subtract the return value from it
+	pop esi
+	sub esi, eax
+	
+	; If there are more bytes left to read, fail
+	cmp esi, 0
+	jge .fail
+.success:
+	ret
+.fail:
+	mov ax, error_stage3
+	ret
+.infinite:
+	jmp $
 
 ; Error function
 error:
