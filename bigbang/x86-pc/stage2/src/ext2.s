@@ -162,24 +162,155 @@ read_inode:
 	; Return the offset
 	pop eax											; Restore the offset into EAX
 	ret
-	
-; Read a block pointer (EAX = Buffer, EBX = Length, ECX = Level)
+
+; Raise a number to a power (EAX = Base, EBX = Exponent)
+pow:
+	cmp ebx, 1
+	jne .loop
+	ret
+	mov ecx, eax
+.loop:
+	mul ecx
+	dec ebx
+	cmp ebx, 1
+	ja .loop
+	ret
+
+; Read a block pointer (EAX = Buffer, EBX = Block, ECX = Length, EDX = Level)
 read_block_pointer:
 	; Check if we're reading an indirect block pointer
-	cmp ecx, 1
+	cmp edx, 0
 	jge .indirect
 .direct:
 	; Check whether we're reading the block size or less
-	mov edx, [SUPERBLOCK(block_size)]
-	cmp ebx, edx
+	mov esi, [SUPERBLOCK(block_size)]
+	cmp ecx, esi
 	jl .direct_continue
-	mov ebx, edx
+	mov ecx, esi
 .direct_continue:
-	jmp $
+	push ecx
+	call read_block
+	pop eax
+	ret
+.indirect:
+	; Read the indirect block pointers
+	push eax										; Save the buffer
+	push ecx										; Save the length
+	push edx										; Save the level we're at
+	mov eax, BLOCK_PTRS_LOC
+	call read_block
 	
-; Read data from an inode (EAX = Inode, EBX = Buffer)
+	; Check whether we're reading the block size or less
+	mov eax, [SUPERBLOCK(block_size)]				; EAX = block_size
+	shr eax, 2										; EAX = block_size / 4
+	
+	pop ebx											; Restore the level we're at into EBX
+	mov esi, ebx									; Save the level we're at
+	call pow										; EAX = (block_size / 4) ** level
+	mov ebx, [SUPERBLOCK(block_size)]				; EBX = block_size
+	mul ebx											; EAX = block_size * ((block_size / 4) ** level)
+	
+	pop ecx											; Restore the length into ECX
+	cmp ecx, eax
+	jl .indirect_continue
+	mov ecx, eax
+.indirect_continue:
+	pop eax											; Restore the buffer into EAX
+	push ecx										; Save the length
+	push eax										; Save the buffer
+	
+	mov edx, esi									; EDX = level
+	dec edx
+	
+	mov esi, ecx									; ESI = bytes_left
+	mov edi, 0										; EDI = blocks_read
+	
+	mov eax, [SUPERBLOCK(block_size)]				; EAX = block_size
+	shr eax, 2										; EAX = block_size / 4
+	mov [SUPERBLOCK_LOC + 0x400], eax				; Cache block_size / 4
+.indirect_loop:
+	; Check the two loop conditions
+	cmp esi, 0										; If bytes_left == 0
+	je .loop_end									; Goto .loop_end
+	mov ecx, [SUPERBLOCK_LOC + 0x400]				; ECX = block_size / 4
+	cmp ecx, edi									; If blocks_read >= block_size / 4
+	jge .loop_end									; Goto .loop_end
+	
+	; Set up function args
+	pop eax											; EAX = buffer
+	add eax, [SUPERBLOCK(block_size)]				; EAX = buffer + block_size
+	mov ebp, esi
+	shl ebp, 4
+	mov ebx, [BLOCK_PTRS_LOC + ebp]					; EBX = block_ptrs[blocks_read]
+	mov ecx, esi
+	
+	; Save regs
+	push eax										; Save the buffer
+	push edx										; Save the level we're at
+	push esi										; Save bytes_left
+	push edi										; Save blocks_read
+	
+	; Recursively call ourself
+	call read_block_pointer
+	
+	; Restore registers
+	pop edi											; EDI = blocks_read
+	pop esi											; ESI = bytes_left
+	pop edx
+	dec edx											; EDX = level - 1
+	
+	; Update blocks read and bytes read
+	sub esi, eax
+	inc edi
+	
+	; Reenter the loop
+	jmp .indirect_loop
+.loop_end:
+	pop eax
+	pop eax											; EAX = length
+	sub eax, esi									; EAX = length - bytes_left									
+.end:
+	ret
+	
+; Read data from an inode (EAX = Inode, EBX = Buffer, ECX = Length)
 ext2_read:
-	jmp $
+	; Keep track of bytes_read and direct_blocks_read
+	mov esi, ecx									; ESI = bytes_left = length
+	mov edi, 0										; EDI = direct_blocks_read = 0
+	
+	; Save the inode to EBP
+	mov ebp, eax
+.read_direct:
+	; Set up args
+	mov eax, ebx
+	mov ebx, [INODE(ebp, direct_block) + edi]
+	mov ecx, esi
+	mov edx, 0
+	
+	; Save regs
+	push ebp										; Save the inode offset
+	push eax										; Save the buffer
+	push esi										; Save bytes_left
+	push edi										; Save direct_blocks_read
+	
+	; Read the direct block pointer
+	call read_block_pointer
+	
+	; Restore regs
+	pop edi
+	inc edi
+	pop esi
+	pop ebx
+	add ebx, [SUPERBLOCK(block_size)]
+	pop ebp
+	
+	; Subtract its return value from bytes_left
+	sub esi, eax
+	
+	; Reenter the loop
+	jmp .read_direct
+.read_single:
+.end:
 
 ; Error function
 error:
