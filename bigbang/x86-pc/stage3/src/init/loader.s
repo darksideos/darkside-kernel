@@ -9,6 +9,9 @@ start:
 	; Set up a stack
 	mov esp, ORG_LOC
 	
+	mov eax, [0xb000]
+	jmp $
+	
 ; Get the BIOS memory map
 do_e820:
 	xor bp, bp						; Keep the number of entries in BP
@@ -82,7 +85,7 @@ a20_bios:
 
 ; Try to use the keyboard controller to enable A20
 a20_kbc:
-	jmp stuff
+	jmp $
 
 ; Try to use fast A20
 a20_fast:
@@ -104,7 +107,7 @@ jmp error
 
 ; Check if A20 is enabled
 a20_check:
-	jmp stuff
+	jmp $
 
 ; Switch from real mode to protected mode
 real_to_pm:
@@ -175,12 +178,7 @@ pm_entry:
 	
 	; Jump to our C code
 	
-times 12288 - ($ - $$) db 0
-
-[BITS 16]
-stuff:
-	mov ax, error_a20
-	jmp error
+times 12288 - ($ - $$) db 0xDE
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
