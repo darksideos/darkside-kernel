@@ -1,4 +1,4 @@
 .PHONY: all
 
 all:
-	cd src; make
+	nasm -f bin -o build/stage2.bin src/ext2.s
