@@ -54,8 +54,6 @@ read_stage3:
 	mov ebx, boot
 	call ext2_finddir
 	
-	jmp $
-	
 	; Find the inode for /boot/stage3.bin
 	mov ebx, stage3
 	call ext2_finddir
