@@ -9,9 +9,6 @@ start:
 	; Set up a stack
 	mov esp, ORG_LOC
 	
-	mov eax, [0xb000]
-	jmp $
-	
 ; Get the BIOS memory map
 do_e820:
 	xor bp, bp						; Keep the number of entries in BP
@@ -107,7 +104,32 @@ jmp error
 
 ; Check if A20 is enabled
 a20_check:
-	jmp $
+	; Set DS to 0 and ES to 0xFFFF
+	xor ax, ax
+	not ax
+	mov es, ax
+	
+	; Read from 0x7DFE and 0x107DFE, checking if they're identical (if not, A20 is enabled but if so, A20 could be disabled)
+	mov ax, [0x7DFE]
+	mov bx, [es:0x7E0E]
+	cmp ax, bx
+	jne .enabled
+	
+	; Change the value at 0x7DFE and see if there's a change at 0x107DFE (if not, A20 is enabled and if so, A20 is disabled)
+	mov ax, [0x7DFE]
+	shl ax, 2
+	mov [0x7DFE], ax
+	mov bx, [es:0x7E0E]
+	cmp ax, bx
+	jne .enabled
+	
+	; By this point, A20 must be disabled
+	mov eax, 0
+	ret
+.enabled:
+	; By this point, A20 must be enabled
+	mov eax, 1
+	ret
 
 ; Switch from real mode to protected mode
 real_to_pm:
@@ -176,9 +198,9 @@ pm_entry:
 	mov gs, ax
 	mov ss, ax
 	
-	; Jump to our C code
+	jmp $
 	
-times 12288 - ($ - $$) db 0xDE
+	; Jump to our C code
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
