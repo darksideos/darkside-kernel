@@ -91,3 +91,14 @@ endstruc
 
 ; Block pointers
 %define BLOCK_PTRS_LOC			0x6000
+
+; Directory entry structure
+struc dirent
+	.inode						resd 1
+	.size						resw 1
+	.name_length				resb 1
+	.type						resb 1
+	.name_start					resb 1
+endstruc
+%define DIRENT_LOC				0x8000
+%define DIRENT(n, x)			DIRENT_LOC + n + dirent. %+ x

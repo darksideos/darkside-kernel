@@ -49,9 +49,20 @@ read_superblock:
 
 ; Read stage3
 read_stage3:
+	; Find the inode for /boot
+	mov eax, 2
+	mov ebx, boot
+	call ext2_finddir
+	
+	jmp $
+	
+	; Find the inode for /boot/stage3.bin
+	mov ebx, stage3
+	call ext2_finddir
+	
 	; Read the inode for stage3
+	mov ebx, eax
 	mov eax, INODE_LOC
-	mov ebx, 20
 	call read_inode
 	
 	; Load stage3's data from the disk
@@ -351,6 +362,107 @@ ext2_read:
 .fail:
 	mov ax, error_stage3
 	ret
+	
+; Calculate the length of a string (EAX = String)
+strlen:
+	mov ebx, eax
+	mov eax, 0
+.loop:
+	mov cl, byte [ebx]
+	cmp cl, 0
+	je .end
+	inc eax
+	inc ebx
+	jmp .loop
+.end:
+	ret
+	
+; Find a directory entry by name (EAX = Inode, EBX = Name)
+ext2_finddir:
+	; Save the name
+	push ebx
+	
+	; Read the inode into memory
+	mov ebx, eax
+	mov eax, INODE_LOC
+	call read_inode
+	
+	; Load the inode's data from the disk
+	mov ebx, DIRENT_LOC
+	mov ecx, [INODE(eax, low_size)]
+	push ecx
+	call ext2_read
+	
+	; Prepare the loop
+	pop ecx
+	mov ebp, ecx
+	xor ecx, ecx
+	
+	; Restore the name into EAX
+	pop eax
+.loop:
+	; Make sure we haven't exceeded the length
+	cmp ecx, ebp
+	jge .fail
+	
+	; Save regs
+	push ebp
+	push eax
+	push ecx
+	
+	; Compare the 2 string lengths (if not the same length, obviously not equal)
+	call strlen
+	pop ecx
+	push ecx
+	mov bl, [DIRENT(ecx, name_length)]
+	cmp al, bl
+	je .compare
+	pop ecx
+	mov dx, [DIRENT(ecx, size)]
+	add ecx, edx
+	pop eax
+	pop ebp
+	jmp .loop
+.compare:
+	; Set up loop stuff
+	xor edx, edx
+	mov ebp, eax
+	
+	; ESI and EDI equal the searched-for and actual string
+	pop ecx
+	pop esi
+	mov edi, ecx
+	add edi, 8
+	push ecx
+.compare_loop:
+	; Success
+	cmp edx, ebp
+	jge .success
+	
+	; Loop and compare, if there's ever a non-match, the compare failed
+	mov eax, [esi]
+	mov ebx, [edi]
+	cmp eax, ebx
+	jne .exit_comparison
+	inc esi
+	inc edi
+	inc edx
+	jmp .compare_loop
+.exit_comparison:
+	pop ecx
+	pop ebp
+	jmp .loop
+.success:
+	pop ecx
+	mov eax, [DIRENT(ecx, inode)]
+	jmp $
+	ret
+.fail:
+	mov ax, error_stage3
+	jmp error
+	
+boot			db "boot",0
+stage3			db "stage3.bin",0
 
 ; Error function
 error:
