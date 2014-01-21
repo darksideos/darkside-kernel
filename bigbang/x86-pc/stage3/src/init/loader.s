@@ -198,9 +198,9 @@ pm_entry:
 	mov gs, ax
 	mov ss, ax
 	
-	jmp $
-	
 	; Jump to our C code
+	extern main
+	call main
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
