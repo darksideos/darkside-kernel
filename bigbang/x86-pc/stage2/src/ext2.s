@@ -394,8 +394,7 @@ ext2_finddir:
 	call ext2_read
 	
 	; Prepare the loop
-	pop ecx
-	mov ebp, ecx
+	pop ebp
 	xor ecx, ecx
 	
 	; Restore the name into EAX
@@ -431,8 +430,10 @@ ext2_finddir:
 	; ESI and EDI equal the searched-for and actual string
 	pop ecx
 	pop esi
-	mov edi, ecx
+	mov edi, DIRENT_LOC
+	add edi, ecx
 	add edi, 8
+	push esi
 	push ecx
 .compare_loop:
 	; Success
@@ -440,9 +441,9 @@ ext2_finddir:
 	jge .success
 	
 	; Loop and compare, if there's ever a non-match, the compare failed
-	mov eax, [esi]
-	mov ebx, [edi]
-	cmp eax, ebx
+	mov al, byte [esi]
+	mov bl, byte [edi]
+	cmp al, bl
 	jne .exit_comparison
 	inc esi
 	inc edi
@@ -450,12 +451,14 @@ ext2_finddir:
 	jmp .compare_loop
 .exit_comparison:
 	pop ecx
+	pop eax
 	pop ebp
 	jmp .loop
 .success:
 	pop ecx
+	pop eax
 	mov eax, [DIRENT(ecx, inode)]
-	jmp $
+	pop ebp
 	ret
 .fail:
 	mov ax, error_stage3
