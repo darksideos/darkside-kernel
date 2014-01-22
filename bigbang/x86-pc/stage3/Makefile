@@ -1,7 +1,7 @@
 CC				:= i586-elf-gcc
 ASM				:= nasm
 LD				:= i586-elf-ld
-CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin
+CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include
 ASMFLAGS		:= -f elf
 LDFLAGS			:= -T linker.ld
 
