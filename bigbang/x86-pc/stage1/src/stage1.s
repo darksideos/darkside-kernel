@@ -1,4 +1,4 @@
-%include "stage1.inc"
+%include "src/stage1.inc"
 
 [ORG ORG_LOC]
 [BITS 16]

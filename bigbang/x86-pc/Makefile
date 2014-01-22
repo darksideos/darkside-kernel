@@ -5,7 +5,7 @@ ext2:
 	cd stage3; make all
 	
 	# Get a clean MBR image
-	find . -type f -name "img/mbr.img" -exec rm {} \;
+	find . -type f -samefile "img/mbr.img" -exec rm {} \;
 	cp img/mbr_master.img img/mbr.img
 	
 	# Copy stage1 and stage2 to the MBR and VBR
