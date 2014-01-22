@@ -1,5 +1,5 @@
-%include "stage2.inc"
-%include "ext2.inc"
+%include "src/stage2.inc"
+%include "src/ext2.inc"
 
 [ORG ORG_LOC]
 [BITS 16]
