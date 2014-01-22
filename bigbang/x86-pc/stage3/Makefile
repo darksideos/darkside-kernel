@@ -1,18 +1,16 @@
-.PHONY: all
-
-CCBASE ?= i586-elf
-
-OBJFILES = src/init/loader.o src/init/main.o
-
-.s.o:
-	nasm -f elf $< -o build/$@
-	
-.c.o:
-	i586-elf-gcc $(CFLAGS) -I include -o build/$@ -c $<
-
-
-
+SRCDIRS			:= src
+CFILES			:= $(shell find $(SRCDIRS) -type f -name "*.c")
+SFILES			:= $(shell find $(SRCDIRS) -type f -name "*.s")
+OBJFILES		:= $(patsubst %.c,%.o,$(CFILES)) $(patsubst %.s,%.ao,$(SFILES))
+BUILDDIR		:= build
+ 
 all: $(OBJFILES)
-	$(CCBASE)-ld -T linker.ld -o build/stage3.elf build/src/init/loader.o `find . -type f -name *.o ! -name loader.o` -L ../../../lib/build-i386 -lc-i386 -lgcc-i386 -ladt-i386
-	$(CCBASE)-objdump -S build/stage3.elf > build/disasm.s
-	$(CCBASE)-objcopy -O binary build/stage3.elf build/stage3.bin
+        $(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.bin $(OBJFILES)
+ 
+%.o: %.c
+        $(CC) -o $(BUILDDIR)/$@ -c $< $(CFLAGS)
+%.ao: %.s
+        $(ASM) $(ASMFLAGS) $< -o $(BUILDDIR)/$@
+clean:
+        -rm $(BUILDDIR)/$(OBJFILES)
+        -rm $(BUILDDIR)/stage3.bin
