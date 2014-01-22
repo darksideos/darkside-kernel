@@ -1,6 +1,6 @@
 void main()
 {
-	unsigned short *vidmem = 0xB8000;
+	unsigned short *vidmem = (unsigned short*) 0xB8000;
 
 	vidmem[0] = 0x1F48;
 	vidmem[1] = 0x1F65;
