@@ -1,11 +1,12 @@
+#include <types.h>
+#include <graphics/vga.h>
+
 void main()
 {
-	unsigned short *vidmem = (unsigned short*) 0xB8000;
+	/* Initialize the boot video driver */
+	bootvid_init(COLOR_WHITE, COLOR_BLACK);
 
-	vidmem[0] = 0x1F46;
-	vidmem[1] = 0x1F55;
-	vidmem[2] = 0x1F43;
-	vidmem[3] = 0x1F4B;
+	bootvid_puts("HELLO WORLD\n");
 
 	while(1);
 }
