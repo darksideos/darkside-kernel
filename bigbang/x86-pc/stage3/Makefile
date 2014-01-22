@@ -12,5 +12,5 @@ all: $(OBJFILES)
 %.ao: %.s
         $(ASM) $(ASMFLAGS) $< -o $(BUILDDIR)/$@
 clean:
-        -rm $(BUILDDIR)/$(OBJFILES)
-        -rm $(BUILDDIR)/stage3.bin
+		rm $(BUILDDIR)/$(OBJFILES)
+		rm $(BUILDDIR)/stage3.bin
