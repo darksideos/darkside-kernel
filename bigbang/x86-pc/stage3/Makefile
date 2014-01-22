@@ -10,8 +10,8 @@ LDFLAGS			:= -T linker.ld -L ../../../lib/build -lgcc-i386 -lc-i386 -ladt-i386
 SRCDIR			:= src
 BUILDDIR		:= build
 CFILES			:= $(shell find $(SRCDIR) -type f -name "*.c")
-SFILES			:= $(shell find $(SRCDIR) -type f -name "*.s")
-OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.ao,$(SFILES))
+SFILES			:= $(SRCDIR)/init/loader.s $(shell find $(SRCDIR) -type f -name "*.s" ! -name loader.s)
+OBJFILES		:= $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.ao,$(SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES))
 
 all: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.elf $(OBJFILES)
