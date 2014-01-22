@@ -34,10 +34,6 @@ typedef unsigned short          uint16_t;
 typedef unsigned int            uint32_t;
 typedef unsigned long long      uint64_t;
 
-/* PPC32 */
-#elif defined(__ppc__)
-#warning "PowerPC kernel not created"
-
 /* Other */
 #else
 #error "Unsupported architecture"

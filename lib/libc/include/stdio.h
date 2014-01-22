@@ -5,6 +5,7 @@
 extern "C"
 {
 #endif
+int printf(const char *fmt, ...);
 int vsprintf(char *buf, const char *fmt, va_list args);
 #ifdef __cplusplus
 }
