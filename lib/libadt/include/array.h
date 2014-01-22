@@ -1,8 +1,6 @@
 #ifndef __ARRAY_H
 #define __ARRAY_H
 
-#include <lib/libc/types.h>
-
 /* Dynamic array structure */
 typedef struct array
 {
