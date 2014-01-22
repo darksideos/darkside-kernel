@@ -13,7 +13,7 @@
 #define isalnum(c)		(c & (CT_UP | CT_LOW | CT_DIG))
 #define isalpha(c)		(c & (CT_UP | CT_LOW))
 #define iscntrl(c)		(c & (CT_CTL))
-#define isdigit(c)		(c & (CT_DIG))
+#define isdigit(c)		((c) >= '0' && (c) <= '9')
 #define isgraph(c)		(c & (CT_PUN | CT_UP | CT_LOW | CT_DIG))
 #define islower(c)		(c & (CT_LOW))
 #define isprint(c)		(c & (CT_PUN | CT_UP | CT_LOW | CT_DIG | CT_SP))
