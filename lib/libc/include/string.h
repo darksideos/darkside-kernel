@@ -7,7 +7,7 @@ extern "C"
 #endif
 void *memcpy(void *dest, void *src, size_t count);
 void *memmove(void *dest, void *src, size_t count);
-void *memset(void *dest, char val, size_t count);
+void *memset(void *dest, uint8_t val, size_t count);
 void *memsetw(void *dest, uint16_t val, size_t count);
 int memcmp(void *ptr1, void *ptr2, size_t count);
 char *strcpy(char *dest, char *src);
