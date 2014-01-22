@@ -1,6 +1,8 @@
 #ifndef __STDIO_H
 #define __STDIO_H
 
+#include <stdarg.h>
+
 #ifdef __cplusplus
 extern "C"
 {
