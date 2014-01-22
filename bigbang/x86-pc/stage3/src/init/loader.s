@@ -1,4 +1,4 @@
-%include "loader.inc"
+%include "src/init/loader.inc"
 
 [BITS 16]
 section .text
