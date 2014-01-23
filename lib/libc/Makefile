@@ -9,7 +9,7 @@ CFILES			:= $(shell find $(SRCDIR) -type f -name "*.c")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES))
 
 i386: $(OBJFILES)
-		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libc-i386.a $(OBJFILES)
+		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libc-i386.a `find $(BUILDDIR) -type f -name *.o`
 		cp $(BUILDDIR)/libc-i386.a ../build/libc-i386.a
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
