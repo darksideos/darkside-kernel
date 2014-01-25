@@ -20,7 +20,7 @@ void main(data_t *_data)
 	memcpy(data, _data, sizeof(data_t));
 
 	/* Initialize the physical and virtual memory managers */
-	pmm_init(data->e820_entries, data->num_e820_entries);
+	//pmm_init(data->e820_entries, data->num_e820_entries);
 
 	/* Mount the root EXT2 partition */
 
