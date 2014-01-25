@@ -80,13 +80,6 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		mem_map_entry_t *next = (mem_map_entry_t*) iter.next(&iter);
 		iter.prev(&iter);
 
-		printf("Base: %x\n", entry->base);
-
-		if (entry->base == 0xA0000)
-		{
-			while(1);
-		}
-
 		/* If they aren't contiguous */
 		if (next && (entry->base + entry->length) < next->base)
 		{
@@ -102,6 +95,12 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		}
 
 		entry = (mem_map_entry_t*) iter.next(&iter);
+
+		if (entry->base == 0xa0000)
+		{
+			printf("%x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
+			while(1);
+		}
 	}
 
 	/* Make the start contiguous if needed */
