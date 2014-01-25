@@ -1,13 +1,13 @@
 #include <types.h>
 #include <stdio.h>
-#include <graphics/vga.h>
+#include <bootvid.h>
 
 void main()
 {
 	/* Initialize the boot video driver */
 	bootvid_init(COLOR_WHITE, COLOR_BLACK);
 
-	printf("40 + 2 = %d\n", 42);
+	printf("16 is 0x%x in hex", 16);
 
 	while(1);
 }
