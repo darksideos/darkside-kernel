@@ -3,6 +3,13 @@
 
 #include <list.h>
 
+/* E820 entry types */
+#define E820_TYPE_FREE		1
+#define E820_TYPE_RESERVED	2
+#define E820_TYPE_ACPI_VS	3
+#define E820_TYPE_ACPI_NVS	4
+#define E820_TYPE_BAD		5
+
 /* E820 map entry structure */
 typedef struct e820_entry
 {

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <bootvid.h>
+#include <iterator.h>
 #include <mm/e820.h>
 #include <init/data.h>
 #include <mm/watermark.h>
