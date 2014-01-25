@@ -206,7 +206,7 @@ read_block_pointer:
 .indirect:
 	; Make sure we're not way over the max level
 	cmp edx, 3
-	ja .fail
+	ja near .fail
 	
 	; Read the indirect block pointers
 	push eax										; Save the buffer
