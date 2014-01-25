@@ -1,4 +1,5 @@
 #include <types.h>
+#include <iterator.h>
 #include <list.h>
 #include <mm/e820.h>
 
