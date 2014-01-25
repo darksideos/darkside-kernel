@@ -1,6 +1,8 @@
 #ifndef __LIST_H
 #define __LIST_H
 
+#include <iterator.h>
+
 /* Linked list structure */
 struct list_entry;
 typedef struct list_entry list_entry_t;
