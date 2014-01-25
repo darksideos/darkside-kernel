@@ -1,16 +1,23 @@
 #include <types.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <bootvid.h>
+#include <mm/e820.h>
 #include <init/data.h>
 #include <mm/watermark.h>
 
-void main(data_t *data)
+void main(data_t *_data)
 {
 	/* Initialize the boot video driver */
 	bootvid_init(COLOR_WHITE, COLOR_BLACK);
 
 	/* Set up the watermark allocator */
 	watermark_init();
+
+	/* Copy the local data structure onto the heap */
+	data_t *data = (data_t*) malloc(sizeof(data_t));
+	memcpy(data, _data, sizeof(data_t));
 
 	/* Initialize the physical and virtual memory managers */
 
