@@ -19,5 +19,5 @@ void free(void *ptr)
 /* Initialize the watermark allocator */
 void watermark_init()
 {
-	position = 0x500;
+	position = 0x700;
 }
