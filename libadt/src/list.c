@@ -178,7 +178,6 @@ static void list_entry_insert(iterator_t *iter, void *item)
 	if (entry == list->tail)
 	{
 		list_insert_tail(list, item);
-		iter->node = (void*) list->tail;
 		iter->end = true;
 	}
 	else
@@ -189,7 +188,7 @@ static void list_entry_insert(iterator_t *iter, void *item)
 		node->next = entry->next;
 		node->value = item;
 
-		iter->node = (void*) node;
+		entry->next = node;
 	}
 }
 
