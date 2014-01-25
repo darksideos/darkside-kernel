@@ -1,6 +1,6 @@
 #include <types.h>
 #include <string.h>
-#include <graphics/ports.h>
+#include <ports.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 static uint16_t *textmemptr;
