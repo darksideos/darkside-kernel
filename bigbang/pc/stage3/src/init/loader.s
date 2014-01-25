@@ -8,6 +8,8 @@ section .text
 start:
 	; Set up a stack
 	mov esp, ORG_LOC
+.setup_data:
+	mov [DATA(drive)], dl
 	
 ; Get the BIOS memory map
 do_e820:
@@ -200,6 +202,8 @@ pm_entry:
 	
 	; Jump to our C code
 	extern main
+	mov eax, DATA_LOC
+	push eax
 	call main
 	
 section .rodata
