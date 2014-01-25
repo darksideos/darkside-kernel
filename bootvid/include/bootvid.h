@@ -1,5 +1,5 @@
-#ifndef __VGA_H
-#define __VGA_H
+#ifndef __BOOTVID_H
+#define __BOOTVID_H
 
 #define COLOR_BLACK			0x00
 #define COLOR_BLUE			0x01
