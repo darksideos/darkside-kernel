@@ -10,4 +10,7 @@ typedef struct e820_entry
 	uint32_t attrib;
 } __attribute__ ((packed)) e820_entry_t;
 
+/* Sanitize the E820 memory map */
+
+
 #endif
