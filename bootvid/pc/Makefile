@@ -1,6 +1,6 @@
 CC				:= i586-elf-gcc
 AR				:= i586-elf-ar
-CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../../lib/libc/include
+CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../../libc/include
 ARFLAGS			:= rs
 
 SRCDIR			:= src
