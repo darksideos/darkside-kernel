@@ -14,7 +14,7 @@ SFILES			:= $(shell find $(SRCDIR) -type f -name "*.s")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(SFILES))
 
 all: $(OBJFILES)
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.elf $(BUILDDIR)/init/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../../../lib/build -L ../../../bootvid/build -lgcc-i386 -lc-i386 -ladt-i386 -bootvid-i386
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.elf $(BUILDDIR)/init/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../../../lib/build -L ../../../bootvid/build -lgcc-i386 -lc-i386 -ladt-i386 -lbootvid-i386
 		$(OBJDUMP) -S $(BUILDDIR)/stage3.elf > $(BUILDDIR)/disasm.s
 		$(OBJCOPY) -O binary $(BUILDDIR)/stage3.elf $(BUILDDIR)/stage3.bin
  
