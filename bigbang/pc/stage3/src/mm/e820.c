@@ -97,6 +97,9 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		entry = (mem_map_entry_t*) iter.next(&iter);
 	}
 
+	printf("1\n");
+	while(1);
+
 	/* Make the start contiguous if needed */
 	iter = list_head(&phys_mem_map);
 
