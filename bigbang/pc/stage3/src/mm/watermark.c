@@ -11,6 +11,11 @@ void *malloc(size_t size)
 	return tmp;
 }
 
+/* Free memory from the watermark allocator */
+void free(void *ptr)
+{
+}
+
 /* Initialize the watermark allocator */
 void watermark_init()
 {

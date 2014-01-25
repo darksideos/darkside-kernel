@@ -1,6 +1,8 @@
 #ifndef __E820_H
 #define __E820_H
 
+#include <list.h>
+
 /* E820 map entry structure */
 typedef struct e820_entry
 {
