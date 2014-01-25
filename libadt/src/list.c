@@ -1,5 +1,6 @@
 #include <types.h>
 #include <stdlib.h>
+#include <iterator.h>
 #include <list.h>
 
 /* Linked list entry structure */
@@ -112,4 +113,114 @@ void *list_remove_tail(list_t *list)
 	free(list->tail->next);
 
 	return value;
+}
+
+/* Get the previous element of a node */
+static void *list_entry_prev(iterator_t *iter)
+{
+	list_entry_t *entry = (list_entry_t*) iter->node;
+
+	if (!iter->end)
+	{
+		entry = entry->prev;
+	}
+	else
+	{
+		iter->end = false;
+	}
+
+	if (entry)
+	{
+		iter->node = (void*) entry;
+	}
+	else
+	{
+		iter->start = true;
+		return 0;
+	}
+
+	return entry->value;
+}
+
+/* Get the next element of a node */
+static void *list_entry_next(iterator_t *iter)
+{
+	list_entry_t *entry = (list_entry_t*) iter->node;
+
+	if (!iter->start)
+	{
+		entry = entry->next;
+	}
+	else
+	{
+		iter->start = false;
+	}
+
+	if (entry)
+	{
+		iter->node = (void*) entry;
+	}
+	else
+	{
+		iter->end = true;
+		return 0;
+	}
+
+	return entry->value;
+}
+
+/* Insert at a node */
+static void list_entry_insert(iterator_t *iter, void *item)
+{
+	list_t *list = (list_t*) iter->object;
+	list_entry_t *entry = (list_entry_t*) iter->node;
+
+	if (entry == list->tail)
+	{
+		list_insert_tail(list, item);
+		iter->node = (void*) list->tail;
+		iter->end = true;
+	}
+	else
+	{
+		list_entry_t *node = (list_entry_t*) malloc(sizeof(list_entry_t));
+
+		node->prev = entry;
+		node->next = entry->next;
+		node->value = item;
+
+		iter->node = (void*) node;
+	}
+}
+
+/* Get an iterator for the linked list head */
+iterator_t list_head(list_t *list)
+{
+	iterator_t iter;
+
+	iter.object = list;
+	iter.node = list->head;
+	iter.start = true;
+	iter.end = false;
+	iter.prev = &list_entry_prev;
+	iter.next = &list_entry_next;
+	iter.insert = &list_entry_insert;
+
+	return iter;
+}
+
+/* Get an iterator for the linked list tail */
+iterator_t list_tail(list_t *list)
+{
+	iterator_t iter;
+
+	iter.object = list;
+	iter.node = list->tail;
+	iter.start = false;
+	iter.end = true;
+	iter.prev = &list_entry_prev;
+	iter.next = &list_entry_next;
+	iter.insert = &list_entry_insert;
+
+	return iter;
 }
