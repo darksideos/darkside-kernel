@@ -6,6 +6,8 @@
 struc data
 	.e820_map			resd 1
 	.e820_entries		resd 1
+	.drive				resw 1
+	._pad				resw 1
 endstruc
 %define DATA_LOC		0x0660									; Location of the local data structure in memory
 %define DATA(x)			DATA_LOC + data. %+ x					; Macro for accessing the local data structure

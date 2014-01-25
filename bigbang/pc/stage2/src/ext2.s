@@ -69,6 +69,7 @@ read_stage3:
 	call ext2_read
 	
 	; Jump to stage3
+	mov dl, [DATA(drive)]
 	jmp 0x0000:STAGE3_LOC
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
