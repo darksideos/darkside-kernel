@@ -11,6 +11,6 @@ typedef struct e820_entry
 } __attribute__ ((packed)) e820_entry_t;
 
 /* Sanitize the E820 memory map */
-
+list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries);
 
 #endif
