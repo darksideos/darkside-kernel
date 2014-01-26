@@ -7,7 +7,9 @@ typedef struct iterator
 	/* Object and current position */
 	void *object;
 	void *node;
-	bool start, end;
+
+	/* Get current object */
+	void* (*now)(struct iterator *iter);
 
 	/* Go back and forward in the iterator */
 	void* (*prev)(struct iterator *iter);
