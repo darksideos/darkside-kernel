@@ -115,19 +115,26 @@ void *list_remove_tail(list_t *list)
 	return value;
 }
 
+/* Get the current value */
+static void *list_entry_now(iterator_t *iter)
+{
+	list_entry_t *entry = (list_entry_t*) iter->node;
+
+	if (entry)
+	{
+		return entry->value;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 /* Get the previous element of a node */
 static void *list_entry_prev(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-
-	if (!iter->end)
-	{
-		entry = entry->prev;
-	}
-	else
-	{
-		iter->end = false;
-	}
+	entry = entry->prev;
 
 	if (entry)
 	{
@@ -135,7 +142,6 @@ static void *list_entry_prev(iterator_t *iter)
 	}
 	else
 	{
-		iter->start = true;
 		return 0;
 	}
 
@@ -146,15 +152,7 @@ static void *list_entry_prev(iterator_t *iter)
 static void *list_entry_next(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-
-	if (!iter->start)
-	{
-		entry = entry->next;
-	}
-	else
-	{
-		iter->start = false;
-	}
+	entry = entry->next;
 
 	if (entry)
 	{
@@ -162,7 +160,6 @@ static void *list_entry_next(iterator_t *iter)
 	}
 	else
 	{
-		iter->end = true;
 		return 0;
 	}
 
@@ -178,7 +175,6 @@ static void list_entry_insert(iterator_t *iter, void *item)
 	if (entry == list->tail)
 	{
 		list_insert_tail(list, item);
-		iter->end = true;
 	}
 	else
 	{
@@ -199,8 +195,7 @@ iterator_t list_head(list_t *list)
 
 	iter.object = list;
 	iter.node = list->head;
-	iter.start = true;
-	iter.end = false;
+	iter.now = &list_entry_now;
 	iter.prev = &list_entry_prev;
 	iter.next = &list_entry_next;
 	iter.insert = &list_entry_insert;
@@ -215,8 +210,7 @@ iterator_t list_tail(list_t *list)
 
 	iter.object = list;
 	iter.node = list->tail;
-	iter.start = false;
-	iter.end = true;
+	iter.now = &list_entry_now;
 	iter.prev = &list_entry_prev;
 	iter.next = &list_entry_next;
 	iter.insert = &list_entry_insert;
