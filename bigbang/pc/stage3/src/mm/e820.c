@@ -74,7 +74,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 	/* Insert entries between non-contiguous entries */
 	iterator_t iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.next(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
 	while (entry)
 	{
 		mem_map_entry_t *next = (mem_map_entry_t*) iter.next(&iter);
@@ -95,18 +95,12 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		}
 
 		entry = (mem_map_entry_t*) iter.next(&iter);
-
-		if (entry->base == 0xa0000)
-		{
-			printf("%x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
-			while(1);
-		}
 	}
 
 	/* Make the start contiguous if needed */
 	iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *start = (mem_map_entry_t*) iter.next(&iter);
+	mem_map_entry_t *start = (mem_map_entry_t*) iter.now(&iter);
 	iter.prev(&iter);
 	if (start->base != 0)
 	{
@@ -123,7 +117,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 
 	iter = list_head(&phys_mem_map);
 
-	entry = (mem_map_entry_t*) iter.next(&iter);
+	entry = (mem_map_entry_t*) iter.now(&iter);
 	while (entry)
 	{
 		printf("Base: 0x%08X, Length: 0x%08X, Type: %d\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
