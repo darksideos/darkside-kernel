@@ -86,7 +86,9 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 	mem_map_entry_t *next;
 	while (entry)
 	{
+		printf("Getting next\n");
 		next = (mem_map_entry_t*) iter.next(&iter);
+		printf("YAY! %08x\N", next);
 		iter.prev(&iter);
 
 		/* If they aren't contiguous */
@@ -98,6 +100,8 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			new->length = next->base - new->base;
 			new->flags = 0;
 			new->numa_domain = 0xFFFFFFFF;
+			
+			printf("Inserting a new entry yay @ %x %x\n", (uint32_t) new->base, (uint32_t) new->length);
 
 			/* Insert it into the list */
 			iter.insert(&iter, new);
@@ -106,7 +110,6 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		printf("Step done!  Current is %x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
 
 		entry = (mem_map_entry_t*) iter.next(&iter);
-		printf("New entry: %x\n", entry);
 	}
 	
 	printf("DONE");
