@@ -103,7 +103,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			iter.insert(&iter, new);
 		}
 
- 		printf("Step done!  Current is %x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
+		printf("Step done!  Current is %x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
 
 		entry = (mem_map_entry_t*) iter.next(&iter);
 		printf("New entry: %x\n", entry);
@@ -113,7 +113,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 
 	/* Make the start contiguous if needed */
 	iter = list_head(&phys_mem_map);
-	
+
 	mem_map_entry_t *start = (mem_map_entry_t*) iter.now(&iter);
 	if (start->base != 0)
 	{

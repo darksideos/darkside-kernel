@@ -115,14 +115,29 @@ void *list_remove_tail(list_t *list)
 	return value;
 }
 
+/* Get the current value */
+static void *list_entry_now(iterator_t *iter)
+{
+	list_entry_t *entry = (list_entry_t*) iter->node;
+
+	if (entry)
+	{
+		return entry->value;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 /* Get the previous element of a node */
 static void *list_entry_prev(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-
+	
 	entry = entry->prev;
 	iter->node = (void*) entry;
-
+	
 	if (entry)
 	{
 		return entry->value;
@@ -137,11 +152,10 @@ static void *list_entry_prev(iterator_t *iter)
 static void *list_entry_next(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-
-	printf("E: %x\n", entry);
+	
 	entry = entry->next;
 	iter->node = (void*) entry;
-
+	
 	if (entry)
 	{
 		return entry->value;
@@ -178,7 +192,7 @@ static void list_entry_insert(iterator_t *iter, void *item)
 		node->next->prev = node;
 		
 		node->prev = entry;
-		entry->next = node;
+		node->prev->next = node;
 		
 		node->value = item;
 	}
@@ -191,10 +205,9 @@ iterator_t list_head(list_t *list)
 
 	iter.object = list;
 	iter.node = list->head;
-	
+	iter.now = &list_entry_now;
 	iter.prev = &list_entry_prev;
 	iter.next = &list_entry_next;
-	iter.now = &list_iter_now;
 	iter.insert = &list_entry_insert;
 
 	return iter;
@@ -207,10 +220,9 @@ iterator_t list_tail(list_t *list)
 
 	iter.object = list;
 	iter.node = list->tail;
-	
+	iter.now = &list_entry_now;
 	iter.prev = &list_entry_prev;
 	iter.next = &list_entry_next;
-	iter.now = &list_iter_now;
 	iter.insert = &list_entry_insert;
 
 	return iter;
