@@ -184,6 +184,7 @@ static void list_entry_insert(iterator_t *iter, void *item)
 		node->next = entry->next;
 		node->value = item;
 
+		entry->next->prev = node;
 		entry->next = node;
 	}
 }
