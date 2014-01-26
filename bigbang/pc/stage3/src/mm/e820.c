@@ -12,6 +12,14 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 {
 	/* Sort the map in address order */
 	bool sorted = true;
+	
+	/* TODO: this is a bubblesort.  It sorts in time O(N^2).  We should
+	 * eventually replace it with another, more efficient algorithm.  I
+	 * believe we should use mergesort, which scales O(N log N).
+	 *
+	 * -Noah (1/25/14)
+	 */
+	
 	do
 	{
 		bool sorted_thistime = true;
@@ -74,14 +82,15 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 	/* Insert entries between non-contiguous entries */
 	iterator_t iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.next(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *next;
 	while (entry)
 	{
-		mem_map_entry_t *next = (mem_map_entry_t*) iter.next(&iter);
+		next = (mem_map_entry_t*) iter.next(&iter);
 		iter.prev(&iter);
 
 		/* If they aren't contiguous */
-		if (next && (entry->base + entry->length) < next->base)
+		if (next && ((entry->base + entry->length) < next->base))
 		{
 			/* Create a new entry */
 			mem_map_entry_t *new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
@@ -94,20 +103,18 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			iter.insert(&iter, new);
 		}
 
-		entry = (mem_map_entry_t*) iter.next(&iter);
+ 		printf("Step done!  Current is %x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
 
-		if (entry->base == 0xa0000)
-		{
-			printf("%x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
-			while(1);
-		}
+		entry = (mem_map_entry_t*) iter.next(&iter);
+		printf("New entry: %x\n", entry);
 	}
+	
+	printf("DONE");
 
 	/* Make the start contiguous if needed */
 	iter = list_head(&phys_mem_map);
-
-	mem_map_entry_t *start = (mem_map_entry_t*) iter.next(&iter);
-	iter.prev(&iter);
+	
+	mem_map_entry_t *start = (mem_map_entry_t*) iter.now(&iter);
 	if (start->base != 0)
 	{
 		/* Create a new entry */
@@ -123,7 +130,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 
 	iter = list_head(&phys_mem_map);
 
-	entry = (mem_map_entry_t*) iter.next(&iter);
+	entry = (mem_map_entry_t*) iter.now(&iter);
 	while (entry)
 	{
 		printf("Base: 0x%08X, Length: 0x%08X, Type: %d\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
