@@ -12,14 +12,6 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 {
 	/* Sort the map in address order */
 	bool sorted = true;
-	
-	/* TODO: this is a bubblesort.  It sorts in time O(N^2).  We should
-	 * eventually replace it with another, more efficient algorithm.  I
-	 * believe we should use mergesort, which scales O(N log N).
-	 *
-	 * -Noah (1/25/14)
-	 */
-	
 	do
 	{
 		bool sorted_thistime = true;
@@ -103,7 +95,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			iter.insert(&iter, new);
 		}
 
-		printf("Step done!  Current is %x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
+		printf("Step done! Current is %x %x\n", (uint32_t) entry->base, (uint32_t) entry->length);
 
 		entry = (mem_map_entry_t*) iter.next(&iter);
 		printf("New entry: %x\n", entry);
