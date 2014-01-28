@@ -166,14 +166,6 @@ static void *list_entry_next(iterator_t *iter)
 	}
 }
 
-/* Get the current value at a node */
-static void *list_iter_now(iterator_t *iter)
-{
-	list_entry_t *entry = (list_entry_t*) iter->node;
-	
-	return entry->value;
-}
-
 /* Insert at a node */
 static void list_entry_insert(iterator_t *iter, void *item)
 {
