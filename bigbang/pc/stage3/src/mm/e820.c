@@ -119,16 +119,57 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		iter.insert(&iter, new);
 	}
 
+	/* Merge adjacent entries of the same type */
+	list_t new_phys_mem_map = list_create();
 	iter = list_head(&phys_mem_map);
 
 	entry = (mem_map_entry_t*) iter.now(&iter);
+	uint64_t base = entry->base;
+	uint64_t length = 0;
+	uint32_t flags = entry->flags;
+
 	while (entry)
 	{
-		printf("Base: 0x%08X, Length: 0x%08X, Type: %d\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
-		entry = (mem_map_entry_t*) iter.next(&iter);
+		if (entry->flags == flags)
+		{
+			length += entry->length;
+			entry = iter.next(&iter);
+		}
+		else
+		{
+			/* Create a new entry */
+			mem_map_entry_t *new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
+			new->base = base;
+			new->length = length;
+			new->flags = flags;
+			new->numa_domain = 0xFFFFFFFF;
+
+			/* Insert it into the list */
+			list_insert_tail(&new_phys_mem_map, new);
+
+			/* Take note of flags */
+			base = entry->base;
+			length = entry->length;
+			flags = entry->flags;
+
+			/* Get the next one */
+			entry = iter.next(&iter);
+
+			/* If we're at the end, just add the new entry */
+			if (entry == 0)
+			{
+				/* Create a new entry */
+				new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
+				new->base = base;
+				new->length = length;
+				new->flags = flags;
+				new->numa_domain = 0xFFFFFFFF;
+
+				/* Insert it into the list */
+				list_insert_tail(&new_phys_mem_map, new);
+			}
+		}
 	}
 
-	while(1);
-
-	return phys_mem_map;
+	return new_phys_mem_map;
 }
