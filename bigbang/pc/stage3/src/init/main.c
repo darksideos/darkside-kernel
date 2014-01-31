@@ -24,6 +24,16 @@ void main(data_t *_data)
 	/* Initialize the physical and virtual memory managers */
 	pmm_init(data->e820_entries, data->num_e820_entries);
 
+	/* TEST */
+	uint32_t a, b, c, d, e;
+	a = pmm_alloc_page();
+	b = pmm_alloc_page();
+	c = pmm_alloc_page();
+	d = pmm_alloc_page();
+	e = pmm_alloc_page();
+	printf("%x %x %x %x %x\n", a, b, c, d, e);
+	while(1);
+
 	/* Mount the root EXT2 partition */
 
 	/* Read and parse the configuration file */
