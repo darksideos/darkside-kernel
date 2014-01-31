@@ -1,8 +1,6 @@
 #include <types.h>
 #include <mm/vmm.h>
 
-#include <stdio.h>
-
 /* Page directories and tables */
 extern uint32_t pd[], pt_lower[], pt_higher[];
 
@@ -17,13 +15,8 @@ void map_page(uint64_t virtual_address, uint64_t physical_address, int flags)
 		x86_flags |= 0x02;
 	}
 
-	/* Lower half */
-	if (virtual_address < 0x10000)
-	{
-		pt_lower[virtual_address / 0x1000] = ((uint32_t) physical_address) | x86_flags;
-	}
 	/* Higher half */
-	else if (virtual_address >= 0x80000000)
+	if (virtual_address >= 0x80000000)
 	{
 		pt_higher[(virtual_address - 0x80000000) / 0x1000] = ((uint32_t) physical_address) | x86_flags;
 	}
@@ -50,7 +43,7 @@ void vmm_init()
 	/* Identity map the first 1 MB */
 	for (uint64_t i = 0; i < 0x100000; i++)
 	{
-		map_page(i, i, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
+		pt_lower[i / 0x1000] = ((uint32_t) i) | 0x03;
 	}
 
 	/* Switch to the page directory */
