@@ -27,6 +27,9 @@ void map_page(uint64_t virtual_address, uint64_t physical_address, int flags)
 	{
 		pt_higher[(virtual_address - 0x80000000) / 0x1000] = ((uint32_t) physical_address) | x86_flags;
 	}
+
+	/* Invalidate the page */
+	__asm__ volatile ("invlpg (%0)" :: "a" ((uint32_t) virtual_address));
 }
 
 /* Initialize the virtual memory manager */
@@ -34,9 +37,9 @@ void vmm_init()
 {
 	/* Enable global pages */
 	unsigned int cr4;
-	asm volatile ("mov %%cr4, %0" : "=r" (cr4));
+	__asm__ volatile ("mov %%cr4, %0" : "=r" (cr4));
 	cr4 |= 0x80;
-	asm volatile ("mov %0, %%cr4" :: "r" (cr4));
+	__asm__ volatile ("mov %0, %%cr4" :: "r" (cr4));
 
 	/* Add the page tables into the page directory */
 	pd[0] = (uint32_t) &pt_lower | 0x03;
@@ -51,11 +54,11 @@ void vmm_init()
 	}
 
 	/* Switch to the page directory */
-	asm volatile("mov %0, %%cr3" :: "r"(pd));
+	__asm__ volatile("mov %0, %%cr3" :: "r"(pd));
 
 	/* Now enable paging! */
 	unsigned int cr0;
-	asm volatile("mov %%cr0, %0" : "=r" (cr0));
+	__asm__ volatile("mov %%cr0, %0" : "=r" (cr0));
 	cr0 |= 0x80000000;
-	asm volatile("mov %0, %%cr0" :: "r"(cr0));
+	__asm__ volatile("mov %0, %%cr0" :: "r"(cr0));
 }
