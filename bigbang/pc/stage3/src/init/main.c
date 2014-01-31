@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <bootvid.h>
-#include <iterator.h>
 #include <mm/e820.h>
 #include <init/data.h>
 #include <mm/watermark.h>
 #include <mm/pmm.h>
+#include <mm/vmm.h>
 
 void main(data_t *_data)
 {
@@ -23,13 +23,7 @@ void main(data_t *_data)
 
 	/* Initialize the physical and virtual memory managers */
 	pmm_init(data->e820_entries, data->num_e820_entries);
-
-	uint64_t a, b, c;
-	a = pmm_alloc_page();
-	b = pmm_alloc_page();
-	c = pmm_alloc_page();
-	printf("%x %x %x\n", (uint32_t) a, (uint32_t) b, (uint32_t) c);
-	while(1);
+	vmm_init();
 
 	/* Mount the root EXT2 partition */
 
