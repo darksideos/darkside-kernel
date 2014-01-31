@@ -5,8 +5,6 @@
 #include <mm/e820.h>
 #include <mm/pmm.h>
 
-#include <stdio.h>
-
 /* Sanitize the E820 memory map */
 list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 {
