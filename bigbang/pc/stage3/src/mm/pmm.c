@@ -20,8 +20,6 @@ uint64_t pmm_alloc_page()
 		/* If the entry is free */
 		if ((entry->flags & (MEM_FLAG_USABLE)) && (entry->flags & (MEM_FLAG_FREE)))
 		{
-			printf("You just found %x %x %d\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
-
 			/* If the entry is one page */
 			if (entry->length == 0x1000)
 			{
