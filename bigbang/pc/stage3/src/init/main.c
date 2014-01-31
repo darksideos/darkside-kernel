@@ -25,13 +25,14 @@ void main(data_t *_data)
 	pmm_init(data->e820_entries, data->num_e820_entries);
 
 	/* TEST */
-	uint32_t a, b, c, d, e;
+	uint64_t a, b, c, d, e;
+	pmm_claim_page(0x2000);
 	a = pmm_alloc_page();
 	b = pmm_alloc_page();
 	c = pmm_alloc_page();
 	d = pmm_alloc_page();
 	e = pmm_alloc_page();
-	printf("%x %x %x %x %x\n", a, b, c, d, e);
+	printf("%x %x %x %x %x\n", (uint32_t) a, (uint32_t) b, (uint32_t) c, (uint32_t) d, (uint32_t) e);
 	while(1);
 
 	/* Mount the root EXT2 partition */
