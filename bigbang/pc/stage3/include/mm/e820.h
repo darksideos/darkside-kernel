@@ -1,6 +1,7 @@
 #ifndef __E820_H
 #define __E820_H
 
+#include <iterator.h>
 #include <list.h>
 
 /* E820 entry types */
