@@ -37,34 +37,12 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 
 	/* Convert it into a linked list */
 	list_t phys_mem_map = list_create();
-
-	/* Claim the first 1 MB */
-	mem_map_entry_t *first_mb = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
-	first_mb->base = 0;
-	first_mb->length = 0x100000;
-	first_mb->flags = 0;
-	first_mb->numa_domain = 0xFFFFFFFF;
-	list_insert_tail(&phys_mem_map, first_mb);
-
-	/* Add the rest */
 	for (size_t i = 0; i < num_e820_entries; i++)
 	{
-		if ((e820_entries[i].base + e820_entries[i].length) < 0x100000)
-		{
-			continue;
-		}
-
 		mem_map_entry_t *entry = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
-
 		entry->base = e820_entries[i].base;
 		entry->length = e820_entries[i].length;
 		entry->numa_domain = 0xFFFFFFFF;
-
-		if (entry->base < 0x100000)
-		{
-			entry->base = 0x100000;
-			entry->length -= 0x100000;
-		}
 
 		if (e820_entries[i].type == E820_TYPE_FREE)
 		{
