@@ -100,6 +100,8 @@ disk_init:
 	pop ebp
 	ret
 	
+section .data
+
 ; Drive number
 drive_num:
 	dd 0

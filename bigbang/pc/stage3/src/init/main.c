@@ -28,12 +28,16 @@ void main(data_t *_data)
 	vmm_init();
 
 	/* Initialize the disk and partition drivers */
+	printf("%x %x\n", data->drive_number, data->partition_start);
 	disk_init(data->drive_number);
+	printf("%x %x\n", data->drive_number, data->partition_start);
 
 	/* TEST */
 	uint8_t buffer[512];
 	disk_read(&buffer, 0, 1);
 	printf("Magic sig: %x%x\n", buffer[510], buffer[511]);
+
+	printf("%x %x\n", data->drive_number, data->partition_start);
 
 	/* Mount the root EXT2 partition */
 
