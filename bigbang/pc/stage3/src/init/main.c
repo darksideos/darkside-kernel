@@ -1,5 +1,4 @@
 #include <types.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <bootvid.h>
@@ -8,6 +7,9 @@
 #include <mm/watermark.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
+#include <storage/disk.h>
+
+#include <stdio.h>
 
 void main(data_t *_data)
 {
@@ -24,6 +26,9 @@ void main(data_t *_data)
 	/* Initialize the physical and virtual memory managers */
 	pmm_init(data->e820_entries, data->num_e820_entries);
 	vmm_init();
+
+	/* Initialize the disk and partition drivers */
+	disk_init(data->drive_number);
 
 	/* Mount the root EXT2 partition */
 
