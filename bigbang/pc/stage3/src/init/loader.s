@@ -10,6 +10,7 @@ start:
 	mov esp, ORG_LOC
 .setup_data:
 	mov [DATA(drive)], dl
+	mov [DATA(part_start)], eax
 	
 ; Get the BIOS memory map
 do_e820:

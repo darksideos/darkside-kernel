@@ -8,8 +8,9 @@ typedef struct data
 	e820_entry_t *e820_entries;
 	uint32_t num_e820_entries;
 
-	/* BIOS drive number */
+	/* Drive number and partition start */
 	uint32_t drive_number;
+	uint32_t partition_start;
 } data_t;
 
 #endif
