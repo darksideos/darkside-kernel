@@ -30,6 +30,11 @@ void main(data_t *_data)
 	/* Initialize the disk and partition drivers */
 	disk_init(data->drive_number);
 
+	/* TEST */
+	uint8_t buffer[512];
+	disk_read(&buffer, 0, 1);
+	printf("Magic sig: %x%x\n", buffer[510], buffer[511]);
+
 	/* Mount the root EXT2 partition */
 
 	/* Read and parse the configuration file */
