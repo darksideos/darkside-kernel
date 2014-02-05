@@ -29,5 +29,5 @@ struc gdt_ptr
 	.limit				resw 1
 	.base				resd 1
 endstruc
-%define GDTR_LOC		0x0618
+%define GDTR_LOC		0x0628
 %define GDTR(x)			GDTR_LOC + gdt_ptr. %+ x

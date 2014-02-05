@@ -144,7 +144,7 @@ real_to_pm:
 	mov [GDT(eax, granularity)], byte 0
 	mov [GDT(eax, base_high)], byte 0
 	
-	; Set up the code GDT descriptor
+	; Set up the 32-bit code GDT descriptor
 	mov eax, 0x08
 	mov [GDT(eax, limit_low)], word 0xFFFF
 	mov [GDT(eax, base_low)], word 0
@@ -153,7 +153,7 @@ real_to_pm:
 	mov [GDT(eax, granularity)], byte 0xCF
 	mov [GDT(eax, base_high)], byte 0
 	
-	; Set up the data GDT descriptor
+	; Set up the 32-bit data GDT descriptor
 	mov eax, 0x10
 	mov [GDT(eax, limit_low)], word 0xFFFF
 	mov [GDT(eax, base_low)], word 0
@@ -162,17 +162,36 @@ real_to_pm:
 	mov [GDT(eax, granularity)], byte 0xCF
 	mov [GDT(eax, base_high)], byte 0
 	
+	; Set up the 16-bit code GDT descriptor
+	mov eax, 0x18
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x9A
+	mov [GDT(eax, granularity)], byte 0x0F
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 16-bit data GDT descriptor
+	mov eax, 0x20
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x92
+	mov [GDT(eax, granularity)], byte 0x0F
+	mov [GDT(eax, base_high)], byte 0
+	
 	; Load the GDT pointer
-	mov [GDTR(limit)], word 0x17
+	mov [GDTR(limit)], word 0x27
 	mov [GDTR(base)], dword GDT_LOC
 	lgdt [GDTR_LOC]
 	
 	; Switch to protected mode
+	cli
 	mov eax, cr0
 	or al, 1
 	mov cr0, eax
 	
-	; Jump to our protected mode entry point
+	; Jump to our 32-bit protected mode entry point
 	jmp 0x08:pm_entry
 
 ; Error function
