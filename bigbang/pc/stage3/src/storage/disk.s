@@ -10,6 +10,11 @@ disk_read:
 	push ebp
 	mov ebp, esp
 	
+	; Save registers
+	push ebx
+	push esi
+	push edi
+	
 	; Jump to our 16-bit protected mode entry
 	jmp 0x18:.pm16_entry
 [BITS 16]
@@ -45,7 +50,7 @@ disk_read:
 	; Set up the DAP
 	mov eax, dword [ebp + 8]
 	mov ebx, dword [ebp + 12]
-	mov cx, word [ebp + 16]
+	mov ecx, dword [ebp + 16]
 	mov [DAP(buffer)], eax
 	mov [DAP(lba_start_l)], ebx
 	mov [DAP(lba_length)], cx
@@ -77,6 +82,9 @@ disk_read:
 	mov ss, ax
 	
 	; Return from the function
+	pop edi
+	pop esi
+	pop ebx
 	pop ebp
 	ret
 	
@@ -86,6 +94,11 @@ disk_init:
 	; Set up the stack frame
 	push ebp
 	mov ebp, esp
+	
+	; Save registers
+	push ebx
+	push esi
+	push edi
 	
 	; Store the drive number
 	mov ax, word [ebp + 8]
@@ -97,6 +110,9 @@ disk_init:
 	mov [DAP(lba_start_h)], dword 0x0
 	
 	; Return from the function
+	pop edi
+	pop esi
+	pop ebx
 	pop ebp
 	ret
 	
