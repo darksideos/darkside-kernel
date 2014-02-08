@@ -1,6 +1,6 @@
 [BITS 32]
 
-section .bss
+section .paging
 
 global pd
 global pt_lower

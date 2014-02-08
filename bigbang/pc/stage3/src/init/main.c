@@ -8,6 +8,7 @@
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <storage/disk.h>
+#include <storage/partition.h>
 
 #include <stdio.h>
 
@@ -29,6 +30,7 @@ void main(data_t *_data)
 
 	/* Initialize the disk and partition drivers */
 	disk_init(data->drive_number);
+	partition_init(data->partition_start);
 
 	/* Mount the root EXT2 partition */
 
