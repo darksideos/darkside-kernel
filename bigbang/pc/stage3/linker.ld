@@ -28,5 +28,11 @@ SECTIONS
 		*(.bss)
 	}
 	
+	.paging : ALIGN(4096)
+	{
+		paging = .;
+		*(.paging)
+	}
+	
 	end = .;
 }
