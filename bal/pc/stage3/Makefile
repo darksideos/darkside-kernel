@@ -3,7 +3,7 @@ ASM				:= nasm
 LD				:= i586-elf-ld
 OBJDUMP			:= i586-elf-objdump
 OBJCOPY			:= i586-elf-objcopy
-CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../../../libc/include -I../../../libadt/include -I../../../bootvid/include
+CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../../include -I../../../libc/include -I../../../libadt/include -I../../../bootvid/include
 ASMFLAGS		:= -f elf
 LDFLAGS			:= -T linker.ld
 
