@@ -5,13 +5,14 @@
 #include <mm/e820.h>
 #include <init/data.h>
 #include <mm/watermark.h>
-#include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <storage/disk.h>
 #include <storage/partition.h>
 
-#include <stdio.h>
+/* Initialize the physical memory manager */
+void pmm_init(e820_entry_t *e820_entries, uint32_t num_e820_entries);
 
+/* Boot Abstraction Layer main function */
 void main(data_t *_data)
 {
 	/* Initialize the boot video driver */
