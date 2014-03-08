@@ -8,7 +8,7 @@ typedef struct framebuffer
 	void *buffer;
 
 	/* Framebuffer properties */
-	uint32_t width, uint32_t height;
+	int width, uint32_t height;
 	uint8_t bpp, planes, banks;
 	uint16_t pitch;
 
@@ -16,6 +16,6 @@ typedef struct framebuffer
 } framebuffer_t;
 
 /* Initialize graphics */
-framebuffer_t *graphics_init(uint32_t width, uint32_t height, uint8_t bpp);
+framebuffer_t *graphics_init(int width, int height, uint8_t bpp);
 
 #endif

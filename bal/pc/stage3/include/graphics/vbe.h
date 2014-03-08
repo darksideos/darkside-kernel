@@ -43,9 +43,9 @@ typedef struct mode_info
 uint32_t vbe_init();
 
 /* Get a VBE mode */
-uint32_t vbe_get_mode(uint16_t *mode);
+uint32_t vbe_get_mode(uint16_t mode);
 
 /* Set a VBE mode */
-uint32_t vbe_set_mode(uint16_t *mode);
+uint32_t vbe_set_mode(uint16_t mode);
 
 #endif
