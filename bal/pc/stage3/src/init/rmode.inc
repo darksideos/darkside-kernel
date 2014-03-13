@@ -72,7 +72,8 @@
 %endmacro
 
 ; Real mode IDT
+%macro idt16 0
 idt16:
 	dw 0x3FF
 	dd 0
-
+%endmacro
