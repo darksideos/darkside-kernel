@@ -1,7 +1,8 @@
 *.o
 *.elf
 *.img
-*.vhd*.a
+*.vhd
+*.a
 *.bin
 *.pdf
 .DS_Store
