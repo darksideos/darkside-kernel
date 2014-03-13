@@ -1,4 +1,4 @@
-%include "src/storage/vbe.inc"
+%include "src/graphics/vbe.inc"
 
 [BITS 32]
 section .text

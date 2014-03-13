@@ -1,7 +1,7 @@
 #ifndef __MAP_H
 #define __MAP_H
 
-#include <lib/libadt/list.h>
+#include <list.h>
 
 /* Map structure */
 typedef struct map
