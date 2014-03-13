@@ -1,6 +1,8 @@
 #ifndef __VBE_H
 #define __VBE_H
 
+#include <types.h>
+
 /* VBE controller info structure */
 typedef struct controller_info
 {

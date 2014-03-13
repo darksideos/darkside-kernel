@@ -8,6 +8,7 @@
 #include <mm/vmm.h>
 #include <storage/disk.h>
 #include <storage/partition.h>
+#include <graphics/graphics.h>
 
 /* Initialize the physical memory manager */
 void pmm_init(e820_entry_t *e820_entries, uint32_t num_e820_entries);
@@ -32,6 +33,14 @@ void main(data_t *_data)
 	/* Initialize the disk and partition drivers */
 	disk_init(data->drive_number);
 	partition_init(data->partition_start);
+	
+	/* Initialize VESA graphics */
+	framebuffer_t *fm = graphics_init(320, 200, 32);
+	
+	int *fm_int = (int*) fm->buffer;
+	fm_int[0] = 0xFFFF00FF;
+	fm_int[1] = 0xFF00FFFF;
+	fm_int[2] = 0x00FFFFFF;
 
 	/* Mount the root EXT2 partition */
 

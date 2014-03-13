@@ -2,7 +2,7 @@
 #define __FILESYSTEM_H
 
 #include <types.h>
-#include <dict.h>
+#include <libadt/dict.h>
 
 /* Filesystem operations structure */
 typedef struct filesystem_ops

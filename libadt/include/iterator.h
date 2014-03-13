@@ -17,6 +17,9 @@ typedef struct iterator
 
 	/* Insert an item at the current position */
 	void (*insert)(struct iterator *iter, void *item);
+	
+	/* Remove the current item and return it */
+	void* (*remove)(struct iterator *iter);
 } iterator_t;
 
 #endif
