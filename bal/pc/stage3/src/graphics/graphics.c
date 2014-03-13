@@ -1,5 +1,7 @@
 #include <types.h>
 #include <stdlib.h>
+#include <graphics/graphics.h>
+#include <graphics/vbe.h>
 
 /* VBE controller and mode info */
 static controller_info_t *controller_info = (controller_info_t*) 0x510;
@@ -24,6 +26,7 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 	fb->pitch = mode_info->pitch;
 
 	return fb;
+}
 
 /* Initialize graphics */
 framebuffer_t *graphics_init(int width, int height, uint8_t bpp)

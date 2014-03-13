@@ -1,7 +1,7 @@
 #ifndef __DICT_H
 #define __DICT_H
 
-#include <lib/libadt/map.h>
+#include <map.h>
 
 /* Dictionary structure */
 #define dict_t map_t

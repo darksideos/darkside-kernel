@@ -1,5 +1,5 @@
 i386: 
-		cd bigbang/pc; make ext2
+		cd bal/pc; make ext2
 		img/utils/updateimage.sh
 		
 i386-libs:
