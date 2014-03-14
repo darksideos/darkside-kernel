@@ -14,6 +14,7 @@ SFILES			:= $(shell find $(SRCDIR) -type f -name "*.s")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(SFILES))
 
 all: $(OBJFILES)
+		rm -f $(BUILDDIR)/stage3.o
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.o $(BUILDDIR)/init/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../../../libgcc/build -L ../../../libc/build -L ../../../libadt/build -L ../../../bootvid/build
 		cp $(BUILDDIR)/stage3.o $(BUILDDIR)/../../../build/bal.o
  
