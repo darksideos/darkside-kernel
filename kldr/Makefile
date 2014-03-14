@@ -14,7 +14,7 @@ SFILES			:= $(shell find $(SRCDIR) -type f -name "*.s")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(SFILES))
 
 all: $(OBJFILES)
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-i386 -lc-i386 -ladt-i386 -lbootvid-i386
 		$(OBJCOPY) -O binary $(BUILDDIR)/stage3.elf $(BUILDDIR)/stage3.bin
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
