@@ -3,9 +3,9 @@ ASM				:= nasm
 LD				:= i586-elf-ld
 OBJDUMP			:= i586-elf-objdump
 OBJCOPY			:= i586-elf-objcopy
-CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../../include -I../../../libc/include -I../../../libadt/include -I../../../bootvid/include
+CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../bal/include -I../libc/include -I../libadt/include -I../bootvid/include
 ASMFLAGS		:= -f elf
-LDFLAGS			:= -r
+LDFLAGS			:= -T linker.ld
 
 SRCDIR			:= src
 BUILDDIR		:= build
@@ -14,8 +14,8 @@ SFILES			:= $(shell find $(SRCDIR) -type f -name "*.s")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(SFILES))
 
 all: $(OBJFILES)
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.o $(BUILDDIR)/init/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../../../libgcc/build -L ../../../libc/build -L ../../../libadt/build -L ../../../bootvid/build
-		cp $(BUILDDIR)/stage3.o $(BUILDDIR)/../../../build/bal.o
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build
+		$(OBJCOPY) -O binary $(BUILDDIR)/stage3.elf $(BUILDDIR)/stage3.bin
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS)
@@ -23,4 +23,4 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.s
 		$(ASM) $(ASMFLAGS) $< -o $@
 clean:
 		rm $(OBJFILES)
-		rm $(BUILDDIR)/stage3.o
+		rm $(BUILDDIR)/stage3.bin

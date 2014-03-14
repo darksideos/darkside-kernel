@@ -221,10 +221,10 @@ pm_entry:
 	mov ss, ax
 	
 	; Jump to our C code
-	extern main
+	extern bal_main
 	mov eax, DATA_LOC
 	push eax
-	call main
+	call bal_main
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
