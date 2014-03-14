@@ -21,7 +21,7 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 	/* Initialize the framebuffer */
 	framebuffer_t *fb = (framebuffer_t*) malloc(sizeof(framebuffer_t));
 	
-	fb->buffer = (void*) 0x80000000;
+	fb->buffer = (void*) 0x80000000 + (mode_info->lfb - (mode_info->lfb & 0xFFFFF000));
 
 	fb->width = (int) mode_info->width;
 	fb->height = (int) mode_info->height;
