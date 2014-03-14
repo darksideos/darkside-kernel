@@ -8,7 +8,7 @@ extern uint32_t pd[], pt_lower[], pt_higher[];
 void map_page(uint64_t virtual_address, uint64_t physical_address, int flags)
 {
 	/* Calculate the flags */
-	uint32_t x86_flags = 0;
+	uint32_t x86_flags = 0x01;
 
 	if (flags & PAGE_WRITE)
 	{

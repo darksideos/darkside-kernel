@@ -10,7 +10,7 @@ void ba_main(loader_block_t *loader_block)
 
 	unsigned char *buffer = (unsigned char*) fb->buffer;
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 640; i++)
 	{
 		buffer[i] = 4;
 	}
