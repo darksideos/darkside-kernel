@@ -15,10 +15,6 @@ static mode_info_t *mode_info;
 /* Create a framebuffer from a VBE mode */
 static framebuffer_t *framebuffer_create(uint16_t mode)
 {
-	vbe_get_mode(mode_info, mode);
-	printf("%d %d %d\n", mode_info->width, mode_info->height, mode_info->bpp);
-	while(1);
-
 	/* Set the mode */
 	uint32_t status = vbe_set_mode(mode);
 
@@ -50,8 +46,8 @@ framebuffer_t *graphics_init(int width, int height, uint8_t bpp)
 	uint16_t best_mode = 0;
 
 	/* Best area and depth we've found so far */
-	int best_area = width * height;
-	int best_depth = bpp;
+	int best_area = 0;
+	int best_depth = 0;
 
 	/* Initialize VBE */
 	controller_info = (controller_info_t*) malloc(512);
@@ -63,10 +59,11 @@ framebuffer_t *graphics_init(int width, int height, uint8_t bpp)
 		return NULL;
 	}
 
+	char *oem = (char*) (controller_info->oem_string[1] << 4) + controller_info->oem_string[0];
+	printf("%s\n", oem);
+
 	/* Search for the best possible mode */
-	uint16_t *modes = (uint16_t*) (controller_info->modes[1] << 4) + controller_info->modes[0];
-	printf("0x%x\n", modes);
-	while(1);
+	uint16_t *modes = (uint16_t*) ((controller_info->modes[1] << 4) + controller_info->modes[0]);
 	mode_info = (mode_info_t*) malloc(256);
 	for (int i = 0; modes[i] != 0xFFFF; i++)
 	{
