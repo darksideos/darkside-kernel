@@ -1,5 +1,4 @@
 %include "src/init/rmode.inc"
-%include "src/graphics/vbe.inc"
 
 [BITS 32]
 section .text
@@ -12,7 +11,7 @@ vbe_init:
 	
 	; Get the controller info
 	mov ax, 0x4F00
-	mov di, CONTROLLER_LOC
+	mov di, [ebp + 8]
 	int 0x10
 	
 	; Save return value
@@ -30,8 +29,8 @@ vbe_get_mode:
 	
 	; Get the mode info
 	mov ax, 0x4F01
-	mov cx, [ebp + 8]
-	mov di, MODE_LOC
+	mov cx, [ebp + 12]
+	mov di, [ebp + 8]
 	int 0x10
 	
 	; Save return value

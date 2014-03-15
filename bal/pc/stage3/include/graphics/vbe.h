@@ -12,7 +12,7 @@ typedef struct controller_info
 	unsigned char capabilities[4];
 	uint16_t modes[2];
 	uint16_t total_memory;
-} controller_info_t;
+} __attribute__ ((packed)) controller_info_t;
 
 /* VBE mode info structure */
 typedef struct mode_info
@@ -39,13 +39,13 @@ typedef struct mode_info
 	uint32_t lfb;
 	uint32_t reserved1;
 	uint16_t reserved2;
-} mode_info_t;
+} __attribute__ ((packed)) mode_info_t;
 
 /* Initialize VBE */
-uint32_t vbe_init();
+uint32_t vbe_init(controller_info_t *controller_info);
 
 /* Get a VBE mode */
-uint32_t vbe_get_mode(uint16_t mode);
+uint32_t vbe_get_mode(mode_info_t *mode_info, uint16_t mode);
 
 /* Set a VBE mode */
 uint32_t vbe_set_mode(uint16_t mode);
