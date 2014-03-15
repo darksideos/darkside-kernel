@@ -16,6 +16,7 @@ vbe_init:
 	int 0x10
 	
 	; Save return value
+	and eax, 0xFFFF
 	push eax
 	
 	; Switch from real mode to protected mode
@@ -34,6 +35,7 @@ vbe_get_mode:
 	int 0x10
 	
 	; Save return value
+	and eax, 0xFFFF
 	push eax
 	
 	; Switch from real mode to protected mode
@@ -51,6 +53,7 @@ vbe_set_mode:
 	int 0x10
 	
 	; Save return value
+	and eax, 0xFFFF
 	push eax
 	
 	; Switch from real mode to protected mode
