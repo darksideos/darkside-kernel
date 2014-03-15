@@ -10,9 +10,11 @@ void ba_main(loader_block_t *loader_block)
 
 	unsigned char *buffer = (unsigned char*) fb->buffer;
 
+	char color = 4;
 	for (int i = 0; i < 640; i++)
 	{
-		buffer[i] = 4;
+		buffer[i] = color;
+		color++;
 	}
 
 	while(1);
