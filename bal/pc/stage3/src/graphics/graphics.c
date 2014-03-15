@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <stdlib.h>
 #include <graphics/graphics.h>
 #include <graphics/vbe.h>
@@ -44,33 +45,31 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 framebuffer_t *graphics_init(int width, int height, uint8_t bpp)
 {
 	/* Best mode we've found so far */
-	uint16_t best_mode = 0x13;
+	uint16_t best_mode = 0;
 
 	/* Best area and depth we've found so far */
 	int best_area = width * height;
 	int best_depth = bpp;
 
 	/* Initialize VBE */
+	strncpy(controller_info->signature, "VBE2", 4);
 	uint32_t status = vbe_init();
 
 	if (status != 0x4F)
 	{
-		return framebuffer_create(best_mode);
+		return NULL;
 	}
 
 	/* Search for the best possible mode */
-	uint16_t *modes = (uint16_t*) (controller_info->modes[1] * 0x10) + controller_info->modes[0];
+	uint16_t *modes = (uint16_t*) (controller_info->modes[1] << 4) + controller_info->modes[0];
 	for (int i = 0; modes[i] != 0xFFFF; i++)
 	{
-		printf("%d\n", modes[i]);
-		while(1);
-
 		/* Get the mode info */
 		status = vbe_get_mode(modes[i]);
 
 		if (status != 0x4F)
 		{
-			printf("Getting mode failed\n");
+			printf("Getting mode number %d failed\n", i);
 			continue;
 		}
 
@@ -116,5 +115,10 @@ framebuffer_t *graphics_init(int width, int height, uint8_t bpp)
 	}
 
 	/* Create a framebuffer for that mode */
-	return framebuffer_create(best_mode);
+	if (best_mode)
+	{
+		return framebuffer_create(best_mode);
+	}
+
+	return NULL;
 }
