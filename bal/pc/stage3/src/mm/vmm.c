@@ -14,6 +14,10 @@ void map_page(uint64_t virtual_address, uint64_t physical_address, int flags)
 	{
 		x86_flags |= 0x02;
 	}
+	if (flags & PAGE_NOCACHE)
+	{
+		x86_flags |= 0x10;
+	}
 
 	/* Higher half */
 	if (virtual_address >= 0x80000000)

@@ -19,10 +19,12 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 	uint32_t status = vbe_set_mode(mode);
 
 	/* Read the mode into memory */
+	mode &= 0x41FF;
+	mode |= 0x4000;
 	status = vbe_get_mode(mode_info, mode);
 
 	/* Map the LFB into memory (ALERT GIANT HACK) */
-	map_page(0x80000000, (uint64_t) mode_info->lfb & 0xFFFFF000, PAGE_READ | PAGE_WRITE);
+	map_page(0x80000000, (uint64_t) mode_info->lfb & 0xFFFFF000, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
 
 	/* Initialize the framebuffer */
 	framebuffer_t *fb = (framebuffer_t*) malloc(sizeof(framebuffer_t));
