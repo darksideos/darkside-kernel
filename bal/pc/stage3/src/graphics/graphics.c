@@ -34,8 +34,6 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 	fb->width = (int) mode_info->width;
 	fb->height = (int) mode_info->height;
 	fb->bpp = mode_info->bpp;
-	fb->planes = mode_info->planes;
-	fb->banks = mode_info->banks;
 	fb->pitch = mode_info->pitch;
 
 	return fb;

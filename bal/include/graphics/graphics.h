@@ -12,11 +12,7 @@ typedef struct framebuffer
 	/* Framebuffer properties */
 	uint32_t width;
 	uint32_t height;
-	
 	uint8_t bpp;
-	uint8_t planes;
-	uint8_t banks;
-	
 	uint16_t pitch;
 
 	/* Color properties */
