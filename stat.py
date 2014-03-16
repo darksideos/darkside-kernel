@@ -70,10 +70,10 @@ class stat:
             (""),
             ("Type count"),
             (
-            "\n".join(("  " + (t if t else "none").ljust(15)
+            "\n".join((("  " + (t if t else "none")).ljust(15)
                      + str(self.types[t]) for t in self.types))))
         if file:
-            with open(file, "w"):
+            with open(file, "w") as file:
                 file.write("\n".join(output))
         else:
             print("\n".join(output))
