@@ -16,11 +16,11 @@ static mode_info_t *mode_info;
 static framebuffer_t *framebuffer_create(uint16_t mode)
 {
 	/* Set the mode */
+	mode &= 0x41FF;
+	mode |= 0x4000;
 	uint32_t status = vbe_set_mode(mode);
 
 	/* Read the mode into memory */
-	mode &= 0x41FF;
-	mode |= 0x4000;
 	status = vbe_get_mode(mode_info, mode);
 
 	/* Map the LFB into memory (ALERT GIANT HACK) */
