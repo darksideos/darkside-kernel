@@ -10,7 +10,7 @@ void ba_main(loader_block_t *loader_block)
 
 	unsigned int *buffer = (unsigned int*) fb->buffer;
 
-	unsigned int color = 0x00FF00FF;
+	unsigned int color = 0xFFFFFFFF;
 	for (int i = 0; i < 512; i++)
 	{
 		buffer[i] = color;
