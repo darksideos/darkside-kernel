@@ -4,8 +4,6 @@
 #include <graphics/graphics.h>
 #include <graphics/vbe.h>
 
-#include <mm/vmm.h>
-
 #include <stdio.h>
 
 /* VBE controller and mode info */
@@ -23,13 +21,11 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 	/* Read the mode into memory */
 	status = vbe_get_mode(mode_info, mode);
 
-	/* Map the LFB into memory (ALERT GIANT HACK) */
-	map_page(0x80000000, (uint64_t) mode_info->lfb & 0xFFFFF000, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
-
 	/* Initialize the framebuffer */
 	framebuffer_t *fb = (framebuffer_t*) malloc(sizeof(framebuffer_t));
 	
-	fb->buffer = (void*) 0x80000000 + (mode_info->lfb - (mode_info->lfb & 0xFFFFF000));
+	fb->buffer_phys = (paddr_t) mode_info->lfb;
+	fb->buffer = 0;
 
 	fb->width = (int) mode_info->width;
 	fb->height = (int) mode_info->height;

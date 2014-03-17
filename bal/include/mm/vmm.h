@@ -8,7 +8,7 @@
 #define PAGE_NOCACHE	0x10
 
 /* Map a virtual address to a physical address */
-void map_page(uint64_t virtual_address, uint64_t physical_address, int flags);
+void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags);
 
 /* Initialize the virtual memory manager */
 void vmm_init();

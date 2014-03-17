@@ -22,9 +22,9 @@ typedef struct mem_map_entry
 } mem_map_entry_t;
 
 /* Allocate a physical page */
-uint64_t pmm_alloc_page();
+paddr_t pmm_alloc_page();
 
 /* Claim a physical page */
-void pmm_claim_page(uint64_t address);
+void pmm_claim_page(paddr_t address);
 
 #endif

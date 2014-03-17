@@ -7,6 +7,7 @@
 typedef struct framebuffer
 {
 	/* Pixel buffer */
+	paddr_t buffer_phys;
 	void *buffer;
 
 	/* Framebuffer properties */
