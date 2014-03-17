@@ -1,20 +1,22 @@
-#include <stdio.h>
 #include <init/loader.h>
 #include <graphics/graphics.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block)
 {
-	/* Initialize graphics */
-	framebuffer_t *fb = graphics_init(1920, 1280, 32);
+	/* Mount the root EXT2 partition */
 
-	unsigned int *buffer = (unsigned int*) fb->buffer;
+	/* Read and parse the configuration file */
 
-	unsigned int color = 0x00FF00FF;
-	for (int i = 0; i < 512; i++)
-	{
-		buffer[i] = color;
-	}
+	/* Load the kernel into virtual memory */
+
+	/* Load bootvid into virtual memory */
+
+	/* Read and parse the module registry */
+
+	/* Load the boot modules into memory */
+
+	/* Call the kernel, passing it the loader block */
 
 	while(1);
 }

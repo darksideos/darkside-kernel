@@ -11,6 +11,7 @@ typedef struct loader_block
 	list_t *phys_mem_map;
 
 	/* Graphics framebuffer */
+	framebuffer_t *fb;
 
 	/* Module registry */
 
