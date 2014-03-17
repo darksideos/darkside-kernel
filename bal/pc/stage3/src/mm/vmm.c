@@ -20,7 +20,7 @@ void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 	}
 
 	/* Higher half */
-	if (virtual_address >= 0x80000000)
+	if ((virtual_address >= 0x80000000) && (virtual_address < 0x80400000))
 	{
 		pt_higher[(virtual_address - 0x80000000) / 0x1000] = ((uint32_t) physical_address) | x86_flags;
 	}

@@ -55,9 +55,6 @@ framebuffer_t *graphics_init(int width, int height, uint8_t bpp)
 		return NULL;
 	}
 
-	char *oem = (char*) (controller_info->oem_string[1] << 4) + controller_info->oem_string[0];
-	printf("%s\n", oem);
-
 	/* Search for the best possible mode */
 	uint16_t *modes = (uint16_t*) ((controller_info->modes[1] << 4) + controller_info->modes[0]);
 	mode_info = (mode_info_t*) malloc(256);
@@ -68,25 +65,20 @@ framebuffer_t *graphics_init(int width, int height, uint8_t bpp)
 
 		if (status != 0x4F)
 		{
-			printf("Getting mode number %d failed\n", i);
 			continue;
 		}
 
 		/* Make sure the mode supports LFB */
 		if ((mode_info->attributes & 0x90) != 0x90)
 		{
-			printf("Doesn't support LFB\n");
 			continue;
 		}
 
 		/* Make sure the mode is direct color or packed pixel */
 		if (mode_info->memory_model != 4 && mode_info->memory_model != 6)
 		{
-			printf("Not direct color or packed pixel\n");
 			continue;
 		}
-
-		printf("%d %d %d\n", mode_info->width, mode_info->height, mode_info->bpp);
 
 		/* Calculate the area and depth */
 		int area = mode_info->width * mode_info->height;
