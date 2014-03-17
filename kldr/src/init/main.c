@@ -1,4 +1,5 @@
 #include <init/loader.h>
+#include <mm/vmm.h>
 #include <graphics/graphics.h>
 
 /* Boot Application main function */
@@ -28,11 +29,10 @@ void ba_main(loader_block_t *loader_block)
 
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
-		if (i < 0x400000)
-		{
-			map_page(0x80000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
-		}
+		map_page(0x80000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
 	}
+
+	fb->buffer = (void*) 0x80000000;
 
 	/* Call the kernel, passing it the loader block */
 
