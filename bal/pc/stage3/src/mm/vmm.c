@@ -5,7 +5,7 @@
 extern uint32_t pd[], pt_lower[], pt_higher[];
 
 /* Map a virtual address to a physical address */
-void map_page(uint64_t virtual_address, uint64_t physical_address, int flags)
+void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 {
 	/* Calculate the flags */
 	uint32_t x86_flags = 0x01;
@@ -33,7 +33,7 @@ void map_page(uint64_t virtual_address, uint64_t physical_address, int flags)
 void vmm_init()
 {
 	/* Enable global pages */
-	unsigned int cr4;
+	uint32_t cr4;
 	__asm__ volatile ("mov %%cr4, %0" : "=r" (cr4));
 	cr4 |= 0x80;
 	__asm__ volatile ("mov %0, %%cr4" :: "r" (cr4));
@@ -45,16 +45,16 @@ void vmm_init()
 	pd[1023] = (uint32_t) &pd | 0x03;
 
 	/* Identity map the first 1 MB */
-	for (uint64_t i = 0; i < 0x100000; i++)
+	for (uint32_t i = 0; i < 0x100000; i++)
 	{
-		pt_lower[i / 0x1000] = ((uint32_t) i) | 0x03;
+		pt_lower[i / 0x1000] = i | 0x03;
 	}
 
 	/* Switch to the page directory */
 	__asm__ volatile("mov %0, %%cr3" :: "r"(pd));
 
 	/* Now enable paging! */
-	unsigned int cr0;
+	uint32_t cr0;
 	__asm__ volatile("mov %%cr0, %0" : "=r" (cr0));
 	cr0 |= 0x80000000;
 	__asm__ volatile("mov %0, %%cr0" :: "r"(cr0));
