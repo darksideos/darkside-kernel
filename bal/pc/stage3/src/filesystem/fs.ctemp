@@ -1,8 +1,8 @@
 #include <types.h>
 #include <string.h>
-#include <libadt/iterator.h>
-#include <libadt/list.h>
-#include <libadt/dict.h>
+#include <iterator.h>
+#include <list.h>
+#include <dict.h>
 #include <filesystem/filesystem.h>
 
 /* Filesystems and mountpoints lists */
