@@ -42,23 +42,10 @@ void bal_main(data_t *_data)
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
 
 	loader_block->phys_mem_map = phys_mem_map;
+	loader_block->fb = NULL;
 
 	/* Pass control to the Boot Application */
 	ba_main(loader_block);
-
-	/* Mount the root EXT2 partition */
-
-	/* Read and parse the configuration file */
-
-	/* Load the kernel into virtual memory */
-
-	/* Load bootvid into virtual memory */
-
-	/* Read and parse the module registry */
-
-	/* Load the boot modules into memory */
-
-	/* Call the kernel, passing it the loader block */
 
 	while(1);
 }
