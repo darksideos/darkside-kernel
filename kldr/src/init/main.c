@@ -2,6 +2,14 @@
 #include <mm/vmm.h>
 #include <graphics/graphics.h>
 
+/*
+uint8_t inportb(uint16_t port)
+{
+	uint8_t rv;
+	__asm__ __volatile__ ("inb %1, %0" : "=a" (rv) : "dN" (port));
+	return rv;
+}*/
+
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block)
 {
@@ -35,6 +43,45 @@ void ba_main(loader_block_t *loader_block)
 	fb->buffer = (void*) 0x80000000;
 
 	/* Call the kernel, passing it the loader block */
+
+
+
+	/* DEMO */
+	uint32_t *line = (uint32_t*) fb->buffer;
+	line[0] = 0x00FF00FF;
+	int x = 0, y = 0;
+
+	uint8_t status = inportb(0x64);
+	uint8_t scancode = 0;
+	while(1)
+	{
+		if (status & 1)
+		{
+			scancode = inportb(0x60);
+
+			switch (scancode)
+			{
+			/* Right */
+			case 0x4d:
+				if (x < fb->height)
+				{
+					line[++x] = 0x00FF00FF;
+				}
+
+				break;
+			case 0x50:
+				if (x < fb->width)
+				{
+					line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
+					line[x] = 0x00FF00FF;
+				}
+
+				break;
+			}
+		}
+
+		status = inportb(0x64);
+	}
 
 	while(1);
 }
