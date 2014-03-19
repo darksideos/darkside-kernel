@@ -11,6 +11,8 @@ typedef unsigned char			uint8_t;
 typedef unsigned short			uint16_t;
 typedef unsigned int			uint32_t;
 typedef unsigned long long		uint64_t;
+typedef unsigned long long		paddr_t;
+typedef unsigned int			vaddr_t;
 
 /* AMD64 */
 #elif defined(__x86_64__)
@@ -22,6 +24,8 @@ typedef unsigned char			uint8_t;
 typedef unsigned short			uint16_t;
 typedef unsigned int			uint32_t;
 typedef unsigned long			uint64_t;
+typedef unsigned long			paddr_t;
+typedef unsigned long			vaddr_t;
 
 /* ARM32 */
 #elif defined(__arm__)
@@ -33,6 +37,8 @@ typedef unsigned char           uint8_t;
 typedef unsigned short          uint16_t;
 typedef unsigned int            uint32_t;
 typedef unsigned long long      uint64_t;
+typedef unsigned int			paddr_t;
+typedef unsigned int			vaddr_t;
 
 /* Other */
 #else

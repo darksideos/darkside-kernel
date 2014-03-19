@@ -3,13 +3,11 @@
 #include <mm/e820.h>
 #include <mm/pmm.h>
 
-#include <stdio.h>
-
 /* Physical memory map */
 static list_t phys_mem_map;
 
 /* Allocate a physical page */
-uint64_t pmm_alloc_page()
+paddr_t pmm_alloc_page()
 {
 	/* Find the first available free memory */
 	iterator_t iter = list_head(&phys_mem_map);
@@ -57,7 +55,7 @@ uint64_t pmm_alloc_page()
 }
 
 /* Claim a physical page */
-void pmm_claim_page(uint64_t address)
+void pmm_claim_page(paddr_t address)
 {
 	/* Find the entry corresponding to the address */
 	iterator_t iter = list_head(&phys_mem_map);
