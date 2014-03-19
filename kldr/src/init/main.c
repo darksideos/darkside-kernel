@@ -63,20 +63,36 @@ void ba_main(loader_block_t *loader_block)
 			{
 			/* Right */
 			case 0x4d:
-				if (x < fb->height)
+				if (x < fb->width)
 				{
 					line[++x] = 0x00FF00FF;
 				}
 
 				break;
+			/* Down */
 			case 0x50:
-				if (x < fb->width)
+				if (y < fb->height)
 				{
 					line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
 					line[x] = 0x00FF00FF;
+					y++;
 				}
 
 				break;
+			/* Up */
+			case 0x48:
+				if (y > 0)
+				{
+					line = (uint32_t*) (((uint8_t*) line) - (fb->width * 4) - fb->pitch);
+					line[x] = 0x00FF00FF;
+					y--;
+				}
+			/* Left */
+			case 0x4b:
+				if (x > 0)
+				{
+					line[--x] = 0x00FF00FF;
+				}
 			}
 		}
 
