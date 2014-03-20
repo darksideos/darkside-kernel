@@ -12,15 +12,26 @@ uint8_t inportb(uint16_t port)
 	return rv;
 }*/
 
-void write_char(char c, int x, int y, framebuffer_t *fb, int color)
-{
-	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * ((fb->width * 4) + fb->pitch));
-	
-	for(int py = 0; py < 9; py++)
+void write_str(uint8_t *str, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t color)
+{	
+	while(*str != 0)
 	{
-		for(int px = 0; px < 5; px++)
+		write_char(*str, x, y, fb, color);
+		
+		x += CHR_WIDTH + 1;
+		str++;
+	}
+}
+
+void write_char(uint8_t c, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t color)
+{
+	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * ((fb->width * 4) + fb->pitch) + x * 4);
+	
+	for(uint8_t py = 0; py < CHR_HEIGHT; py++)
+	{
+		for(uint8_t px = 0; px < CHR_WIDTH; px++)
 		{
-			if(teletext[c-32][py] & (1 << (5 - px)))
+			if(teletext[c-32][py] & (1 << (CHR_WIDTH - 1 - px)))
 			{
 				line[px] = color;
 			}
@@ -70,7 +81,7 @@ void ba_main(loader_block_t *loader_block)
 	int x = 0, y = 0;
 	uint32_t color = 0x00FF0000;
 
-	write_char('G',0,0,fb,color);
+	write_str("Hello, world!  This is VESA.  I work.  GEOOOOOOOOOOOOORGE.", 10, 10, fb, 0x00FFFFFF);
 	uint8_t status = inportb(0x64);
 	uint8_t scancode = 0;
 	while(1)

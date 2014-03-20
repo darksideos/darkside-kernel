@@ -1,6 +1,9 @@
 #ifndef __TELETEXT_H
 #define __TELETEXT_H
 
+#define CHR_WIDTH 5
+#define CHR_HEIGHT 9
+
 // Character definitions from SAA5050 datasheet
 // Each character is a 5x9 bit matrix
 // 9 rows of 5-bit numbers
