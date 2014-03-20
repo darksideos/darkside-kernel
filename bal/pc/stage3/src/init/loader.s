@@ -152,8 +152,8 @@ jmp error
 a20_check:
 	; Set DS to 0 and ES to 0xFFFF
 	xor ax, ax
-	mov es, ax
 	not ax
+	mov es, ax
 	
 	; Read from 0x107DFE, increment it, and store it at 0x7DFE
 	mov bx, [es:0x7E0E]

@@ -20,6 +20,7 @@ all: $(OBJFILES)
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS)
+
 $(BUILDDIR)/%.o: $(SRCDIR)/%.s
 		$(ASM) $(ASMFLAGS) $< -o $@
 clean:
