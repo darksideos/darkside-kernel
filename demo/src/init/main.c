@@ -132,7 +132,7 @@ void ba_main(loader_block_t *loader_block)
 	terminal_init(fb);
 	terminal_puts("Welcome to DarkSide OS VESA prototype v3 (with newlines)\n");
 	terminal_puts("Feel free to type characters and newlines but backspaces\n");
-	terminal_puts("and the SHIFT key haven't been implemented yet!\n");
+	terminal_puts("haven't been implemented yet!\n");
 	terminal_puts("\nGEOOOOOOOOOOOOOOOOOOOOOOOOORGE\n\n\n");
 
 	terminal_puts("> ");
