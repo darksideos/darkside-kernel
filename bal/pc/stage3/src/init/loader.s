@@ -67,7 +67,7 @@ do_e820:
 a20_enabled:
 	call a20_check
 	cmp eax, 1
-	je real_to_pm
+	je near real_to_pm
 
 ; Try to use the BIOS to enable A20
 a20_bios:
@@ -81,7 +81,7 @@ a20_bios:
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
-	je real_to_pm
+	je near real_to_pm
 
 ; Try to use the keyboard controller to enable A20
 a20_kbc:
