@@ -85,7 +85,47 @@ a20_bios:
 
 ; Try to use the keyboard controller to enable A20
 a20_kbc:
-	jmp $
+	call .wait_write
+	mov al, 0xAD
+	out 0x64, al
+	
+	call .wait_write
+	mov al, 0xD0
+	out 0x64, al
+	
+	call .wait_read
+	in al, 0x60
+	push eax
+	
+	call .wait_write
+	mov al, 0xD1
+	out 0x64, al
+	
+	call .wait_write
+	pop eax
+	or al, 2
+	out 0x60, al
+	
+	call .wait_write
+	mov al, 0xAE
+	out 0x64, al
+	
+	call .wait_write
+
+	; Check if A20 is enabled
+	call a20_check
+	cmp eax, 1
+	je real_to_pm
+	jmp a20_fast
+.wait_read:
+	in al, 0x64
+	test al, 1
+	jz .wait_read
+.wait_write:
+	in al, 0x64
+	test al, 2
+	jnz .wait_write
+	ret
 
 ; Try to use fast A20
 a20_fast:
