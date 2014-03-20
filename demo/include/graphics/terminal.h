@@ -12,6 +12,7 @@
 void terminal_init(framebuffer_t *fb);
 void terminal_putch(uint8_t chr);
 void terminal_puts(uint8_t *str);
-void set_color(uint32_t clr);
+void set_fgcolor(uint32_t clr);
+void set_bgcolor(uint32_t clr);
 
 #endif
