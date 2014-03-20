@@ -121,6 +121,7 @@ a20_kbc:
 	in al, 0x64
 	test al, 1
 	jz .wait_read
+	ret
 .wait_write:
 	in al, 0x64
 	test al, 2
