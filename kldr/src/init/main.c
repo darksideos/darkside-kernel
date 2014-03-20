@@ -2,6 +2,8 @@
 #include <mm/vmm.h>
 #include <graphics/graphics.h>
 
+#include <graphics/teletext.h>
+
 /*
 uint8_t inportb(uint16_t port)
 {
