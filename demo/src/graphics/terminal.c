@@ -11,14 +11,16 @@ uint32_t cur_px = HPAD;
 uint32_t cur_py = VPAD;
 uint32_t cur_x = 0;
 uint32_t cur_y = 0;
-uint32_t color;
+uint32_t fgcolor;
+uint32_t bgcolor;
 
 void terminal_init(framebuffer_t *_fb)
 {
 	fb = _fb;
 	charspan = (fb->width - 2 * HPAD) / (CHR_WIDTH + XPAD);
 	
-	color = WHITE;
+	fgcolor = WHITE;
+	bgcolor = BLACK;
 }
 
 void terminal_putch(uint8_t chr)
@@ -29,7 +31,7 @@ void terminal_putch(uint8_t chr)
 	}
 	else
 	{
-		write_char(chr, cur_px, cur_py, fb, color);
+		write_char(chr, cur_px, cur_py, fb, fgcolor, bgcolor);
 	
 		cur_px += CHR_WIDTH + XPAD;
 		cur_x++;
@@ -39,6 +41,8 @@ void terminal_putch(uint8_t chr)
 			terminal_newline();
 		}
 	}
+	
+	write_char('_', cur_px, cur_py, fb, fgcolor, bgcolor);
 }
 
 void terminal_puts(uint8_t *str)
@@ -52,6 +56,8 @@ void terminal_puts(uint8_t *str)
 
 void terminal_newline()
 {
+	write_char(' ', cur_px, cur_py, fb, fgcolor, bgcolor);
+	
 	cur_x = 0;
 	cur_y++;
 
@@ -59,7 +65,12 @@ void terminal_newline()
 	cur_py += CHR_HEIGHT + YPAD;
 }
 
-void set_color(uint32_t clr)
+void set_fgcolor(uint32_t clr)
 {
-	color = clr;
+	fgcolor = clr;
+}
+
+void set_bgcolor(uint32_t clr)
+{
+	bgcolor = clr;
 }
