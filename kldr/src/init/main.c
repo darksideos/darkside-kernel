@@ -1,45 +1,55 @@
 #include <init/loader.h>
 #include <mm/vmm.h>
+
 #include <graphics/graphics.h>
 
-#include <graphics/teletext.h>
 
-/*
-uint8_t inportb(uint16_t port)
+/*uint8_t inportb(uint16_t port)
 {
 	uint8_t rv;
 	__asm__ __volatile__ ("inb %1, %0" : "=a" (rv) : "dN" (port));
 	return rv;
 }*/
 
-void write_str(uint8_t *str, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t color)
-{	
-	while(*str != 0)
-	{
-		write_char(*str, x, y, fb, color);
-		
-		x += CHR_WIDTH + 1;
-		str++;
-	}
-}
-
-void write_char(uint8_t c, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t color)
+unsigned char kbdus[128] =
 {
-	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * ((fb->width * 4) + fb->pitch) + x * 4);
-	
-	for(uint8_t py = 0; py < CHR_HEIGHT; py++)
-	{
-		for(uint8_t px = 0; px < CHR_WIDTH; px++)
-		{
-			if(teletext[c-32][py] & (1 << (CHR_WIDTH - 1 - px)))
-			{
-				line[px] = color;
-			}
-		}
-		
-		line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
-	}
-}
+    0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
+  '9', '0', '-', '=', '\b',	/* Backspace */
+  '\t',			/* Tab */
+  'q', 'w', 'e', 'r',	/* 19 */
+  't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',	/* Enter key */
+    0,			/* 29   - Control */
+  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',	/* 39 */
+ '\'', '`',   0,		/* Left shift */
+ '\\', 'z', 'x', 'c', 'v', 'b', 'n',			/* 49 */
+  'm', ',', '.', '/',   0,				/* Right shift */
+  '*',
+    0,	/* Alt */
+  ' ',	/* Space bar */
+    0,	/* Caps lock */
+    0,	/* 59 - F1 key ... > */
+    0,   0,   0,   0,   0,   0,   0,   0,
+    0,	/* < ... F10 */
+    0,	/* 69 - Num lock*/
+    0,	/* Scroll Lock */
+    0,	/* Home key */
+    0,	/* Up Arrow */
+    0,	/* Page Up */
+  '-',
+    0,	/* Left Arrow */
+    0,
+    0,	/* Right Arrow */
+  '+',
+    0,	/* 79 - End key*/
+    0,	/* Down Arrow */
+    0,	/* Page Down */
+    0,	/* Insert Key */
+    0,	/* Delete Key */
+    0,   0,   0,
+    0,	/* F11 Key */
+    0,	/* F12 Key */
+    0,	/* All other keys are undefined */
+};
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block)
@@ -81,73 +91,81 @@ void ba_main(loader_block_t *loader_block)
 	int x = 0, y = 0;
 	uint32_t color = 0x00FF0000;
 
-	write_str("Hello, world!  This is VESA.  I work.  GEOOOOOOOOOOOOORGE.", 10, 10, fb, 0x00FFFFFF);
+	terminal_init(fb);
+	terminal_puts("> ");
+	
 	uint8_t status = inportb(0x64);
 	uint8_t scancode = 0;
 	while(1)
-	{
+	{	
 		if (status & 1)
 		{
 			scancode = inportb(0x60);
-
-			switch (scancode)
+			
+			/* Make sure it wasn't being released */
+			if(!(scancode & 0x80))
 			{
-			/* Right */
-			case 0x4d:
-				if (x < fb->width)
-				{
-					line[++x] = color;
-				}
-
-				break;
-			/* Down */
-			case 0x50:
-				if (y < fb->height)
-				{
-					line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
-					line[x] = color;
-					y++;
-				}
-
-				break;
-			/* Up */
-			case 0x48:
-				if (y > 0)
-				{
-					line = (uint32_t*) (((uint8_t*) line) - (fb->width * 4) - fb->pitch);
-					line[x] = color;
-					y--;
-				}
-
-				break;
-			/* Left */
-			case 0x4b:
-				if (x > 0)
-				{
-					line[--x] = color;
-				}
-
-				break;
-			/* R */
-			case 0x13:
-				color = 0x00FF0000;
-				break;
-			/* G */
-			case 0x22:
-				color = 0x0000FF00;
-				break;
-			/* B */
-			case 0x30:
-				color = 0x000000FF;
-				break;
-			/* W */
-			case 0x11:
-				color = 0x00FFFFFF;
-				break;
+				terminal_putch(kbdus[scancode]);
 			}
+// 
+// 			switch (scancode)
+// 			{
+// 			/* Right */
+// 			case 0x4d:
+// 				if (x < fb->width)
+// 				{
+// 					line[++x] = color;
+// 				}
+// 
+// 				break;
+// 			/* Down */
+// 			case 0x50:
+// 				if (y < fb->height)
+// 				{
+// 					line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
+// 					line[x] = color;
+// 					y++;
+// 				}
+// 
+// 				break;
+// 			/* Up */
+// 			case 0x48:
+// 				if (y > 0)
+// 				{
+// 					line = (uint32_t*) (((uint8_t*) line) - (fb->width * 4) - fb->pitch);
+// 					line[x] = color;
+// 					y--;
+// 				}
+// 
+// 				break;
+// 			/* Left */
+// 			case 0x4b:
+// 				if (x > 0)
+// 				{
+// 					line[--x] = color;
+// 				}
+// 
+// 				break;
+// 			/* R */
+// 			case 0x13:
+// 				color = 0x00FF0000;
+// 				break;
+// 			/* G */
+// 			case 0x22:
+// 				color = 0x0000FF00;
+// 				break;
+// 			/* B */
+// 			case 0x30:
+// 				color = 0x000000FF;
+// 				break;
+// 			/* W */
+// 			case 0x11:
+// 				color = 0x00FFFFFF;
+// 				break;
+// 			}
 		}
-
-		status = inportb(0x64);
+		
+ 		status = inportb(0x64);
 	}
 
 	while(1);

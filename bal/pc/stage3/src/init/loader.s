@@ -78,6 +78,8 @@ a20_bios:
 	; If there was an error, try the next method
 	jc a20_kbc
 	
+	jmp $
+	
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
@@ -150,8 +152,8 @@ jmp error
 a20_check:
 	; Set DS to 0 and ES to 0xFFFF
 	xor ax, ax
-	not ax
 	mov es, ax
+	not ax
 	
 	; Read from 0x7DFE and 0x107DFE, checking if they're identical (if not, A20 is enabled but if so, A20 could be disabled)
 	mov ax, [0x7DFE]
