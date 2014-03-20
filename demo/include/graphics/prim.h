@@ -8,7 +8,8 @@
 #define GREEN	0x0000FF00
 #define BLUE	0x000000FF
 #define WHITE	0x00FFFFFF
+#define BLACK	0x00000000
 
-void write_char(uint8_t c, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t color);
+void write_char(uint8_t c, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t fgcolor, uint32_t bgcolor);
 
 #endif
