@@ -150,8 +150,8 @@ jmp error
 a20_check:
 	; Set DS to 0 and ES to 0xFFFF
 	xor ax, ax
-	mov es, ax
 	not ax
+	mov es, ax
 	
 	; Read from 0x7DFE and 0x107DFE, checking if they're identical (if not, A20 is enabled but if so, A20 could be disabled)
 	mov ax, [0x7DFE]
