@@ -18,7 +18,7 @@ void write_char(char c, int x, int y, framebuffer_t *fb, int color)
 	{
 		for(int px = 0; px < 5; px++)
 		{
-			if(teletext[c-32][py] & (1 << px))
+			if(teletext[c-32][py] & (1 << (5 - px)))
 			{
 				line[px] = color;
 			}
