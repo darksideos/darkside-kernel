@@ -10,6 +10,24 @@ uint8_t inportb(uint16_t port)
 	return rv;
 }*/
 
+void write_char(char c, int x, int y, framebuffer_t *fb, int color)
+{
+	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * ((fb->width * 4) + fb->pitch));
+	
+	for(int py = 0; py < 9; py++)
+	{
+		for(int px = 0; px < 5; px++)
+		{
+			if(teletext[c][py] & (1 << px))
+			{
+				line[px] = color;
+			}
+		}
+		
+		line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
+	}
+}
+
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block)
 {
@@ -44,14 +62,13 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Call the kernel, passing it the loader block */
 
-
-
 	/* DEMO */
 	uint32_t *line = (uint32_t*) fb->buffer;
 	line[0] = 0x00FF00FF;
 	int x = 0, y = 0;
 	uint32_t color = 0x00FF0000;
 
+	write_char('G',0,0,fb,color);
 	uint8_t status = inportb(0x64);
 	uint8_t scancode = 0;
 	while(1)
