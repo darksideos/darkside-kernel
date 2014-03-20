@@ -29,20 +29,40 @@ void terminal_putch(uint8_t chr)
 	{
 		terminal_newline();
 	}
+	else if(chr == '\b')
+	{
+		if(cur_x != 0 || cur_y != 0)
+		{	
+			cur_x--;
+			cur_px -= CHR_WIDTH + XPAD;
+		
+			if(cur_x == -1)
+			{
+				cur_x = charspan - 1;
+				cur_px = HPAD + (CHR_WIDTH + XPAD) * (charspan - 1);
+			
+				cur_y--;
+				cur_py -= YPAD + CHR_HEIGHT;
+			}
+			
+			write_char(' ', cur_px, cur_py, fb, fgcolor, bgcolor);
+		}
+	}
+	else if(chr == '\t')
+	{
+	}
 	else
 	{
 		write_char(chr, cur_px, cur_py, fb, fgcolor, bgcolor);
 	
-		cur_px += CHR_WIDTH + XPAD;
 		cur_x++;
+		cur_px += CHR_WIDTH + XPAD;
 	
 		if(cur_x == charspan)
 		{
 			terminal_newline();
 		}
 	}
-	
-	write_char('_', cur_px, cur_py, fb, fgcolor, bgcolor);
 }
 
 void terminal_puts(uint8_t *str)
@@ -56,8 +76,6 @@ void terminal_puts(uint8_t *str)
 
 void terminal_newline()
 {
-	write_char(' ', cur_px, cur_py, fb, fgcolor, bgcolor);
-	
 	cur_x = 0;
 	cur_y++;
 
