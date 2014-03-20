@@ -6,7 +6,8 @@ if [ "$(uname -s)" == "Darwin" ]
 		read -p "Waiting... "
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
-		sudo cp bigbang/pc/stage3/build/stage3.bin /mnt/hdd/boot
+		sudo rm -f /mnt/hdd/boot/stage3.bin
+		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi

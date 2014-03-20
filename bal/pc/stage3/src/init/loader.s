@@ -67,7 +67,7 @@ do_e820:
 a20_enabled:
 	call a20_check
 	cmp eax, 1
-	je real_to_pm
+	je near real_to_pm
 
 ; Try to use the BIOS to enable A20
 a20_bios:
@@ -78,14 +78,57 @@ a20_bios:
 	; If there was an error, try the next method
 	jc a20_kbc
 	
+	jmp $
+	
+	; Check if A20 is enabled
+	call a20_check
+	cmp eax, 1
+	je near real_to_pm
+
+; Try to use the keyboard controller to enable A20
+a20_kbc:
+	call .wait_write
+	mov al, 0xAD
+	out 0x64, al
+	
+	call .wait_write
+	mov al, 0xD0
+	out 0x64, al
+	
+	call .wait_read
+	in al, 0x60
+	push eax
+	
+	call .wait_write
+	mov al, 0xD1
+	out 0x64, al
+	
+	call .wait_write
+	pop eax
+	or al, 2
+	out 0x60, al
+	
+	call .wait_write
+	mov al, 0xAE
+	out 0x64, al
+	
+	call .wait_write
+
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
 	je real_to_pm
-
-; Try to use the keyboard controller to enable A20
-a20_kbc:
-	jmp $
+	jmp a20_fast
+.wait_read:
+	in al, 0x64
+	test al, 1
+	jz .wait_read
+	ret
+.wait_write:
+	in al, 0x64
+	test al, 2
+	jnz .wait_write
+	ret
 
 ; Try to use fast A20
 a20_fast:
@@ -109,8 +152,8 @@ jmp error
 a20_check:
 	; Set DS to 0 and ES to 0xFFFF
 	xor ax, ax
-	not ax
 	mov es, ax
+	not ax
 	
 	; Read from 0x7DFE and 0x107DFE, checking if they're identical (if not, A20 is enabled but if so, A20 could be disabled)
 	mov ax, [0x7DFE]
