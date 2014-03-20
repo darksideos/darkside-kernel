@@ -12,6 +12,7 @@ start:
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
+
 .setup_data:
 	mov [DATA(drive)], dl
 .setup_dap:
@@ -27,6 +28,17 @@ init_video:
 	mov al, 0x03
 	mov ah, 0x00
 	int 0x10
+	
+;	mov ah, 0x02
+;	mov bh, 0
+;	mov dh, 1
+;	mov dl, 1
+;	mov ah, 0xa
+;	mov al, 'G'
+;	mov cx, 1
+;	int 0x10
+
+;	jmp $
 	
 ; Find the active MBR partition, placing it in the local data structure
 find_active_part:
@@ -90,6 +102,9 @@ load_stage2:
 	; Jump to stage2
 	mov dl, [DATA(drive)]
 	mov esi, [DATA(partition)]
+
+	mov ax, (RELOC_LOC + error_stage2 - ORG_LOC)
+	jc near (RELOC_LOC + error - ORG_LOC)
 	
 	jmp 0x0000:STAGE2_LOC
 	
