@@ -155,19 +155,14 @@ a20_check:
 	mov es, ax
 	not ax
 	
-	; Read from 0x7DFE and 0x107DFE, checking if they're identical (if not, A20 is enabled but if so, A20 could be disabled)
-	mov ax, [0x7DFE]
+	; Read from 0x107DFE, increment it, and store it at 0x7DFE
 	mov bx, [es:0x7E0E]
-	cmp ax, bx
-	jne .enabled
-	
-	; Change the value at 0x7DFE and see if there's a change at 0x107DFE (if not, A20 is enabled and if so, A20 is disabled)
-	mov ax, [0x7DFE]
-	shl ax, 2
+	mov ax, bx
+	inc ax
 	mov [0x7DFE], ax
-	mov bx, [es:0x7E0E]
+	mov ax, [es:0x7E0E]
 	cmp ax, bx
-	jne .enabled
+	je .enabled
 	
 	; By this point, A20 must be disabled
 	mov eax, 0
