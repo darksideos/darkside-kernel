@@ -12,7 +12,7 @@ void write_char(uint8_t c, uint32_t x, uint32_t y, framebuffer_t *fb, uint32_t c
 	{
 		for(uint8_t px = 0; px < CHR_WIDTH; px++)
 		{
-			if(teletext[c-32][py] & (1 << (CHR_WIDTH - 1 - px)))
+			if(teletext[c - 32][py] & (1 << (CHR_WIDTH - 1 - px)))
 			{
 				line[px] = color;
 			}
