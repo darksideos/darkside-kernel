@@ -1,3 +1,4 @@
+%include "src/init/rmode.inc"
 %include "src/storage/bios.inc"
 
 [BITS 32]
