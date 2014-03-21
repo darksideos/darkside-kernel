@@ -76,7 +76,7 @@ void terminal_puts(uint8_t *str)
 
 uint8_t *terminal_gets()
 {
-	uint8_t buffer[1024];
+	static uint8_t buffer[1024];
 	uint32_t curpos = 0;
 	uint8_t chr;
 	

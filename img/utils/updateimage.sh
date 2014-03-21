@@ -7,7 +7,7 @@ if [ "$(uname -s)" == "Darwin" ]
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
-		sudo cp demo/build/stage3.bin /mnt/hdd/boot
+		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
@@ -18,7 +18,7 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo mount /dev/loop3 /mnt/hdd
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
-		sudo cp demo/build/stage3.bin /mnt/hdd/boot
+		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
 		sudo umount /dev/loop3
 		sudo losetup -d /dev/loop3
 fi

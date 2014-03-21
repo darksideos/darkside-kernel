@@ -24,7 +24,7 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Map the graphics framebuffer into memory */
 	paddr_t base = fb->buffer_phys;
-	vaddr_t length = (fb->width * fb->height * fb->bpp) + ((fb->height - 1) * fb->pitch);
+	vaddr_t length = fb->length;
 
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
