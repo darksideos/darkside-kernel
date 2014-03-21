@@ -40,5 +40,8 @@ blockdev_t *disk_init(uint32_t drive_number)
 	ops->read = &disk_read;
 	ops->write = &disk_write;
 
+	/* Enumerate each partition */
+
+
 	return boot_disk;
 }
