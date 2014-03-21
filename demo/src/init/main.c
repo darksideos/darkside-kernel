@@ -2,7 +2,6 @@
 #include <mm/vmm.h>
 
 #include <graphics/graphics.h>
-#include <input/ps2/kbdus.h>
 
 /*uint8_t inportb(uint16_t port)
 {
@@ -50,45 +49,14 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Console demo */
 	terminal_init(fb);
-	terminal_puts("Welcome to DarkSide OS VESA!\n\n");
-
-	terminal_puts("> ");
 	
-	uint8_t status = inportb(0x64);
-	uint8_t scancode = 0;
-	uint8_t shift = 0;
 	while(1)
-	{	
-		if (status & 1)
-		{
-			scancode = inportb(0x60);
-			
-			/* Released */
-			if(scancode & 0x80)
-			{
-				if(scancode == 0xB6 || scancode == 0xAA)
-				{
-					shift = 0;
-				}
-			}
-			else
-			{
-				if(scancode == 0x2A || scancode == 0x36)
-				{
-					shift = 1;
-				}
-				else if(shift)
-				{
-					terminal_putch(kbdus_shft[scancode]);
-				}
-				else
-				{
-					terminal_putch(kbdus[scancode]);
-				}
-			}
-		}
-		
- 		status = inportb(0x64);
+	{
+		terminal_puts("> ");
+		uint8_t *data = terminal_gets();
+		terminal_puts("You said: ");
+		terminal_puts(data);
+		terminal_putch('\n');
 	}
 
 	while(1);
