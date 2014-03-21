@@ -1,6 +1,6 @@
 i386: 
 		cd bal/pc; make ext2
-		cd demo; make all
+		cd kldr; make all
 		img/utils/updateimage.sh
 		
 i386-libs:
