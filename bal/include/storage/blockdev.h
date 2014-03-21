@@ -1,6 +1,7 @@
 #ifndef __BLOCKDEV_H
 #define __BLOCKDEV_H
 
+#include <list.h>
 #include <storage/device.h>
 
 /* Block device operations */

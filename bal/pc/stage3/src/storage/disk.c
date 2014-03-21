@@ -31,7 +31,7 @@ blockdev_t *disk_init(uint32_t drive_number)
 	/* Create a block device structure for the boot hard disk */
 	blockdev_t *boot_disk = (blockdev_t*) malloc(sizeof(blockdev_t));
 	blockdev_ops_t *ops = (blockdev_ops_t*) malloc(sizeof(blockdev_ops_t));
-	boot_disk->device.ops = ops;
+	boot_disk->device.ops = (device_ops_t*) ops;
 	boot_disk->device.type = DEVICE_STORAGE;
 	boot_disk->device.children = list_create();
 	boot_disk->block_size = 512;
@@ -39,9 +39,6 @@ blockdev_t *disk_init(uint32_t drive_number)
 	/* Fill in its function pointers */
 	ops->read = &disk_read;
 	ops->write = &disk_write;
-
-	/* Enumerate each partition */
-
 
 	return boot_disk;
 }
