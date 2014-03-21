@@ -34,9 +34,8 @@ void bal_main(data_t *_data)
 	list_t *phys_mem_map = pmm_init(data->e820_entries, data->num_e820_entries);
 	vmm_init();
 
-	/* Initialize the disk and partition drivers */
-	disk_init(data->drive_number);
-	partition_init(data->partition_start);
+	/* Initialize the storage tree */
+	storage_init(data->drive_number, data->partition_start);
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));

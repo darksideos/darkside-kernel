@@ -1,11 +1,11 @@
-%include "src/storage/disk.inc"
+%include "src/storage/bios.inc"
 
 [BITS 32]
 section .text
 
-; Read a sector from the disk
-global disk_read
-disk_read:
+; Read a sector from the disk using the BIOS
+global bios_disk_read
+bios_disk_read:
 	; Switch from protected mode to real mode
 	pm2rm
 	
@@ -28,9 +28,15 @@ disk_read:
 	; Switch from real mode to protected mode
 	rm2pm
 	
-; Initialize the disk
-global disk_init
-disk_init:
+; Write a sector to the disk using the BIOS
+global bios_disk_write
+bios_disk_write:
+	; STUB
+	jmp $
+	
+; Initialize the disk for BIOS calls
+global bios_disk_init
+bios_disk_init:
 	; Set up the stack frame
 	push ebp
 	mov ebp, esp
