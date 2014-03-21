@@ -74,6 +74,35 @@ void terminal_puts(uint8_t *str)
 	}
 }
 
+uint8_t *terminal_gets()
+{
+	uint8_t buffer[1024];
+	uint32_t curpos = 0;
+	uint8_t chr;
+	
+	while((chr = ps2_getch()) != '\n')
+	{
+		if(chr == '\b')
+		{
+			buffer[curpos] = 0;
+			curpos--;
+		}
+		else
+		{
+			buffer[curpos] = chr;
+			curpos++;
+		}
+		
+		terminal_putch(chr);
+	}
+	
+	terminal_putch('\n');
+	
+	buffer[curpos] = 0;
+	
+	return buffer;
+}
+
 void terminal_newline()
 {
 	cur_x = 0;
