@@ -6,17 +6,10 @@
 #define DEVICE_NETWORK		1
 #define DEVICE_OTHER		0xFFFFFFFF
 
-/* Enumeration statuses */
-#define ENUMERATE_LEAF		0
-#define ENUMERATE_SUCCESS	1
-#define ENUMERATE_DONE		2
-
 /* Device operations */
 struct device;
 typedef struct device_ops
 {
-	/* Enumerate the device's children */
-	uint32_t (*enumerate)(struct device *device, struct device **out);
 } device_ops_t;
 
 /* Device structure */
