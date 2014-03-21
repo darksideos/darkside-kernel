@@ -5,6 +5,7 @@
 #include <storage/blockdev.h>
 #include <storage/disk.h>
 #include <storage/partition.h>
+#include <storage/mbr.h>
 
 /* Root of the storage tree */
 static device_t *root;
@@ -23,6 +24,24 @@ void storage_init(uint32_t drive_number, uint32_t partition_start)
 	boot_disk->boot = true;
 	list_insert_tail(&root->children, boot_disk);
 
-	/* Find each partition and add it underneath the boot hard disk */
+	/* Enumerate its primary partitions */
+	for (int i = 0; i < 4; i++)
+	{
+		/* Get the MBR partition */
+		partition_t *partition = mbr_get_partition(boot_disk, i);
+		if (partition)
+		{
+			/* Add it to the tree */
+			list_insert_tail(&boot_disk->device.children, partition);
+
+			/* If it matches the boot partition, mark it as such */
+			if (partition->start == (uint64_t) partition_start)
+			{
+				partition->blockdev.boot = true;
+			}
+		}
+	}
+
+	/* Enumerate its logical partitions */
 }
 
