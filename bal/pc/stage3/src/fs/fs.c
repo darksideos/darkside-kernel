@@ -1,5 +1,6 @@
 #include <types.h>
 #include <string.h>
+#include <stdlib.h>
 #include <iterator.h>
 #include <list.h>
 #include <dict.h>
@@ -35,7 +36,7 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 	iterator_t iter = list_head(&mountpoints);
 
 	mountpoint_t *mp = (mountpoint_t*) iter.now(&iter);
-	while (entry)
+	while (mp)
 	{
 		/* Does the node match */
 		if (mp->node == node)
@@ -60,7 +61,7 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 		mp = (mountpoint_t*) malloc(sizeof(mountpoint_t));
 		mp->node = node;
 		mp->filesystem = filesystem;
-		memcpy(&mp->original_node_data, node, sizeof(inode_t));
+		memcpy(&mp->orig_node_data, node, sizeof(inode_t));
 
 		/* Replace the current inode with the filesystem root */
 		memcpy(node, &filesystem->root, sizeof(inode_t));
