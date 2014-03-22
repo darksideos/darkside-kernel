@@ -60,7 +60,7 @@ partition_t *mbr_get_partition(blockdev_t *blockdev, int number)
 	mbr_entry_t *entry;
 	if (number < 4)
 	{
-		entry = (mbr_entry_t*) sector_buffer + 446 + (sizeof(mbr_entry_t) * number);
+		entry = (mbr_entry_t*) (sector_buffer + 446 + (sizeof(mbr_entry_t) * number));
 
 		if (entry->start_lba == 0 || entry->length == 0)
 		{
