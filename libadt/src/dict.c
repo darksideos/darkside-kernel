@@ -19,15 +19,15 @@ static uint64_t hash(char *key)
 }
 
 /* Create a dictionary */
-dict_t dictionary_create()
+dict_t dict_create()
 {
-	return dictionary_create();
+	return map_create();
 }
 
 /* Destroy a dictionary */
-void dict_destroy(dict_t *dictionary)
+void dict_destroy(dict_t *dict)
 {
-	map_destroy(dictionary);
+	map_destroy(dict);
 }
 
 /* Append an item to a dictionary */

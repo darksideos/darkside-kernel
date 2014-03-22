@@ -27,6 +27,10 @@ typedef struct inode_ops
 	int (*rename)(struct inode *inode, char *oldname, char *newname);
 } inode_ops_t;
 
+#define INODE_FILE			0
+#define INODE_DIRECTORY		1
+#define INODE_SYMLINK		2
+
 /* Inode structure */
 typedef struct inode
 {
@@ -41,11 +45,11 @@ typedef struct inode
 	dict_t children;
 
 	/* Inode type */
-	int32_t type;
+	int type;
 
 	/* Inode information */
 	uint64_t size;
-	int32_t mode, nlink, uid, gid;
+	int mode, nlink, uid, gid;
 	uint64_t atime, mtime, ctime;
 
 	/* Extension, specific to the filesystem */

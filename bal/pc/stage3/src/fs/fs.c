@@ -120,7 +120,7 @@ inode_t *fs_open(char *path)
 	element = strtok_r(path, "/", &save);
 	while (element)
 	{
-		current = current->ops->finddir(&current, element);
+		current = current->ops->finddir(current, element);
 
 		if (!current)
 		{
@@ -153,4 +153,22 @@ uint64_t fs_write(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
 	}
 
 	return 0;
+}
+
+/* Initialize the filesystem */
+void fs_init()
+{
+	/* Create the root inode and fill out its information */
+	root = (inode_t*) malloc(sizeof(inode_t));
+	root->ops = NULL;
+	root->mp = NULL;
+	root->parents = list_create();
+	root->children = dict_create();
+	root->type = INODE_DIRECTORY;
+	root->size = 0;
+	root->mode = 0777;
+	root->nlink = 1;
+	root->uid = root->gid = 0;
+	root->atime = root->mtime = root->ctime = 0;
+	root->extension = NULL;
 }
