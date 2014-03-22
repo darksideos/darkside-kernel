@@ -23,6 +23,9 @@ typedef struct device
 
 	/* Child devices */
 	list_t children;
+
+	/* Is this the boot drive? */
+	bool boot;
 } device_t;
 
 /* Enumerate a device's children */

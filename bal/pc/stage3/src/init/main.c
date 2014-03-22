@@ -8,6 +8,10 @@
 #include <mm/watermark.h>
 #include <mm/vmm.h>
 
+#include <stdio.h>
+#include <storage/storage.h>
+#include <storage/blockdev.h>
+
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
 
@@ -36,6 +40,9 @@ void bal_main(data_t *_data)
 
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
+
+	blockdev_t *partition = storage_get_boot_device();
+	printf("0x%08x\n", partition);
 
 	while(1);
 

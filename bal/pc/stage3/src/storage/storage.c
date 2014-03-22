@@ -52,6 +52,53 @@ blockdev_t *storage_get_partition(int disk, int partition)
 	device_t *parent = storage_get_device(root, disk);
 	return (blockdev_t*) storage_get_device(parent, partition);
 }
+
+/* Get the boot device */
+device_t *storage_get_boot_device()
+{
+	/* Find the entry under root marked as boot */
+	iterator_t iter = list_head(&root->children);
+
+	device_t *entry = (device_t*) iter.now(&iter);
+	while (entry)
+	{
+		/* Is the entry marked as boot? */
+		if (entry->boot)
+		{
+			break;
+		}
+
+		/* Get the next entry */
+		entry = (device_t*) iter.next(&iter);
+	}
+
+	/* See if there's another set of entries (for partitions) */
+	iter = list_head(&entry->children);
+
+	device_t *original = entry;
+	entry = (device_t*) iter.now(&iter);
+	while (entry)
+	{
+		/* Is the entry marked as boot? */
+		if (entry->boot)
+		{
+			break;
+		}
+
+		/* Get the next entry */
+		entry = (device_t*) iter.next(&iter);
+	}
+
+	/* If a partition was found, return it */
+	if (entry != original)
+	{
+		return entry;
+	}
+	else
+	{
+		return original;
+	}
+}
 	
 /* Initialize the storage tree */
 void storage_init(uint32_t drive_number, uint32_t partition_start)
@@ -64,7 +111,7 @@ void storage_init(uint32_t drive_number, uint32_t partition_start)
 
 	/* Initialize the boot hard disk and add it to the tree */
 	blockdev_t *boot_disk = disk_init(drive_number);
-	boot_disk->boot = true;
+	boot_disk->device.boot = true;
 	list_insert_tail(&root->children, boot_disk);
 
 	/* Enumerate its primary partitions */
@@ -80,7 +127,7 @@ void storage_init(uint32_t drive_number, uint32_t partition_start)
 			/* If it matches the boot partition, mark it as such */
 			if (partition->start == (uint64_t) partition_start)
 			{
-				partition->blockdev.boot = true;
+				partition->blockdev.device.boot = true;
 			}
 		}
 	}
