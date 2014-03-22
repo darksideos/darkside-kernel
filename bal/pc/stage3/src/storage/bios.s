@@ -18,9 +18,11 @@ bios_disk_read:
 	mov [DAP(lba_start_l)], ebx
 	mov [DAP(lba_length)], cx
 	
+	; Save return value
+	push ebx
+	
 	; Read from the disk
 	xor eax, eax
-	
 	mov si, DAP_LOC
 	mov ah, 0x42
 	mov dl, [drive_num]
