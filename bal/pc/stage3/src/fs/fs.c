@@ -3,7 +3,7 @@
 #include <iterator.h>
 #include <list.h>
 #include <dict.h>
-#include <filesystem/filesystem.h>
+#include <fs/fs.h>
 
 /* Filesystems and mountpoints lists */
 static dict_t filesystems;
@@ -21,12 +21,16 @@ int fs_register(char *fs_name, filesystem_ops_t *ops)
 /* Unregister a filesystem */
 int fs_unregister(char *fs_name)
 {
-	return dict_remove(&filesystems, fs_name);
+	dict_remove(&filesystems, fs_name);
+	return 0;
 }
 
 /* Mount a filesystem */
 int fs_mount(device_t *device, char *path, char *fs_name)
 {
+	/* Open the node to mount */
+	inode_t *node = fs_open(path);
+
 	/* Is the filesystem already mounted? */
 	iterator_t iter = list_head(&mountpoints);
 
@@ -36,7 +40,6 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 		/* Does the node match */
 		if (mp->node == node)
 		{
-			mutex_release(&mountpoints_lock);
 			return -1;
 		}
 
@@ -49,13 +52,18 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 	/* Is the filesystem registered? */
 	if (ops)
 	{
+		/* Initialize the filesystem */
+		filesystem_t *filesystem = (filesystem_t*) malloc(sizeof(filesystem_t));
+		ops->init(filesystem, device);
+
 		/* Create and set up the mountpoint */
 		mp = (mountpoint_t*) malloc(sizeof(mountpoint_t));
-		mp->node = fs_open(path);
-		//memcpy(&mp->orig_inode_data, node, sizeof(inode_t));
+		mp->node = node;
+		mp->filesystem = filesystem;
+		memcpy(&mp->original_node_data, node, sizeof(inode_t));
 
-		/* Initialize the filesystem */
-		//fs->init(fs, device, node);
+		/* Replace the current inode with the filesystem root */
+		memcpy(node, &filesystem->root, sizeof(inode_t));
 
 		/* Add the mountpoint to the list */
 		list_insert_tail(&mountpoints, &mp);
@@ -69,6 +77,9 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 /* Unmount a filesystem */
 int fs_unmount(char *path)
 {
+	/* Open the node to mount */
+	inode_t *node = fs_open(path);
+
 	/* Is the filesystem mounted? */
 	iterator_t iter = list_head(&mountpoints);
 
@@ -76,10 +87,10 @@ int fs_unmount(char *path)
 	while (mp)
 	{
 		/* Does the node match */
-		if (mp->node == fs_open(path))
+		if (mp->node == node)
 		{
 			/* Restore the inode's original data */
-			//memcpy(node, &mp->orig_inode_data, sizeof(inode_t));
+			memcpy(node, &mp->orig_node_data, sizeof(inode_t));
 
 			/* Remove the mountpoint from the list */
 			iter.remove(&iter);
