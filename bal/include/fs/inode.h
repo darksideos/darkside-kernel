@@ -1,6 +1,8 @@
 #ifndef __INODE_H
 #define __INODE_H
 
+#include <dict.h>
+
 /* Inode operations structure */
 struct inode;
 typedef struct inode_ops
