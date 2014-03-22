@@ -49,7 +49,10 @@ blockdev_t *storage_get_disk(int number)
 /* Get a partition by number */
 blockdev_t *storage_get_partition(int disk, int partition)
 {
+	bootvid_puts("1\n");
 	device_t *parent = storage_get_device(root, disk);
+	bootvid_puts("2\n");
+	while(1);
 	return (blockdev_t*) storage_get_device(parent, partition);
 }
 

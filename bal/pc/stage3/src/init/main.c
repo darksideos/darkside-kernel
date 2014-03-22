@@ -41,8 +41,10 @@ void bal_main(data_t *_data)
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
 
-	blockdev_t *partition = storage_get_boot_device();
-	printf("0x%08x\n", partition);
+	//blockdev_t *partition = storage_get_partition(0, 0);
+	//printf("0x%08x\n", partition);
+
+	printf("Charlie Brown Period 9\n");
 
 	while(1);
 

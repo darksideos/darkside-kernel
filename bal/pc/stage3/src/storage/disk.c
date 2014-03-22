@@ -34,7 +34,6 @@ blockdev_t *disk_init(uint32_t drive_number)
 	boot_disk->device.ops = (device_ops_t*) ops;
 	boot_disk->device.type = DEVICE_STORAGE;
 	boot_disk->device.children = list_create();
-	boot_disk->device.boot = true;
 	boot_disk->block_size = 512;
 
 	/* Fill in its function pointers */
