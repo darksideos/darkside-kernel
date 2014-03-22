@@ -1,10 +1,12 @@
 #include <init/loader.h>
 #include <mm/vmm.h>
+#include <fs/fs.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block)
 {
-	/* Mount the root EXT2 partition */
+	/* Mount the boot device */
+	inode_t *root = fs_open("/");
 
 	/* Read and parse the configuration file */
 
