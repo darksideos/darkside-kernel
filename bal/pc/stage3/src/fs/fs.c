@@ -16,7 +16,8 @@ static inode_t *root;
 /* Register a filesystem */
 int fs_register(char *fs_name, filesystem_ops_t *ops)
 {
-	return dict_append(&filesystems, fs_name, ops);
+	dict_append(&filesystems, fs_name, ops);
+	return 0;
 }
 
 /* Unregister a filesystem */

@@ -12,9 +12,9 @@ typedef struct map
 /* Map methods */
 map_t map_create();
 void map_destroy(map_t *map);
-int map_insert(map_t *map, uint64_t key, void *item);
+void map_append(map_t *map, uint64_t key, void *item);
 void *map_remove(map_t *map, uint64_t key);
 void *map_get(map_t *map, uint64_t key);
-int map_set(map_t *map, uint64_t key, void *item);
+void map_set(map_t *map, uint64_t key, void *item);
 
 #endif
