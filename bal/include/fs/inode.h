@@ -47,6 +47,9 @@ typedef struct inode
 	uint64_t size;
 	int32_t mode, nlink, uid, gid;
 	uint64_t atime, mtime, ctime;
+
+	/* Extension, specific to the filesystem */
+	void *extension;
 } inode_t;
 
 #endif
