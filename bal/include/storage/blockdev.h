@@ -26,9 +26,6 @@ typedef struct blockdev
 
 	/* Sector size */
 	uint32_t block_size;
-
-	/* Is this the boot drive? */
-	bool boot;
 } blockdev_t;
 
 /* Read from a block device */
