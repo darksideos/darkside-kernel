@@ -25,6 +25,9 @@ typedef struct filesystem
 
 	/* Associated device, if applicable */
 	device_t *device;
+
+	/* Extension, specific to the filesystem */
+	void *extension;
 } filesystem_t;
 
 #endif
