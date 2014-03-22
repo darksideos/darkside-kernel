@@ -31,8 +31,6 @@ static device_t *storage_get_device(device_t *parent, int number)
 		}
 	}
 
-	printf("0x%08x\n", entry);
-
 	/* If the entry is valid, return it */
 	if (entry)
 	{
