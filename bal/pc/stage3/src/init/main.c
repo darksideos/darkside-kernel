@@ -21,6 +21,9 @@ list_t *pmm_init(e820_entry_t *e820_entries, uint32_t num_e820_entries);
 /* Initialize the storage tree */
 void storage_init(uint32_t drive_number, uint32_t partition_start);
 
+/* Initialize the filesystem */
+void fs_init();
+
 /* Boot Abstraction Layer main function */
 void bal_main(data_t *_data)
 {
@@ -40,6 +43,9 @@ void bal_main(data_t *_data)
 
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
+
+	/* Initialize the filesystem */
+	fs_init();
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
