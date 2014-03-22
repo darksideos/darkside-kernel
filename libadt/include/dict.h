@@ -4,14 +4,14 @@
 #include <map.h>
 
 /* Dictionary structure */
-#define dict_t map_t
+typedef map_t dict_t;
 
 /* Dictionary methods */
-#define dict_create() map_create()
-#define dict_destroy(dict) map_destroy(dict)
-#define dict_insert(dict, key, item) map_insert(dict, key, item)
-#define dict_remove(dict, key) map_remove(dict, key)
-#define dict_get(dict, key) map_get(dict, key)
-#define dict_set(dict, key, item) map_set(dict, key, item)
+dict_t dict_create();
+void dict_destroy(dict_t *dict);
+int dict_insert(dict_t *dict, char *key, void *item);
+void *dict_remove(dict_t *dict, char *key);
+void *dict_get(dict_t *dict, char *key);
+int dict_set(dict_t *dict, char *key, void *item);
 
 #endif
