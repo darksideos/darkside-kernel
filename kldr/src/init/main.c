@@ -6,7 +6,6 @@
 void ba_main(loader_block_t *loader_block)
 {
 	/* Mount the boot device */
-	inode_t *root = fs_open("/");
 
 	/* Read and parse the configuration file */
 

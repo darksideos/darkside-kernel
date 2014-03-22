@@ -155,12 +155,30 @@ uint64_t fs_write(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
 	return 0;
 }
 
+/* Root inode finddir() function */
+static inode_t *root_inode_finddir(inode_t *node, char *name)
+{
+	return node;
+}
+
+/* Inode operations for the root inode */
+static inode_ops_t root_inode_ops =
+{
+	.read = NULL,
+	.write = NULL,
+	.finddir = &root_inode_finddir,
+	.hardlink = NULL,
+	.symlink = NULL,
+	.delete = NULL,
+	.rename = NULL
+};
+
 /* Initialize the filesystem */
 void fs_init()
 {
 	/* Create the root inode and fill out its information */
 	root = (inode_t*) malloc(sizeof(inode_t));
-	root->ops = NULL;
+	root->ops = &root_inode_ops;
 	root->mp = NULL;
 	root->parents = list_create();
 	root->children = dict_create();
