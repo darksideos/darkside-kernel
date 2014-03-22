@@ -41,11 +41,6 @@ void bal_main(data_t *_data)
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
 
-	blockdev_t *partition = storage_get_partition(0, 0);
-	printf("0x%08x\n", partition);
-
-	while(1);
-
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
 
