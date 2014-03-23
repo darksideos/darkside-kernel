@@ -7,12 +7,12 @@
 #include <fs/ext2.h>
 
 /* Read a block into a buffer */
-static int read_block(filesystem_t *filesystem, int block)
+static int read_block(filesystem_t *filesystem, void *buffer, int block)
 {
 	blockdev_t *blockdev = (blockdev_t*) filesystem->device;
 	ext2_superblock_t *superblock = (ext2_superblock_t*) filesystem->extension;
 
-	uint64_t bytes_read = blockdev_read(blockdev, filesystem->block_buffer, (block * superblock->block_size) / blockdev->block_size, superblock->block_size / blockdev->block_size);
+	uint64_t bytes_read = blockdev_read(blockdev, buffer, (block * superblock->block_size) / blockdev->block_size, superblock->block_size / blockdev->block_size);
 	if (bytes_read != superblock->block_size / blockdev->block_size)
 	{
 		return -1;
@@ -31,7 +31,7 @@ static int read_bgdesc(filesystem_t *filesystem, ext2_bgdesc_t *buffer, uint32_t
 	uint32_t bgdesc_index = (block_group * sizeof(bgdesc_t)) % (superblock->block_size);
 
 	/* Read it into memory */
-	int status = read_block(filesystem, bgdesc_block);
+	int status = read_block(filesystem, filesystem->block_buffer, bgdesc_block);
 	if (status != 0)
 	{
 		return status;
@@ -63,7 +63,7 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	uint32_t table_offset = (table_index * (superblock->inode_size)) / (superblock->block_size);
 
 	/* Read it into memory */
-	int status = read_block(filesystem, table_block);
+	int status = read_block(filesystem, filesystem->block_buffer, table_block);
 	if (status != 0)
 	{
 		return status;
@@ -90,7 +90,7 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		}
 
 		/* Read the block into memory */
-		int status = read_block(filesystem, block);
+		int status = read_block(filesystem, filesystem->block_buffer, block);
 		if (status != 0)
 		{
 			return 0;
@@ -107,6 +107,38 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		{
 			length = superblock->block_size * pow(superblock->block_size / 4, level);
 		}
+
+		/* Read the block pointers into memory */
+		uint32_t block_pointers[superblock->block_size / 4];
+		int status = read_block(filesystem, block_pointers, block);
+		if (status != 0)
+		{
+			return 0;
+		}
+
+		/* Start reading each data block */
+		uint32_t bytes_left = length;
+		uint32_t blocks_read = 0;
+
+		while (bytes_left > 0 && blocks_read < (superblock->block_size / 4))
+		{
+			bytes_left -= read_block_pointer(filesystem, buffer, block_pointers[blocks_read], bytes_left, level - 1);
+			blocks_read++;
+		}
+
+		return length - bytes_left;
+	}
+}
+
+/* Read data from an inode into a buffer */
+uint64_t ext2_inode_read(struct inode *node, void *buffer, uint64_t offset, uint64_t length)
+{
+	uint32_t bytes_left = (uint32_t) length;
+	uint32_t direct_blocks_read = 0;
+
+	/* First, read each direct block pointer */
+	while (bytes_left > 0 && direct_blocks_read < 12)
+	{
 	}
 }
 
