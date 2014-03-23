@@ -1,6 +1,8 @@
 #ifndef __DEVICE_H
 #define __DEVICE_H
 
+#include <list.h>
+
 /* Device type */
 #define DEVICE_STORAGE		0
 #define DEVICE_NETWORK		1
