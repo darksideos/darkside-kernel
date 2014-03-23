@@ -84,7 +84,7 @@ typedef struct ext2_superblock
 	uint32_t orphan_inode_head;
 
 	/* Extra stuff */
-	void *block_buffer;
+	uint8_t *block_buffer;
 } __attribute__ ((packed)) ext2_superblock_t;
 
 /* EXT2 block group descriptor structure */
