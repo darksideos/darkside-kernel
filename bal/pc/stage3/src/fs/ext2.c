@@ -155,7 +155,7 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 }
 
 /* Read data from an inode into a buffer */
-uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
+static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
 {
 	ext2_inode_t *ext2_node = (ext2_inode_t*) node->extension;
 
@@ -167,7 +167,7 @@ uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t 
 	while (bytes_left > 0 && direct_blocks_read < 12)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
-		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		buffer += length - bytes_left;
 		length -= (length - bytes_left);
 		direct_blocks_read++;
 	}
@@ -176,19 +176,19 @@ uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t 
 	if (bytes_left > 0)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
-		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		buffer += length - bytes_left;
 		length -= (length - bytes_left);
 	}
 	if (bytes_left > 0)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
-		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		buffer += length - bytes_left;
 		length -= (length - bytes_left);
 	}
 	if (bytes_left > 0)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
-		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		buffer += length - bytes_left;
 		length -= (length - bytes_left);
 	}
 
@@ -196,7 +196,7 @@ uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t 
 }
 
 /* Get a child inode by name from the inode */
-inode_t *ext2_inode_finddir(inode_t *node, char *name)
+static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 {
 	/* Read the inode's data */
 	uint8_t buffer[node->size];
