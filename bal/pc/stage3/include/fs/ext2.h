@@ -130,7 +130,7 @@ typedef struct ext2_dirent
 {
 	uint32_t inode;
 	uint16_t size;
-	uint8_t low_length;
+	uint8_t name_length;
 	uint8_t type;
 	uint8_t name_start;
 } __attribute__ ((packed)) ext2_dirent_t;

@@ -6,6 +6,9 @@
 #include <fs/fs.h>
 #include <fs/ext2.h>
 
+/* EXT2 inode operations */
+static inode_ops_t ext2_inode_ops;
+
 /* Read a block into a buffer */
 static int read_block(filesystem_t *filesystem, void *buffer, int block)
 {
@@ -73,6 +76,24 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	return 0;
 }
 
+/* Create an inode from an EXT2 inode */
+static void make_inode(filesystem_t *filesystem, inode_t *buffer, ext2_inode_t *ext2_node)
+{
+	new_node->ops = &ext2_inode_ops;
+	new_node->filesystem = filesystem;
+	new_node->parents = list_create();
+	new_node->children = dict_create();
+	new_node->size = (uint64_t) ext2_node->low_size;
+	new_node->nlink = ext2_node->hard_links;
+	new_node->uid = ext2_node->uid;
+	new_node->gid = ext2_node->gid;
+	new_node->atime = (uint64_t) ext2_node->accessed_time;
+	new_node->mtime = (uint64_t) ext2_node->modified_time;
+	new_node->ctime = (uint64_t) ext2_node->creation_time;
+	new_node->dtime = (uint64_t) ext2_node->deletion_time;
+	new_node->extension = ext2_node;
+}
+
 /* Read data from an EXT2 block pointer */
 static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint32_t block, uint32_t length, int level)
 {
@@ -131,23 +152,96 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 }
 
 /* Read data from an inode into a buffer */
-uint64_t ext2_inode_read(struct inode *node, void *buffer, uint64_t offset, uint64_t length)
+uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
 {
+	ext2_inode_t *ext2_node = (ext2_inode_t*) node->extension;
+
+	/* Number of bytes left to read and number of direct blocks read */
 	uint32_t bytes_left = (uint32_t) length;
 	uint32_t direct_blocks_read = 0;
 
 	/* First, read each direct block pointer */
 	while (bytes_left > 0 && direct_blocks_read < 12)
 	{
+		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
+		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+		direct_blocks_read++;
 	}
+
+	/* If that's not enough, try the singly, doubly, and triply indirect block pointers */
+	if (bytes > 0)
+	{
+		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
+		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+	}
+	if (bytes > 0)
+	{
+		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
+		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+	}
+	if (bytes > 0)
+	{
+		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
+		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+	}
+
+	return length;
+}
+
+/* Get a child inode by name from the inode */
+inode_t *ext2_inode_finddir(inode_t *node, char *name)
+{
+	/* Read the inode's data */
+	uint8_t buffer[node->size];
+	ext2_inode_read(node, buffer, 0, node->size);
+
+	/* Loop through the directory entries, searching for a match */
+	uint32_t bytes_passed = 0;
+	while (bytes_passed < node->size)
+	{
+		/* Create an EXT2 directory entry structure over the buffer */
+		ext2_dirent_t *ext2_dirent = (ext2_dirent_t*) buffer + bytes_passed;
+
+		/* Compare the names, checking if they match */
+		if (!strncmp(name, (char*) &(ext2_dirent->name_start), ext2_dirent->name_length))
+		{
+			/* Get the inode we just found */
+			ext2_inode_t *ext2_node = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));
+			int status = read_inode(node->filesystem, ext2_node, ext2_dirent->inode);
+			if (status != 0)
+			{
+				return NULL;
+			}
+
+			/* Create and fill out its inode information structure */
+			inode_t *new_node = (inode_t*) malloc(sizeof(inode_t));
+			make_inode(node->filesystem, new_node, ext2_node);
+
+			/* Set the new inode's parent */
+			list_insert_tail(&new_node->parents, node);
+
+			/* Insert a directory entry for the child into the parent */
+			dirent_t *dirent = (dirent_t*) malloc(sizeof(dirent_t));
+			dirent->name = (char*) malloc(ext2_dirent->name_length);
+			memcpy(dirent->name, (char*) &(ext2_dirent->name_start), ext2_dirent->name_length);
+			dirent->node = new_node;
+
+			return new_node;
+		}
+
+		/* If they don't match, go to the next directory entry */
+		bytes_passed += ext2_dirent->size;
+	}
+
+	return NULL;
 }
 
 /* EXT2 inode operations */
 static inode_ops_t ext2_inode_ops =
 {
-	.read = NULL,
+	.read = &ext2_inode_read,
 	.write = NULL,
-	.finddir = NULL,
+	.finddir = &ext2_inode_finddir,
 	.hardlink = NULL,
 	.symlink = NULL,
 	.delete = NULL,
@@ -198,20 +292,7 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	}
 
 	/* Fill out its inode information */
-	filesystem->root.ops = &ext2_inode_ops;
-	filesystem->root.filesystem = filesystem;
-	filesystem->root.parents = list_create();
-	filesystem->root.children = dict_create();
-	filesystem->root.type = INODE_DIRECTORY;
-	filesystem->root.size = (uint64_t) ext2_root->low_size;
-	filesystem->root.nlink = ext2_root->hard_links;
-	filesystem->root.uid = ext2_root->uid;
-	filesystem->root.gid = ext2_root->gid;
-	filesystem->root.atime = (uint64_t) ext2_root->accessed_time;
-	filesystem->root.mtime = (uint64_t) ext2_root->modified_time;
-	filesystem->root.ctime = (uint64_t) ext2_root->creation_time;
-	filesystem->root.dtime = (uint64_t) ext2_root->deletion_time;
-	filesystem->root.extension = ext2_root;
+	make_inode(filesystem, &filesystem->root, ext2_root);
 }
 
 /* EXT2 filesystem operations */
@@ -224,6 +305,15 @@ static filesystem_ops_t ext2_filesystem_ops =
 /* Initialize the EXT2 driver */
 void ext2_init()
 {
+	/* Fill in the EXT2 inode operations */
+	ext2_inode_ops.read = &ext2_inode_read;
+	ext2_inode_ops.write = NULL;
+	ext2_inode_ops.finddir = &ext2_inode_finddir;
+	ext2_inode_ops.hardlink = NULL;
+	ext2_inode_ops.symlink = NULL;
+	ext2_inode_ops.delete = NULL;
+	ext2_inode_ops.rename = NULL;
+
 	/* Register the filesystem operations */
 	fs_register("ext2", &ext2_filesystem_ops);
 }
