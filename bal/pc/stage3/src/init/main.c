@@ -11,6 +11,7 @@
 #include <fs/ext2.h>
 
 #include <stdio.h>
+#include <string.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
@@ -44,6 +45,17 @@ void bal_main(data_t *_data)
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();
 	ext2_init();
+
+	/* strtok() testing */
+	char *save, *element;
+	element = strtok_r("a/b/c/d/e", "/", &save);
+	while (element)
+	{
+		printf("%s\n", element);
+		element = strtok_r(NULL, "/", &save);
+	}
+
+	while(1);
 
 	/* TESTING STUFF */
 	inode_t *root = fs_open("/");
