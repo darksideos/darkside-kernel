@@ -1,6 +1,9 @@
 #include <types.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
+#include <list.h>
+#include <dict.h>
 #include <storage/device.h>
 #include <storage/blockdev.h>
 #include <fs/fs.h>
@@ -30,17 +33,17 @@ static int read_bgdesc(filesystem_t *filesystem, ext2_bgdesc_t *buffer, uint32_t
 	ext2_superblock_t *superblock = (ext2_superblock_t*) filesystem->extension;
 
 	/* Calculate the block and offset of the block group descriptor */
-	uint32_t bgdesc_block = ((block_group * sizeof(bgdesc_t)) / (superblock->block_size)) + superblock->superblock_block;
-	uint32_t bgdesc_index = (block_group * sizeof(bgdesc_t)) % (superblock->block_size);
+	uint32_t bgdesc_block = ((block_group * sizeof(ext2_bgdesc_t)) / (superblock->block_size)) + superblock->superblock_block;
+	uint32_t bgdesc_offset = (block_group * sizeof(ext2_bgdesc_t)) % (superblock->block_size);
 
 	/* Read it into memory */
-	int status = read_block(filesystem, filesystem->block_buffer, bgdesc_block);
+	int status = read_block(filesystem, superblock->block_buffer, bgdesc_block);
 	if (status != 0)
 	{
 		return status;
 	}
 
-	memcpy(buffer, filesystem->block_buffer + offset, sizeof(bgdesc_t));
+	memcpy(buffer, superblock->block_buffer + bgdesc_offset, sizeof(ext2_bgdesc_t));
 	return 0;
 }
 
@@ -66,32 +69,32 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	uint32_t table_offset = (table_index * (superblock->inode_size)) / (superblock->block_size);
 
 	/* Read it into memory */
-	int status = read_block(filesystem, filesystem->block_buffer, table_block);
+	status = read_block(filesystem, superblock->block_buffer, table_block);
 	if (status != 0)
 	{
 		return status;
 	}
 
-	memcpy(buffer, filesystem->block_buffer + table_offset, sizeof(inode_t));
+	memcpy(buffer, superblock->block_buffer + table_offset, sizeof(inode_t));
 	return 0;
 }
 
 /* Create an inode from an EXT2 inode */
 static void make_inode(filesystem_t *filesystem, inode_t *buffer, ext2_inode_t *ext2_node)
 {
-	new_node->ops = &ext2_inode_ops;
-	new_node->filesystem = filesystem;
-	new_node->parents = list_create();
-	new_node->children = dict_create();
-	new_node->size = (uint64_t) ext2_node->low_size;
-	new_node->nlink = ext2_node->hard_links;
-	new_node->uid = ext2_node->uid;
-	new_node->gid = ext2_node->gid;
-	new_node->atime = (uint64_t) ext2_node->accessed_time;
-	new_node->mtime = (uint64_t) ext2_node->modified_time;
-	new_node->ctime = (uint64_t) ext2_node->creation_time;
-	new_node->dtime = (uint64_t) ext2_node->deletion_time;
-	new_node->extension = ext2_node;
+	buffer->ops = &ext2_inode_ops;
+	buffer->filesystem = filesystem;
+	buffer->parents = list_create();
+	buffer->children = dict_create();
+	buffer->size = (uint64_t) ext2_node->low_size;
+	buffer->nlink = ext2_node->hard_links;
+	buffer->uid = ext2_node->uid;
+	buffer->gid = ext2_node->gid;
+	buffer->atime = (uint64_t) ext2_node->accessed_time;
+	buffer->mtime = (uint64_t) ext2_node->modified_time;
+	buffer->ctime = (uint64_t) ext2_node->creation_time;
+	buffer->dtime = (uint64_t) ext2_node->deletion_time;
+	buffer->extension = ext2_node;
 }
 
 /* Read data from an EXT2 block pointer */
@@ -111,13 +114,13 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		}
 
 		/* Read the block into memory */
-		int status = read_block(filesystem, filesystem->block_buffer, block);
+		int status = read_block(filesystem, superblock->block_buffer, block);
 		if (status != 0)
 		{
 			return 0;
 		}
 
-		memcpy(buffer, filesystem->block_buffer, length);
+		memcpy(buffer, superblock->block_buffer, length);
 		return length;
 	}
 	/* Reading from an indirect block pointer */
@@ -164,25 +167,29 @@ uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t 
 	while (bytes_left > 0 && direct_blocks_read < 12)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
-		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		length -= (length - bytes_left);
 		direct_blocks_read++;
 	}
 
 	/* If that's not enough, try the singly, doubly, and triply indirect block pointers */
-	if (bytes > 0)
+	if (bytes_left > 0)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
-		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		length -= (length - bytes_left);
 	}
-	if (bytes > 0)
+	if (bytes_left > 0)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
-		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		length -= (length - bytes_left);
 	}
-	if (bytes > 0)
+	if (bytes_left > 0)
 	{
 		bytes_left -= read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
-		buffer = (void*) (((uint8_t*) buffer) + ((uint32_t) length - bytes_left));
+		buffer = (void*) (((uint8_t*) buffer) + (length - bytes_left));
+		length -= (length - bytes_left);
 	}
 
 	return length;
@@ -225,6 +232,7 @@ inode_t *ext2_inode_finddir(inode_t *node, char *name)
 			dirent->name = (char*) malloc(ext2_dirent->name_length);
 			memcpy(dirent->name, (char*) &(ext2_dirent->name_start), ext2_dirent->name_length);
 			dirent->node = new_node;
+			dict_append(&node->children, name, dirent);
 
 			return new_node;
 		}
@@ -254,7 +262,7 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	blockdev_t *blockdev = (blockdev_t*) device;
 
 	/* Read the superblock into memory */
-	ext2_superblock_t *superblock = (superblock_t*) malloc(EXT2_SUPERBLOCK_LENGTH);
+	ext2_superblock_t *superblock = (ext2_superblock_t*) malloc(EXT2_SUPERBLOCK_LENGTH);
 
 	uint64_t bytes_read = blockdev_read(blockdev, superblock, EXT2_SUPERBLOCK_START / blockdev->block_size, EXT2_SUPERBLOCK_LENGTH / blockdev->block_size);
 	if (bytes_read != EXT2_SUPERBLOCK_LENGTH / blockdev->block_size)

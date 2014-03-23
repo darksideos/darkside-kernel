@@ -78,7 +78,7 @@ int strcmp(char *s1, char *s2)
 	return memcmp(s1, s2, strlen(s1));
 }
 
-int strnequal(char *s1, char *s2, size_t num)
+int strncmp(char *s1, char *s2, size_t num)
 {
 	return memcmp(s1, s2, num);
 }
@@ -108,7 +108,7 @@ char *strtok_r(char *str, char *delimeter, char **saveptr)
 	}
 		
 	size_t skipped = 0;
-	while (!strnequal(*saveptr, (uint8_t*) delimeter, strlen(delimeter)))
+	while (strncmp(*saveptr, (uint8_t*) delimeter, strlen(delimeter)))
 	{
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')

@@ -97,7 +97,7 @@ typedef struct ext2_bgdesc
 	uint16_t unallocated_inodes;
 	uint16_t directories;
 	uint8_t unused[14];
-} __attribute__ ((packed)) ext2_block_group_desc_t;
+} __attribute__ ((packed)) ext2_bgdesc_t;
 
 /* EXT2 inode structure */
 typedef struct ext2_inode
