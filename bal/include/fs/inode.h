@@ -39,8 +39,8 @@ typedef struct inode
 	/* Inode operations */
 	inode_ops_t *ops;
 
-	/* Mountpoint the inode resides on */
-	struct mountpoint *mp;
+	/* Filesystem the inode resides on */
+	struct filesystem *filesystem;
 
 	/* Child inodes */
 	list_t parents;
@@ -52,7 +52,7 @@ typedef struct inode
 	/* Inode information */
 	uint64_t size;
 	int mode, nlink, uid, gid;
-	uint64_t atime, mtime, ctime;
+	uint64_t atime, mtime, ctime, dtime;
 
 	/* Extension, specific to the filesystem */
 	void *extension;
