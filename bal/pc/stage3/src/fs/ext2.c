@@ -230,7 +230,7 @@ inode_t *ext2_inode_finddir(inode_t *node, char *name)
 			/* Insert a directory entry for the child into the parent */
 			dirent_t *dirent = (dirent_t*) malloc(sizeof(dirent_t));
 			dirent->name = (char*) malloc(ext2_dirent->name_length);
-			memcpy(dirent->name, (char*) &(ext2_dirent->name_start), ext2_dirent->name_length);
+			memcpy(dirent->name, &(ext2_dirent->name_start), ext2_dirent->name_length);
 			dirent->node = new_node;
 			dict_append(&node->children, name, dirent);
 
