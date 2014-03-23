@@ -82,10 +82,13 @@ typedef struct ext2_superblock
 	uint32_t journal_inode;
 	uint32_t journal_device;
 	uint32_t orphan_inode_head;
+
+	/* Extra stuff */
+	void *block_buffer;
 } __attribute__ ((packed)) ext2_superblock_t;
 
 /* EXT2 block group descriptor structure */
-typedef struct ext2_block_group_desc
+typedef struct ext2_bgdesc
 {
 	uint32_t usage_bitmap_block;
 	uint32_t inode_usage_block;

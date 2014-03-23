@@ -20,6 +20,14 @@ static int read_block(filesystem_t *filesystem, void *buffer, int block)
 	return 0;
 }
 
+/* Read a block group descriptor */
+static int read_bgdesc(filesystem_t *filesystem, ext2_bgdesc_t *buffer, int block_group)
+{
+	/* Calculate the block and offset of the block group descriptor */
+
+	/* Read it into memory */
+}
+
 /* Initialize an EXT2 filesystem */
 static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 {
@@ -48,6 +56,9 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	{
 		superblock->inode_size = 128;
 	}
+
+	/* Allocate a block buffer */
+	superblock->block_buffer = malloc(superblock->block_size);
 
 	/* Set the filesystem structure's extension to the superblock */
 	filesystem->extension = (void*) superblock;
