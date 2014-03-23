@@ -7,10 +7,10 @@
 #include <init/loader.h>
 #include <mm/watermark.h>
 #include <mm/vmm.h>
+#include <fs/fs.h>
+#include <fs/ext2.h>
 
 #include <stdio.h>
-#include <storage/storage.h>
-#include <storage/blockdev.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
@@ -20,9 +20,6 @@ list_t *pmm_init(e820_entry_t *e820_entries, uint32_t num_e820_entries);
 
 /* Initialize the storage tree */
 void storage_init(uint32_t drive_number, uint32_t partition_start);
-
-/* Initialize the filesystem */
-void fs_init();
 
 /* Boot Abstraction Layer main function */
 void bal_main(data_t *_data)
@@ -44,8 +41,16 @@ void bal_main(data_t *_data)
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
 
-	/* Initialize the filesystem */
+	/* Initialize the filesystem and each filesystem driver */
 	fs_init();
+	ext2_init();
+
+	/* TESTING STUFF */
+	inode_t *root = fs_open("/");
+	printf("asdfg\n");
+	printf("0x%08x\n", root);
+	printf("hjkl;\n");
+	while(1);
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
