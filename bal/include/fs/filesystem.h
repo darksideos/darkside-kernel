@@ -8,7 +8,7 @@ struct filesystem;
 typedef struct filesystem_ops
 {
 	/* Initialize a filesystem on a device */
-	void (*init)(struct filesystem *filesystem, device_t *device);
+	int (*init)(struct filesystem *filesystem, device_t *device);
 
 	/* Destroy a filesystem */
 	void (*destroy)(struct filesystem *filesystem);
