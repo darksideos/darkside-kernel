@@ -181,7 +181,7 @@ void fs_init()
 	/* Create the root inode and fill out its information */
 	root = (inode_t*) malloc(sizeof(inode_t));
 	root->ops = &root_inode_ops;
-	root->mp = NULL;
+	root->filesystem = NULL;
 	root->parents = list_create();
 	root->children = dict_create();
 	root->type = INODE_DIRECTORY;
