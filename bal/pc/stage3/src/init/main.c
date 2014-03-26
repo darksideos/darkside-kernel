@@ -55,8 +55,6 @@ void bal_main(data_t *_data)
 		element = strtok_r(NULL, "/", &save);
 	}
 
-	while(1);
-
 	/* TESTING STUFF */
 	inode_t *root = fs_open("/");
 	printf("asdfg\n");
