@@ -122,6 +122,7 @@ inode_t *fs_open(char *path)
 	char *element = strtok_r(path, "/", &save);
 	while (element)
 	{
+		bootvid_puts("Yeah");
 		bootvid_puts(element);
 
 		current = current->ops->finddir(current, element);
