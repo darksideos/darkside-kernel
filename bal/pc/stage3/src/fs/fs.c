@@ -118,10 +118,12 @@ inode_t *fs_open(char *path)
 	inode_t *current = root;
 
 	/* Go through each element of the path */
-	char *save, *element;
-	element = strtok_r(path, "/", &save);
+	char *save;
+	char *element = strtok_r(path, "/", &save);
 	while (element)
 	{
+		bootvid_puts(element);
+
 		current = current->ops->finddir(current, element);
 
 		if (!current)
