@@ -108,7 +108,7 @@ char *strtok_r(char *str, char *delimeter, char **saveptr)
 	}
 		
 	size_t skipped = 0;
-	while (strncmp(*saveptr, (uint8_t*) delimeter, strlen(delimeter)))
+	while (strncmp(*saveptr, (char*) delimeter, strlen(delimeter)))
 	{
 		/* We've reached the end of the string */
 		if (**saveptr == '\0')
