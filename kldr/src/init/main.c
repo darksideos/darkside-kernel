@@ -6,6 +6,8 @@
 void ba_main(loader_block_t *loader_block)
 {
 	/* Mount the boot device */
+	fs_mount(storage_get_boot_device(), "/", "ext2");
+	while(1);
 
 	/* Read and parse the configuration file */
 

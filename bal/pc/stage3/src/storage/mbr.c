@@ -43,6 +43,7 @@ static uint64_t partition_write(blockdev_t *blockdev, void *buffer, uint64_t sta
 		return blockdev_write(partition->parent, buffer, partition->start + start, partition->numsectors + numsectors);
 	}
 
+	bootvid_puts("OOR\n");
 	return 0;
 }
 
