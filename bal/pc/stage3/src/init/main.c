@@ -46,11 +46,6 @@ void bal_main(data_t *_data)
 	fs_init();
 	ext2_init();
 
-	/* TESTING STUFF */
-	inode_t *root = fs_open("/");
-	if (root) bootvid_puts("It works\n");
-	while(1);
-
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
 

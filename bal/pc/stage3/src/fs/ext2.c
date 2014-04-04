@@ -264,15 +264,21 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	/* Read the superblock into memory */
 	ext2_superblock_t *superblock = (ext2_superblock_t*) malloc(EXT2_SUPERBLOCK_LENGTH);
 
+	bootvid_puts("About to read superblock\n");
+
 	uint64_t bytes_read = blockdev_read(blockdev, superblock, EXT2_SUPERBLOCK_START / blockdev->block_size, EXT2_SUPERBLOCK_LENGTH / blockdev->block_size);
 	if (bytes_read != EXT2_SUPERBLOCK_LENGTH / blockdev->block_size)
 	{
+		bootvid_puts("FAILURE\n");
 		return -1;
 	}
+
+	bootvid_puts("Disk read succeeded\n");
 
 	/* Check the signature */
 	if (superblock->signature != 0xef53)
 	{
+		bootvid_puts("Invalid signature\n");
 		return -1;
 	}
 
@@ -291,13 +297,18 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	/* Set the filesystem structure's extension to the superblock */
 	filesystem->extension = (void*) superblock;
 
+	bootvid_puts("About to get the root\n");
+
 	/* Get the root of the filesystem */
 	ext2_inode_t *ext2_root = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));
 	int status = read_inode(filesystem, ext2_root, 2);
 	if (status != 0)
 	{
+		bootvid_puts("Getting root failed, everything will now blow up\n");
 		return status;
 	}
+
+	bootvid_puts("Wow, we made it this far\n");
 
 	/* Fill out its inode information */
 	make_inode(filesystem, &filesystem->root, ext2_root);
