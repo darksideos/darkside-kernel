@@ -17,7 +17,7 @@ int strcmp(char *s1, char *s2);
 int strncmp(char *s1, char *s2, size_t num);
 char *strcat(char *dest, char *src);
 char *strncat(char *dest, char *src, size_t count);
-char *strtok_r(char *str, char *delimeter, char **saveptr);
+char *strtok_r(char *str, const char *delimeter, char **saveptr);
 size_t strlen(char *str);
 #ifdef __cplusplus
 }
