@@ -100,13 +100,13 @@ char *strtok_r(char *str, char *delimeter, char **saveptr)
 	{
 		*saveptr = str;
 	}
-	
+
 	/* We reached the end of string in the previous call */
 	if (!(*saveptr))
 	{
 		return 0;
 	}
-		
+
 	size_t skipped = 0;
 	while (strncmp(*saveptr, (char*) delimeter, strlen(delimeter)))
 	{
