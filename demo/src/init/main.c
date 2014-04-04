@@ -45,7 +45,7 @@ void ba_main(loader_block_t *loader_block)
 	/* Call the kernel, passing it the loader block */
 
 	/* Drawing demo */
-	//drawing_demo(fb);
+	drawing_demo(fb);
 
 	/* Console demo */
 	terminal_init(fb);
