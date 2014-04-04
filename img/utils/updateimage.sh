@@ -19,6 +19,7 @@ if [ "$(uname -s)" == "Linux" ]
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
+#		sudo cp demo/build/stage3.bin /mnt/hdd/boot
 		sudo umount /dev/loop3
 		sudo losetup -d /dev/loop3
 fi

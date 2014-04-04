@@ -46,21 +46,24 @@ void bal_main(data_t *_data)
 	fs_init();
 	ext2_init();
 
-	/* strtok() testing */
+	/* strtok() testing
 	char *save, *element;
 	element = strtok_r("a/b/c/d/e", "/", &save);
 	while (element)
 	{
-		printf("%s\n", element);
+		bootvid_puts(element);
+		while(1);
 		element = strtok_r(NULL, "/", &save);
 	}
 
-	/* TESTING STUFF */
+	while(1);*/
+
+	/* TESTING STUFF
 	inode_t *root = fs_open("/");
 	printf("asdfg\n");
 	printf("0x%08x\n", root);
 	printf("hjkl;\n");
-	while(1);
+	while(1);*/
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
