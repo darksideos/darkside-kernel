@@ -243,4 +243,6 @@ int printf(const char *fmt, ...)
 	buf[i] = '\0';
 
 	bootvid_puts(buf);
+
+	return i;
 }
