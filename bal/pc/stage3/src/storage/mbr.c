@@ -4,6 +4,8 @@
 #include <storage/blockdev.h>
 #include <storage/partition.h>
 
+#include <stdio.h>
+
 /* MBR entry structure */
 typedef struct mbr_entry
 {
@@ -25,6 +27,7 @@ static uint64_t partition_read(blockdev_t *blockdev, void *buffer, uint64_t star
 {
 	partition_t *partition = (partition_t*) blockdev;
 
+	printf("Buffer = 0x%08x, Start = 0x%08x, Numsectors = 0x%08x\n", buffer, (uint32_t) start, (uint32_t) numsectors);
 	if (start + numsectors < partition->numsectors)
 	{
 		return blockdev_read(partition->parent, buffer, partition->start + start, partition->numsectors + numsectors);

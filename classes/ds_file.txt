@@ -1,0 +1,19 @@
+/* File class */
+class File : public Object
+{
+public:
+	/* Create a new file object from a filename */
+	File(wchar_t *path, int flags);
+	
+	/* Read data from a file */
+	virtual uint64_t read(void *buffer, uint64_t offset, uint64_t length);
+
+	/* Write data to a file */
+	virtual uint64_t write(void *buffer, uint64_t offset, uint64_t length);
+
+	/* Seek the file position */
+	virtual uint64_t seek(int64_t offset, int origin);
+private:
+	/* File position */
+	uint64_t pos;
+};

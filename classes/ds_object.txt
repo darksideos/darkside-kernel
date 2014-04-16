@@ -1,0 +1,34 @@
+/* Base Object class */
+class Object
+{
+public:
+	/* Destructor */
+	virtual ~Object() = 0;
+
+	/* Increment and decrement the objects's reference count */
+	virtual void ref();
+	virtual void unref();
+
+	/* Query other interfaces */
+	virtual Object *query_interface(int iid) = 0;
+private:
+	/* Reference count */
+	int refcount;
+};
+
+/* Increment an Object's reference count */
+void Object::ref()
+{
+	this->refcount++;
+}
+
+/* Decrement an Object's reference count */
+void Object::unref()
+{
+	this->refcount--;
+
+	if (this->refcount == 0)
+	{
+		delete this;
+	}
+}
