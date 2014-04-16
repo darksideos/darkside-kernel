@@ -1,5 +1,6 @@
 DarkSide Kernel
 ===============
+This repository contains the bootloader, kernel, and modules of DarkSide OS. DarkSide OS is a modern OS designed from the kernel up. Early prototypes of DarkSide OS were developed by George Klees as early as 2010, with Noah Singer, Theo Tosini, and Noah Kim joining and the project actually kicking off in 2013. DarkSide OS has a fully preemptive, reentrant kernel with support for multiple processors. The kernel is also designed with portability in mind, and as a result, it is incredibly portable, running on the i386, AMD64, ARM, and PowerPC architectures. The operating system has a userspace written from scratch by the development team, with a GUI and several applications. It contains its own powerful API, as well as compatibility APIs to eventually provide support for running POSIX, Windows, and Mac OS X applications.
 
 Building
 --------
