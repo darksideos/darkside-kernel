@@ -1,0 +1,21 @@
+/* Base Inode class */
+class Inode : public Directory
+{
+public:
+	/* Read data from an inode */
+	virtual uint64_t read(void *buffer, uint64_t offset, uint64_t length);
+
+	/* Write data to an inode */
+	virtual uint64_t write(void *buffer, uint64_t offset, uint64_t length);
+private:
+	/* Filesystem the inode resides on */
+	Filesystem *filesystem;
+
+	/* Inode type */
+	int type;
+
+	/* Inode information */
+	uint64_t size;
+	int mode, nlink, uid, gid;
+	uint64_t atime, mtime, ctime, dtime;
+};

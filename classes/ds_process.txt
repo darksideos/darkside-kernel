@@ -1,0 +1,41 @@
+/* Process structure */
+class Process : public Object
+{
+public:
+	/* Create a new process from an executable */
+	Process(Section *section, void **argv);
+
+	/* Create a new process from an existing one */
+	Process(Process *original);
+
+	/* Kill a process */
+	void kill();
+
+	/* Suspend a process */
+	void suspend();
+
+	/* Resume a process */
+	void resume();
+private:
+	/* Process ID and name */
+	pid_t pid;
+	wchar_t *name;
+
+	/* Memory management info */
+	paddr_t address_space;
+	AVLTree<VAD*> vad_tree;
+
+	/* Security token */
+	Token *token;
+
+	/* Handle table */
+	HandleTable *handle_table;
+
+	/* List of threads */
+	List<Thread*> threads;
+
+	/* Parent and child processes */
+	Process *parent;
+	List<Process*> children;
+};
+	

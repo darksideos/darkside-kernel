@@ -4,15 +4,14 @@
 #include <storage/blockdev.h>
 
 /* BIOS disk functions */
-void bios_disk_read(void *buffer, uint32_t start, uint32_t numsectors);
+uint32_t bios_disk_read(void *buffer, uint32_t start, uint32_t numsectors);
 void bios_disk_write(void *buffer, uint32_t start, uint32_t numsectors);
 void bios_disk_init(uint32_t drive_number);
 
 /* Read from a disk block device */
 /*static */uint64_t disk_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numsectors)
 {
-	bios_disk_read(buffer, (uint32_t) start, (uint32_t) numsectors);
-	return numsectors;
+	return (uint64_t) bios_disk_read(buffer, (uint32_t) start, (uint32_t) numsectors);
 }
 
 /* Write to a disk block device */

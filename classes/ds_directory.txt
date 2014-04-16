@@ -1,0 +1,23 @@
+/* Base Directory class */
+class Directory : public Object
+{
+public:
+	/* Get a child object by name from the directory*/
+	virtual Object *finddir(wchar_t *name) = 0;
+
+	/* Create a new directory entry to an object */
+	virtual int hardlink(wchar_t *name, Object *object) = 0;
+
+	/* Create a new symbolic link to an object */
+	virtual int symlink(wchar_t *name, Object *object) = 0;
+
+	/* Remove a directory entry */
+	virtual int remove(wchar_t *name) = 0;
+
+	/* Rename a directory entry */
+	virtual int rename(wchar_t *oldname, wchar_t *newname) = 0;
+private:
+	/* Parent and child objects */
+	List<Directory*> parents;
+	Dictionary<wchar_t*, Object*> children;
+};	
