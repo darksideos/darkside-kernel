@@ -7,7 +7,7 @@ Building
 
 Contributing
 ------------
-If you would like to contribute to the DarkSide Kernel (or other components of DarkSide OS), sumbit a pull request here on Github. The core main team (Marionumber1, singerng, theoduino, and noahbkim) will review the pull request and decide whether to merge or decline it. If you've made several major contributions to the project, we'll consider adding you to our organization as a member of the main team.
+If you would like to contribute to the DarkSide Kernel (or other components of DarkSide OS), sumbit a pull request here on Github. The core main team (Marionumber1, singerng, theoduino, and noahbkim) will review the pull request and decide whether to merge or decline it. If you've made several major contributions to the project, we'll consider adding you to the main team.
 
 Reporting Issues
 ----------------
