@@ -5,6 +5,13 @@ This repository contains the bootloader, kernel, and modules of DarkSide OS. Dar
 Building
 --------
 
+Contributing
+------------
+If you would like to contribute to the DarkSide Kernel (or other components of DarkSide OS), sumbit a pull request here on Github. The core main team (Marionumber1, singerng, theoduino, and noahbkim) will review the pull request and decide whether to merge or decline it. If you've made several major contributions to the project, we'll consider adding you to our organization as a member of the main team.
+
+Reporting Issues
+----------------
+
 Directory Layout
 ----------------
 The project is laid out as follows:
