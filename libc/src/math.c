@@ -3,6 +3,7 @@
 /* Raise a number to a power */
 uint32_t pow(uint32_t x, uint32_t y)
 {
+    if (x == 0) return 0;
 	if (x == 1)	return 1;
 	else if (x == 2) return x << (y - 1);
     
