@@ -1,24 +1,51 @@
 #include <types.h>
 
 /* Raise a number to a power */
-uint32_t pow(uint32_t base, uint32_t exponent)
+uint32_t pow(uint32_t x, uint32_t y)
 {
-	if (exponent == 0)
+	if (x == 1)
 	{
 		return 1;
 	}
-	else if (exponent == 1)
+	
+	else if (x == 2)
 	{
-		return base;
+		return x << (y - 1);
 	}
-	else
+	
+	if (y == 0)
 	{
-		while (exponent > 1)
+		return 1;
+	}
+	
+	else if (y == 1)
+	{
+		return x;
+	}
+	
+	else if (y == 2)
+	{
+		return x * x;
+	}
+	
+	else if (y == 3)
+	{
+		return x * x * x;
+	}
+	
+	uint32_t z = y;
+	while (z > 1)
+	{
+		if (y % 2 == 0)
 		{
-			base *= base;
-			exponent--;
+			z /= 2;
+			x *= x;
 		}
-
-		return base;
+		else {
+			z = (z - 1) / 2;
+			x *= x*x;
+		}
 	}
+	return x;
 }
+
