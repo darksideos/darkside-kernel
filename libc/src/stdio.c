@@ -164,20 +164,37 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                         break;
 
                 case 's':
-                        s = va_arg(args, char *);
+                	/* Get the string argument to printf() */
+                        s = va_arg(args, char*);
                         len = strlen(s);
+                        
+                        /* If a precision has been specified */
                         if (precision < 0)
+                        {
+                        	/* No precision was specified */
                                 precision = len;
+                        }
                         else if (len > precision)
+                        {
+                        	/* Set string length to the specified precision */
                                 len = precision;
+                        }
 
+			/* If the string is right aligned */
                         if (!(flags & LEFT))
-                                while (len < field_width--)
-                                        *str++ = ' ';
-                        for (i = 0; i < len; ++i)
-                                *str++ = *s++;
-                        while (len < field_width--)
-                                *str++ = ' ';
+                        {
+                        	/* Place spaces at the beginning of the string */
+                                while (len < field_width--) *str++ = ' ';
+                        }
+
+			/* Move the string into the buffer 'str' */
+                        for (i = 0; i < len; ++i) *str++ = *s++;
+                        
+                        /* Fill the right side with spaces if we're left aligned (we'll be full already
+                         * if we're right aligned)
+                         */
+                        while (len < field_width--) *str++ = ' ';
+                        
                         break;
 
                 case 'o':
