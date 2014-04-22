@@ -49,10 +49,7 @@ int memcmp(void *ptr1, void *ptr2, size_t count)
 
 	for (; count != 0; count--)
 	{
-		if (temp1[count] != temp2[count])
-		{
-			return 1;
-		}
+		if (temp1[count] != temp2[count]) return 1;
 	}
 
 	return 0;
@@ -70,10 +67,7 @@ char *strncpy(char *dest, char *src, size_t size)
 
 int strcmp(char *s1, char *s2)
 {
-	if (strlen(s1) != strlen(s2))
-	{
-		return 1;
-	}
+	if (strlen(s1) != strlen(s2)) return 1;
 
 	return memcmp(s1, s2, strlen(s1));
 }
@@ -96,16 +90,10 @@ char *strncat(char *dest, char *src, size_t count)
 char *my_strtok_r(char *str, char *delimeter, char **saveptr)
 {
 	/* First call */
-	if (str)
-	{
-		*saveptr = str;
-	}
+	if (str) *saveptr = str;
 
 	/* We reached the end of string in the previous call */
-	if (!(*saveptr))
-	{
-		return 0;
-	}
+	if (!(*saveptr)) return 0;
 
 	size_t skipped = 0;
 	while (strncmp(*saveptr, (char*) delimeter, strlen(delimeter)))
@@ -140,10 +128,7 @@ char *strtok_r(char *s, const char *delim, char **last)
 	char *spanp, *tok;
 	int c, sc;
 
-	if (s == NULL && (s = *last) == NULL)
-	{
-		return (NULL);
-	}
+	if (s == NULL && (s = *last) == NULL) return (NULL);
 
 	/*
 	 * Skip (span) leading delimiters (s += strspn(s, delim), sort of).
@@ -152,10 +137,7 @@ cont:
 	c = *s++;
 	for (spanp = (char *)delim; (sc = *spanp++) != 0;)
 	{
-		if (c == sc)
-		{
-			goto cont;
-		}
+		if (c == sc) goto cont;
 	}
 
 	if (c == 0)	/* no non-delimiter characters */
@@ -163,6 +145,7 @@ cont:
 		*last = NULL;
 		return (NULL);
 	}
+	
 	tok = s - 1;
 
 	/*
@@ -195,6 +178,8 @@ cont:
 size_t strlen(char *str)
 {
     int32_t retval;
+    
     for (retval = 0; *str != 0; str++) retval++;
+    
     return retval;
 }
