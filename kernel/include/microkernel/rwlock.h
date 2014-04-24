@@ -1,9 +1,9 @@
 #ifndef __RWLOCK_H
 #define __RWLOCK_H
 
-#include <lib/libc/types.h>
-#include <kernel/lock.h>
-#include <kernel/semaphore.h>
+#include <types.h>
+#include <microkernel/lock.h>
+#include <microkernel/semaphore.h>
 
 /* Readers/writer lock structure */
 typedef struct rwlock

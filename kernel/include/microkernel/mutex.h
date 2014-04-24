@@ -1,7 +1,7 @@
 #ifndef __MUTEX_H
 #define __MUTEX_H
 
-#include <lib/libc/types.h>
+#include <types.h>
 
 /* Mutex structure */
 typedef struct mutex
