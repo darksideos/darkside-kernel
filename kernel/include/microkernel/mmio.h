@@ -1,7 +1,7 @@
 #ifndef __HAL_MMIO_H
 #define __HAL_MMIO_H
 
-#include <lib/libc/stdint.h>
+#include <types.h>
 
 /* Read a byte from a MMIO address */
 uint8_t mmio_read_8(uint8_t *address);

@@ -1,7 +1,7 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
-#include <lib/libc/types.h>
+#include <types.h>
 
 /* Semaphore structure */
 typedef struct semaphore
