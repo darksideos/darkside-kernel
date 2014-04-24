@@ -101,8 +101,10 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                                    number of chars for from string */
         int qualifier;          /* 'h', 'l', or 'L' for integer fields */
 
-        for (str=buf ; *fmt ; ++fmt) {
-                if (*fmt != '%') {
+        for (str=buf ; *fmt ; ++fmt)
+	{
+                if (*fmt != '%')
+		{
                         *str++ = *fmt;
                         continue;
                 }
@@ -111,22 +113,25 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                 flags = 0;
                 repeat:
                         ++fmt;          /* this also skips first '%' */
-                        switch (*fmt) {
+                        switch (*fmt)
+			{
                                 case '-': flags |= LEFT; goto repeat;
                                 case '+': flags |= PLUS; goto repeat;
                                 case ' ': flags |= SPACE; goto repeat;
                                 case '#': flags |= SPECIAL; goto repeat;
                                 case '0': flags |= ZEROPAD; goto repeat;
-                                }
+			}
                 
                 /* get field width */
                 field_width = -1;
                 if (isdigit(*fmt))
                         field_width = skip_atoi(&fmt);
-                else if (*fmt == '*') {
+                else if (*fmt == '*')
+		{
                         /* it's the next argument */
                         field_width = va_arg(args, int);
-                        if (field_width < 0) {
+                        if (field_width < 0)
+			{
                                 field_width = -field_width;
                                 flags |= LEFT;
                         }
@@ -134,11 +139,13 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
                 /* get the precision */
                 precision = -1;
-                if (*fmt == '.') {
+                if (*fmt == '.')
+		{
                         ++fmt;  
                         if (isdigit(*fmt))
                                 precision = skip_atoi(&fmt);
-                        else if (*fmt == '*') {
+                        else if (*fmt == '*')
+			{
                                 /* it's the next argument */
                                 precision = va_arg(args, int);
                         }
@@ -148,12 +155,14 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
                 /* get the conversion qualifier */
                 qualifier = -1;
-                if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L') {
+                if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L')
+		{
                         qualifier = *fmt;
                         ++fmt;
                 }
 
-                switch (*fmt) {
+                switch (*fmt)
+		{
                 case 'c':
                         if (!(flags & LEFT))
                                 while (--field_width > 0)
@@ -198,37 +207,32 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                         break;
 
                 case 'o':
-                        str = number(str, va_arg(args, unsigned long), 8,
-                                field_width, precision, flags);
+                        str = number(str, va_arg(args, unsigned long), 8, field_width, precision, flags);
                         break;
 
                 case 'p':
-                        if (field_width == -1) {
+                        if (field_width == -1)
+			{
                                 field_width = 8;
                                 flags |= ZEROPAD;
                         }
-                        str = number(str,
-                                (unsigned long) va_arg(args, void *), 16,
-                                field_width, precision, flags);
+                        str = number(str, (unsigned long) va_arg(args, void *), 16, field_width, precision, flags);
                         break;
 
                 case 'x':
                         flags |= SMALL;
                 case 'X':
-                        str = number(str, va_arg(args, unsigned long), 16,
-                                field_width, precision, flags);
+                        str = number(str, va_arg(args, unsigned long), 16, field_width, precision, flags);
                         break;
 
                 case 'd':
                 case 'i':
                         flags |= SIGN;
                 case 'u':
-                        str = number(str, va_arg(args, unsigned long), 10,
-                                field_width, precision, flags);
+                        str = number(str, va_arg(args, unsigned long), 10, field_width, precision, flags);
                         break;
                 case 'b':
-                        str = number(str, va_arg(args, unsigned long), 2,
-                                field_width, precision, flags);
+                        str = number(str, va_arg(args, unsigned long), 2, field_width, precision, flags);
                         break;
 
                 case 'n':
