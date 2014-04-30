@@ -105,7 +105,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 	{
                 if (*fmt != '%')
 		{
+			/* Just a random character, so add it to the string */
                         *str++ = *fmt;
+                        
                         continue;
                 }
                         
@@ -164,12 +166,16 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                 switch (*fmt)
 		{
                 case 'c':
-                        if (!(flags & LEFT))
-                                while (--field_width > 0)
-                                        *str++ = ' ';
+                	/* Print a character
+                	 * If it's right aligned... */
+                        if (!(flags & LEFT)) while (--field_width > 0) *str++ = ' ';
+                        
+                        /* Put in the actual character */
                         *str++ = (unsigned char) va_arg(args, int);
-                        while (--field_width > 0)
-                                *str++ = ' ';
+                        
+                        /* Left align it if it needs to be left aligned */
+                        while (--field_width > 0) *str++ = ' ';
+                        
                         break;
 
                 case 's':
@@ -207,42 +213,56 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                         break;
 
                 case 'o':
+                	/* Octal number */
                         str = number(str, va_arg(args, unsigned long), 8, field_width, precision, flags);
                         break;
 
                 case 'p':
+                	/* A pointer in hexadecimal */
                         if (field_width == -1)
 			{
                                 field_width = 8;
                                 flags |= ZEROPAD;
                         }
+                        
                         str = number(str, (unsigned long) va_arg(args, void *), 16, field_width, precision, flags);
+                        
                         break;
 
                 case 'x':
+                	/* Lowercase hexidecimal */
                         flags |= SMALL;
                 case 'X':
+                	/* Hexadecimal */
                         str = number(str, va_arg(args, unsigned long), 16, field_width, precision, flags);
                         break;
 
                 case 'd':
                 case 'i':
+                	/* Signed integer */
                         flags |= SIGN;
                 case 'u':
+                	/* Unsigned integer */
                         str = number(str, va_arg(args, unsigned long), 10, field_width, precision, flags);
                         break;
+                
                 case 'b':
+                	/* Binary */
                         str = number(str, va_arg(args, unsigned long), 2, field_width, precision, flags);
                         break;
 
                 case 'n':
+                	/* Nothing is printed
+                	 * Number of characters written so far is stored in argument ip */
                         ip = va_arg(args, int *);
                         *ip = (str - buf);
                         break;
 
                 default:
-                        if (*fmt != '%')
-                                *str++ = '%';
+                	/* If the character isn't a valid format, there was a native % in the string */
+                        if (*fmt != '%') *str++ = '%';
+                        
+                        /* ? */
                         if (*fmt)
                                 *str++ = *fmt;
                         else
@@ -250,8 +270,11 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                         break;
                 }
         }
+        
+        /* End the string */
         *str = '\0';
-        return str-buf;
+        
+        return str - buf;
 }
 
 int printf(const char *fmt, ...)
