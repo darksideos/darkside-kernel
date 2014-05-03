@@ -27,5 +27,3 @@ uint32_t pow(uint32_t x, uint32_t y)
 	}
 	return x;
 }
-
-uint32_t
