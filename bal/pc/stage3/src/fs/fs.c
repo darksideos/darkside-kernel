@@ -58,7 +58,13 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 		filesystem_t *filesystem = (filesystem_t*) malloc(sizeof(filesystem_t));
 		filesystem->ops = ops;
 		filesystem->device = device;
-		ops->init(filesystem, device);
+		int status = ops->init(filesystem, device);
+
+		/* Fail mounting if initializing the filesystem failed */
+		if (status != 0)
+		{
+			return status;
+		}
 
 		/* Create and set up the mountpoint */
 		mp = (mountpoint_t*) malloc(sizeof(mountpoint_t));
