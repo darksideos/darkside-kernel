@@ -19,7 +19,7 @@ bios_disk_read:
 	mov [DAP(lba_length)], cx
 	
 	; Save return value
-	push ebx
+	push ecx
 	
 	; Read from the disk
 	xor eax, eax

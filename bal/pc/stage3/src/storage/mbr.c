@@ -27,10 +27,9 @@ static uint64_t partition_read(blockdev_t *blockdev, void *buffer, uint64_t star
 {
 	partition_t *partition = (partition_t*) blockdev;
 
-	printf("Buffer = 0x%08x, Start = 0x%08x, Numsectors = 0x%08x\n", buffer, (uint32_t) start, (uint32_t) numsectors);
 	if (start + numsectors < partition->numsectors)
 	{
-		return blockdev_read(partition->parent, buffer, partition->start + start, partition->numsectors + numsectors);
+		return blockdev_read(partition->parent, buffer, partition->start + start, numsectors);
 	}
 
 	return 0;
@@ -43,10 +42,9 @@ static uint64_t partition_write(blockdev_t *blockdev, void *buffer, uint64_t sta
 
 	if (start + numsectors < partition->numsectors)
 	{
-		return blockdev_write(partition->parent, buffer, partition->start + start, partition->numsectors + numsectors);
+		return blockdev_write(partition->parent, buffer, partition->start + start, numsectors);
 	}
 
-	bootvid_puts("OOR\n");
 	return 0;
 }
 

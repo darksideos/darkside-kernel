@@ -3,6 +3,8 @@
 #include <list.h>
 #include <storage/blockdev.h>
 
+#include <stdio.h>
+
 /* BIOS disk functions */
 uint32_t bios_disk_read(void *buffer, uint32_t start, uint32_t numsectors);
 void bios_disk_write(void *buffer, uint32_t start, uint32_t numsectors);
@@ -11,6 +13,7 @@ void bios_disk_init(uint32_t drive_number);
 /* Read from a disk block device */
 /*static */uint64_t disk_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numsectors)
 {
+	printf("0x%08X\n", (uint32_t) numsectors);
 	return (uint64_t) bios_disk_read(buffer, (uint32_t) start, (uint32_t) numsectors);
 }
 
