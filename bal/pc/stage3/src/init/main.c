@@ -39,8 +39,11 @@ void bal_main(data_t *_data)
 	list_t *phys_mem_map = pmm_init(data->e820_entries, data->num_e820_entries);
 	vmm_init();
 
+	bootvid_putch('A');
+	bootvid_puts("BLAH\n");
+
 	printf("Initialized the MM\n");
-	printf("By the way, %X\n", 0xDEADBEEF);
+	printf("By the way, %X and also %X\n", 0xDEADBEEF, 0xDEADC0DE);
 	while(1);
 
 	/* Initialize the storage tree */
