@@ -17,7 +17,7 @@ Directory Layout
 The project is laid out as follows:
 * bal - Boot Abstraction Layer (platform-specific component of bootloader)
 * bootvid - Boot video driver (includes text output and graphics primitive drawing routines)
-* demo - Boot Application running under the BAL that demonstrates VESA graphics drawing
+* demo - Boot Application that demonstrates VESA graphics drawing
 * hal - Hardware Abstraction Layer (machine-specific code)
 * img - Disk images and scripts to manage them
 * kernel - Kernel
