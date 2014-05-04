@@ -49,7 +49,10 @@ int memcmp(void *ptr1, void *ptr2, size_t count)
 
 	for (; count != 0; count--)
 	{
-		if (temp1[count] != temp2[count]) return 1;
+		if (temp1[count] != temp2[count])
+		{
+			return 1;
+		}
 	}
 
 	return 0;
@@ -72,9 +75,25 @@ int strcmp(char *s1, char *s2)
 	return memcmp(s1, s2, strlen(s1));
 }
 
-int strncmp(char *s1, char *s2, size_t num)
+int strncmp(char *s1, char *s2, size_t count)
 {
-	return memcmp(s1, s2, num);
+	uint8_t *temp1 = (uint8_t*) s1;
+	uint8_t *temp2 = (uint8_t*) s2;
+
+	for (; count != 0; count--)
+	{
+		if (temp1[count] == 0 || temp2[count] == 0)
+		{
+			return 0;
+		}
+
+		if (temp1[count] != temp2[count])
+		{
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 char *strcat(char *dest, char *src)

@@ -209,10 +209,10 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 	while (bytes_passed < node->size)
 	{
 		/* Create an EXT2 directory entry structure over the buffer */
-		ext2_dirent_t *ext2_dirent = (ext2_dirent_t*) buffer + bytes_passed;
+		ext2_dirent_t *ext2_dirent = (ext2_dirent_t*) (buffer + bytes_passed);
 
 		/* Compare the names, checking if they match */
-		if (!strncmp(name, (char*) &(ext2_dirent->name_start), ext2_dirent->name_length))
+		if (!memcmp(name, ext2_dirent->name_start, ext2_dirent->name_length))
 		{
 			/* Get the inode we just found */
 			ext2_inode_t *ext2_node = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));
@@ -232,7 +232,7 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 			/* Insert a directory entry for the child into the parent */
 			dirent_t *dirent = (dirent_t*) malloc(sizeof(dirent_t));
 			dirent->name = (char*) malloc(ext2_dirent->name_length);
-			memcpy(dirent->name, &(ext2_dirent->name_start), ext2_dirent->name_length);
+			memcpy(dirent->name, ext2_dirent->name_start, ext2_dirent->name_length);
 			dirent->node = new_node;
 			dict_append(&node->children, name, dirent);
 
