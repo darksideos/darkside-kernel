@@ -27,7 +27,7 @@ static uint64_t partition_read(blockdev_t *blockdev, void *buffer, uint64_t star
 {
 	partition_t *partition = (partition_t*) blockdev;
 
-	if (start + numsectors < partition->numsectors)
+	if (numsectors < partition->numsectors)
 	{
 		return blockdev_read(partition->parent, buffer, partition->start + start, numsectors);
 	}
@@ -40,7 +40,7 @@ static uint64_t partition_write(blockdev_t *blockdev, void *buffer, uint64_t sta
 {
 	partition_t *partition = (partition_t*) blockdev;
 
-	if (start + numsectors < partition->numsectors)
+	if (numsectors < partition->numsectors)
 	{
 		return blockdev_write(partition->parent, buffer, partition->start + start, numsectors);
 	}
