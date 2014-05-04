@@ -304,11 +304,10 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 		return status;
 	}
 
-	printf("Wow, we made it this far\n");
-	while(1);
-
 	/* Fill out its inode information */
 	make_inode(filesystem, &filesystem->root, ext2_root);
+
+	return 0;
 }
 
 /* EXT2 filesystem operations */
