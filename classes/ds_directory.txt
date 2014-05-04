@@ -8,9 +8,6 @@ public:
 	/* Create a new directory entry to an object */
 	virtual int hardlink(wchar_t *name, Object *object) = 0;
 
-	/* Create a new symbolic link to an object */
-	virtual int symlink(wchar_t *name, Object *object) = 0;
-
 	/* Remove a directory entry */
 	virtual int remove(wchar_t *name) = 0;
 
