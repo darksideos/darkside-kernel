@@ -19,13 +19,13 @@ private:
 /* Increment an Object's reference count */
 void Object::ref()
 {
-	this->refcount++;
+	atomic_inc(this->refcount);
 }
 
 /* Decrement an Object's reference count */
 void Object::unref()
 {
-	this->refcount--;
+	atomic_dec(this->refcount);
 
 	if (this->refcount == 0)
 	{
