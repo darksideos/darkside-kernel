@@ -275,7 +275,6 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	/* Check the signature */
 	if (superblock->signature != 0xef53)
 	{
-		printf("Invalid signature\n");
 		return -1;
 	}
 
@@ -293,8 +292,6 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 
 	/* Set the filesystem structure's extension to the superblock */
 	filesystem->extension = (void*) superblock;
-
-	printf("About to get the root\n");
 
 	/* Get the root of the filesystem */
 	ext2_inode_t *ext2_root = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));

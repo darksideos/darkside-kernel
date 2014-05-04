@@ -13,7 +13,6 @@ void bios_disk_init(uint32_t drive_number);
 /* Read from a disk block device */
 /*static */uint64_t disk_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numsectors)
 {
-	printf("0x%08X\n", (uint32_t) numsectors);
 	return (uint64_t) bios_disk_read(buffer, (uint32_t) start, (uint32_t) numsectors);
 }
 
