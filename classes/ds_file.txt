@@ -14,6 +14,9 @@ public:
 	/* Seek the file position */
 	virtual uint64_t seek(int64_t offset, int origin);
 private:
+	/* Corresponding inode */
+	Inode *node;
+	
 	/* File position */
 	uint64_t pos;
 };
