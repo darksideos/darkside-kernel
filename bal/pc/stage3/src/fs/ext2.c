@@ -23,6 +23,7 @@ static int read_block(filesystem_t *filesystem, void *buffer, int block)
 	uint64_t bytes_read = blockdev_read(blockdev, buffer, (block * superblock->block_size) / blockdev->block_size, superblock->block_size / blockdev->block_size);
 	if (bytes_read != superblock->block_size / blockdev->block_size)
 	{
+		printf("Failed to read block, read 0x%08X bytes rather than 0x%08X\n", (uint32_t) bytes_read, 2);
 		return -1;
 	}
 
@@ -60,6 +61,7 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	int status = read_bgdesc(filesystem, &bgdesc, block_group);
 	if (status != 0)
 	{
+		printf("Failed to read block group descriptor\n");
 		return status;
 	}
 
@@ -74,6 +76,7 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	status = read_block(filesystem, superblock->block_buffer, table_block);
 	if (status != 0)
 	{
+		printf("Failed to read inode block\n");
 		return status;
 	}
 
@@ -298,7 +301,6 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	int status = read_inode(filesystem, ext2_root, 2);
 	if (status != 0)
 	{
-		printf("Getting root failed, everything will now blow up\n");
 		return status;
 	}
 
