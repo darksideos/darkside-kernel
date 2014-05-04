@@ -348,6 +348,7 @@ ext2_read:
 	push esi										; Save bytes_left
 	
 	; Read the direct block pointer
+	jmp $
 	call read_block_pointer
 	
 	; Restore bytes_left and subtract the return value from it
