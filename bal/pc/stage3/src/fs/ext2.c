@@ -205,7 +205,12 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 {
 	/* Read the inode's data */
 	uint8_t buffer[node->size];
+	printf("About to read 0x%08X bytes\n", (uint32_t) node->size);
+	while(1);
 	ext2_inode_read(node, buffer, 0, node->size);
+
+	printf("Read inode data\n");
+	while(1);
 
 	/* Loop through the directory entries, searching for a match */
 	uint32_t bytes_passed = 0;
