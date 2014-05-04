@@ -4,6 +4,7 @@ This repository contains the bootloader, kernel, and modules of DarkSide OS. Dar
 
 Building
 --------
+In order to build the i386 version of the DarkSide Kernel, use 'make i386' for the core components and 'make i386-libs' for the libraries.
 
 Contributing
 ------------
