@@ -1,5 +1,5 @@
-CC				:= i586-elf-gcc
-AR				:= i586-elf-ar
+CC				:= $(CCBASE)-gcc
+AR				:= $(CCBASE)-ar
 CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include
 ARFLAGS			:= rs
 
