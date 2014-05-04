@@ -2,7 +2,7 @@ ext2:
 	# Build each stage
 	cd stage1; make all
 	cd stage2; make ext2
-	cd stage3; make all
+	cd stage3; make all CCBASE="$(CCBASE)"
 	
 	# Get a clean MBR image
 	cp img/mbr_master.img img/mbr.img
