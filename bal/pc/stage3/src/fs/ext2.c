@@ -36,7 +36,7 @@ static int read_bgdesc(filesystem_t *filesystem, ext2_bgdesc_t *buffer, uint32_t
 	ext2_superblock_t *superblock = (ext2_superblock_t*) filesystem->extension;
 
 	/* Calculate the block and offset of the block group descriptor */
-	uint32_t bgdesc_block = ((block_group * sizeof(ext2_bgdesc_t)) / (superblock->block_size)) + superblock->superblock_block;
+	uint32_t bgdesc_block = ((block_group * sizeof(ext2_bgdesc_t)) / (superblock->block_size)) + superblock->superblock_block + 1;
 	uint32_t bgdesc_offset = (block_group * sizeof(ext2_bgdesc_t)) % (superblock->block_size);
 
 	/* Read it into memory */
@@ -68,9 +68,15 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	/* Calculate the index into the inode table */
 	uint32_t table_index = (inode - 1) % (superblock->inodes_per_group);
 
+	printf("Table index: 0x%08X\n", table_index);
+
+	printf("Inode size: 0x%08X\n", superblock->inode_size);
+
 	/* Calculate the block and offset of the inode table */
 	uint32_t table_block = ((table_index * (superblock->inode_size)) / (superblock->block_size)) + bgdesc.inode_table_block;
-	uint32_t table_offset = (table_index * (superblock->inode_size)) / (superblock->block_size);
+	uint32_t table_offset = (table_index * (superblock->inode_size)) % (superblock->block_size);
+
+	printf("Table block: 0x%08X, table offset: 0x%08X\n", table_block, table_offset);
 
 	/* Read it into memory */
 	status = read_block(filesystem, superblock->block_buffer, table_block);
@@ -87,6 +93,9 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 /* Create an inode from an EXT2 inode */
 static void make_inode(filesystem_t *filesystem, inode_t *buffer, ext2_inode_t *ext2_node)
 {
+	printf("UID: 0x%08X, GID: 0x%08X\n", ext2_node->uid, ext2_node->gid);
+	printf("Size: 0x%08X\n", ext2_node->low_size);
+	printf("Hard links: 0x%08X\n", ext2_node->hard_links);
 	buffer->ops = &ext2_inode_ops;
 	buffer->filesystem = filesystem;
 	buffer->parents = list_create();
@@ -209,7 +218,7 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 	while(1);
 	ext2_inode_read(node, buffer, 0, node->size);
 
-	printf("Read inode data\n");
+	printf("Read the inode data\n");
 	while(1);
 
 	/* Loop through the directory entries, searching for a match */
