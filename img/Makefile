@@ -1,4 +1,4 @@
-i386	?= i586-elf
+i386	?= $(CCBASE)
 ARM	?= arm-none-eabi
 MOUNT ?= /media/$(shell whoami)/RASPI
 EJECT ?= sudo eject
