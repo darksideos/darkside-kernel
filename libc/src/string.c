@@ -177,7 +177,7 @@ cont:
 
 size_t strlen(char *str)
 {
-    int32_t retval;
+    size_t retval;
     
     for (retval = 0; *str != 0; str++) retval++;
     
