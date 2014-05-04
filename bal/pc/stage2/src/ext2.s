@@ -123,6 +123,7 @@ read_bgdesc:
 	mov ebx, [SUPERBLOCK(block_size)]				; EBX = (superblock->block_size)
 	div ebx											; EAX = (block_group * sizeof(bgdesc_t)) / (superblock->block_size)
 													; EDX = (block_group * sizeof(bgdesc_t)) % (superblock->block_size)
+	
 	add eax, [SUPERBLOCK(superblock_block)]
 	inc eax
 	

@@ -62,7 +62,6 @@ typedef struct ext2_superblock
 	uint32_t major_version;
 	uint16_t reserved_uid;
 	uint16_t reserved_gid;
-	uint8_t reserved[940];
 
 	/* Extended superblock */
 	uint32_t first_nonreserved_inode;
@@ -84,7 +83,7 @@ typedef struct ext2_superblock
 	uint32_t orphan_inode_head;
 
 	/* Extra stuff */
-	uint8_t *block_buffer;
+	void *block_buffer;
 } __attribute__ ((packed)) ext2_superblock_t;
 
 /* EXT2 block group descriptor structure */
