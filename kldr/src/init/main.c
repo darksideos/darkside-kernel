@@ -8,6 +8,11 @@ void ba_main(loader_block_t *loader_block)
 	/* Mount the boot device */
 	int status = fs_mount(storage_get_boot_device(), "/", "ext2");
 
+	/* TESTING EXT2 DRIVER */
+	inode_t *stage3 = fs_open("/boot/stage3.bin");
+	printf("Size of stage3 is 0x%08X\n", (uint32_t) stage3->size);
+	while(1);
+
 	/* Read and parse the configuration file */
 
 	/* Initialize graphics */
