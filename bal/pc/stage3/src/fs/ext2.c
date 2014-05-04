@@ -23,7 +23,6 @@ static int read_block(filesystem_t *filesystem, void *buffer, int block)
 	uint64_t bytes_read = blockdev_read(blockdev, buffer, (block * superblock->block_size) / blockdev->block_size, superblock->block_size / blockdev->block_size);
 	if (bytes_read != superblock->block_size / blockdev->block_size)
 	{
-		printf("Failed to read block, read 0x%08X bytes rather than 0x%08X\n", (uint32_t) bytes_read, 2);
 		return -1;
 	}
 
@@ -61,28 +60,20 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 	int status = read_bgdesc(filesystem, &bgdesc, block_group);
 	if (status != 0)
 	{
-		printf("Failed to read block group descriptor\n");
 		return status;
 	}
 
 	/* Calculate the index into the inode table */
 	uint32_t table_index = (inode - 1) % (superblock->inodes_per_group);
 
-	printf("Table index: 0x%08X\n", table_index);
-
-	printf("Inode size: 0x%08X\n", superblock->inode_size);
-
 	/* Calculate the block and offset of the inode table */
 	uint32_t table_block = ((table_index * (superblock->inode_size)) / (superblock->block_size)) + bgdesc.inode_table_block;
 	uint32_t table_offset = (table_index * (superblock->inode_size)) % (superblock->block_size);
-
-	printf("Table block: 0x%08X, table offset: 0x%08X\n", table_block, table_offset);
 
 	/* Read it into memory */
 	status = read_block(filesystem, superblock->block_buffer, table_block);
 	if (status != 0)
 	{
-		printf("Failed to read inode block\n");
 		return status;
 	}
 
@@ -93,9 +84,6 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 /* Create an inode from an EXT2 inode */
 static void make_inode(filesystem_t *filesystem, inode_t *buffer, ext2_inode_t *ext2_node)
 {
-	printf("UID: 0x%08X, GID: 0x%08X\n", ext2_node->uid, ext2_node->gid);
-	printf("Size: 0x%08X\n", ext2_node->low_size);
-	printf("Hard links: 0x%08X\n", ext2_node->hard_links);
 	buffer->ops = &ext2_inode_ops;
 	buffer->filesystem = filesystem;
 	buffer->parents = list_create();
