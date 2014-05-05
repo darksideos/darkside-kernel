@@ -47,9 +47,9 @@ int memcmp(void *ptr1, void *ptr2, size_t count)
 	uint8_t *temp1 = (uint8_t*) ptr1;
 	uint8_t *temp2 = (uint8_t*) ptr2;
 
-	for (; count != 0; count--)
+	for (size_t i = 0; i < count; i++)
 	{
-		if (temp1[count] != temp2[count])
+		if (temp1[i] != temp2[i])
 		{
 			return 1;
 		}
@@ -80,14 +80,14 @@ int strncmp(char *s1, char *s2, size_t count)
 	uint8_t *temp1 = (uint8_t*) s1;
 	uint8_t *temp2 = (uint8_t*) s2;
 
-	for (; count != 0; count--)
+	for (size_t i = 0; i < count; i++)
 	{
-		if (temp1[count] == 0 || temp2[count] == 0)
+		if (temp1[i] == 0 || temp2[i] == 0)
 		{
 			return 0;
 		}
 
-		if (temp1[count] != temp2[count])
+		if (temp1[i] != temp2[i])
 		{
 			return 1;
 		}
