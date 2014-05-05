@@ -14,14 +14,14 @@ fi
 
 if [ "$(uname -s)" == "Linux" ]
 	then
-		sudo losetup /dev/loop3 img/images/ext2.img
-		sudo mount /dev/loop3 /mnt/hdd
+		sudo mkdir -p /mnt/hdd
+		sudo mount -t ext2 -o loop img/images/ext2.img /mnt/hdd
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
-#		sudo cp demo/build/stage3.bin /mnt/hdd/boot
-		sudo umount /dev/loop3
-		sudo losetup -d /dev/loop3
+		sudo cp demo/build/stage3.bin /mnt/hdd/boot
+		sudo umount img/images/ext2.img
+		sudo rm -rf /mnt/hdd
 fi
 
 if [[ "$(uname -s)" == CYGWIN* ]]
