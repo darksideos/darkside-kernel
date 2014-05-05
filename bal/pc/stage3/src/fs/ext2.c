@@ -214,9 +214,6 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 		/* Compare the names, checking if they match */
 		if (!memcmp(name, ext2_dirent->name_start, ext2_dirent->name_length))
 		{
-			printf("YEAH\n");
-			while(1);
-
 			/* Get the inode we just found */
 			ext2_inode_t *ext2_node = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));
 			int status = read_inode(node->filesystem, ext2_node, ext2_dirent->inode);
