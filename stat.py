@@ -78,6 +78,6 @@ class stat:
         else:
             print("\n".join(output))
         
-def main():
-    s = stat()
-    s.report()
+
+if __name__ == "__main__":
+    stat().report()
