@@ -3,6 +3,9 @@
 #include <modules/text_utils.h>
 #include <modules/mod_types.h>
 
+#include <stdlib.h>
+#include <string.h>
+
 /* Convert a marker for a node into a number */
 uint32_t tree_index(uint8_t *line, uint32_t lineNumber)
 {
@@ -119,7 +122,7 @@ uint32_t tree_index(uint8_t *line, uint32_t lineNumber)
 	}
 	else if(*line == '#')
 	{
-		return str2dec(line + 1);
+		return strtoul(line + 1);
 	}
 	else if(*line == '"')
 	{
