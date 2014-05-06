@@ -22,8 +22,8 @@ tree_t parse_registry()
 	fs_read(fs, registry_inode, registry_data, registry_inode->low_size);
 	
 	/* We're reading line-by-line */
-	uint8_t *saveptr = 0;
-	uint8_t *line = strtok_r(registry_data, "\n", &saveptr);
+	char *saveptr = 0;
+	char *line = strtok_r(registry_data, "\n", &saveptr);
 	uint32_t lineNumber = 0;
 	
 	module_t *module = 0;
@@ -47,30 +47,30 @@ tree_t parse_registry()
 			/* The current level is one more than the level which opened the module declaration */
 			if(tabLevel == oldLevel + 1)
 			{
-				if(strnequal("@NAME", line, 5))
+				if(!strncmp("@NAME", line, 5))
 				{
 					module->name = line + 6;
 				}
-				else if(strnequal("@DESC", line, 5))
+				else if(!strncmp("@DESC", line, 5))
 				{
 					module->desc = line + 6;
 				}
-				else if(strnequal("@AUTHOR", line, 7))
+				else if(!strncmp("@AUTHOR", line, 7))
 				{
 					module->author = line + 8;
 				}
-				else if(strnequal("@PATH", line, 5))
+				else if(!strncmp("@PATH", line, 5))
 				{
 					module->path = line + 6;
 				}
-				else if(strequal("@REQBOOT", line))
+				else if(!strcmp("@REQBOOT", line))
 				{
 					/* EVENTUALLY load the module */
 				}
-				else if(strnequal("@VERSION", line, 8))
+				else if(!strncmp("@VERSION", line, 8))
 				{
-					uint8_t *saveptr2 = 0;
-					uint8_t *num = strtok_r(line + 9, ".", &saveptr2);
+					char *saveptr2 = 0;
+					char *num = strtok_r(line + 9, ".", &saveptr2);
 					module->major = strtoul(num);
 					num = strtok_r(0, ".", &saveptr2);
 					module->minor = strtoul(num);
@@ -106,13 +106,13 @@ tree_t parse_registry()
 			}
 			
 			/* We are beginning a module declaration */
-			if(strequal(line, "@MODULE"))
+			if(!strcmp(line, "@MODULE"))
 			{
 				module = malloc(sizeof(module_t));
 			}
 			/* We are "subbing in" -- going another level into the tree
 			 * Verifying that it's not an empty line */
-			else if(!strequal(line, ""))
+			else if(strcmp(line, ""))
 			{
 				struct tree_node *child = tree_node_create(parent, 0);
 				tree_node_insert(parent, child, tree_index(line, lineNumber));
