@@ -1,25 +1,21 @@
 #include <types.h>
-#include <modules/modreg.h>
-
+#include <string.h>
+#include <stdlib.h>
+#include <tree.h>
 #include <fs/fs.h>
+#include <modules/modreg.h>
 #include <modules/tree_utils.h>
 #include <modules/text_utils.h>
 
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include <tree.h>
-
-extern fs_context_t *fs;
 
 tree_t parse_registry()
 {	
 	/* Read the module registry into memory */
-	inode_t *registry_inode = fs_open(fs, "/boot/modules/registry");
+	inode_t *registry_inode = fs_open("/boot/modules/registry");
 	
-	uint8_t *registry_data = malloc(registry_inode->low_size + 1);
-	fs_read(fs, registry_inode, registry_data, registry_inode->low_size);
+	uint8_t *registry_data = malloc(registry_inode->size + 1);
+	fs_read(registry_inode, registry_data, 0, registry_inode->low_size);
 	
 	/* We're reading line-by-line */
 	char *saveptr = 0;
