@@ -15,7 +15,7 @@ tree_t parse_registry()
 	inode_t *registry_inode = fs_open("/boot/modules/registry");
 	
 	uint8_t *registry_data = malloc(registry_inode->size + 1);
-	fs_read(registry_inode, registry_data, 0, registry_inode->low_size);
+	fs_read(registry_inode, registry_data, 0, registry_inode->size);
 	
 	/* We're reading line-by-line */
 	char *saveptr = 0;
