@@ -2,6 +2,7 @@
 #define __MODREG_H
 
 #include <types.h>
+#include <tree.h>
 
 typedef struct module
 {
@@ -17,6 +18,6 @@ typedef struct module
 	uint8_t *data;
 } module_t;
 
-void parse_registry(os_info_t *os_info);
+tree_t parse_registry();
 
 #endif
