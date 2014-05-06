@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-uint32_t hash(uint8_t *key);
-uint32_t separate_indents(uint8_t **line);
+uint32_t hash(char *key);
+uint32_t separate_indents(char **line);
 
 #endif

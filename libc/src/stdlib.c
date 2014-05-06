@@ -1,7 +1,7 @@
 #include <types.h>
 #include <stdlib.h>
  
-uint32_t str2dec(uint8_t *str)
+uint32_t strtoul(char *str)
 {
         uint32_t num = 0;
  

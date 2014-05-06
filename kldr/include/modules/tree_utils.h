@@ -3,6 +3,6 @@
 
 #include <types.h>
 
-uint32_t tree_index(uint8_t *line, uint32_t lineNumber);
+uint32_t tree_index(char *line, uint32_t lineNumber);
 
 #endif

@@ -7,7 +7,7 @@
 #include <string.h>
 
 /* Convert a marker for a node into a number */
-uint32_t tree_index(uint8_t *line, uint32_t lineNumber)
+uint32_t tree_index(char *line, uint32_t lineNumber)
 {
 	if(*line == '$')
 	{
@@ -126,7 +126,7 @@ uint32_t tree_index(uint8_t *line, uint32_t lineNumber)
 	}
 	else if(*line == '"')
 	{
-		uint8_t *noquotes = malloc(strlen(line) - 1);
+		char *noquotes = malloc(strlen(line) - 1);
 		memset(noquotes, 0, strlen(line) - 1);
 		memcpy(noquotes, line + 1, strlen(line) - 2);
 		
