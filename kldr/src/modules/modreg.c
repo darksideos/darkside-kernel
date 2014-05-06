@@ -7,7 +7,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <str2int.h>
+#include <stdlib.h>
+
 #include <tree.h>
 
 extern fs_context_t *fs;
@@ -22,23 +23,23 @@ tree_t parse_registry()
 	
 	/* We're reading line-by-line */
 	uint8_t *saveptr = 0;
-	uint8_t *line = strtok(registry_data, "\n", &saveptr);
+	uint8_t *line = strtok_r(registry_data, "\n", &saveptr);
 	uint32_t lineNumber = 0;
 	
 	module_t *module = 0;
 	uint32_t oldLevel = 0;
 	
-	tree_t tree = index_tree_create();
+	tree_t tree = tree_create();
 	struct tree_node *parent = tree.root;
 	
 	/* Until we encounter EOF... */
 	while(line != 0)
 	{
 		/* Separate out tabs from data, returning the number of tabs and advancing the string pointer */
-		unsigned int tabLevel = separate_indents(&line);
+		uint32_t tabLevel = separate_indents(&line);
 		
 		/* newLevel is the level at the end, oldLevel is the level at the beginning of the loop body */
-		unsigned int newLevel = oldLevel;
+		uint32_t newLevel = oldLevel;
 		
 		/* We're in "module mode" */
 		if(module)
@@ -69,12 +70,12 @@ tree_t parse_registry()
 				else if(strnequal("@VERSION", line, 8))
 				{
 					uint8_t *saveptr2 = 0;
-					uint8_t *num = strtok(line + 9, ".", &saveptr2);
-					module->major = str2dec(num);
-					num = strtok(0, ".", &saveptr2);
-					module->minor = str2dec(num);
-					num = strtok(0, ".", &saveptr2);
-					module->patch = str2dec(num);
+					uint8_t *num = strtok_r(line + 9, ".", &saveptr2);
+					module->major = strtoul(num);
+					num = strtok_r(0, ".", &saveptr2);
+					module->minor = strtoul(num);
+					num = strtok_r(0, ".", &saveptr2);
+					module->patch = strtoul(num);
 				}
 				else
 				{
@@ -113,7 +114,7 @@ tree_t parse_registry()
 			 * Verifying that it's not an empty line */
 			else if(!strequal(line, ""))
 			{
-				struct tree_node *child = index_tree_node_create(parent, 0);
+				struct tree_node *child = tree_node_create(parent, 0);
 				tree_node_insert(parent, child, tree_index(line, lineNumber));
 				parent = child;
 				
@@ -123,7 +124,7 @@ tree_t parse_registry()
 		
 		/* Update the level at which we start the next iteration */
 		oldLevel = newLevel;
-		line = strtok(0, "\n", &saveptr);
+		line = strtok_r(0, "\n", &saveptr);
 		lineNumber++;
 	}
 	
