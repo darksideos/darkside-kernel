@@ -12,4 +12,4 @@ i386-libs:
 i386-demo:
 		cd bal/pc; make ext2 CCBASE="$(CCBASE)"
 		cd demo; make all CCBASE="$(CCBASE)"
-		img/utils/updateimage.sh	
+		img/utils/updateimage.sh demo	
