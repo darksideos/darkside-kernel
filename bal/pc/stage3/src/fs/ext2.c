@@ -154,7 +154,12 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 
 		return length - bytes_left;
 	}
-	return 0;
+	/* Condition that should never happen */
+	else
+	{
+		while(1);
+		return 0;
+	}
 }
 
 /* Read data from an inode into a buffer */
