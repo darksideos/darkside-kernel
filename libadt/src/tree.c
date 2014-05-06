@@ -37,29 +37,33 @@ void tree_node_insert(tree_node_t *parent, tree_node_t *child, uint32_t tree_ind
 	map_append(&parent->children, tree_index, child);
 }
 
-void tree_node_enumerate(tree_node_t *node, uint32_t level)
+/*void tree_node_enumerate(tree_node_t *node, uint32_t level)
 {
 	for (uint32_t j = 0; j < level; j++)
 	{
-		kprintf(LOG_NONE, "\t");
+		printf("\t");
 	}
 
-	kprintf(LOG_NONE, "Data: 0x%08X\n", node->data);
+	printf("Data: 0x%08X\n", node->data);
 
-	for (uint32_t i = 0; i < list_length(&node->children.buckets); i++)
+	iterator_t iter = list_head(&node);
+	
+	tree_node_t *entry = (tree_node_t*) iter.now(&iter);
+	
+	while(entry)
 	{
 		for (uint32_t j = 0; j < level; j++)
 		{
-			kprintf(LOG_NONE, "\t");
+			printf("\t");
 		}
 
-		bucket_t *bucket = list_get(&node->children.buckets, i);
+		printf("+0x%08X\n", bucket->key, bucket->key);
 
-		kprintf(LOG_NONE, "+0x%08X\n", bucket->key, bucket->key);
-
-		tree_node_enumerate(map_get(&node->children, bucket->key), level + 1);
+		tree_node_enumerate(map_get(&node->children, entry->key), level + 1);
+		
+		entry = (tree_node_t*) iter.next(&iter);
 	}
-}
+}*/
 
 
 /* Create an index tree */

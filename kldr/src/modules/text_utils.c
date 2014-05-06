@@ -2,7 +2,7 @@
 #include <modul
 
 /* Hash a string key */
-uint32_t hash(uint8_t *key)
+uint32_t hash(char *key)
 {
 	uint32_t hash_key = 0;
 
@@ -18,7 +18,7 @@ uint32_t hash(uint8_t *key)
 }
 
 /* Strip a line of its indents, returning the indentation level in the tree */
-uint32_t separate_indents(uint8_t **line)
+uint32_t separate_indents(char **line)
 {
 	uint32_t indents = 0;
 
