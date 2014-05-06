@@ -22,7 +22,7 @@ typedef struct tree_node
 /* Create an index tree node */
 tree_node_t *tree_node_create(tree_node_t *parent, void *data)
 {
-	tree_node_t *node = kmalloc(sizeof(tree_node_t));
+	tree_node_t *node = malloc(sizeof(tree_node_t));
 
 	node->parent = parent;
 	node->children = map_create();
@@ -139,10 +139,10 @@ void *tree_lookup(tree_t *tree, uint32_t levels, ...)
 	return parent->data;
 }
 
-void tree_enumerate(tree_t *tree)
+/*void tree_enumerate(tree_t *tree)
 {
 	tree_node_enumerate(tree->root, 0);
-}
+}*/
 
 /* Get the parent of an index tree node */
 tree_node_t *tree_node_parent(tree_node_t *node)

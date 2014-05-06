@@ -1,5 +1,5 @@
 #include <types.h>
-#include <modul
+#include <modules/text_utils.h>
 
 /* Hash a string key */
 uint32_t hash(char *key)
