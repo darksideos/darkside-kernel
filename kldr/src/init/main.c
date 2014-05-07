@@ -7,13 +7,11 @@ void ba_main(loader_block_t *loader_block)
 {
 	/* Mount the boot device */
 	int status = fs_mount(storage_get_boot_device(), "/", "ext2");
-	
-	printf("%d %d %d\n", pow(3, 2), pow(1, 1), pow(2, 10));
 
 	/* TESTING EXT2 DRIVER */
 	uint32_t *buffer = (uint32_t*) 0x10000;
 	inode_t *stage3 = fs_open("/boot/stage3.bin");
-	unsigned int bytes_read = fs_read(stage3, buffer, 0, 0x9000);
+	unsigned int bytes_read = fs_read(stage3, buffer, 0, 0x8000);
 
 	printf("Read all of stage3, %d\n", bytes_read);
 	
@@ -21,7 +19,8 @@ void ba_main(loader_block_t *loader_block)
 	printf("Data at 0 0x%08X\n", buffer[0]);
 	printf("Data at 0x400 0x%08X\n", buffer[0x100]);
 	printf("Data at 0x800 0x%08X\n", buffer[0x200]);
-	printf("Data at 0xC00 0x%08X\n", buffer[0x300]);
+	printf("Data at 0x1000 0x%08X\n", buffer[0x400]);
+	printf("Data at 0x2FFC 0x%08X\n", buffer[0xBFF]);
 	
 	/* This part is one block off */
 	printf("Data at 0x3000 0x%08X\n", buffer[0xC00]);
