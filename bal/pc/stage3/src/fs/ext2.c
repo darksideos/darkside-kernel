@@ -145,10 +145,13 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		/* Start reading each data block */
 		uint32_t bytes_left = length;
 		uint32_t blocks_read = 0;
+		uint32_t bytes_read = 0;
 
 		while (bytes_left > 0 && blocks_read < (superblock->block_size / 4))
 		{
-			bytes_left -= read_block_pointer(filesystem, buffer, block_pointers[blocks_read], bytes_left, level - 1);
+			bytes_read = read_block_pointer(filesystem, buffer + length - bytes_left, block_pointers[blocks_read], bytes_left, level - 1);
+			bytes_left -= bytes_read;
+			buffer += bytes_read;
 			blocks_read++;
 		}
 
@@ -171,39 +174,42 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	uint32_t bytes_left = (uint32_t) length;
 	uint32_t direct_blocks_read = 0;
 	
-	void *newbuf = buffer;
-	uint64_t newlen = length;
+	uint32_t bytes_read;
 
 	/* First, read each direct block pointer */
 	while (bytes_left > 0 && direct_blocks_read < 12)
 	{
-		bytes_left -= read_block_pointer(node->filesystem, newbuf, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
-		newbuf = buffer + length - bytes_left;
-		newlen = length - bytes_left;
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
+		bytes_left -= bytes_read;
+		buffer += bytes_read;
 		direct_blocks_read++;
+		printf("Read %d, %d, %d\n", (uint32_t) (length - bytes_left), direct_blocks_read, bytes_read);
 	}
 
 	/* If that's not enough, try the singly, doubly, and triply indirect block pointers */
 	if (bytes_left > 0)
 	{
-		bytes_left -= read_block_pointer(node->filesystem, newbuf, ext2_node->single_block, bytes_left, 1);
-		newbuf = buffer + length - bytes_left;
-		newlen = length - bytes_left;
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
+		bytes_left -= bytes_read;
+		buffer += bytes_read;
+		printf("Single %d, %d, %d\n", (uint32_t) (length - bytes_left), bytes_left, bytes_read);
 	}
 	if (bytes_left > 0)
 	{
-		bytes_left -= read_block_pointer(node->filesystem, newbuf, ext2_node->double_block, bytes_left, 2);
-		newbuf = buffer + length - bytes_left;
-		newlen = length - bytes_left;
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
+		bytes_left -= bytes_read;
+		buffer += bytes_read;
+		printf("Double %d\n", (uint32_t) (length - bytes_left));
 	}
 	if (bytes_left > 0)
 	{
-		bytes_left -= read_block_pointer(node->filesystem, newbuf, ext2_node->triple_block, bytes_left, 3);
-		newbuf = buffer + length - bytes_left;
-		newlen = length - bytes_left;
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
+		bytes_left -= bytes_read;
+		buffer += bytes_read;
+		printf("Triple %d\n", (uint32_t) (length - bytes_left));
 	}
 
-	return newlen;
+	return length - bytes_left;
 }
 
 /* Get a child inode by name from the inode */
