@@ -77,7 +77,7 @@ static int read_inode(filesystem_t *filesystem, ext2_inode_t *buffer, uint32_t i
 		return status;
 	}
 
-	memcpy(buffer, superblock->block_buffer + table_offset, sizeof(inode_t));
+	memcpy(buffer, superblock->block_buffer + table_offset, superblock->inode_size);
 	return 0;
 }
 
@@ -143,6 +143,9 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			return 0;
 		}
 
+		printf("Single block: 0x%08X\n", block);
+		printf("First singly indirect block: 0x%08X\n", block_pointers[0]);
+
 		/* Start reading each data block */
 		uint32_t bytes_left = length;
 		uint32_t blocks_read = 0;
@@ -161,7 +164,7 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 	/* Condition that should never happen */
 	else
 	{
-		while(1);
+		panic("Invalid block pointer level\n");
 		return 0;
 	}
 }
@@ -177,6 +180,10 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	
 	uint32_t bytes_read;
 
+	printf("Generation: 0x%08X\n", ext2_node->generation);
+	printf("Xattr: 0x%08X\n", ext2_node->extended_attribute);
+	printf("ACL: 0x%08X\n", ext2_node->upper_size_dir_acl);
+
 	/* First, read each direct block pointer */
 	while ((bytes_left > 0) && (direct_blocks_read < 12))
 	{
@@ -184,10 +191,7 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
 		direct_blocks_read++;
-		printf("Read %d, %d, %d\n", direct_blocks_read, bytes_read, bytes_left);
 	}
-
-	printf("Offset after direct reading (should be 0x3000 for stage3.bin): 0x%08X\n", buffer - 0x10000);
 
 	/* If that's not enough, try the singly, doubly, and triply indirect block pointers */
 	if (bytes_left > 0)
@@ -195,21 +199,18 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
-		printf("Single %d, %d, %d\n", (uint32_t) (length - bytes_left), bytes_left, bytes_read);
 	}
 	if (bytes_left > 0)
 	{
 		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
-		printf("Double %d\n", (uint32_t) (length - bytes_left));
 	}
 	if (bytes_left > 0)
 	{
 		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
-		printf("Triple %d\n", (uint32_t) (length - bytes_left));
 	}
 
 	return length - bytes_left;
@@ -218,6 +219,8 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 /* Get a child inode by name from the inode */
 static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 {
+	ext2_superblock_t *superblock = (ext2_superblock_t*) node->filesystem->extension;
+
 	/* Read the inode's data */
 	uint8_t buffer[node->size];
 	ext2_inode_read(node, buffer, 0, node->size);
@@ -233,7 +236,7 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 		if (!memcmp(name, ext2_dirent->name_start, ext2_dirent->name_length))
 		{
 			/* Get the inode we just found */
-			ext2_inode_t *ext2_node = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));
+			ext2_inode_t *ext2_node = (ext2_inode_t*) malloc(superblock->inode_size);
 			int status = read_inode(node->filesystem, ext2_node, ext2_dirent->inode);
 			if (status != 0)
 			{
@@ -313,7 +316,7 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	filesystem->extension = (void*) superblock;
 
 	/* Get the root of the filesystem */
-	ext2_inode_t *ext2_root = (ext2_inode_t*) malloc(sizeof(ext2_inode_t));
+	ext2_inode_t *ext2_root = (ext2_inode_t*) malloc(superblock->inode_size);
 	int status = read_inode(filesystem, ext2_root, 2);
 	if (status != 0)
 	{
