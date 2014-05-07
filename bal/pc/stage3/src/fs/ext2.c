@@ -143,9 +143,6 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			return 0;
 		}
 
-		printf("Single block: 0x%08X\n", block);
-		printf("First singly indirect block: 0x%08X\n", block_pointers[0]);
-
 		/* Start reading each data block */
 		uint32_t bytes_left = length;
 		uint32_t blocks_read = 0;
@@ -179,10 +176,6 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	uint32_t direct_blocks_read = 0;
 	
 	uint32_t bytes_read;
-
-	printf("Generation: 0x%08X\n", ext2_node->generation);
-	printf("Xattr: 0x%08X\n", ext2_node->extended_attribute);
-	printf("ACL: 0x%08X\n", ext2_node->upper_size_dir_acl);
 
 	/* First, read each direct block pointer */
 	while ((bytes_left > 0) && (direct_blocks_read < 12))
@@ -264,7 +257,6 @@ static inode_t *ext2_inode_finddir(inode_t *node, char *name)
 		bytes_passed += ext2_dirent->size;
 	}
 
-	printf("NO MATCH\n");
 	return NULL;
 }
 
