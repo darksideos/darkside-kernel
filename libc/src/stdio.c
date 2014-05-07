@@ -294,3 +294,23 @@ int printf(const char *fmt, ...)
 
 	return i;
 }
+
+void panic(const char *fmt, ...)
+{
+	bootvid_setcolor(COLOR_RED, COLOR_BLACK);
+	
+	char buf[1024];
+
+	va_list args;
+	int i;
+
+	va_start(args, fmt);
+	i = vsprintf(buf,fmt,args);
+	va_end(args);
+
+	buf[i] = '\0';
+
+	bootvid_puts(buf);
+
+	while(1);
+}
