@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <bootvid.h>
 
 static int skip_atoi(const char **s)
 {
