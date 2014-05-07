@@ -7,6 +7,8 @@ void ba_main(loader_block_t *loader_block)
 {
 	/* Mount the boot device */
 	int status = fs_mount(storage_get_boot_device(), "/", "ext2");
+	
+	printf("%d %d %d\n", pow(3, 2), pow(1, 1), pow(2, 10));
 
 	/* TESTING EXT2 DRIVER */
 	uint32_t *buffer = (uint32_t*) 0x10000;
