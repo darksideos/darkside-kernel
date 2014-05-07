@@ -13,9 +13,9 @@ void ba_main(loader_block_t *loader_block)
 	/* TESTING EXT2 DRIVER */
 	uint32_t *buffer = (uint32_t*) 0x10000;
 	inode_t *stage3 = fs_open("/boot/stage3.bin");
-	fs_read(stage3, buffer, 0, 0x7000);
+	unsigned int t = fs_read(stage3, buffer, 0, 0x7000);
 
-	printf("Read all of stage3\n");
+	printf("Read all of stage3, %d\n", t);
 	printf("Data at 0 0x%08X\n", buffer[0]);
 	printf("Data at 0x400 0x%08X\n", buffer[0x100]);
 	printf("Data at 0x800 0x%08X\n", buffer[0x200]);
