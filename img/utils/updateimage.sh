@@ -35,7 +35,9 @@ if [[ "$(uname -s)" == CYGWIN* ]]
 		read -p "Waiting for kernel-i386.elf to be copied into ext2.img [Press Enter to continue]..."
 fi
 
-dd if=img/images/ext2.img of=img/images/os.img bs=4M seek=2048 conv=notrunc
+read -p "HI"
+
+dd if=img/images/ext2.img of=img/images/os.img bs=1048576 seek=1 conv=notrunc
 
 if [[ "$(uname -s)" == CYGWIN* ]]
 	then
