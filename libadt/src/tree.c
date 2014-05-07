@@ -1,12 +1,11 @@
 #include <types.h>
-#include <tree.h>
-
 #include <string.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-
 #include <list.h>
 #include <map.h>
+#include <tree.h>
 
 /* Index tree node structure */
 typedef struct tree_node
