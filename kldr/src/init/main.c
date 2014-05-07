@@ -13,14 +13,21 @@ void ba_main(loader_block_t *loader_block)
 	/* TESTING EXT2 DRIVER */
 	uint32_t *buffer = (uint32_t*) 0x10000;
 	inode_t *stage3 = fs_open("/boot/stage3.bin");
-	unsigned int t = fs_read(stage3, buffer, 0, 0x7000);
+	unsigned int bytes_read = fs_read(stage3, buffer, 0, 0x9000);
 
-	printf("Read all of stage3, %d\n", t);
+	printf("Read all of stage3, %d\n", bytes_read);
+	
+	/* This part works fine */
 	printf("Data at 0 0x%08X\n", buffer[0]);
 	printf("Data at 0x400 0x%08X\n", buffer[0x100]);
 	printf("Data at 0x800 0x%08X\n", buffer[0x200]);
 	printf("Data at 0xC00 0x%08X\n", buffer[0x300]);
+	
+	/* This part is one block off */
 	printf("Data at 0x3000 0x%08X\n", buffer[0xC00]);
+	printf("Data at 0x3140 0x%08X\n", buffer[0xC50]);
+	printf("Data at 0x3200 0x%08X\n", buffer[0xC80]);
+	printf("Data at 0x3400 0x%08X\n", buffer[0xD00]);
 
 	while(1);
 
