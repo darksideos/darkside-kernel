@@ -63,7 +63,4 @@ typedef struct elf_symbol
 	uint16_t section_index;
 } __attribute__((packed)) elf_symbol_t;
 
-/* Initialize the ELF module */
-void elf_init();
-
 #endif

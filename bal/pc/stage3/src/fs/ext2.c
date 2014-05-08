@@ -331,15 +331,6 @@ static filesystem_ops_t ext2_filesystem_ops =
 /* Initialize the EXT2 driver */
 void ext2_init()
 {
-	/* Fill in the EXT2 inode operations */
-	ext2_inode_ops.read = &ext2_inode_read;
-	ext2_inode_ops.write = NULL;
-	ext2_inode_ops.finddir = &ext2_inode_finddir;
-	ext2_inode_ops.hardlink = NULL;
-	ext2_inode_ops.symlink = NULL;
-	ext2_inode_ops.delete = NULL;
-	ext2_inode_ops.rename = NULL;
-
 	/* Register the filesystem operations */
 	fs_register("ext2", &ext2_filesystem_ops);
 }
