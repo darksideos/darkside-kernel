@@ -16,7 +16,7 @@ paddr_t pmm_alloc_page()
 	while (entry)
 	{
 		/* If the entry is free */
-		if ((entry->flags & (MEM_FLAG_USABLE)) && (entry->flags & (MEM_FLAG_FREE)))
+		if ((entry->flags & (MEM_FLAG_USABLE)) && (entry->flags & (MEM_FLAG_FREE)) && (entry->length >= 0x1000) && (entry->base >= 0x100000))
 		{
 			/* If the entry is one page */
 			if (entry->length == 0x1000)
