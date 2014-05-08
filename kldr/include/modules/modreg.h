@@ -3,6 +3,7 @@
 
 #include <tree.h>
 
+/* Module structure */
 typedef struct module
 {
 	char *name;
@@ -17,6 +18,7 @@ typedef struct module
 	char *data;
 } module_t;
 
-tree_t parse_registry();
+/* Initialize the module registry */
+tree_t module_registry_init(char *filename);
 
 #endif
