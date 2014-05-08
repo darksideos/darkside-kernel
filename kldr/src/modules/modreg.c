@@ -9,13 +9,14 @@
 
 #include <stdio.h>
 
-tree_t parse_registry()
+/* Initialize the module registry */
+tree_t module_registry_init(char *filename)
 {	
 	/* Read the module registry into memory */
-	inode_t *registry_inode = fs_open("/boot/modules/registry");
+	inode_t *registry = fs_open(filename);
 	
-	uint8_t *registry_data = malloc(registry_inode->size + 1);
-	fs_read(registry_inode, registry_data, 0, registry_inode->size);
+	uint8_t *registry_data = malloc(registry->size + 1);
+	fs_read(registry_inode, registry_data, 0, registry->size);
 	
 	/* We're reading line-by-line */
 	char *saveptr = 0;
