@@ -116,6 +116,33 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		iter.insert(&iter, new);
 	}
 
+	/* Find the 1MB mark and split memory there if needed */
+	iter = list_head(&phys_mem_map);
+
+	entry = (mem_map_entry_t*) iter.now(&iter);
+	while (entry)
+	{
+		/* If it falls within the 1MB range, split it */
+		if ((0x100000 > entry->base) && (0x100000 <= (entry->base + entry->length)))
+		{
+			/* Create a new entry */
+			mem_map_entry_t *new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
+			new->base = 0x100000;
+			new->length = (entry->base + entry->length) - 0x100000;
+			new->flags = entry->flags;
+			new->numa_domain = 0xFFFFFFFF;
+
+			/* Update the current entry */
+			entry->length = 0x100000 - entry->base;
+
+			/* Insert the new entry into the list and exit the loop  */
+			iter.insert(&iter, new);
+			break;
+		}
+
+		entry = (mem_map_entry_t*) iter.next(&iter);
+	}
+
 	/* Merge adjacent entries of the same type */
 	list_t new_phys_mem_map = list_create();
 	iter = list_head(&phys_mem_map);

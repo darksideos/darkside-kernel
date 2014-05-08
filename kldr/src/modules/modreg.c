@@ -16,7 +16,7 @@ tree_t module_registry_init(char *filename)
 	inode_t *registry = fs_open(filename);
 	
 	uint8_t *registry_data = malloc(registry->size + 1);
-	fs_read(registry_inode, registry_data, 0, registry->size);
+	fs_read(registry, registry_data, 0, registry->size);
 	
 	/* We're reading line-by-line */
 	char *saveptr = 0;
