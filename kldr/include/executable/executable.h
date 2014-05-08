@@ -1,6 +1,11 @@
 #ifndef __EXECUTABLE_H
 #define __EXECUTABLE_H
 
+/* Executable format operations */
+typedef struct executable_ops
+{
+} executable_ops_t;
+
 /* Executable structure */
 typedef struct executable
 {
