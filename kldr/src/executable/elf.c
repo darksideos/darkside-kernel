@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <fs/fs.h>
@@ -9,7 +10,7 @@
 executable_t *elf_executable_load_executable(char *filename)
 {
 	/* Open the ELF file */
-	inode_t *executable = fs_open(filename)
+	inode_t *executable = fs_open(filename);
 	if (!executable)
 	{
 		return NULL;
@@ -19,6 +20,11 @@ executable_t *elf_executable_load_executable(char *filename)
 	elf_header_t header;
 	uint64_t bytes_read = fs_read(executable, &header, 0, sizeof(elf_header_t));
 	if (bytes_read != sizeof(elf_header_t))
+	{
+		return NULL;
+	}
+
+	if (memcmp(header.magic, "\u7F45\u4c46", 4))
 	{
 		return NULL;
 	}

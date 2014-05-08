@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <init/loader.h>
 #include <mm/vmm.h>
+#include <storage/storage.h>
 #include <fs/fs.h>
 
 /* Boot Application main function */
