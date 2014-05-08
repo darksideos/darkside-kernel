@@ -14,14 +14,6 @@ void ba_main(loader_block_t *loader_block)
 		panic("Failed to mount boot device, error %d\n", status);
 	}
 
-	/* TEST THE PMM */
-	paddr_t page1 = pmm_alloc_page();
-	paddr_t page2 = pmm_alloc_page();
-	paddr_t page3 = pmm_alloc_page();
-
-	printf("0x%08X 0x%08X 0x%08X\n", (uint32_t) page1, (uint32_t) page2, (uint32_t) page3);
-	while(1);
-
 	/* Read and parse the configuration file */
 
 	/* Initialize graphics */
