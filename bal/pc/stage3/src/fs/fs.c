@@ -184,6 +184,10 @@ static inode_ops_t root_inode_ops =
 /* Initialize the filesystem */
 void fs_init()
 {
+	/* Create the filesystem and mountpoint lists */
+	filesystems = dict_create();
+	mountpoints = list_create();
+
 	/* Create the root inode and fill out its information */
 	root = (inode_t*) malloc(sizeof(inode_t));
 	root->ops = &root_inode_ops;
