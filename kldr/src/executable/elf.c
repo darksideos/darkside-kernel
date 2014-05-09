@@ -28,6 +28,24 @@ executable_t *elf_executable_load_executable(char *filename)
 	{
 		return NULL;
 	}
+
+	/* Go through each program header and load it */
+	elf_program_header_t phdr;
+	uint64_t offset = header.program_header_offset;
+	for (int i = 0; i < header.num_program_header_entries; i++)
+	{
+		/* Read the program header */
+		bytes_read = fs_read(executable, &phdr, offset, sizeof(elf_program_header_t));
+		if (bytes_read != sizeof(elf_header_t))
+		{
+			return NULL;
+		}
+
+		/* Check if it should be loaded into memory */
+		if (phdr.type == PT_LOAD)
+		{
+			/* Allocate pages and map them */
+			
 }
 
 /* Load an object file */

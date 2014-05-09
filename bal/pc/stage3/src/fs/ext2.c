@@ -169,6 +169,7 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 /* Read data from an inode into a buffer */
 static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
 {
+	ext2_superblock_t *superblock = (ext2_superblock_t*) node->filesystem->extension;
 	ext2_inode_t *ext2_node = (ext2_inode_t*) node->extension;
 
 	/* Number of bytes left to read and number of direct blocks read */
@@ -180,37 +181,59 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	/* First, read each direct block pointer */
 	while ((bytes_left > 0) && (direct_blocks_read < 12))
 	{
-		if (offset >= 1024)
+		if (offset >= superblock->block_size)
 		{
-			offset -= 1024;
+			offset -= superblock->block_size;
 		}
 		else
 		{
 			bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
 			bytes_left -= bytes_read;
 			buffer += bytes_read;
-			direct_blocks_read++;
 		}
+
+		direct_blocks_read++;
 	}
 
 	/* If that's not enough, try the singly, doubly, and triply indirect block pointers */
 	if (bytes_left > 0)
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
-		bytes_left -= bytes_read;
-		buffer += bytes_read;
+		if (offset >= superblock->block_size * (superblock->block_size / 4))
+		{
+			offset -= superblock->block_size * (superblock->block_size / 4);
+		}
+		else
+		{
+			bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
+			bytes_left -= bytes_read;
+			buffer += bytes_read;
+		}
 	}
 	if (bytes_left > 0)
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
-		bytes_left -= bytes_read;
-		buffer += bytes_read;
+		if (offset >= superblock->block_size * pow(superblock->block_size / 4, 2))
+		{
+			offset -= superblock->block_size * (superblock->block_size / 4);
+		}
+		else
+		{
+			bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
+			bytes_left -= bytes_read;
+			buffer += bytes_read;
+		}
 	}
 	if (bytes_left > 0)
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
-		bytes_left -= bytes_read;
-		buffer += bytes_read;
+		if (offset >= superblock->block_size * pow(superblock->block_size / 4, 2))
+		{
+			offset -= superblock->block_size * (superblock->block_size / 4);
+		}
+		else
+		{
+			bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
+			bytes_left -= bytes_read;
+			buffer += bytes_read;
+		}
 	}
 
 	return length - bytes_left;
