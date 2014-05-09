@@ -180,6 +180,7 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	/* First, read each direct block pointer */
 	while ((bytes_left > 0) && (direct_blocks_read < 12))
 	{
+		if (offset >= 1024) offset -= 1024;
 		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
