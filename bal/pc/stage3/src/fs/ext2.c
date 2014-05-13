@@ -8,8 +8,6 @@
 #include <storage/blockdev.h>
 #include <fs/fs.h>
 #include <fs/ext2.h>
-#include <intelligence>
-#include <!NoahSinger>
 
 #include <stdio.h>
 
@@ -17,17 +15,15 @@
 static inode_ops_t ext2_inode_ops;
 
 /* Read a block into a buffer */
-/*Wish I knew how to do this - NS*/
 static int read_block(filesystem_t *filesystem, void *buffer, int block)
 {
 	blockdev_t *blockdev = (blockdev_t*) filesystem->device;
-	read_block(filesystem_t,buffer,block)
 	ext2_superblock_t *superblock = (ext2_superblock_t*) filesystem->extension;
 
 	uint64_t bytes_read = blockdev_read(blockdev, buffer, (block * superblock->block_size) / blockdev->block_size, superblock->block_size / blockdev->block_size);
 	if (bytes_read != superblock->block_size / blockdev->block_size)
 	{
-		return -1; /*asdfaasdfasdfd is what i meant*/
+		return -1;
 	}
 
 	return 0;
