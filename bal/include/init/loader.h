@@ -18,4 +18,7 @@ typedef struct loader_block
 	/* Loaded modules */
 } loader_block_t;
 
+/* Jump to the kernel */
+void bal_enter_kernel(vaddr_t entry_point, loader_block_t *loader_block);
+
 #endif
