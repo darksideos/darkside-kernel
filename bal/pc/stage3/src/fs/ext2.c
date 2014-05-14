@@ -130,15 +130,18 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			return 0;
 		}
 
-		/* Adjust the length if needed */
+		/* Copy it into our buffer */
 		if (*offset != 0)
 		{
 			length -= *offset;
+			memcpy(buffer, superblock->block_buffer + *offset, length);
 			*offset = 0;
 		}
+		else
+		{
+			memcpy(buffer, superblock->block_buffer, length);
+		}
 
-		/* Copy the data into our buffer */
-		memcpy(buffer, superblock->block_buffer, length);
 		return length;
 	}
 	/* Reading from an indirect block pointer */
