@@ -34,9 +34,7 @@ void ba_main(loader_block_t *loader_block)
 	/* Load the boot modules into memory */
 
 	/* Call the kernel, passing it the loader block */
-
-	void (*kernel_start)() = kernel->entry_point;
-	kernel_start();
+	bal_enter_kernel(kernel->entry_point, loader_block);
 
 	while(1);
 }
