@@ -24,7 +24,6 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i386.elf");
-	printf("Loaded kernel\n");
 
 	/* Load the Hardware Abstraction Layer into memory */
 
@@ -35,8 +34,9 @@ void ba_main(loader_block_t *loader_block)
 	/* Load the boot modules into memory */
 
 	/* Call the kernel, passing it the loader block */
-	//void (*kernel_start)() = kernel->entry_point;
-	//kernel_start();
+
+	void (*kernel_start)() = kernel->entry_point;
+	kernel_start();
 
 	while(1);
 }
