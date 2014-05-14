@@ -1,11 +1,5 @@
 #!/bin/bash
 
-FILE="kldr/build/stage3.bin"
-if [ "$1" == "demo" ]
-	then
-		FILE="demo/build/stage3.bin"
-fi
-
 if [ "$(uname -s)" == "Darwin" ]
 	then
 		sudo fuse-ext2 -o rw,force img/images/ext2.img /mnt/hdd
@@ -25,7 +19,8 @@ if [ "$(uname -s)" == "Linux" ]
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
-		sudo cp $FILE /mnt/hdd/boot
+		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
+		sudo cp kernel/build/kernel-i386.elf /mnt/hdd/boot
 		sudo umount img/images/ext2.img
 		sudo rm -rf /mnt/hdd
 fi
