@@ -2,6 +2,7 @@ CCBASE			?= i586-elf
 i386: 
 		cd bal/pc; make ext2 CCBASE="$(CCBASE)"
 		cd kldr; make all CCBASE="$(CCBASE)"
+		cd kernel; make i386 CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
 		
 i386-libs:
