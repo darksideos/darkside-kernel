@@ -12,6 +12,8 @@
 /* Load a standard executable */
 executable_t *elf_executable_load_executable(char *filename)
 {
+	printf("Loading %s\n", filename);
+
 	/* Open the ELF file */
 	inode_t *elf = fs_open(filename);
 	if (!elf)
@@ -36,11 +38,15 @@ executable_t *elf_executable_load_executable(char *filename)
 		return NULL;
 	}
 
+	printf("Signature validated\n");
+
 	/* Go through each program header and load it */
 	elf_program_header_t phdr;
 	uint64_t offset = header.program_header_offset;
 	for (int i = 0; i < header.num_program_header_entries; i++)
 	{
+		printf("Reading program header %d\n", i);
+
 		/* Read the program header */
 		bytes_read = fs_read(elf, &phdr, offset, sizeof(elf_program_header_t));
 		printf("Done read\n");
