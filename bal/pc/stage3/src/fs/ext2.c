@@ -230,7 +230,6 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 		buffer += bytes_read;
 	}
 
-	printf("0x%08X\n", length - bytes_left);
 	return length - bytes_left;
 }
 

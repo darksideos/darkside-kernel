@@ -4,6 +4,7 @@
 #include <mm/vmm.h>
 #include <storage/storage.h>
 #include <fs/fs.h>
+#include <executable/executable.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block)
@@ -22,14 +23,8 @@ void ba_main(loader_block_t *loader_block)
 	loader_block->fb = fb; */
 
 	/* Load the kernel into virtual memory */
-	elf_executable_load_executable("/boot/kernel-i386.elf");
-	/*int *ptr = 0xE0000000;
-	int a = *ptr;
-	a++;
-	*ptr = a;
-	while(1);*/
-	void (*kernel_entry)() = 0x80000000;
-	kernel_entry();
+	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i386.elf");
+	printf("Loaded kernel\n");
 
 	/* Load the Hardware Abstraction Layer into memory */
 
@@ -40,6 +35,8 @@ void ba_main(loader_block_t *loader_block)
 	/* Load the boot modules into memory */
 
 	/* Call the kernel, passing it the loader block */
+	//void (*kernel_start)() = kernel->entry_point;
+	//kernel_start();
 
 	while(1);
 }
