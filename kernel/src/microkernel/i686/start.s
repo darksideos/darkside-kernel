@@ -1,5 +1,6 @@
 [BITS 32]
 
 start:
-	mov eax, [0xE0000000]
-	jmp $
+	; Set up a kernel stack
+
+	; Jump to our C code
