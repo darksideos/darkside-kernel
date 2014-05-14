@@ -17,6 +17,9 @@ typedef struct executable_ops
 /* Executable structure */
 typedef struct executable
 {
+	/* Start and end in memory */
+	vaddr_t start, end;
+	
 	/* Entry point */
 	vaddr_t entry_point;
 
