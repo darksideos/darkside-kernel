@@ -15,9 +15,6 @@ start:
 	push ebx					; Loader block
 	call microkernel_init
 	
-	; Should never reach here
-	jmp $
-	
 ; Kernel BSS, which contains the initial kernel stack
 section .bss
 	resb 8192
