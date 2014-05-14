@@ -1,5 +1,6 @@
 #include <types.h>
 #include <string.h>
+#include <stdlib.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <fs/fs.h>
@@ -12,8 +13,8 @@
 executable_t *elf_executable_load_executable(char *filename)
 {
 	/* Open the ELF file */
-	inode_t *executable = fs_open(filename);
-	if (!executable)
+	inode_t *elf = fs_open(filename);
+	if (!elf)
 	{
 		printf("Failed to open file\n");
 		return NULL;
@@ -21,7 +22,7 @@ executable_t *elf_executable_load_executable(char *filename)
 
 	/* Read and check the header */
 	elf_header_t header;
-	uint64_t bytes_read = fs_read(executable, &header, 0, sizeof(elf_header_t));
+	uint64_t bytes_read = fs_read(elf, &header, 0, sizeof(elf_header_t));
 	if (bytes_read != sizeof(elf_header_t))
 	{
 		printf("Failed to read header\n");
@@ -41,8 +42,8 @@ executable_t *elf_executable_load_executable(char *filename)
 	for (int i = 0; i < header.num_program_header_entries; i++)
 	{
 		/* Read the program header */
-		printf("Reading 0x%08X from offset 0x%08X to 0x%08X\n", sizeof(elf_program_header_t), (uint32_t) offset, &phdr);
-		bytes_read = fs_read(executable, &phdr, offset, sizeof(elf_program_header_t));
+		bytes_read = fs_read(elf, &phdr, offset, sizeof(elf_program_header_t));
+		printf("Done read\n");
 		if (bytes_read != sizeof(elf_program_header_t))
 		{
 			printf("Failed to read program header %d\n", i);
@@ -84,7 +85,7 @@ executable_t *elf_executable_load_executable(char *filename)
 				if (j < phdr.file_size)
 				{
 					printf("Reading file data\n");
-					bytes_read = fs_read(executable, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
+					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
 				}
 				else
 				{
@@ -97,9 +98,15 @@ executable_t *elf_executable_load_executable(char *filename)
 		offset += sizeof(elf_program_header_t);
 	}
 
-	printf("Loaded the whole ELF correctly\n");
+	/* Allocate the executable structure */
+	executable_t *executable = (executable_t*) malloc(sizeof(executable_t));
+
+	/* Fill in the entry point */
+	executable->entry_point = (vaddr_t) header.entry_point;
 
 	/* Fill in the symbol table */
+
+	return executable;
 }
 
 /* Load an object file */

@@ -18,7 +18,7 @@ typedef struct executable_ops
 typedef struct executable
 {
 	/* Entry point */
-	vaddr_t entry;
+	vaddr_t entry_point;
 
 	/* Exported symbols */
 	dict_t exports;
