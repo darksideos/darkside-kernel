@@ -14,21 +14,17 @@ void ba_main(loader_block_t *loader_block)
 	{
 		panic("Failed to mount boot device, error %d\n", status);
 	}
-	
-	/* TEST */
-	inode_t *stage3 = fs_open("/boot/stage3.bin");
-	uint32_t buffer[512];
-	fs_read(stage3, buffer, 3, 2048);
-	printf("0x%08X 0x%08X\n", buffer[0], buffer[511]);
-	while(1);
 
 	/* Read and parse the configuration file */
 
-	/* Initialize graphics */
+	/* Initialize graphics
 	framebuffer_t *fb = graphics_init(0, 0, 0);
-	loader_block->fb = fb;
+	loader_block->fb = fb; */
 
 	/* Load the kernel into virtual memory */
+	elf_executable_load_executable("/boot/kernel-i386.elf");
+	void (*kernel_entry)() = 0x80000000;
+	kernel_entry();
 
 	/* Load the Hardware Abstraction Layer into memory */
 

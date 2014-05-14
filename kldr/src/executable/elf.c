@@ -50,19 +50,19 @@ executable_t *elf_executable_load_executable(char *filename)
 				/* Calculate page access flags */
 				int page_flags = 0;
 
-				if (phdr.flags & PF_READ)
+				if (phdr.flags & ELF_PF_READ)
 				{
-					flags |= PAGE_READ;
+					page_flags |= PAGE_READ;
 				}
 
-				if (phdr.flags & PF_WRITE)
+				if (phdr.flags & ELF_PF_WRITE)
 				{
-					flags |= PAGE_WRITE;
+					page_flags |= PAGE_WRITE;
 				}
 
-				if (phdr.flags & PF_EXECUTE)
+				if (phdr.flags & ELF_PF_EXECUTE)
 				{
-					flags |= PAGE_EXECUTE;
+					page_flags |= PAGE_EXECUTE;
 				}
 
 				/* Allocate pages and map them */
@@ -71,11 +71,11 @@ executable_t *elf_executable_load_executable(char *filename)
 				/* If the data is inside the file, read it, otherwise fill it with zeroes */
 				if (j < phdr.file_size)
 				{
-					bytes_read = fs_read(executable, phdr.virtual_address + j, phdr.offset + j, 0x1000);
+					bytes_read = fs_read(executable, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
 				}
 				else
 				{
-					memset(phdr.virtual_address + j, 0, 0x1000);
+					memset((void*) phdr.virtual_address + j, 0, 0x1000);
 				}
 			}
 		}
