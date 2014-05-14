@@ -14,6 +14,13 @@ void ba_main(loader_block_t *loader_block)
 	{
 		panic("Failed to mount boot device, error %d\n", status);
 	}
+	
+	/* TEST */
+	inode_t *stage3 = fs_open("/boot/stage3.bin");
+	uint32_t buffer[256];
+	fs_read(stage3, buffer, 1024, 1024);
+	printf("0x%08X\n", buffer[0], buffer[255]);
+	while(1);
 
 	/* Read and parse the configuration file */
 
