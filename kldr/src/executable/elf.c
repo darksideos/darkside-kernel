@@ -24,7 +24,7 @@ executable_t *elf_executable_load_executable(char *filename)
 		return NULL;
 	}
 
-	if (memcmp(header.magic, "\u7F45\u4c46", 4))
+	if (memcmp(header.magic, "\u7F45\u4C46", 4))
 	{
 		return NULL;
 	}

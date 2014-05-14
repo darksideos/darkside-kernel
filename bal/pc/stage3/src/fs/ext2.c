@@ -100,13 +100,20 @@ static void make_inode(filesystem_t *filesystem, inode_t *buffer, ext2_inode_t *
 }
 
 /* Read data from an EXT2 block pointer */
-static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint32_t block, uint32_t length, int level)
+static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint32_t block, uint32_t length, uint64_t *offset, int level)
 {
 	ext2_superblock_t *superblock = (ext2_superblock_t*) filesystem->extension;
 
 	/* Reading from a direct block pointer */
 	if (level == 0)
 	{
+		/* If we haven't reached the point of our data yet, decrement the offset and continue */
+		if (*offset >= superblock->block_size)
+		{
+			(*offset) -= 1024;
+			return 0;
+		}
+
 		uint32_t bytes_left = 0;
 
 		/* Are we reading over the block size */
@@ -123,7 +130,17 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			return 0;
 		}
 
-		memcpy(buffer, superblock->block_buffer, length);
+		/* Copy it into our buffer */
+		if (*offset != 0)
+		{
+			memcpy(buffer, superblock->block_buffer + *offset, length - *offset);
+			*offset = 0;
+		}
+		else
+		{
+			memcpy(buffer, superblock->block_buffer, length);
+		}
+
 		return length;
 	}
 	/* Reading from an indirect block pointer */
@@ -150,7 +167,7 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 
 		while (bytes_left > 0 && blocks_read < (superblock->block_size / 4))
 		{
-			bytes_read = read_block_pointer(filesystem, buffer, block_pointers[blocks_read], bytes_left, level - 1);
+			bytes_read = read_block_pointer(filesystem, buffer, block_pointers[blocks_read], bytes_left, &offset, level - 1);
 			bytes_left -= bytes_read;
 			buffer += bytes_read;
 			blocks_read++;
@@ -180,7 +197,7 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	/* First, read each direct block pointer */
 	while ((bytes_left > 0) && (direct_blocks_read < 12))
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, 0);
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->direct_block[direct_blocks_read], bytes_left, &offset, 0);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
 		direct_blocks_read++;
@@ -189,19 +206,19 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 	/* If that's not enough, try the singly, doubly, and triply indirect block pointers */
 	if (bytes_left > 0)
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, 1);
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->single_block, bytes_left, &offset, 1);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
 	}
 	if (bytes_left > 0)
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, 2);
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->double_block, bytes_left, &offset, 2);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
 	}
 	if (bytes_left > 0)
 	{
-		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, 3);
+		bytes_read = read_block_pointer(node->filesystem, buffer, ext2_node->triple_block, bytes_left, &offset, 3);
 		bytes_left -= bytes_read;
 		buffer += bytes_read;
 	}
