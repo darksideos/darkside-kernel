@@ -9,6 +9,7 @@
 #include <fs/fs.h>
 #include <fs/ext2.h>
 
+
 #include <stdio.h>
 
 /* EXT2 inode operations */
@@ -133,7 +134,11 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		/* Copy it into our buffer */
 		if (*offset != 0)
 		{
-			length -= *offset;
+			if (*offset + length >= superblock->block_size)
+			{
+				length -= *offset;
+			}
+
 			memcpy(buffer, superblock->block_buffer + *offset, length);
 			*offset = 0;
 		}
@@ -225,6 +230,7 @@ static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, ui
 		buffer += bytes_read;
 	}
 
+	printf("0x%08X\n", length - bytes_left);
 	return length - bytes_left;
 }
 

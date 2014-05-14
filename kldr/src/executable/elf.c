@@ -41,13 +41,15 @@ executable_t *elf_executable_load_executable(char *filename)
 	for (int i = 0; i < header.num_program_header_entries; i++)
 	{
 		/* Read the program header */
-		printf("Reading program header %d from offset 0x%08X\n to 0x%08X\n", i, (uint32_t) offset, &phdr);
+		printf("Reading 0x%08X from offset 0x%08X to 0x%08X\n", sizeof(elf_program_header_t), (uint32_t) offset, &phdr);
 		bytes_read = fs_read(executable, &phdr, offset, sizeof(elf_program_header_t));
-		if (bytes_read != sizeof(elf_header_t))
+		if (bytes_read != sizeof(elf_program_header_t))
 		{
 			printf("Failed to read program header %d\n", i);
 			return NULL;
 		}
+
+		printf("Read succeeded\n");
 
 		/* Check if it should be loaded into memory */
 		if (phdr.type == ELF_PT_LOAD)
