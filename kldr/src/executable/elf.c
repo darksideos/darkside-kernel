@@ -6,6 +6,8 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
+#include <stdio.h>
+
 /* Load a standard executable */
 executable_t *elf_executable_load_executable(char *filename)
 {
@@ -13,6 +15,7 @@ executable_t *elf_executable_load_executable(char *filename)
 	inode_t *executable = fs_open(filename);
 	if (!executable)
 	{
+		printf("Failed to open file\n");
 		return NULL;
 	}
 
@@ -21,11 +24,14 @@ executable_t *elf_executable_load_executable(char *filename)
 	uint64_t bytes_read = fs_read(executable, &header, 0, sizeof(elf_header_t));
 	if (bytes_read != sizeof(elf_header_t))
 	{
+		printf("Failed to read header\n");
 		return NULL;
 	}
 
-	if (memcmp(header.magic, "\u7F45\u4C46", 4))
+	char magic[4] = {0x7F, 'E', 'L', 'F'};
+	if (memcmp(header.magic, magic, 4))
 	{
+		printf("Header signature invalid\n");
 		return NULL;
 	}
 
@@ -35,9 +41,11 @@ executable_t *elf_executable_load_executable(char *filename)
 	for (int i = 0; i < header.num_program_header_entries; i++)
 	{
 		/* Read the program header */
+		printf("Reading program header %d from offset 0x%08X\n to 0x%08X\n", i, (uint32_t) offset, &phdr);
 		bytes_read = fs_read(executable, &phdr, offset, sizeof(elf_program_header_t));
 		if (bytes_read != sizeof(elf_header_t))
 		{
+			printf("Failed to read program header %d\n", i);
 			return NULL;
 		}
 
@@ -65,21 +73,29 @@ executable_t *elf_executable_load_executable(char *filename)
 					page_flags |= PAGE_EXECUTE;
 				}
 
+				printf("Page flags are 0x%08X\n", page_flags);
+
 				/* Allocate pages and map them */
 				map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
 
 				/* If the data is inside the file, read it, otherwise fill it with zeroes */
 				if (j < phdr.file_size)
 				{
+					printf("Reading file data\n");
 					bytes_read = fs_read(executable, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
 				}
 				else
 				{
+					printf("Zeroing memory\n");
 					memset((void*) phdr.virtual_address + j, 0, 0x1000);
 				}
 			}
 		}
+
+		offset += sizeof(elf_program_header_t);
 	}
+
+	printf("Loaded the whole ELF correctly\n");
 
 	/* Fill in the symbol table */
 }

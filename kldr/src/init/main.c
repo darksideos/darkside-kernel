@@ -23,6 +23,11 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Load the kernel into virtual memory */
 	elf_executable_load_executable("/boot/kernel-i386.elf");
+	int *ptr = 0xE0000000;
+	int a = *ptr;
+	a++;
+	*ptr = a;
+	while(1);
 	void (*kernel_entry)() = 0x80000000;
 	kernel_entry();
 
