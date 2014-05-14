@@ -42,9 +42,11 @@ executable_t *elf_executable_load_executable(char *filename)
 		}
 
 		/* Check if it should be loaded into memory */
-		if (phdr.type == PT_LOAD)
+		if (phdr.type == /*PT_LOAD*/ 0)
 		{
 			/* Allocate pages and map them */
+		}
+	}
 			
 }
 
