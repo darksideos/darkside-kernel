@@ -27,6 +27,10 @@
 #define ELF_PT_LOPROC						0x70000000
 #define ELF_PT_HIPROC						0x7FFFFFFF
 
+#define ELF_PF_EXECUTE						0x01
+#define ELF_PF_WRITE						0x02
+#define ELF_PF_READ							0x04
+
 #define ELF_SECTION_UNDEF					0
 
 #define ELF_ST_NULL							0

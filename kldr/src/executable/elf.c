@@ -42,12 +42,46 @@ executable_t *elf_executable_load_executable(char *filename)
 		}
 
 		/* Check if it should be loaded into memory */
-		if (phdr.type == /*PT_LOAD*/ 0)
+		if (phdr.type == ELF_PT_LOAD)
 		{
-			/* Allocate pages and map them */
+			/* Load each page into memory */
+			for (int j = 0; j < phdr.mem_size; j += 0x1000)
+			{
+				/* Calculate page access flags */
+				int page_flags = 0;
+
+				if (phdr.flags & PF_READ)
+				{
+					flags |= PAGE_READ;
+				}
+
+				if (phdr.flags & PF_WRITE)
+				{
+					flags |= PAGE_WRITE;
+				}
+
+				if (phdr.flags & PF_EXECUTE)
+				{
+					flags |= PAGE_EXECUTE;
+				}
+
+				/* Allocate pages and map them */
+				map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
+
+				/* If the data is inside the file, read it, otherwise fill it with zeroes */
+				if (j < phdr.file_size)
+				{
+					bytes_read = fs_read(executable, phdr.virtual_address + j, phdr.offset + j, 0x1000);
+				}
+				else
+				{
+					memset(phdr.virtual_address + j, 0, 0x1000);
+				}
+			}
 		}
 	}
-			
+
+	/* Fill in the symbol table */
 }
 
 /* Load an object file */
