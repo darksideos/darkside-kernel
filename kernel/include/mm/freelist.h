@@ -1,5 +1,5 @@
-#ifndef __PMM_H
-#define __PMM_H
+#ifndef __FREELIST_H
+#define __FREELIST_H
 
 /* Allocation flags */
 #define PAGE_32BIT	0x01
@@ -13,7 +13,7 @@ paddr_t pmm_alloc_pages(int num_pages, int flags);
 void pmm_free_page(paddr_t address);
 void pmm_free_pages(paddr_t address, int num_pages);
 
-/* Initialize the physical memory manager */
-void pmm_init();
+/* Initialize the free memory list */
+void freelist_init();
 
 #endif
