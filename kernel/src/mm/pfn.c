@@ -1,6 +1,7 @@
 #include <types.h>
 #include <iterator.h>
 #include <list.h>
+#include <init/loader.h>
 #include <microkernel/lock.h>
 #include <mm/memmap.h>
 #include <mm/page.h>
@@ -21,14 +22,14 @@ page_t *pfn_database_get(paddr_t address)
 }
 
 /* Initialize the PFN database from a physical memory map */
-void pfn_database_init(vaddr_t location, list_t *phys_mem_map)
+void pfn_database_init(loader_block_t *loader_block)
 {
 	/* Assign the address of the PFN database entries */
-	pfn_database_entries = (page_t*) location;
-	pfn_database_end = 0;
+	pfn_database_entries = (page_t*) loader_block->pfn_database;
+	pfn_database_end = loader_block->phys_mem_size;
 
 	/* Go through the physical memory map and add entries into the PFN database */
-	iterator_t iter = list_head(phys_mem_map);
+	iterator_t iter = list_head(loader_block->phys_mem_map);
 
 	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
 	paddr_t index = 0;
@@ -48,9 +49,6 @@ void pfn_database_init(vaddr_t location, list_t *phys_mem_map)
 			/* Go to the next PFN database entry */
 			index++;
 		}
-
-		/* Increase the end physical address */
-		pfn_database_end += entry->length;
 
 		/* Go to the next entry in the memory map */
 		entry = (mem_map_entry_t*) iter.next(&iter);
