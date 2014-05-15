@@ -17,7 +17,8 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
-		/* Initialize the PMM */
+		/* Initialize the free page list */
+		freelist_init();
 
 		/* Initialize paging, mapping our kernel and modules */
 

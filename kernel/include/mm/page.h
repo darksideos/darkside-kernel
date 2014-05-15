@@ -33,10 +33,4 @@ typedef struct page
 	struct page *next;
 } page_t;
 
-/* Get a page in the PFN database by address */
-page_t *pfn_database_get(paddr_t address);
-
-/* Initialize the PFN database from a physical memory map */
-void pfn_database_init(loader_block_t *loader_block);
-
 #endif
