@@ -1,6 +1,9 @@
 #include <types.h>
 #include <stdio.h>
+#include <iterator.h>
+#include <list.h>
 #include <init/loader.h>
+#include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <storage/storage.h>
 #include <fs/fs.h>
@@ -32,6 +35,30 @@ void ba_main(loader_block_t *loader_block)
 	/* Read and parse the module registry */
 
 	/* Load the boot modules into memory */
+
+	/* Calculate the size of physical memory */
+	iterator_t iter = list_head(loader_block->phys_mem_map);
+
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *next = entry;
+	while (entry)
+	{
+		next = (mem_map_entry_t*) iter.next(&iter);
+
+		if (!next)
+		{
+			break;
+		}
+		else
+		{
+			entry = next;
+		}
+	}
+
+	paddr_t phys_mem_size = (paddr_t) entry->base + entry->length;
+
+	/* Allocate space for the PFN database */
+	loader_block->pfn_database = kernel->end;
 
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);

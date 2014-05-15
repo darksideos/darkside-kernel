@@ -44,7 +44,6 @@ void pfn_database_init(vaddr_t location, list_t *phys_mem_map)
 			page->numa_domain = entry->numa_domain;
 			page->refcount = 0;
 			//spinlock_init(&page->lock);
-			page->next = &pfn_database_entries[index + 1];
 
 			/* Go to the next PFN database entry */
 			index++;
@@ -56,7 +55,4 @@ void pfn_database_init(vaddr_t location, list_t *phys_mem_map)
 		/* Go to the next entry in the memory map */
 		entry = (mem_map_entry_t*) iter.next(&iter);
 	}
-
-	/* Make sure the last entry doesn't point to a next one */
-	pfn_database_entries[index - 1].next = NULL;
 }
