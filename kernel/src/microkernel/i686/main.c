@@ -13,8 +13,6 @@ void microkernel_init(loader_block_t *loader_block, int cpu)
 
 		/* Initialize paging, mapping our kernel and modules */
 
-		/* Create the per-CPU data area */
-
 		/* Initialize the kernel's GDT and IDT */
 
 		/* Install CPU exception handlers */
@@ -23,8 +21,6 @@ void microkernel_init(loader_block_t *loader_block, int cpu)
 	else
 	{
 		/* Use the paging structures set up by the BSP */
-
-		/* Create the per-CPU data area */
 
 		/* Initialize the processor's TSS */
 
