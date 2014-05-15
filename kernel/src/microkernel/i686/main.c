@@ -1,5 +1,7 @@
 #include <types.h>
 #include <init/loader.h>
+#include <mm/page.h>
+#include <mm/pmm.h>
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *loader_block, int cpu)
