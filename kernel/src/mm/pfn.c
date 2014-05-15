@@ -1,0 +1,62 @@
+#include <types.h>
+#include <iterator.h>
+#include <list.h>
+#include <microkernel/lock.h>
+#include <mm/memmap.h>
+#include <mm/page.h>
+
+/* PFN database entries */
+static page_t *pfn_database_entries;
+static paddr_t pfn_database_end;
+
+/* Get a page in the PFN database by address */
+page_t *pfn_database_get(paddr_t address)
+{
+	if (address < pfn_database_end)
+	{
+		return &pfn_database_entries[address / 0x1000];
+	}
+
+	return NULL;
+}
+
+/* Initialize the PFN database from a physical memory map */
+void pfn_database_init(vaddr_t location, list_t *phys_mem_map)
+{
+	/* Assign the address of the PFN database entries */
+	pfn_database_entries = (page_t*) location;
+	pfn_database_end = 0;
+
+	/* Go through the physical memory map and add entries into the PFN database */
+	iterator_t iter = list_head(phys_mem_map);
+
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	paddr_t index = 0;
+	while (entry)
+	{
+		/* Create page entries for each page in the entry */
+		for (uint64_t i = 0; i < entry->base + entry->length; i += 0x1000)
+		{
+			/* Fill in the page information */
+			page_t *page = &pfn_database_entries[index];
+
+			page->flags = entry->flags;
+			page->numa_domain = entry->numa_domain;
+			page->refcount = 0;
+			//spinlock_init(&page->lock);
+			page->next = &pfn_database_entries[index + 1];
+
+			/* Go to the next PFN database entry */
+			index++;
+		}
+
+		/* Increase the end physical address */
+		pfn_database_end += entry->length;
+
+		/* Go to the next entry in the memory map */
+		entry = (mem_map_entry_t*) iter.next(&iter);
+	}
+
+	/* Make sure the last entry doesn't point to a next one */
+	pfn_database_entries[index - 1].next = NULL;
+}
