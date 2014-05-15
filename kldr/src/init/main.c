@@ -59,6 +59,7 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Allocate space for the PFN database */
 	loader_block->pfn_database = kernel->end;
+	loader_block->phys_mem_size = phys_mem_size;
 
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);

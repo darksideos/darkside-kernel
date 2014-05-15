@@ -12,6 +12,7 @@ typedef struct loader_block
 
 	/* PFN database address */
 	vaddr_t pfn_database;
+	paddr_t phys_mem_size;
 
 	/* Graphics framebuffer */
 	framebuffer_t *fb;

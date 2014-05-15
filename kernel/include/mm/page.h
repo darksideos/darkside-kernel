@@ -2,6 +2,7 @@
 #define __PAGE_H
 
 #include <list.h>
+#include <init/loader.h>
 #include <microkernel/lock.h>
 
 /* Memory map entry flags */
@@ -36,6 +37,6 @@ typedef struct page
 page_t *pfn_database_get(paddr_t address);
 
 /* Initialize the PFN database from a physical memory map */
-void pfn_database_init(vaddr_t location, list_t *phys_mem_map);
+void pfn_database_init(loader_block_t *loader_block);
 
 #endif

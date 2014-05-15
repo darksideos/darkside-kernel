@@ -1,15 +1,23 @@
 #include <types.h>
+#include <string.h>
 #include <init/loader.h>
 #include <mm/page.h>
 #include <mm/pmm.h>
 
 /* Initialize the core microkernel */
-void microkernel_init(loader_block_t *loader_block, int cpu)
+void microkernel_init(loader_block_t *_loader_block, int cpu)
 {
 	/* Running on the BSP */
 	if (cpu == 0)
 	{
-		/* Use the physical memory map to initialize the PMM */
+		/* Copy the loader block onto the initial kernel stack */
+		loader_block_t loader_block;
+		memcpy(&loader_block, _loader_block, sizeof(loader_block_t));
+
+		/* Use the physical memory map to create the PFN database */
+		pfn_database_init(&loader_block);
+
+		/* Initialize the PMM */
 
 		/* Initialize paging, mapping our kernel and modules */
 
