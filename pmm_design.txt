@@ -1,0 +1,19 @@
+Allocate one page
+	-Start at the beginning of the free page list
+	-While acquiring the rwlock (once) for writing fails
+		-Go to the next page in the list
+	-Return the address
+
+Allocate multiple pages
+	-Start at the beginning of the free page list
+	-Consecutive allocation code
+		-While acquiring the rwlock (once) for writing fails
+			-Go to the next page in the list
+		-Keep track of the allocation beginning
+		-While we've failed to allocate all needed pages
+			-Try to allocate the next page
+			-If the page is not directly following the current one
+				-Restart the allocation routine
+			-If we fail to acquire to rwlock (once)
+				-Restart the allocation routine
+			-Set the next page as the current page

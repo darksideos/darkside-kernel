@@ -8,6 +8,7 @@ if [ "$(uname -s)" == "Darwin" ]
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
+		sudo cp kernel/build/kernel-i386.elf /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
