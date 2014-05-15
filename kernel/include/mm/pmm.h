@@ -1,8 +1,6 @@
 #ifndef __PMM_H
 #define __PMM_H
 
-#include <list.h>
-
 /* Allocation flags */
 #define PAGE_32BIT	0x01
 #define PAGE_64BIT	0x02
