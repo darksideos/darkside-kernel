@@ -33,6 +33,9 @@ executable_t *elf_executable_load_executable(char *filename)
 		return NULL;
 	}
 
+	/* Start and end of the ELF executable in memory */
+	vaddr_t start = 0, end = 0;
+
 	/* Go through each program header and load it */
 	elf_program_header_t phdr;
 	uint64_t offset = header.program_header_offset;
@@ -48,6 +51,26 @@ executable_t *elf_executable_load_executable(char *filename)
 		/* Check if it should be loaded into memory */
 		if (phdr.type == ELF_PT_LOAD)
 		{
+			/* If this is the first section, set the start and end */
+			if (!start)
+			{
+				start = (vaddr_t) phdr.virtual_address;
+				end = (vaddr_t) phdr.virtual_address + phdr.mem_size;
+			}
+			/* Otherwise, check to see if the start is smaller or end is greater */
+			else
+			{
+				if (phdr.virtual_address < start)
+				{
+					start = (vaddr_t) phdr.virtual_address;
+				}
+
+				if (phdr.virtual_address + phdr.mem_size > end)
+				{
+					end = (vaddr_t) phdr.virtual_address + phdr.mem_size;
+				}
+			}
+
 			/* Load each page into memory */
 			for (int j = 0; j < phdr.mem_size; j += 0x1000)
 			{
@@ -90,7 +113,9 @@ executable_t *elf_executable_load_executable(char *filename)
 	/* Allocate the executable structure */
 	executable_t *executable = (executable_t*) malloc(sizeof(executable_t));
 
-	/* Fill in the entry point */
+	/* Fill in the start, end, and entry point */
+	executable->start = start;
+	executable->end = end;
 	executable->entry_point = (vaddr_t) header.entry_point;
 
 	/* Fill in the symbol table */
