@@ -15,13 +15,14 @@
 #define PAGE_FLAG_MMIO		0x40
 #define PAGE_FLAG_VOLATILE	0x80
 #define PAGE_FLAG_HOTPLUG	0x100
+#define PAGE_FLAG_BAD		0x200
 
 /* Page information structure */
 typedef struct page
 {
 	/* Page flags and NUMA domain */
-	uint32_t flags;
-	uint32_t numa_domain;
+	int flags;
+	int numa_domain;
 
 	/* Reference count */
 	uint32_t refcount;

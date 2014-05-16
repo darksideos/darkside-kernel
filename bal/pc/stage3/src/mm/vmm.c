@@ -25,8 +25,6 @@ static uint32_t *get_page(vaddr_t virtual_address)
 	uint32_t *directory = (uint32_t*) 0xFFFFF000;
 	uint32_t *table = (uint32_t*) (0xFFC00000 + (0x1000 * table_index));
 
-	printf("Dir: 0x%08X, table: 0x%08X, page index: 0x%08X\n", directory, table, page % 1024);
-
 	/* If the page table already exists, return the page */
 	if (directory[table_index])
 	{
@@ -40,8 +38,6 @@ static uint32_t *get_page(vaddr_t virtual_address)
 		flush_tlb();
 		memset(table, 0, 0x1000);
 
-		printf("Allocated new at 0x%08X\n", directory[table_index]);
-
 		/* Return the page */
 		return &table[page % 1024];
 	}
@@ -50,8 +46,6 @@ static uint32_t *get_page(vaddr_t virtual_address)
 /* Map a virtual address to a physical address */
 void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 {
-	printf("Mapping paddr 0x%08X to vaddr 0x%08X\n", (uint32_t) physical_address, (uint32_t) virtual_address);
-
 	/* Calculate the flags */
 	uint32_t x86_flags = 0x01;
 

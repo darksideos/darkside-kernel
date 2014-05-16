@@ -11,14 +11,15 @@
 #define MEM_FLAG_MMIO		0x40
 #define MEM_FLAG_VOLATILE	0x80
 #define MEM_FLAG_HOTPLUG	0x100
+#define MEM_FLAG_BAD		0x200
 
 /* Memory map entry structure */
 typedef struct mem_map_entry
 {
 	uint64_t base;
 	uint64_t length;
-	uint32_t flags;
-	uint32_t numa_domain;
+	int flags;
+	int numa_domain;
 } mem_map_entry_t;
 
 /* Allocate a physical page */
