@@ -64,7 +64,7 @@ void ba_main(loader_block_t *loader_block)
 			/* Allocate the space */
 			for (vaddr_t i = pfn_database; i < pfn_database + needed_space; i += 0x1000)
 			{
-				map_page(pfn_database, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 		}
 
@@ -85,6 +85,8 @@ void ba_main(loader_block_t *loader_block)
 	}
 
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
+
+	while(1);
 
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);
