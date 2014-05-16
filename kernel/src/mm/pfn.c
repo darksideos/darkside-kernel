@@ -38,13 +38,19 @@ void pfn_database_init(loader_block_t *loader_block)
 		/* Create page entries for each page in the entry */
 		for (uint64_t i = 0; i < entry->base + entry->length; i += 0x1000)
 		{
-			/* Fill in the page information */
-			page_t *page = &pfn_database_entries[index];
+			/* If the entry is valid */
+			if (entry->flags)
+			{
+				/* Fill in the page information */
+				page_t *page = &pfn_database_entries[index];
 
-			page->flags = entry->flags;
-			page->numa_domain = entry->numa_domain;
-			page->refcount = 0;
-			//spinlock_init(&page->lock);
+				//printf("Base: 0x%08X, length: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length);
+
+				page->flags = entry->flags;
+				page->numa_domain = entry->numa_domain;
+				page->refcount = 0;
+				//spinlock_init(&page->lock);
+			}
 
 			/* Go to the next PFN database entry */
 			index++;
