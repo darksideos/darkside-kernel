@@ -36,13 +36,42 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Load the boot modules into memory */
 
-	/* Calculate the size of physical memory */
+	/* Allocate space for the PFN database */
+	vaddr_t pfn_database = kernel->end;
+	loader_block->pfn_database = pfn_database;
+
 	iterator_t iter = list_head(loader_block->phys_mem_map);
 
 	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
 	mem_map_entry_t *next = entry;
 	while (entry)
 	{
+		/* How much space is needed? */
+		uint64_t needed_space = (entry->length / 0x1000) * /*sizeof(page_t)*/ 24;
+
+		/* If the block refers to actual memory, allocate PFN structures for it */
+		if (entry->flags)
+		{
+			/* Try to get to a page boundary */
+			uint64_t to_next_page = 0;
+			if (pfn_database & 0xFFF)
+			{
+				uint64_t to_next_page = 0x1000 - (pfn_database & 0xFFF);
+			}
+			pfn_database += to_next_page;
+			needed_space -= to_next_page;
+
+			/* Allocate the space */
+			for (vaddr_t i = pfn_database; i < pfn_database + needed_space; i += 0x1000)
+			{
+				map_page(pfn_database, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+			}
+		}
+
+		/* Increment the PFN database pointer by the needed space */
+		pfn_database += needed_space;
+
+		/* Go to the next entry */
 		next = (mem_map_entry_t*) iter.next(&iter);
 
 		if (!next)
@@ -55,11 +84,7 @@ void ba_main(loader_block_t *loader_block)
 		}
 	}
 
-	paddr_t phys_mem_size = (paddr_t) entry->base + entry->length;
-
-	/* Allocate space for the PFN database */
-	loader_block->pfn_database = kernel->end;
-	loader_block->phys_mem_size = phys_mem_size;
+	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
 
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);
