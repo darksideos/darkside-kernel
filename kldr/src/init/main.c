@@ -82,6 +82,12 @@ void ba_main(loader_block_t *loader_block)
 			pfn_database += to_next_page;
 			needed_space -= to_next_page;
 
+			/* If needed, allocate the page before */
+			if (to_next_page && get_mapping(pfn_database - to_next_page) == -1)
+			{
+				map_page(pfn_database - to_next_page, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+			}
+
 			/* Allocate the space */
 			for (vaddr_t i = pfn_database; i < pfn_database + needed_space; i += 0x1000)
 			{
