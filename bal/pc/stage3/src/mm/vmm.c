@@ -22,21 +22,25 @@ static uint32_t *get_page(vaddr_t virtual_address)
 	uint32_t table_index = page >> 10;
 
 	/* Get the address of the recursive page directory and recursive page table */
-	uint32_t *directory = &((uint32_t*) 0xFFC00000)[1023];
-	uint32_t *table = &((uint32_t*) 0xFFC00000)[table_index];
+	uint32_t *directory = (uint32_t*) 0xFFFFF000;
+	uint32_t *table = (uint32_t*) (0xFFC00000 + (0x1000 * table_index));
+
+	printf("Dir: 0x%08X, table: 0x%08X, page index: 0x%08X\n", directory, table, page % 1024);
 
 	/* If the page table already exists, return the page */
 	if (directory[table_index])
 	{
 		return &table[page % 1024];
 	}
-	/* Otherwise, create the page tab;e and return the page */
+	/* Otherwise, create the page table and return the page */
 	else
 	{
 		/* Create a new page table */
 		directory[table_index] = pmm_alloc_page() | 0x03;
 		flush_tlb();
 		memset(table, 0, 0x1000);
+
+		printf("Allocated new at 0x%08X\n", directory[table_index]);
 
 		/* Return the page */
 		return &table[page % 1024];
@@ -46,6 +50,8 @@ static uint32_t *get_page(vaddr_t virtual_address)
 /* Map a virtual address to a physical address */
 void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 {
+	printf("Mapping paddr 0x%08X to vaddr 0x%08X\n", (uint32_t) physical_address, (uint32_t) virtual_address);
+
 	/* Calculate the flags */
 	uint32_t x86_flags = 0x01;
 
@@ -62,7 +68,7 @@ void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 	uint32_t *page = get_page(virtual_address);
 
 	/* Map the page to the physical address */
-	*page = physical_address | flags;
+	*page = physical_address | x86_flags;
 
 	/* Invalidate the TLB entry */
 	__asm__ volatile ("invlpg (%0)" :: "a" ((uint32_t) virtual_address));
