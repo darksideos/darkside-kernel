@@ -118,6 +118,9 @@ executable_t *elf_executable_load_executable(char *filename)
 	executable->end = end;
 	executable->entry_point = (vaddr_t) header.entry_point;
 
+	printf("Executable end: 0x%08X\n", executable->end);
+	while(1);
+
 	/* Fill in the symbol table */
 
 	return executable;
