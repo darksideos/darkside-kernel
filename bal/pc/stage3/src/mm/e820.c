@@ -60,9 +60,9 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		{
 			entry->flags = MEM_FLAG_USABLE | MEM_FLAG_FIRMWARE;
 		}
-		else
+		else if (e820_entries[i].type == E820_TYPE_BAD)
 		{
-			entry->flags = 0;
+			entry->flags = MEM_FLAG_BAD;
 		}
 
 		list_insert_tail(&phys_mem_map, entry);
