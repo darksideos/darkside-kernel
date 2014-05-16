@@ -43,6 +43,20 @@ static uint32_t *get_page(vaddr_t virtual_address)
 	}
 }
 
+/* Get the physical address mapping of a virtual page */
+paddr_t get_mapping(vaddr_t virtual_address)
+{
+	uint32_t *page = get_page(virtual_address);
+	paddr_t physical_address = (paddr_t) *page & 0xFFFFF000;
+
+	if (*page & 1)
+	{
+		return physical_address;
+	}
+
+	return -1;
+}
+
 /* Map a virtual address to a physical address */
 void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 {
