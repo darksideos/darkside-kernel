@@ -11,4 +11,3 @@ void bal_enter_kernel(vaddr_t entry_point, loader_block_t *loader_block)
 	:
 	: "r" (loader_block), "r" (entry_point));
 }
-
