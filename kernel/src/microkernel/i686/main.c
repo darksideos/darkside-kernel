@@ -1,8 +1,8 @@
 #include <types.h>
 #include <string.h>
 #include <init/loader.h>
-#include <mm/page.h>
-#include <mm/pmm.h>
+#include <mm/pfn.h>
+#include <mm/freelist.h>
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, int cpu)
