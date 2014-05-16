@@ -51,6 +51,8 @@ executable_t *elf_executable_load_executable(char *filename)
 		/* Check if it should be loaded into memory */
 		if (phdr.type == ELF_PT_LOAD)
 		{
+			printf("Start: 0x%08X, file size: 0x%08X, mem size: 0x%08X\n", phdr.virtual_address, phdr.file_size, phdr.mem_size);
+
 			/* If this is the first section, set the start and end */
 			if (!start)
 			{
@@ -107,7 +109,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			}
 		}
 
-		offset += sizeof(elf_program_header_t);
+		offset += header.program_header_entry_size;
 	}
 
 	/* Allocate the executable structure */
@@ -118,8 +120,11 @@ executable_t *elf_executable_load_executable(char *filename)
 	executable->end = end;
 	executable->entry_point = (vaddr_t) header.entry_point;
 
-	printf("Executable end: 0x%08X\n", executable->end);
-	while(1);
+	/* Page align the end */
+	if (executable->end & 0xFFF)
+	{
+		executable->end = (executable->end & 0xFFFFF000) + 0x1000;
+	}
 
 	/* Fill in the symbol table */
 
