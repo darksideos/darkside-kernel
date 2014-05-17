@@ -73,40 +73,45 @@ executable_t *elf_executable_load_executable(char *filename)
 				}
 			}
 
-			/* Load each page into memory */
-			for (int j = 0; j < phdr.mem_size; j += 0x1000)
+			/* Calculate page access flags */
+			int page_flags = 0;
+
+			if (phdr.flags & ELF_PF_READ)
 			{
-				/* Calculate page access flags */
-				int page_flags = 0;
+				page_flags |= PAGE_READ;
+			}
 
-				if (phdr.flags & ELF_PF_READ)
-				{
-					page_flags |= PAGE_READ;
-				}
+			if (phdr.flags & ELF_PF_WRITE)
+			{
+				page_flags |= PAGE_WRITE;
+			}
 
-				if (phdr.flags & ELF_PF_WRITE)
-				{
-					page_flags |= PAGE_WRITE;
-				}
+			if (phdr.flags & ELF_PF_EXECUTE)
+			{
+				page_flags |= PAGE_EXECUTE;
+			}
 
-				if (phdr.flags & ELF_PF_EXECUTE)
-				{
-					page_flags |= PAGE_EXECUTE;
-				}
-
+			/* Load each page from the file into memory */
+			uint32_t file_size = phdr.file_size;
+			for (int j = 0; j < file_size; j += 0x1000)
+			{
 				/* Allocate pages and map them */
 				map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
 
-				/* If the data is inside the file, read it, otherwise fill it with zeroes */
-				if (j < phdr.file_size)
+				/* Read the data from the file */
+				if (phdr.file_size < 0x1000)
 				{
-					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
+					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, phdr.file_size);
 				}
 				else
 				{
-					memset((void*) phdr.virtual_address + j, 0, 0x1000);
+					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
+					phdr.file_size -= 0x1000;
 				}
 			}
+
+			/* Try to get to a page boundary */
+
 		}
 
 		offset += header.program_header_entry_size;
