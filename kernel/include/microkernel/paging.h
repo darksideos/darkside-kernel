@@ -14,6 +14,7 @@
 #define PAGE_INVALID		0x00
 #define PAGE_NOCACHE		0x10
 #define PAGE_WRITECOMBINE	0x20
+#define PAGE_GLOBAL			0x40
 
 /* Create, destroy, and switch to an address space */
 paddr_t vmm_create_address_space();
