@@ -16,7 +16,7 @@ typedef struct cpu
 	/* NUMA domain */
 	numa_domain_t *numa_domain;
 
-	/* TSS for the CPU */
+	/* GDT and IDT for the CPU */
 
 	/* Free page list for the CPU */
 	page_t *free_list;
