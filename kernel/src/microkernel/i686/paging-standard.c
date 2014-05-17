@@ -24,7 +24,7 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 		/* If we lack the current page directory, read it in */
 		if (current_directory == -1)
 		{
-			__asm__("mov %%cr3, %0" : "=r"(current_directory));
+			__asm__ volatile("mov %%cr3, %0" : "=r"(current_directory));
 		}
 
 		/* Get the address of the recursive page directory and recursive page table */
@@ -75,13 +75,13 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 /* Flush a TLB entry */
 void vmm_flush_tlb_entry(vaddr_t virtual_address)
 {
-	__asm__("invlpg (%0)" :: "a" ((uint32_t) virtual_address));
+	__asm__ volatile("invlpg (%0)" :: "a" ((uint32_t) virtual_address));
 }
 
 /* Flush the entire TLB */
 void vmm_flush_tlb()
 {
-	__asm__("mov %0, %%cr3" :: "r" (current_directory));
+	__asm__ volatile("mov %0, %%cr3" :: "r" (current_directory));
 }
 
 /* Query a virtual address's mapping */

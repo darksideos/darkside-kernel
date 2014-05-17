@@ -1,13 +1,11 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
-#include <types.h>
-
 /* Spinlock structure */
 typedef struct spinlock
 {
-	uint32_t value;
-	volatile uint32_t interrupts;
+	atomic_t value;
+	uint32_t interrupts;
 } spinlock_t;
 
 /* Spinlock methods */

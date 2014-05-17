@@ -7,6 +7,7 @@
 #include <microkernel/paging.h>
 
 #include <stdio.h>
+#include <microkernel/lock.h>
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, int cpu)
@@ -21,7 +22,7 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 		loader_block_t loader_block;
 		memcpy(&loader_block, _loader_block, sizeof(loader_block_t));
 
-		/* PRINTF() TESTS */
+		/* printf() tests */
 		printf("Hello world!\n");
 		printf("0x%08X in decimal is %u\n", 0xDEADBEEF, 0xDEADBEEF);
 		printf("I really enjoy %s\n", "printing strings");

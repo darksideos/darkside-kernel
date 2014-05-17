@@ -13,6 +13,7 @@ typedef unsigned int			uint32_t;
 typedef unsigned long long		uint64_t;
 typedef unsigned long long		paddr_t;
 typedef unsigned int			vaddr_t;
+typedef volatile unsigned int	atomic_t;
 
 /* AMD64 */
 #elif defined(__x86_64__)
