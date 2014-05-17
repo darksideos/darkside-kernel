@@ -34,9 +34,9 @@ static uint32_t *get_page(vaddr_t virtual_address)
 	else
 	{
 		/* Create a new page table */
-		//directory[table_index] = pmm_alloc_page() | 0x03;
-		//flush_tlb();
-		//memset(table, 0, 0x1000);
+		directory[table_index] = pmm_alloc_page() | 0x03;
+		flush_tlb();
+		memset(table, 0, 0x1000);
 
 		/* Return the page */
 		return &table[page % 1024];
