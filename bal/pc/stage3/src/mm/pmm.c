@@ -16,7 +16,7 @@ paddr_t pmm_alloc_page()
 	while (entry)
 	{
 		/* If the entry is free */
-		if ((entry->flags & (MEM_FLAG_USABLE)) && (entry->flags & (MEM_FLAG_FREE)) && (entry->length >= 0x1000) && (entry->base >= 0x100000))
+		if ((entry->flags & (MEM_FLAG_USABLE | MEM_FLAG_FREE)) && (entry->length >= 0x1000) && (entry->base >= 0x100000))
 		{
 			uint64_t old_base = entry->base;
 			uint64_t old_flags = entry->flags;
@@ -35,7 +35,8 @@ paddr_t pmm_alloc_page()
 				iter.next(&iter);
 				
 				/* If prev is compatible with entry, we can expand prev and contract entry instead of allocating a new entry */
-				if(prev && (prev->flags == entry->flags) && (prev->numa_domain == entry->numa_domain)) {
+				if(prev && (prev->flags == entry->flags))
+				{
 					prev->length += 0x1000;
 					entry->length -= 0x1000;
 					
