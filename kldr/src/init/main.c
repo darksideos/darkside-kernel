@@ -77,7 +77,7 @@ void ba_main(loader_block_t *loader_block)
 			uint32_t to_next_page = 0;
 			if (pfn_database & 0xFFF)
 			{
-				uint64_t to_next_page = 0x1000 - (pfn_database & 0xFFF);
+				to_next_page = 0x1000 - (pfn_database & 0xFFF);
 			}
 			pfn_database += to_next_page;
 			needed_space -= to_next_page;
