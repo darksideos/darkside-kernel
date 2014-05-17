@@ -24,7 +24,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 		printf("Hello world!\n");
 		printf("0x%08X in decimal is %u\n", 0xDEADBEEF, 0xDEADBEEF);
 		printf("I really enjoy %s\n", "printing strings");
-		while(1);
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
