@@ -16,6 +16,10 @@
 #define PAGE_WRITECOMBINE	0x20
 #define PAGE_GLOBAL			0x40
 
+/* Flush a TLB entry and flush the entire TLB */
+void vmm_flush_tlb_entry(vaddr_t virtual_address);
+void vmm_flush_tlb();
+
 /* Create, destroy, and switch to an address space */
 paddr_t vmm_create_address_space();
 void vmm_destroy_address_space(paddr_t address_space);
