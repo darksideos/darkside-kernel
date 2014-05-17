@@ -35,6 +35,8 @@ void pfn_database_init(loader_block_t *loader_block)
 	paddr_t index = 0;
 	while (entry)
 	{
+		printf("Base: 0x%08X, length: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length);
+
 		/* Create page entries for each page in the entry */
 		for (uint64_t i = 0; i < entry->base + entry->length; i += 0x1000)
 		{
@@ -43,8 +45,6 @@ void pfn_database_init(loader_block_t *loader_block)
 			{
 				/* Fill in the page information */
 				page_t *page = &pfn_database_entries[index];
-
-				//printf("Base: 0x%08X, length: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length);
 
 				page->flags = entry->flags;
 				page->numa_domain = entry->numa_domain;
