@@ -3,6 +3,7 @@
 #include <list.h>
 #include <init/loader.h>
 #include <microkernel/lock.h>
+#include <microkernel/paging.h>
 #include <mm/memmap.h>
 #include <mm/page.h>
 
@@ -13,12 +14,25 @@ static paddr_t pfn_database_end;
 /* Get a page in the PFN database by address */
 page_t *pfn_database_get(paddr_t address)
 {
-	if (address < pfn_database_end)
+	/* Out of range */
+	if (address >= pfn_database_end)
 	{
-		return &pfn_database_entries[address / 0x1000];
+		return NULL;
+	}
+	/* Not mapped */
+	else if (vmm_get_mapping(-1, (vaddr_t) &pfn_database_entries[address / 0x1000]) == -1)
+	{
+		return NULL;
+	}
+	
+	/* Check if the PFN database entry is invalid */
+	page_t *entry = &pfn_database_entries[address / 0x1000];
+	if (!entry->flags)
+	{
+		return NULL;
 	}
 
-	return NULL;
+	return entry;
 }
 
 /* Initialize the PFN database from a physical memory map */
@@ -26,7 +40,7 @@ void pfn_database_init(loader_block_t *loader_block)
 {
 	/* Assign the address of the PFN database entries */
 	pfn_database_entries = (page_t*) loader_block->pfn_database;
-	pfn_database_end = loader_block->phys_mem_size;
+	pfn_database_end = loader_block->pfn_database + ((loader_block->phys_mem_size / 0x1000) * sizeof(page_t));
 
 	/* Go through the physical memory map and add entries into the PFN database */
 	iterator_t iter = list_head(loader_block->phys_mem_map);
