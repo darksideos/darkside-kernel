@@ -1,0 +1,24 @@
+Start at 0x80000000, file size 0x2164, mem size 0x2164
+	File size = 0x2164
+	First iteration
+		j = 0
+		Map 0x80000000 to an allocated page
+		Read 0x1000 bytes to 0x80000000
+		File size = 0x1164
+	Second iteration
+		j = 0x1000
+		Map 0x80001000 to an allocated page
+		Read 0x1000 bytes to 0x80001000
+		File size = 0x164
+	Third iteration
+		j = 0x2000
+		Map 0x80002000 to an allocated page
+		Read 0x164 bytes to 0x80002000
+
+Start at 0x80003000, file size 0x0004, mem size 0x3018
+	File size = 0x0004
+	First iteration
+		Map 0x80003000 to an allocated page
+		Read 0x0004 bytes to 0x80003000
+
+	We have 0x3014 more bytes of memory to read
