@@ -26,12 +26,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 		printf("0x%08X in decimal is %u\n", 0xDEADBEEF, 0xDEADBEEF);
 		printf("I really enjoy %s\n", "printing strings");
 
-		/* VMM_GET_MAPPING() TESTS */
-		printf("0x80000000 is mapped to 0x%08X\n", (uint32_t) vmm_get_mapping(-1, 0x80000000));
-		printf("0x80001000 is mapped to 0x%08X\n", (uint32_t) vmm_get_mapping(-1, 0x80001000));
-		printf("0x80002000 is mapped to 0x%08X\n", (uint32_t) vmm_get_mapping(-1, 0x80002000));
-		printf("0x80003000 is mapped to 0x%08X\n", (uint32_t) vmm_get_mapping(-1, 0x80003000));
-
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
