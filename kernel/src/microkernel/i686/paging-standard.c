@@ -51,7 +51,7 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 		if (address_space == -1)
 		{
 			/* Map it recursively */
-			directory[pde_index] = pmm_alloc_page() | 0x03;
+			//directory[pde_index] = pmm_alloc_page() | 0x03;
 			vmm_flush_tlb();
 		}
 		else
