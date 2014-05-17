@@ -11,7 +11,7 @@
 #include <fs/ext2.h>
 
 #include <stdio.h>
-#include <string.h>
+#include <mm/pmm.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
