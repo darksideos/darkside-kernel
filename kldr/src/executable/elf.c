@@ -7,8 +7,6 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
-#include <stdio.h>
-
 /* Load a standard executable */
 executable_t *elf_executable_load_executable(char *filename)
 {
@@ -51,8 +49,6 @@ executable_t *elf_executable_load_executable(char *filename)
 		/* Check if it should be loaded into memory */
 		if (phdr.type == ELF_PT_LOAD)
 		{
-			printf("Start: 0x%08X, file size: 0x%08X, mem size: 0x%08X\n", phdr.virtual_address, phdr.file_size, phdr.mem_size);
-
 			/* If this is the first section, set the start and end */
 			if (!start)
 			{
@@ -101,7 +97,6 @@ executable_t *elf_executable_load_executable(char *filename)
 				/* Read the data from the file */
 				if (phdr.file_size < 0x1000)
 				{
-					printf("Reading 0x%08X bytes from file\n", phdr.file_size);
 					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, phdr.file_size);
 				}
 				else
@@ -126,7 +121,6 @@ executable_t *elf_executable_load_executable(char *filename)
 			}
 			else if (phdr.mem_size > to_next_page)
 			{
-				printf("Clearing 0x%08X bytes\n", to_next_page);
 				memset((void*) phdr.virtual_address + file_size, 0, to_next_page);
 				phdr.mem_size -= to_next_page;
 				phdr.virtual_address += file_size + to_next_page;
@@ -134,8 +128,6 @@ executable_t *elf_executable_load_executable(char *filename)
 
 			/* Now clear the rest of the memory */
 			uint32_t mem_size = phdr.mem_size;
-			printf("Now there are 0x%08X bytes left to clear\n", mem_size);
-			printf("Virtual address at 0x%08X\n", phdr.virtual_address);
 			for (int j = 0; j < mem_size; j += 0x1000)
 			{
 				/* Allocate pages and map them */
