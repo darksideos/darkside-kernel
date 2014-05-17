@@ -18,10 +18,8 @@ paddr_t pmm_alloc_page()
 		/* If the entry is free */
 		if ((entry->flags & (MEM_FLAG_USABLE | MEM_FLAG_FREE)) && (entry->length >= 0x1000) && (entry->base >= 0x100000))
 		{
+			/* Save the old base address of the entry */
 			uint64_t old_base = entry->base;
-			uint64_t old_flags = entry->flags;
-			
-			entry->flags &= ~MEM_FLAG_FREE;
 			
 			/* If the entry is one page */
 			if (entry->length == 0x1000)
@@ -34,14 +32,13 @@ paddr_t pmm_alloc_page()
 				mem_map_entry_t *prev = (mem_map_entry_t*) iter.prev(&iter);
 				iter.next(&iter);
 				
-				/* If prev is compatible with entry, we can expand prev and contract entry instead of allocating a new entry */
-				if(prev && (prev->flags == entry->flags))
+				/* If the previous entry is compatible with the current one, we can expand the previous and contract the current */
+				if(prev && (prev->flags == (entry->flags & ~MEM_FLAG_FREE)))
 				{
 					prev->length += 0x1000;
-					entry->length -= 0x1000;
-					
-					old_base = entry->base;
+
 					entry->base += 0x1000;
+					entry->length -= 0x1000;
 				}
 				/* We have to allocate a new entry */
 				else
@@ -50,7 +47,7 @@ paddr_t pmm_alloc_page()
 					mem_map_entry_t *new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
 					new->base = entry->base + 0x1000;
 					new->length = entry->length - 0x1000;
-					new->flags = old_flags;
+					new->flags = entry->flags;
 					new->numa_domain = 0xFFFFFFFF;
 	
 					/* Insert it into the list  */
@@ -58,6 +55,7 @@ paddr_t pmm_alloc_page()
 	
 					/* Update the current entry */
 					entry->length = 0x1000;
+					entry->flags &= ~MEM_FLAG_FREE;
 				}
 			}
 
