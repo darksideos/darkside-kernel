@@ -1,4 +1,6 @@
 #include <types.h>
+#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <iterator.h>
 #include <list.h>
@@ -93,6 +95,14 @@ void ba_main(loader_block_t *loader_block)
 			{
 				map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
+
+			/* Clear the rest */
+			uint32_t space_remaining = 0;
+			if ((pfn_database + needed_space) & 0xFFF)
+			{
+				space_remaining = 0x1000 - ((pfn_database + needed_space) & 0xFFF);
+			}
+			memset((void*) pfn_database + needed_space, 0, space_remaining);
 		}
 
 		/* Increment the PFN database pointer by the needed space */
