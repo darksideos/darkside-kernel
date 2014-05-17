@@ -37,6 +37,9 @@ void bal_main(data_t *_data)
 
 	/* Initialize the physical and virtual memory managers */
 	list_t *phys_mem_map = pmm_init(data->e820_entries, data->num_e820_entries);
+	
+	printf("0x%08X 0x%08X 0x%08X\n", (uint32_t)pmm_alloc_page(), (uint32_t)pmm_alloc_page(), (uint32_t)pmm_alloc_page());
+	while(1);
 	vmm_init();
 
 	/* Initialize the storage tree */
