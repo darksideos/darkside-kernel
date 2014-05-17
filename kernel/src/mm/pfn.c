@@ -43,6 +43,8 @@ void pfn_database_init(loader_block_t *loader_block)
 			/* If the entry is valid */
 			if (entry->flags)
 			{
+				printf("%d\n", (uint32_t) index);
+
 				/* Fill in the page information */
 				page_t *page = &pfn_database_entries[index];
 
