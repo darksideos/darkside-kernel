@@ -3,6 +3,9 @@
 
 #include <init/loader.h>
 
+/* Address space mnemonics */
+#define ADDR_SPACE_CURRENT	-1
+
 /* Page protections */
 #define PAGE_READ			0x01
 #define PAGE_WRITE			0x02
