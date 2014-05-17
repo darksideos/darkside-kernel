@@ -101,6 +101,7 @@ executable_t *elf_executable_load_executable(char *filename)
 				/* Read the data from the file */
 				if (phdr.file_size < 0x1000)
 				{
+					printf("Reading 0x%08X bytes from file\n", phdr.file_size);
 					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, phdr.file_size);
 				}
 				else
@@ -111,7 +112,46 @@ executable_t *elf_executable_load_executable(char *filename)
 			}
 
 			/* Try to get to a page boundary */
+			uint32_t to_next_page = 0;
+			if ((phdr.virtual_address + file_size) & 0xFFF)
+			{
+				to_next_page = 0x1000 - ((phdr.virtual_address + file_size) & 0xFFF);
+			}
 
+			phdr.mem_size -= file_size;
+			if (phdr.mem_size < to_next_page)
+			{
+				memset((void*) phdr.virtual_address + file_size, 0, phdr.mem_size);
+				phdr.mem_size = 0;
+			}
+			else if (phdr.mem_size > to_next_page)
+			{
+				printf("Clearing 0x%08X bytes\n", to_next_page);
+				memset((void*) phdr.virtual_address + file_size, 0, to_next_page);
+				phdr.mem_size -= to_next_page;
+				phdr.virtual_address += file_size + to_next_page;
+			}
+
+			/* Now clear the rest of the memory */
+			uint32_t mem_size = phdr.mem_size;
+			printf("Now there are 0x%08X bytes left to clear\n", mem_size);
+			printf("Virtual address at 0x%08X\n", phdr.virtual_address);
+			for (int j = 0; j < mem_size; j += 0x1000)
+			{
+				/* Allocate pages and map them */
+				map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
+
+				/* Clear the memory */
+				if (phdr.mem_size < 0x1000)
+				{
+					memset((void*) phdr.virtual_address + j, 0, phdr.mem_size);
+				}
+				else
+				{
+					memset((void*) phdr.virtual_address + j, 0, 0x1000);
+					phdr.mem_size -= 0x1000;
+				}
+			}
 		}
 
 		offset += header.program_header_entry_size;
