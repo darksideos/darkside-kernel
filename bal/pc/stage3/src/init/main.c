@@ -11,7 +11,7 @@
 #include <fs/ext2.h>
 
 #include <stdio.h>
-#include <string.h>
+#include <mm/pmm.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
@@ -37,6 +37,21 @@ void bal_main(data_t *_data)
 
 	/* Initialize the physical and virtual memory managers */
 	list_t *phys_mem_map = pmm_init(data->e820_entries, data->num_e820_entries);
+	
+	for (int i = 0; i < 0x80; i++)
+	{
+		uint32_t page = (uint32_t) pmm_alloc_page();
+		printf("0x%08X\n", page);
+	}
+
+	mem_map_entry_t *entry = list_remove_head(phys_mem_map);
+	while (entry)
+	{
+		printf("Base: 0x%08X, length: 0x%08X, flags: %d\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
+		entry = list_remove_head(phys_mem_map);
+	}
+	while(1);
+
 	vmm_init();
 
 	/* Initialize the storage tree */
