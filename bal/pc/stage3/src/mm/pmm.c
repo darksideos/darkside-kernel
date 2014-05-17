@@ -16,34 +16,51 @@ paddr_t pmm_alloc_page()
 	while (entry)
 	{
 		/* If the entry is free */
-		if ((entry->flags & (MEM_FLAG_USABLE)) && (entry->flags & (MEM_FLAG_FREE)) && (entry->length >= 0x1000) && (entry->base >= 0x100000))
+		if ((entry->flags & (MEM_FLAG_USABLE | MEM_FLAG_FREE)) && (entry->length >= 0x1000) && (entry->base >= 0x100000))
 		{
+			/* Save the old base address of the entry */
+			uint64_t old_base = entry->base;
+			
 			/* If the entry is one page */
 			if (entry->length == 0x1000)
 			{
-				/* Clear the free flag */
-				entry->flags &= ~MEM_FLAG_FREE;
+				/* TODO: entry can be merged forwards and backwards here */
 			}
 			/* If the entry is larger */
 			else
 			{
-				/* Create a new entry */
-				mem_map_entry_t *new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
-				new->base = entry->base + 0x1000;
-				new->length = entry->length - 0x1000;
-				new->flags = entry->flags;
-				new->numa_domain = 0xFFFFFFFF;
+				mem_map_entry_t *prev = (mem_map_entry_t*) iter.prev(&iter);
+				iter.next(&iter);
+				
+				/* If the previous entry is compatible with the current one, we can expand the previous and contract the current */
+				if(prev && (prev->flags == (entry->flags & ~MEM_FLAG_FREE)))
+				{
+					prev->length += 0x1000;
 
-				/* Insert it into the list  */
-				iter.insert(&iter, new);
-
-				/* Update the current entry */
-				entry->flags &= ~MEM_FLAG_FREE;
-				entry->length = 0x1000;
+					entry->base += 0x1000;
+					entry->length -= 0x1000;
+				}
+				/* We have to allocate a new entry */
+				else
+				{
+					/* Create a new entry */
+					mem_map_entry_t *new = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
+					new->base = entry->base + 0x1000;
+					new->length = entry->length - 0x1000;
+					new->flags = entry->flags;
+					new->numa_domain = 0xFFFFFFFF;
+	
+					/* Insert it into the list  */
+					iter.insert(&iter, new);
+	
+					/* Update the current entry */
+					entry->length = 0x1000;
+					entry->flags &= ~MEM_FLAG_FREE;
+				}
 			}
 
 			/* Return the allocated memory */
-			return entry->base;
+			return old_base;
 		}
 
 		/* Get the next entry */
