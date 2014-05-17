@@ -61,7 +61,7 @@ void pfn_database_init(loader_block_t *loader_block)
 				page->flags = entry->flags;
 				page->numa_domain = entry->numa_domain;
 				page->refcount = 0;
-				//spinlock_init(&page->lock);
+				spinlock_init(&page->lock);
 			}
 
 			/* Go to the next PFN database entry */
