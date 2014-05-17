@@ -52,7 +52,7 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 		{
 			/* Map it recursively */
 			directory[pde_index] = pmm_alloc_page() | 0x03;
-			flush_tlb();
+			vmm_flush_tlb();
 		}
 		else
 		{
@@ -70,6 +70,18 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 	{
 		return NULL;
 	}
+}
+
+/* Flush a TLB entry */
+void vmm_flush_tlb_entry(vaddr_t virtual_address)
+{
+	__asm__("invlpg (%0)" :: "a" ((uint32_t) virtual_address));
+}
+
+/* Flush the entire TLB */
+void vmm_flush_tlb()
+{
+	__asm__("mov %0, %%cr3" :: "r" (current_directory));
 }
 
 /* Query a virtual address's mapping */
