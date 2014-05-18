@@ -7,10 +7,10 @@
 void freelist_init(loader_block_t *loader_block)
 {
 	/* Iterate through all memory, constructing the free page list */
-	for (vaddr_t i = 0; i < loader_block->phys_mem_size; i += 0x1000)
+	for (uint64_t i = 0; i < loader_block->phys_mem_size; i += 0x1000)
 	{
 		/* Get the page */
-		page_t *page = pfn_database_get(i);
+		page_t *page = pfn_database_get((vaddr_t) i);
 
 		/* If the page is free and usable */
 		if (page && (page->flags & (PAGE_FLAG_USABLE | PAGE_FLAG_FREE)))
