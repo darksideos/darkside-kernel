@@ -12,7 +12,7 @@ typedef struct spinlock
 
 /* Spinlock methods */
 void spinlock_init(spinlock_t *lock);
-uint32_t spinlock_acquire(spinlock_t *lock, int32_t mode);
+uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode);
 void spinlock_release(spinlock_t *lock);
 
 #endif
