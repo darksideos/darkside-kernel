@@ -14,7 +14,8 @@
 #define PAGE_INVALID		0x00
 #define PAGE_NOCACHE		0x10
 #define PAGE_WRITECOMBINE	0x20
-#define PAGE_GLOBAL			0x40
+#define PAGE_USER			0x40
+#define PAGE_GLOBAL			0x80
 
 /* Flush a TLB entry and flush the entire TLB */
 void vmm_flush_tlb_entry(vaddr_t virtual_address);
