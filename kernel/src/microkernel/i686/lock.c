@@ -10,16 +10,44 @@ void spinlock_init(spinlock_t *lock)
 }
 
 /* Acquire a spinlock */
-void spinlock_acquire(spinlock_t *lock)
+uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
 {
 	uint32_t interrupts;
 	__asm__ volatile("pushf; pop %0" : "=r" (interrupts));
 	interrupts &= 0x200;
 
 	__asm__ volatile("cli");
-	while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
+	
+	if(mode == 0)
+	{
+		atomic_t val = atomic_cmpxchg(&lock->value, 0, 1);
+		
+		if(val == 0) {
+			lock->interrupts = interrupts;
+		}
+		else
+		{
+			if (lock->interrupts)
+			{
+				__asm__ volatile("sti");
+			}
+			else
+			{
+				__asm__ volatile("cli");
+			}
+		}
+		
+		return val;
+	}
+	else if(mode == -1)
+	{
+		while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
 
-	lock->interrupts = interrupts;
+		lock->interrupts = interrupts;
+		
+		return 0;
+	}
+		
 }
 
 /* Release a spinlock */
