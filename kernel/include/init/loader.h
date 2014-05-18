@@ -14,6 +14,10 @@ typedef struct loader_block
 	vaddr_t pfn_database;
 	paddr_t phys_mem_size;
 
+	/* Per-CPU and NUMA domain data areas */
+	vaddr_t cpu_data_area;
+	vaddr_t numa_domain_data_area;
+
 	/* Graphics framebuffer */
 	framebuffer_t *fb;
 

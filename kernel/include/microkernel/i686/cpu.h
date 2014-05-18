@@ -13,15 +13,13 @@ typedef struct numa_domain
 /* Per-CPU data area structure */
 typedef struct cpu
 {
-	/* NUMA domain */
-	numa_domain_t *numa_domain;
+	/* Scheduling information */
 
-	/* GDT and IDT for the CPU */
+	/* GDT and TSS for the CPU */
 
-	/* Free page list for the CPU */
-	page_t *free_list;
+	/* Double fault stack */
 
-	/* CPU scheduling information */
+	/* IDT for the CPU */
 } cpu_t;
 
 #endif
