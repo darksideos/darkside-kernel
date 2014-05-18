@@ -7,7 +7,7 @@
 typedef struct numa_domain
 {
 	/* Free page list for the NUMA domain */
-	page_t *free_list;
+	page_t *free_list_head, *free_list_tail;
 } numa_domain_t;
 
 /* Per-CPU data area structure */

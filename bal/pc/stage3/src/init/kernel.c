@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <init/loader.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
@@ -32,6 +33,7 @@ void bal_enter_kernel(vaddr_t entry_point, loader_block_t *loader_block)
 	for (int i = 0; i < num_numa_domains; i++)
 	{
 		map_page(cpu_data_area, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+		memset((void*) cpu_data_area, 0, 0x1000);
 		cpu_data_area += 0x1000;
 	}
 
