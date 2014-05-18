@@ -42,7 +42,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		mem_map_entry_t *entry = (mem_map_entry_t*) malloc(sizeof(mem_map_entry_t));
 		entry->base = e820_entries[i].base;
 		entry->length = e820_entries[i].length;
-		entry->numa_domain = 0xFFFFFFFF;
+		entry->numa_domain = /*0xFFFFFFFF*/0;
 
 		if (e820_entries[i].type == E820_TYPE_FREE)
 		{
@@ -90,7 +90,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			new->base = entry->base + entry->length;
 			new->length = next->base - new->base;
 			new->flags = 0;
-			new->numa_domain = 0xFFFFFFFF;
+			new->numa_domain = /*0xFFFFFFFF*/0;
 
 			/* Insert it into the list */
 			iter.insert(&iter, new);
@@ -110,7 +110,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		new->base = 0;
 		new->length = entry->base;
 		new->flags = 0;
-		new->numa_domain = 0xFFFFFFFF;
+		new->numa_domain = /*0xFFFFFFFF*/0;
 
 		/* Insert it into the list */
 		iter.insert(&iter, new);
@@ -130,7 +130,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			new->base = 0x100000;
 			new->length = (entry->base + entry->length) - 0x100000;
 			new->flags = entry->flags;
-			new->numa_domain = 0xFFFFFFFF;
+			new->numa_domain = /*0xFFFFFFFF*/0;
 
 			/* Update the current entry */
 			entry->length = 0x100000 - entry->base;
@@ -166,7 +166,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			new->base = base;
 			new->length = length;
 			new->flags = flags;
-			new->numa_domain = 0xFFFFFFFF;
+			new->numa_domain = /*0xFFFFFFFF*/0;
 
 			/* Insert it into the list */
 			list_insert_tail(&new_phys_mem_map, new);
@@ -187,7 +187,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 				new->base = base;
 				new->length = length;
 				new->flags = flags;
-				new->numa_domain = 0xFFFFFFFF;
+				new->numa_domain = /*0xFFFFFFFF*/0;
 
 				/* Insert it into the list */
 				list_insert_tail(&new_phys_mem_map, new);

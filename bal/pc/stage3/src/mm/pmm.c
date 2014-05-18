@@ -33,7 +33,7 @@ paddr_t pmm_alloc_page()
 				iter.next(&iter);
 				
 				/* If the previous entry is compatible with the current one, we can expand the previous and contract the current */
-				if(prev && (prev->flags == (entry->flags & ~MEM_FLAG_FREE)))
+				if (prev && (prev->flags == (entry->flags & ~MEM_FLAG_FREE)) && (prev->numa_domain == entry->numa_domain))
 				{
 					prev->length += 0x1000;
 
@@ -48,7 +48,7 @@ paddr_t pmm_alloc_page()
 					new->base = entry->base + 0x1000;
 					new->length = entry->length - 0x1000;
 					new->flags = entry->flags;
-					new->numa_domain = 0xFFFFFFFF;
+					new->numa_domain = entry->numa_domain;
 	
 					/* Insert it into the list  */
 					iter.insert(&iter, new);
@@ -91,7 +91,7 @@ void pmm_claim_page(paddr_t address)
 				new->base = address;
 				new->length = (entry->base + entry->length) - address;
 				new->flags = entry->flags;
-				new->numa_domain = 0xFFFFFFFF;
+				new->numa_domain = entry->numa_domain;
 
 				/* Update the current entry */
 				entry->length = address - entry->base;
@@ -106,7 +106,7 @@ void pmm_claim_page(paddr_t address)
 			new->base = address + 0x1000;
 			new->length = entry->length - 0x1000;
 			new->flags = entry->flags;
-			new->numa_domain = 0xFFFFFFFF;
+			new->numa_domain = entry->numa_domain;
 
 			/* Insert it into the list */
 			iter.insert(&iter, new);
