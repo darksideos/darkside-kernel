@@ -23,6 +23,10 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 		memcpy(&loader_block, _loader_block, sizeof(loader_block_t));
 
 		/* Set up the per-CPU and per-NUMA domain data areas */
+		int *ptr = (int*) 0xE0000000;
+		int val = *ptr;
+		val++;
+		*ptr = val;
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
