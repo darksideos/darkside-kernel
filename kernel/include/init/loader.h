@@ -20,6 +20,7 @@ typedef struct loader_block
 	/* Module registry */
 
 	/* Loaded modules */
+	list_t *modules;
 } loader_block_t;
 
 #endif
