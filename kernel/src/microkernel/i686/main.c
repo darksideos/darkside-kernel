@@ -2,6 +2,7 @@
 #include <string.h>
 #include <bootvid.h>
 #include <init/loader.h>
+#include <microkernel/cpu.h>
 #include <mm/pfn.h>
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
@@ -10,10 +11,10 @@
 #include <microkernel/lock.h>
 
 /* Initialize the core microkernel */
-void microkernel_init(loader_block_t *_loader_block, int cpu)
+void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, bool bsp)
 {
 	/* Running on the BSP */
-	if (cpu == 0)
+	if (bsp)
 	{
 		/* Initialize the boot video driver */
 		bootvid_init(COLOR_WHITE, COLOR_BLACK);
@@ -22,11 +23,13 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 		loader_block_t loader_block;
 		memcpy(&loader_block, _loader_block, sizeof(loader_block_t));
 
-		/* Set up the per-CPU and per-NUMA domain data areas */
-		int *ptr = (int*) 0xE0000000;
-		int val = *ptr;
-		val++;
-		*ptr = val;
+		/* Initialize the per-CPU and NUMA domain data areas */
+		cpu_data_area_init(&loader_block);
+
+		/* GET NUMA DOMAIN 0 */
+		numa_domain_t *domain = numa_domain_data_area(numa_domain);
+		printf("0x%08X\n", domain);
+		while(1);
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
@@ -43,8 +46,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu)
 	/* Running on a secondary processor */
 	else
 	{
-		/* Set up the per-CPU and per-NUMA domain data areas */
-
 		/* Use the paging structures set up by the BSP */
 
 		/* Initialize the processor's TSS */
