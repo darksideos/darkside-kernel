@@ -1,6 +1,8 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
+#include <types.h>
+
 /* Spinlock structure */
 typedef struct spinlock
 {
@@ -10,7 +12,7 @@ typedef struct spinlock
 
 /* Spinlock methods */
 void spinlock_init(spinlock_t *lock);
-void spinlock_acquire(spinlock_t *lock);
+uint32_t spinlock_acquire(spinlock_t *lock, int32_t mode);
 void spinlock_release(spinlock_t *lock);
 
 #endif
