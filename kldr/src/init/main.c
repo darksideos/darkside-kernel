@@ -30,6 +30,7 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Create a list of modules */
 	list_t modules = list_create();
+	loader_block->modules = &modules;
 
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i386.elf");
