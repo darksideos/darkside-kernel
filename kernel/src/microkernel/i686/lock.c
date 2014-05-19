@@ -10,7 +10,7 @@ void spinlock_init(spinlock_t *lock)
 }
 
 /* Acquire a spinlock */
-uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
+uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 {
 	uint32_t interrupts;
 	__asm__ volatile("pushf; pop %0" : "=r" (interrupts));
@@ -18,7 +18,8 @@ uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
 
 	__asm__ volatile("cli");
 	
-	if (mode == 0)
+	/* Try to acquire the spinlock once */
+	if (timeout == TIMEOUT_ONCE)
 	{ 
 		atomic_t val = atomic_cmpxchg(&lock->value, 0, 1);
 		
@@ -40,7 +41,8 @@ uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
 		
 		return val;
 	}
-	else if (mode == -1)
+	/* Wait until it's available */
+	else if (timeout == TIMEOUT_NEVER)
 	{
 		while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
 
@@ -48,7 +50,10 @@ uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
 		
 		return 0;
 	}
-		
+	/* Wait for a specified number of milliseconds */
+	else
+	{
+	}
 }
 
 /* Release a spinlock */

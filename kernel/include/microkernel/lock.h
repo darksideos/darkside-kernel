@@ -2,6 +2,7 @@
 #define __LOCK_H
 
 #include <types.h>
+#include <microkernel/synch.h>
 
 /* Spinlock structure */
 typedef struct spinlock
@@ -12,7 +13,7 @@ typedef struct spinlock
 
 /* Spinlock methods */
 void spinlock_init(spinlock_t *lock);
-uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode);
+uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout);
 void spinlock_release(spinlock_t *lock);
 
 #endif
