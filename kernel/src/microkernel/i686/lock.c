@@ -18,11 +18,12 @@ uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
 
 	__asm__ volatile("cli");
 	
-	if(mode == 0)
-	{
+	if (mode == 0)
+	{ 
 		atomic_t val = atomic_cmpxchg(&lock->value, 0, 1);
 		
-		if(val == 0) {
+		if (!val)
+		{
 			lock->interrupts = interrupts;
 		}
 		else
@@ -39,7 +40,7 @@ uint32_t spinlock_acquire(spinlock_t *lock, int16_t mode)
 		
 		return val;
 	}
-	else if(mode == -1)
+	else if (mode == -1)
 	{
 		while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
 
