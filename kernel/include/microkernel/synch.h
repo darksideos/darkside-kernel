@@ -3,6 +3,6 @@
 
 /* Synchronization primitive timeouts */
 #define TIMEOUT_ONCE	0
-#define TIMEOUT_NEVER	-1
+#define TIMEOUT_NEVER	0xFFFF
 
 #endif
