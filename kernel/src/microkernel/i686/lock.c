@@ -20,8 +20,10 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 	
 	/* Try to acquire the spinlock once */
 	if (timeout == TIMEOUT_ONCE)
-	{ 
+	{
+		printf("%d\n", lock->value);
 		atomic_t val = atomic_cmpxchg(&lock->value, 0, 1);
+		printf("%d\n", lock->value);
 		
 		if (!val)
 		{
