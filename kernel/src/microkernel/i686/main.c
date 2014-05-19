@@ -34,6 +34,13 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		freelist_init(&loader_block);
 		printf("Initialized free list\n");
 
+		/* Spinlock tests */
+		spinlock_t lock;
+		spinlock_init(&lock);
+		printf("Acquiring spinlock indefinitely\n");
+		spinlock_acquire(&lock, TIMEOUT_NEVER);
+		printf("Acquiring spinlock once: %d\n", spinlock_acquire(&lock, TIMEOUT_ONCE));
+
 		/* Initialize paging, mapping our kernel and modules */
 
 		/* Initialize the processor's GDT and IDT */
