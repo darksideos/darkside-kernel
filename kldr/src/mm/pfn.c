@@ -41,7 +41,7 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 	while (entry)
 	{
 		/* How much space is needed? */
-		uint64_t needed_space = (entry->length / 0x1000) * /*sizeof(page_t)*/ 24;
+		uint64_t needed_space = (entry->length / 0x1000) * /*sizeof(page_t)*/ 16;
 
 		/* If the block refers to actual memory, allocate PFN structures for it */
 		if (entry->flags)

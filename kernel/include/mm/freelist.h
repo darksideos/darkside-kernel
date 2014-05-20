@@ -4,6 +4,7 @@
 #include <init/loader.h>
 
 /* Allocation flags */
+#define PAGE_DMA	0x00
 #define PAGE_32BIT	0x01
 #define PAGE_64BIT	0x02
 

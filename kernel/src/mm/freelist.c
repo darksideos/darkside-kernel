@@ -1,5 +1,6 @@
 #include <types.h>
 #include <microkernel/cpu.h>
+#include <microkernel/lock.h>
 #include <mm/pfn.h>
 #include <mm/page.h>
 
