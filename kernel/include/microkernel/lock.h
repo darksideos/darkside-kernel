@@ -1,16 +1,17 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
-/* Spinlock structure */
-typedef struct spinlock
+/* Ticketlock structure */
+typedef struct ticketlot
 {
-	atomic_t value;
+	atomic_t queue_ticket;
+	atomic_t dequeue_ticket;
 	uint32_t interrupts;
 } spinlock_t;
 
-/* Spinlock methods */
-void spinlock_init(spinlock_t *lock);
-void spinlock_acquire(spinlock_t *lock);
-void spinlock_release(spinlock_t *lock);
+/* Ticketlock methods */
+void ticketlock_init(ticketlock_t *lock);
+void ticketlock_acquire(ticketlock_t *lock);
+void ticketlock_release(ticketlock_t *lock);
 
 #endif
