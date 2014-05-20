@@ -27,9 +27,6 @@ typedef struct page
 	/* Reference count */
 	uint32_t refcount;
 
-	/* Spinlock */
-	spinlock_t lock;
-
 	/* Next page in its list */
 	struct page *next;
 } page_t;
