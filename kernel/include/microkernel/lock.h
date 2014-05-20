@@ -5,18 +5,18 @@
 #include <types.h>
 #include <microkernel/synch.h>
 
-/* Ticketlock structure */
-typedef struct ticketlock
+/* Spinlock structure */
+typedef struct spinlock
 {
 	atomic_t queue_ticket;
 	atomic_t dequeue_ticket;
 	uint32_t interrupts;
-} ticketlock_t;
+} spinlock_t;
 
 
-/* Ticketlock methods */
-void ticketlock_init(ticketlock_t *lock);
-uint32_t ticketlock_acquire(ticketlock_t *lock, uint16_t timeout);
-void ticketlock_release(ticketlock_t *lock);
+/* Spinlock methods */
+void spinlock_init(spinlock_t *lock);
+uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout);
+void spinlock_release(spinlock_t *lock);
 
 #endif

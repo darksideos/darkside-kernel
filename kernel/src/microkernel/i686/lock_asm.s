@@ -1,5 +1,5 @@
-global ticketlock_acquire_mode_0
-ticketlock_acquire_mode_0:
+global spinlock_acquire_mode_0
+spinlock_acquire_mode_0:
 	push ebp				; Create a stack frame
 	mov ebp, esp
 
