@@ -3,9 +3,10 @@
 #include <microkernel/lock.h>
 
 /* Initialize a spinlock's values */
-void spinlock_init(spinlock_t *lock)
+void spinlock_init(ticketlock_t *lock)
 {
-	atomic_set(&lock->value, 0);
+	atomic_set(&lock->queue_ticket, 0);
+	atomic_set(&lock->enqueue_ticket);
 	lock->interrupts = 0;
 }
 
