@@ -2,7 +2,7 @@
 #include <microkernel/atomic.h>
 #include <microkernel/lock.h>
 
-extern uint32_t ticketlock_acquire_mode_0(ticketlock_t *lock);
+uint32_t ticketlock_acquire_mode_0(ticketlock_t *lock);
 
 /* Initialize a ticketlock's values */
 void ticketlock_init(ticketlock_t *lock)
@@ -20,8 +20,6 @@ uint32_t ticketlock_acquire(ticketlock_t *lock, uint16_t timeout)
 	interrupts &= 0x200;
 
 	__asm__ volatile("cli");
-	
-//	printf("%d\n", TIMEOUT_NEVER);
 	
 	/* Try to acquire the ticketlock once */
 	if (timeout == TIMEOUT_ONCE)
@@ -52,12 +50,12 @@ uint32_t ticketlock_acquire(ticketlock_t *lock, uint16_t timeout)
 		/* Get my ticket */
 		atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
 		
-		///* Wait until it's my turn */
+		/* Wait until it's my turn */
 		while(atomic_read(&lock->dequeue_ticket) != my_ticket);
 
 		lock->interrupts = interrupts;
 		
-		return 1;
+		return 0;
 	}
 	/* Wait for a specified number of milliseconds */
 	else
