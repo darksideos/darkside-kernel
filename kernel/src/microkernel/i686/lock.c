@@ -2,10 +2,13 @@
 #include <microkernel/atomic.h>
 #include <microkernel/lock.h>
 
+uint32_t spinlock_acquire_mode_0(spinlock_t *lock);
+
 /* Initialize a spinlock's values */
 void spinlock_init(spinlock_t *lock)
 {
-	atomic_set(&lock->value, 0);
+	atomic_set(&lock->queue_ticket, 0);
+	atomic_set(&lock->dequeue_ticket, 0);
 	lock->interrupts = 0;
 }
 
@@ -21,9 +24,9 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 	/* Try to acquire the spinlock once */
 	if (timeout == TIMEOUT_ONCE)
 	{
-		atomic_t val = atomic_cmpxchg(&lock->value, 0, 1);
+		uint32_t result = spinlock_acquire_mode_0(lock);
 		
-		if (!val)
+		if (result)
 		{
 			lock->interrupts = interrupts;
 		}
@@ -39,12 +42,16 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 			}
 		}
 		
-		return val;
+		return result;
 	}
 	/* Wait until it's available */
 	else if (timeout == TIMEOUT_NEVER)
 	{
-		while (atomic_cmpxchg(&lock->value, 0, 1) != 0);
+		/* Get my ticket */
+		atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
+		
+		/* Wait until it's my turn */
+		while(atomic_read(&lock->dequeue_ticket) != my_ticket);
 
 		lock->interrupts = interrupts;
 		
@@ -59,15 +66,15 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 /* Release a spinlock */
 void spinlock_release(spinlock_t *lock)
 {
-	if (atomic_cmpxchg(&lock->value, 1, 0) == 1)
+	/* TODO: add a check here to make sure dequeue is never greater than queue */
+	atomic_inc(&lock->dequeue_ticket);
+	
+	if (lock->interrupts)
 	{
-		if (lock->interrupts)
-		{
-			__asm__ volatile("sti");
-		}
-		else
-		{
-			__asm__ volatile("cli");
-		}
+		__asm__ volatile("sti");
+	}
+	else
+	{
+		__asm__ volatile("cli");
 	}
 }
