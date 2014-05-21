@@ -72,8 +72,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 	{
 		/* Use the paging structures set up by the BSP */
 
-		/* Initialize the processor's TSS */
-
 		/* Copy the GDT and IDT set up by the BSP */
 	}
 
