@@ -1,0 +1,63 @@
+BSP Initialization
+--------------------------------------------------------------
+-bigbang passes control to start()
+	-EAX = Loader Block
+	-EBX = Bootstrap CPU Number
+	-ECX = Bootstrap NUMA Domain Number
+-start() gets read for C code to run
+	-Sets up an initial kernel stack in the BSS
+-start() calls microkernel_init(), which begins platform-specific initialization
+	-Make a copy of the loader block on the initial kernel stack
+	-Set up pointers to the per-CPU and NUMA domain areas
+	-Use the physical memory map to create the PFN database
+	-Initialize the free page list from the PFN database
+	-Initialize paging
+		-Create a new kernel page directory
+		-Allocate page tables for the kernel page directory, to be shared across all processes
+		-Map the kernel and modules into the new kernel address space
+		-Map the PFN database into the new kernel address space
+		-Map the per-CPU and NUMA domain data areas
+		-Switch to the new kernel address space
+		-Free the page directory and page tables allocated by bigbang
+	-Initialize the processor's GDT and IDT
+	-Install CPU exception handlers
+	-Initialize the slab allocator
+	-Initialize the kernel heap, which uses the slab allocator
+	-Use the CPU topology information from bigbang to initialize the scheduler's data structures
+	-Initialize the interrupt controller (either 8259 PIC alone, Local APIC and 8259 PIC together, or Local APIC and I/O APIC together)
+	-Initialize the system timer (either 8254 PIT, Local APIC timer, or HPET)
+	-Initialize the RTC
+-microkernel_init() calls executive_init(), which initializes the executive services
+	-Initialize the rest of the memory manager
+	-Start the object manager, which creates the kernel object namespace
+	-Initialize the VFS, creating the filesystem namespace under the object namespace
+	-Initialize the module manager, giving it the location of the boot modules and the module registry
+	-Start all other CPUs, bringing them up to the scheduler function blocking for work
+	-Create a kernel thread to continue initialization, running only on the BSP
+-Executive starts executive_main() as a new thread, which is only allowed to run on the BSP
+	-Initialize the device manager
+		-Invoke the motherboard driver, which will start enumerating all system hardware
+		-For each device enumerated, it will be added to the device tree
+		-All enumerators will attempt to start device drivers for each of their children (as kernel threads)
+		-If loading a device driver fails (since it isn't in memory and the root filesystem hasn't been mounted), it will block waiting for success
+		-Eventually, the root filesystem will end up being mounted and other drivers can initialize
+	-Start the session manager, the very first userspace process
+	-Spend the rest of the time in an infinite loop
+
+AP Initialization
+--------------------------------------------------------------
+-AP jumps to AP initialization vector
+	-Enter protected or long mode
+	-Identity map the initialization vector and map the kernel, then enable paging
+-AP initialization vector passes control to start()
+	-EAX = 0
+	-EBX = AP CPU Number
+	-ECX = AP NUMA Domain Number
+-start() gets read for C code to run
+	-Sets up an initial kernel stack in the BSS
+-start() calls microkernel_init(), which begins platform-specific initialization
+	-Switch to the kernel address space created by the BSP
+	-Initialize the processor's GDT and IDT, copying them from the BSP
+	-Initialize the Local APIC
+	-Initialize the Local APIC timer
+	-Jump to the scheduler ready function, blocking for work 
