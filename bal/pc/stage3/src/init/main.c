@@ -45,6 +45,10 @@ void bal_main(data_t *_data)
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();
 	ext2_init();
+	
+	acpi_init();
+	printf("FADT: %08X\n", acpi_get_table(0x54444146));
+	while(1);
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
