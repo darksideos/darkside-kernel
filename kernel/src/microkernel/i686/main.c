@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <microkernel/lock.h>
 
+spinlock_t lock __attribute__((aligned(8)));
+
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, bool bsp)
 {
@@ -29,10 +31,35 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
+		spinlock_init(&lock);
+		spinlock_acquire(&lock, TIMEOUT_NEVER);
+		spinlock_release(&lock);
+
+		printf("%d %d\n", (uint32_t) lock.queue_ticket, (uint32_t) lock.dequeue_ticket);
+		spinlock_acquire(&lock, TIMEOUT_NEVER);
+		spinlock_release(&lock);
+		printf("%d %d\n", (uint32_t) lock.queue_ticket, (uint32_t) lock.dequeue_ticket);
+		
+		spinlock_acquire(&lock, TIMEOUT_NEVER);
+		printf("%d %d\n", (uint32_t) lock.queue_ticket, (uint32_t) lock.dequeue_ticket);
+		
+		printf("%d\n", spinlock_acquire(&lock, TIMEOUT_ONCE));
+ 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
+
+ 		spinlock_release(&lock);
+ 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
+ 		
+ 		printf("%d\n", spinlock_acquire(&lock, TIMEOUT_ONCE));
+ 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
+ 		
+ 		spinlock_release(&lock);
+ 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
+ 		
+
 		/* Initialize the free page list */
-		printf("Initializing free list\n");
-		freelist_init(&loader_block);
-		printf("Initialized free list\n");
+		//printf("Initializing free list\n");
+		//freelist_init(&loader_block);
+		//printf("Initialized free list\n");
 
 		/* Initialize paging, mapping our kernel and modules */
 
