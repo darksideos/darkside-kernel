@@ -45,6 +45,11 @@ void ba_main(loader_block_t *loader_block)
 	/* Allocate space for the PFN database */
 	pfn_database_alloc(loader_block, kernel->end);
 
+	/* Allocate the per-CPU and NUMA domain data structures */
+	per_cpu_numa_area_alloc(loader_block);
+
+	/* Detect the NUMA domain of each memory area */
+
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);
 
