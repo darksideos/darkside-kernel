@@ -15,7 +15,7 @@ typedef struct cpu
 {
 	/* CPU information */
 	uint32_t lapic_id;
-	int numa_domain;
+	numa_domain_t *numa_domain;
 	uint32_t flags;
 
 	/* Scheduling information */
