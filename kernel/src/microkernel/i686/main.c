@@ -31,31 +31,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
-		spinlock_init(&lock);
-		spinlock_acquire(&lock, TIMEOUT_NEVER);
-		spinlock_release(&lock);
-
-		printf("%d %d\n", (uint32_t) lock.queue_ticket, (uint32_t) lock.dequeue_ticket);
-		spinlock_acquire(&lock, TIMEOUT_NEVER);
-		spinlock_release(&lock);
-		printf("%d %d\n", (uint32_t) lock.queue_ticket, (uint32_t) lock.dequeue_ticket);
-		
-		spinlock_acquire(&lock, TIMEOUT_NEVER);
-		printf("%d %d\n", (uint32_t) lock.queue_ticket, (uint32_t) lock.dequeue_ticket);
-		
-		printf("%d\n", spinlock_acquire(&lock, TIMEOUT_ONCE));
- 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
-
- 		spinlock_release(&lock);
- 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
- 		
- 		printf("%d\n", spinlock_acquire(&lock, TIMEOUT_ONCE));
- 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
- 		
- 		spinlock_release(&lock);
- 		printf("%d %d\n", lock.queue_ticket, lock.dequeue_ticket);
- 		
-
 		/* Initialize the free page list */
 		//printf("Initializing free list\n");
 		//freelist_init(&loader_block);
@@ -66,6 +41,18 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Initialize the processor's GDT and IDT */
 
 		/* Install CPU exception handlers */
+
+		/* Initialize the slab allocator */
+
+		/* Initialize the kernel heap */
+
+		/* Detect the interrupt controller and initialize it */
+	
+		/* Detect the system timer and initialize it */
+
+		/* Initialize the RTC */
+
+		/* Create the advanced CPU topology map (taking NUMA domains, chips, cores, and logical CPUs into account) */
 	}
 	/* Running on a secondary processor */
 	else
@@ -73,6 +60,10 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Use the paging structures set up by the BSP */
 
 		/* Copy the GDT and IDT set up by the BSP */
+
+		/* Initialize the Local APIC */
+
+		/* Initialize the Local APIC timer */
 	}
 
 	/* Enter the executive */

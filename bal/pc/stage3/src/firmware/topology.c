@@ -5,7 +5,7 @@
 #include <mm/vmm.h>
 #include <firmware/acpi.h>
 #include <firmware/madt.h>
-#include <firmware/srat.h>
+#include <firmware/srat.h>`
 
 /* Allocate the per-CPU and NUMA domain data structures */
 void per_cpu_numa_area_alloc(loader_block_t *loader_block)
@@ -39,9 +39,10 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 				map_page(cpu_data_area + (j * 0x1000), pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 
-			/* Fill in the Local APIC ID */
-			uint32_t *lapic_id = (uint32_t*) cpu_data_area;
-			*lapic_id = (uint32_t) lapic_entry->lapic_id;
+			/* Fill in the Local APIC ID and flags */
+			uint32_t *cpu = (uint32_t*) cpu_data_area;
+			cpu[0] = (uint32_t) lapic_entry->lapic_id;
+			cpu[2] = lapic_entry->lapic_flags;
 
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
