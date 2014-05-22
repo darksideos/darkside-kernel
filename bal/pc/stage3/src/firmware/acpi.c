@@ -34,11 +34,11 @@ int acpi_init()
 	struct rsdp_ext *rsdp_ext = NULL;
 
 	/* First, search the EBDA for the RSDP */
-	for (paddr_t i = 0x9FC00; i < 0xA0000; i += 0x10)
+	for (vaddr_t i = 0x9FC00; i < 0xA0000; i += 0x10)
 	{
 		/* Candidate pointers */
 		struct rsdp *candidate = (struct rsdp*) i;
-		struct rsdp *candidate_ext = (struct rsdp_ext*) i;
+		struct rsdp_ext *candidate_ext = (struct rsdp_ext*) i;
 
 		/* If the signature matches */
 		if (candidate->signature == RSDP_SIGNATURE)
@@ -65,11 +65,11 @@ int acpi_init()
 	}
 
 	/* Second, search the BIOS area for the RSDP */
-	for (paddr_t i = 0xE0000; i < 0x100000; i += 0x10)
+	for (vaddr_t i = 0xE0000; i < 0x100000; i += 0x10)
 	{
 		/* Candidate pointers */
 		struct rsdp *candidate = (struct rsdp*) i;
-		struct rsdp *candidate_ext = (struct rsdp_ext*) i;
+		struct rsdp_ext *candidate_ext = (struct rsdp_ext*) i;
 
 		/* If the signature matches */
 		if (candidate->signature == RSDP_SIGNATURE)
@@ -100,4 +100,16 @@ int acpi_init()
 /* A valid RSDP was found */
 rsdp_found:
 	/* Map the RSDT or XSDT, depending on which one we want to use */
+	if (using_xsdt)
+	{
+		map_page(0x10000000, rsdp_ext->xsdt_address, PAGE_READ | PAGE_WRITE);
+		xsdt = (0x10000000 + (rsdp_ext->xsdt_address & 0xFFF));
+	}
+	else
+	{
+		map_page(0x10000000, rsdp->rsdt_address, PAGE_READ | PAGE_WRITE);
+		rsdt = (0x10000000 + (rsdp->rsdt_address & 0xFFF));
+	}
+
+	return 0;
 }
