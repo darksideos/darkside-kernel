@@ -10,7 +10,7 @@ static struct xsdt *xsdt = NULL;
 static bool using_xsdt;
 
 /* Do a checksum on an ACPI structure */
-bool do_checksum(void *ptr, uint32_t length)
+static bool do_checksum(void *ptr, uint32_t length)
 {
 	/* Current checksum value */
 	uint8_t computed = 0;
@@ -24,6 +24,56 @@ bool do_checksum(void *ptr, uint32_t length)
 
 	/* It succeeded if we got 0 */
 	return computed == 0;
+}
+
+/* Find an ACPI table by signature */
+struct acpi_table_header *acpi_find_table(uint32_t signature)
+{
+	/* ACPI table */
+	struct acpi_table_header *table;
+
+	/* Using the XSDT */
+	if (using_xsdt)
+	{
+		/* Calculate the number of table entries */
+		uint32_t num_table_entries = (xsdt->header.length - sizeof(struct acpi_table_header)) / 8;
+
+		/* Look for the table */
+		for (uint32_t i = 0; i < num_table_entries; i++)
+		{
+			/* Try mapping the ACPI table */
+			map_page(0x10001000, xsdt->tables[i], PAGE_READ | PAGE_WRITE);
+			table = (struct acpi_table_header*) (0x10001000 + (xsdt->tables[i] & 0xFFF));
+
+			/* Verify the signature and checksum */
+			if ((table->signature == signature) && do_checksum(table, table->length))
+			{
+				return table;
+			}
+		}
+	}
+	/* Using the RSDT */
+	else
+	{
+		/* Calculate the number of table entries */
+		uint32_t num_table_entries = (rsdt->header.length - sizeof(struct acpi_table_header)) / 4;
+
+		/* Look for the table */
+		for (uint32_t i = 0; i < num_table_entries; i++)
+		{
+			/* Try mapping the ACPI table */
+			map_page(0x10001000, rsdt->tables[i], PAGE_READ | PAGE_WRITE);
+			table = (struct acpi_table_header*) (0x10001000 + (rsdt->tables[i] & 0xFFF));
+
+			/* Verify the signature and checksum */
+			if ((table->signature == signature) && do_checksum(table, table->length))
+			{
+				return table;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 /* Initialize the ACPI firmware interface */
@@ -102,13 +152,27 @@ rsdp_found:
 	/* Map the RSDT or XSDT, depending on which one we want to use */
 	if (using_xsdt)
 	{
+		/* Map the XSDT */
 		map_page(0x10000000, rsdp_ext->xsdt_address, PAGE_READ | PAGE_WRITE);
 		xsdt = (0x10000000 + (rsdp_ext->xsdt_address & 0xFFF));
+
+		/* Verify its signature and checksum */
+		if ((xsdt->header.signature != XSDT_SIGNATURE) || !do_checksum(xsdt, xsdt->header.length))
+		{
+			return -1;
+		}
 	}
 	else
 	{
+		/* Map the RSDT */
 		map_page(0x10000000, rsdp->rsdt_address, PAGE_READ | PAGE_WRITE);
 		rsdt = (0x10000000 + (rsdp->rsdt_address & 0xFFF));
+
+		/* Verify its signature and checksum */
+		if ((rsdt->header.signature != RSDT_SIGNATURE) || !do_checksum(rsdt, rsdt->header.length))
+		{
+			return -1;
+		}
 	}
 
 	return 0;
