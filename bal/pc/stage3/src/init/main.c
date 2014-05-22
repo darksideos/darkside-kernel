@@ -43,6 +43,15 @@ void bal_main(data_t *_data)
 	fs_init();
 	ext2_init();
 
+	/* Initialize the firmware code (either ACPI or MP table) */
+	int status = acpi_init();
+	if (!status)
+	{
+		printf("ACPI initialization succeeded\n");
+		printf("Mapped MADT to 0x%08X\n", acpi_find_table(0x43495041));
+	}
+	while(1);
+
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
 
