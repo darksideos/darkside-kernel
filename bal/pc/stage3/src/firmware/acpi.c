@@ -30,7 +30,6 @@ static bool do_checksum(void *ptr, uint32_t length)
 static struct acpi_table_header *map_acpi_table(vaddr_t virtual_address, paddr_t physical_address)
 {
 	/* Map the first page of the table */
-	physical_address &= ~0xFFF;
 	map_page(virtual_address, physical_address, PAGE_READ | PAGE_WRITE);
 	struct acpi_table_header *table = (struct acpi_table_header*) (virtual_address + (physical_address & 0xFFF));
 
@@ -44,6 +43,7 @@ static struct acpi_table_header *map_acpi_table(vaddr_t virtual_address, paddr_t
 
 	/* Map the rest */
 	virtual_address += 0x1000;
+	physical_address &= ~0xFFF;
 	physical_address += 0x1000;
 	for (uint32_t i = 0; i < remaining_bytes; i += 0x1000)
 	{
