@@ -18,17 +18,33 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 	/* Get the MADT */
 	struct madt *madt = acpi_find_table(MADT_SIGNATURE);
 	
-	uint8_t *data = ((uint8_t*) madt) + sizeof(madt);
-	uint32_t num_cpus = 0;
-	for(uint32_t offset = 0; offset < madt->header.length - sizeof(madt); )
+	/* Allocate the per-CPU data structures */
+	void *data = ((void*) madt) + sizeof(struct madt);
+	uint32_t i = 0;
+	while (i < madt->header.length - sizeof(struct madt))
 	{
+		/* For a Local APIC entry, allocate the per-CPU data structure */
 		struct madt_entry_header *entry = (struct madt_entry_header*) data;
-
 		if (entry->type == MADT_TYPE_LAPIC)
 		{
-			num_cpus++;
+			/* This is a LAPIC entry */
+			struct madt_lapic_entry *lapic_entry = (struct madt_lapic_entry*) data;
+
+			/* Allocate 3 pages and map them */
+			for (int j = 0; j < 3; j++)
+			{
+				map_page(cpu_data_area + (j * 0x1000), pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+			}
+
+			/* Fill in the Local APIC ID */
+			uint32_t *lapic_id = (uint32_t*) cpu_data_area;
+			*lapic_id = (uint32_t) lapic_entry->lapic_id;
+
+			/* Advance 3 pages */
+			cpu_data_area += 0x3000;
 		}
 		
+		/* Continue in the loop */
 		offset += entry->length;
 		data += entry->length;
 	}
