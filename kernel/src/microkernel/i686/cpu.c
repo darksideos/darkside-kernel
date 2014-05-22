@@ -8,6 +8,7 @@ static numa_domain_t *per_numa_domain_area;
 /* Get a pointer to the per-CPU data area */
 cpu_t *cpu_data_area(int cpu)
 {
+	return &per_cpu_area[cpu];
 }
 
 /* Get a pointer to the per-NUMA domain data area */
