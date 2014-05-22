@@ -22,6 +22,7 @@ void memory_numa_domains_detect(loader_block_t *loader_block)
 		while (entry)
 		{
 			entry->numa_domain = 0;
+			entry = (mem_map_entry_t*) iter.next(&iter);
 		}
 	}
 }

@@ -7,11 +7,6 @@
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
 
-#include <stdio.h>
-#include <microkernel/lock.h>
-
-spinlock_t lock __attribute__((aligned(8)));
-
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, bool bsp)
 {
