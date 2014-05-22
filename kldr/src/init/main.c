@@ -46,11 +46,10 @@ void ba_main(loader_block_t *loader_block)
 	pfn_database_alloc(loader_block, kernel->end);
 
 	/* Allocate the per-CPU and NUMA domain data structures */
-	printf("Allocating\n");
 	per_cpu_numa_area_alloc(loader_block);
-	printf("Allocated\n");
 
 	/* Detect the NUMA domain of each memory area */
+	memory_numa_domains_detect(loader_block);
 
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);
