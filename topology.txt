@@ -1,0 +1,20 @@
+Topology detection
+-------------------------------------------------
+-Find the MADT table and cache it
+	-For each LAPIC or x2LAPIC entry
+		-Allocate a CPU data area and map it
+		-Set its LAPIC ID (upcasted to 32-bits)
+		-Set its status (usable, BSP)
+-Find the SRAT table and cache it
+	-Create a map, mapping ACPI NUMA domains to per-NUMA domain data areas*
+	-For each LAPIC or x2LAPIC entry
+		-Get the per-NUMA domain data area if already allocated, otherwise allocate and add it to the map
+		-Find the CPU with the corresponding LAPIC ID and set its NUMA domain
+
+NUMA domain memory detection
+-------------------------------------------------
+-Get the SRAT table from the cache
+	-For each memory entry
+		-Find all memory map entries spanning that memory entry
+		-Split them up if needed
+		-Find the per-NUMA domain data area in the map, turn it into an index, and set that in the memory map entry*
