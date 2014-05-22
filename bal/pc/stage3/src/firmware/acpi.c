@@ -1,4 +1,5 @@
 #include <types.h>
+#include <map.h>
 #include <mm/vmm.h>
 #include <firmware/acpi.h>
 
@@ -8,6 +9,10 @@ static struct xsdt *xsdt = NULL;
 
 /* Using the XSDT */
 static bool using_xsdt;
+
+/* ACPI table cache */
+static map_t table_cache;
+static vaddr_t table_address = 0x10000000;
 
 /* Do a checksum on an ACPI structure */
 static bool do_checksum(void *ptr, uint32_t length)
@@ -27,9 +32,10 @@ static bool do_checksum(void *ptr, uint32_t length)
 }
 
 /* Map an ACPI table */
-static struct acpi_table_header *map_acpi_table(vaddr_t virtual_address, paddr_t physical_address)
+static struct acpi_table_header *map_acpi_table(paddr_t physical_address)
 {
 	/* Map the first page of the table */
+	vaddr_t virtual_address = table_address;
 	map_page(virtual_address, physical_address, PAGE_READ | PAGE_WRITE);
 	struct acpi_table_header *table = (struct acpi_table_header*) (virtual_address + (physical_address & 0xFFF));
 
@@ -52,6 +58,7 @@ static struct acpi_table_header *map_acpi_table(vaddr_t virtual_address, paddr_t
 		physical_address += 0x1000;
 	}
 
+	table_address = virtual_address;
 	return table;
 }
 
@@ -60,6 +67,13 @@ struct acpi_table_header *acpi_find_table(uint32_t signature)
 {
 	/* ACPI table */
 	struct acpi_table_header *table;
+
+	/* Look it up in the cache */
+	table = (struct acpi_table_header*) map_get(&table_cache, signature);
+	if (table)
+	{
+		return table;
+	}
 
 	/* Using the XSDT */
 	if (using_xsdt)
@@ -71,11 +85,12 @@ struct acpi_table_header *acpi_find_table(uint32_t signature)
 		for (uint32_t i = 0; i < num_table_entries; i++)
 		{
 			/* Try mapping the ACPI table */
-			table = map_acpi_table(0x10001000, xsdt->tables[i]);
+			table = map_acpi_table(xsdt->tables[i]);
 
 			/* Verify the signature and checksum */
 			if ((table->signature == signature) && do_checksum(table, table->length))
 			{
+				map_append(&table_cache, signature, table);
 				return table;
 			}
 		}
@@ -90,11 +105,12 @@ struct acpi_table_header *acpi_find_table(uint32_t signature)
 		for (uint32_t i = 0; i < num_table_entries; i++)
 		{
 			/* Try mapping the ACPI table */
-			table = map_acpi_table(0x10001000, rsdt->tables[i]);
+			table = map_acpi_table(rsdt->tables[i]);
 
 			/* Verify the signature and checksum */
 			if ((table->signature == signature) && do_checksum(table, table->length))
 			{
+				map_append(&table_cache, signature, table);
 				return table;
 			}
 		}
@@ -180,7 +196,7 @@ rsdp_found:
 	if (using_xsdt)
 	{
 		/* Map the XSDT */
-		xsdt = (struct xsdt*) map_acpi_table(0x10000000, rsdp_ext->xsdt_address);
+		xsdt = (struct xsdt*) map_acpi_table(rsdp_ext->xsdt_address);
 
 		/* Verify its signature and checksum */
 		if ((xsdt->header.signature != XSDT_SIGNATURE) || !do_checksum(xsdt, xsdt->header.length))
@@ -191,7 +207,7 @@ rsdp_found:
 	else
 	{
 		/* Map the RSDT */
-		rsdt = (struct rsdt*) map_acpi_table(0x10000000, rsdp->rsdt_address);
+		rsdt = (struct rsdt*) map_acpi_table(rsdp->rsdt_address);
 
 		/* Verify its signature and checksum */
 		if ((rsdt->header.signature != RSDT_SIGNATURE) || !do_checksum(rsdt, rsdt->header.length))
@@ -199,6 +215,9 @@ rsdp_found:
 			return -1;
 		}
 	}
+
+	/* Create the ACPI table cache */
+	table_cache = map_create();
 
 	return 0;
 }
