@@ -16,7 +16,7 @@ struct rsdp
 	char oemid[6];
 	uint8_t revision;
 	uint32_t rsdt_address;
-};
+} __attribute__ ((packed));
 
 /* Extended root system description pointer */
 struct rsdp_ext
@@ -26,7 +26,7 @@ struct rsdp_ext
 	uint64_t xsdt_address;
 	uint8_t checksum;
 	uint8_t reserved[3];
-};
+} __attribute__ ((packed));
 
 /* Header for all ACPI tables */
 struct acpi_table_header
@@ -40,23 +40,26 @@ struct acpi_table_header
 	uint32_t oem_revision;
 	uint32_t creator_ID;
 	uint32_t creator_revision;
-};
+} __attribute__ ((packed));
 
 /* Root system description table structure */
 struct rsdt
 {
 	struct acpi_table_header header;
 	uint32_t tables[];
-};
+} __attribute__ ((packed));
 
 /* Extended system description table structure */
 struct xsdt
 {
 	struct acpi_table_header header;
 	uint64_t tables[];
-};
+} __attribute__ ((packed));
 
-/* Initialize ACPI by finding the RSDP, then locating the RSDT/XSDT */
+/* Find an ACPI table by signature */
+struct acpi_table_header *acpi_find_table(uint32_t signature);
+
+/* Initialize the ACPI firmware interface */
 int acpi_init();
 
 #endif
