@@ -1,5 +1,5 @@
-#ifndef __LAPIC_H
-#define __LAPIC_H
+#ifndef __ACPI_H
+#define __ACPI_H
 
 /* Signature of the RSDP, as a 64-bit iteger */
 #define RSDP_SIGNATURE		0x2052545020445352
@@ -55,5 +55,8 @@ struct xsdt
 	struct acpi_table_header header;
 	uint64_t tables[];
 };
+
+/* Initialize ACPI by finding the RSDP, then locating the RSDT/XSDT */
+int acpi_init();
 
 #endif
