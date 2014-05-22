@@ -13,6 +13,11 @@ typedef struct numa_domain
 /* Per-CPU data area structure */
 typedef struct cpu
 {
+	/* CPU information */
+	uint32_t lapic_id;
+	int numa_domain;
+	uint32_t flags;
+
 	/* Scheduling information */
 
 	/* GDT and TSS for the CPU */
