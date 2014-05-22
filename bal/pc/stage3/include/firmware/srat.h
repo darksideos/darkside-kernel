@@ -41,7 +41,7 @@ struct srat_x2lapic_entry
 	uint32_t lapic_id;
 	uint32_t lapic_flags;
 	uint32_t clock_domain;
-	uint32_t reserved;
+	uint32_t reserved1;
 } __attribute__ ((packed));
 
 #endif
