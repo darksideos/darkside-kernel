@@ -52,12 +52,31 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		data += entry->length;
 	}
 
+	printf("Made CPU areas\n");
+
 	/* Calculate the start of the per-NUMA domain data area */
 	vaddr_t numa_domain_data_area = cpu_data_area;
 	loader_block->numa_domain_data_area = numa_domain_data_area;
 
 	/* Get the SRAT */
 	struct srat *srat = (struct srat*) acpi_find_table(SRAT_SIGNATURE);
+
+	/* If there is no SRAT, we're only using one NUMA domain */
+	if (!srat)
+	{
+		/* Allocate a page and map it */
+		map_page(numa_domain_data_area, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+
+		/* Make every CPU point to it */
+		uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
+		while (cpu < loader_block->numa_domain_data_area)
+		{
+			cpu[1] = (uint32_t) numa_domain_data_area;
+			cpu += 0xC00;
+		}
+
+		return;
+	}	
 
 	/* Create a map of NUMA domain numbers to NUMA domain data structures */
 	map_t numa_domains = map_create();
@@ -94,7 +113,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 			uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
 			while ((cpu[0] != (uint32_t) lapic_entry->lapic_id) && (cpu < loader_block->numa_domain_data_area))
 			{
-				cpu += 0x400;
+				cpu += 0xC00;
 			}
 
 			/* If we found the CPU */
