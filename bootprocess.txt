@@ -23,7 +23,7 @@ BSP Initialization
 	-Install CPU exception handlers
 	-Initialize the slab allocator
 	-Initialize the kernel heap, which uses the slab allocator
-	-Use the CPU topology information from bigbang to initialize the scheduler's data structures
+	-Detect CPU topology (using either ACPI or MP information table) and use it to initialize the scheduler's data structures
 	-Initialize the interrupt controller (either 8259 PIC alone, Local APIC and 8259 PIC together, or Local APIC and I/O APIC together)
 	-Initialize the system timer (either 8254 PIT, Local APIC timer, or HPET)
 	-Initialize the RTC
