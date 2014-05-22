@@ -9,6 +9,7 @@
 #include <mm/vmm.h>
 #include <fs/fs.h>
 #include <fs/ext2.h>
+#include <firmware/acpi.h>
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
@@ -48,7 +49,10 @@ void bal_main(data_t *_data)
 	if (!status)
 	{
 		printf("ACPI initialization succeeded\n");
-		printf("Mapped MADT to 0x%08X\n", acpi_find_table(0x43495041));
+		struct acpi_table_header *madt = acpi_find_table(0x43495041);
+		printf("Mapped MADT table to 0x%08X\n", madt);
+		printf("Signature is 0x%08X\n", madt->signature);
+		printf("Length is %u\n", madt->length);
 	}
 	while(1);
 

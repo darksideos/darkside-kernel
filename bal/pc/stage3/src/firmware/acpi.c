@@ -55,7 +55,7 @@ static struct acpi_table_header *map_acpi_table(vaddr_t virtual_address, paddr_t
 	return table;
 }
 
-/* Find an ACPI table by signature */
+/* Find an ACPI table by its signature */
 struct acpi_table_header *acpi_find_table(uint32_t signature)
 {
 	/* ACPI table */
