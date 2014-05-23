@@ -243,13 +243,15 @@ read_block_pointer:
 	push ecx										; Save the length
 	push eax										; Save the buffer
 	
-	mov edx, esi									; EDX = level
-	dec edx
-	
 	; VBR signature
+	nop
+	nop
+	jmp near .indirect_continue_
 	push ebp
 	stosb
-	pop ebp
+.indirect_continue_:	
+	mov edx, esi									; EDX = level
+	dec edx
 
 	mov esi, ecx									; ESI = bytes_left
 	mov edi, 0										; EDI = blocks_read
