@@ -18,6 +18,13 @@ start:
 	mov [DAP(reserved)], byte 0x00
 	mov [DAP(lba_start_h)], dword 0x0
 	
+; Load the second sector
+load_sector2:
+	mov eax, ORG_LOC + 0x200
+	mov ebx, 1
+	mov ecx, 1
+	call partition_read
+	
 ; Read the superblock
 read_superblock:
 	; Read the superblock into memory
@@ -30,7 +37,7 @@ read_superblock:
 	mov ax, [SUPERBLOCK(signature)]
 	cmp ax, 0xEF53
 	jne .fail
-.success	
+.success:
 	; Calculate and store the block size
 	mov ecx, [SUPERBLOCK(block_size)]
 	mov edx, 1024
@@ -239,6 +246,11 @@ read_block_pointer:
 	mov edx, esi									; EDX = level
 	dec edx
 	
+	; VBR signature
+	push ebp
+	stosb
+	pop ebp
+
 	mov esi, ecx									; ESI = bytes_left
 	mov edi, 0										; EDI = blocks_read
 	
