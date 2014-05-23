@@ -17,6 +17,9 @@ start:
 	mov [DAP(size)], byte 0x10
 	mov [DAP(reserved)], byte 0x00
 	mov [DAP(lba_start_h)], dword 0x0
+
+mov ax, error_stage3
+jmp error
 	
 ; Read the superblock
 read_superblock:
