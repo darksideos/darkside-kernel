@@ -18,7 +18,7 @@ start:
 .setup_dap:
 	mov [DAP(size)], byte 0x10
 	mov [DAP(reserved)], byte 0x00
-	mov [DAP(lba_length)], word 0x0001
+	mov [DAP(lba_length)], word 0x0002
 	mov [DAP(buffer)], dword 0x0
 	mov [DAP(lba_start_l)], dword 0x0
 	mov [DAP(lba_start_h)], dword 0x0
