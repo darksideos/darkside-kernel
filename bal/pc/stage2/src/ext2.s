@@ -18,13 +18,6 @@ start:
 	mov [DAP(reserved)], byte 0x00
 	mov [DAP(lba_start_h)], dword 0x0
 	
-; Load the second sector
-load_sector2:
-	mov eax, ORG_LOC + 0x200
-	mov ebx, 1
-	mov ecx, 1
-	call partition_read
-	
 ; Read the superblock
 read_superblock:
 	; Read the superblock into memory
@@ -243,13 +236,6 @@ read_block_pointer:
 	push ecx										; Save the length
 	push eax										; Save the buffer
 	
-	; VBR signature
-	nop
-	nop
-	jmp near .indirect_continue_
-	push ebp
-	stosb
-.indirect_continue_:	
 	mov edx, esi									; EDX = level
 	dec edx
 
@@ -498,6 +484,9 @@ error:
 
 error_stage3	db "Unable to load stage3..."
 
-; Fill the remaining 1024 bytes with zeroes
-times 1024 - ($ - $$) db 0
+; Fill the remaining 1022 bytes with zeroes
+times 1022 - ($ - $$) db 0
+
+; VBR signature
+dw 0xaa55
 	
