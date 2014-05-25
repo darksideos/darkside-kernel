@@ -26,6 +26,8 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
+		printf("Made it to the kernel\n");
+
 		/* Initialize the free page list */
 		//printf("Initializing free list\n");
 		//freelist_init(&loader_block);

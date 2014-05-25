@@ -18,8 +18,11 @@ start:
 	mov [DAP(reserved)], byte 0x00
 	mov [DAP(lba_start_h)], dword 0x0
 
-mov ax, error_stage3
-jmp error
+; Load the second sector of the VBR
+mov eax, ORG_LOC + 0x200
+mov ebx, 1
+mov ecx, 1
+call partition_read
 	
 ; Read the superblock
 read_superblock:
