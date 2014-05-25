@@ -87,15 +87,6 @@ executable_t *elf_executable_load_executable(char *filename)
 				page_flags |= PAGE_EXECUTE;
 			}
 
-			/* TEST */
-			uint32_t p1 = (uint32_t) pmm_alloc_page();
-			uint32_t p2 = (uint32_t) pmm_alloc_page();
-			uint32_t p3 = (uint32_t) pmm_alloc_page();
-			uint32_t p4 = (uint32_t) pmm_alloc_page();
-			uint32_t p5 = (uint32_t) pmm_alloc_page();
-			printf("0x%08X 0x%08X 0x%08X 0x%08X 0x%08X\n", p1, p2, p3, p4, p5);
-			while(1);
-
 			/* Load each page from the file into memory */
 			uint32_t file_size = phdr.file_size;
 			for (int j = 0; j < file_size; j += 0x1000)
@@ -114,9 +105,6 @@ executable_t *elf_executable_load_executable(char *filename)
 					phdr.file_size -= 0x1000;
 				}
 			}
-
-			printf("Read all pages from file, may be more\n");
-			while(1);
 
 			/* Try to get to a page boundary */
 			uint32_t to_next_page = 0;
