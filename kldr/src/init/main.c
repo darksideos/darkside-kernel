@@ -36,6 +36,9 @@ void ba_main(loader_block_t *loader_block)
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i386.elf");
 	list_insert_tail(&modules, kernel);
 
+	printf("Kernel loaded\n");
+	while(1);
+
 	/* Load bootvid into virtual memory */
 
 	/* Read and parse the module registry */
@@ -45,13 +48,24 @@ void ba_main(loader_block_t *loader_block)
 	/* Allocate space for the PFN database */
 	pfn_database_alloc(loader_block, kernel->end);
 
+	printf("PFN database allocated\n");
+	while(1);
+
 	/* Allocate the per-CPU and NUMA domain data structures */
 	per_cpu_numa_area_alloc(loader_block);
+
+	printf("Per-CPU and NUMA domain data structures allocated\n");
+	while(1);
 
 	/* Detect the NUMA domain of each memory area */
 	memory_numa_domains_detect(loader_block);
 
+	printf("NUMA domains of each memory area detected\n");
+	while(1);
+
 	/* Call the kernel, passing it the loader block */
+	printf("About to enter kernel\n");
+	while(1);
 	bal_enter_kernel(kernel->entry_point, loader_block);
 
 	while(1);
