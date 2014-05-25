@@ -106,6 +106,9 @@ executable_t *elf_executable_load_executable(char *filename)
 				}
 			}
 
+			printf("Read all pages from file, may be more\n");
+			while(1);
+
 			/* Try to get to a page boundary */
 			uint32_t to_next_page = 0;
 			if ((phdr.virtual_address + file_size) & 0xFFF)
