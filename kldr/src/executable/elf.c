@@ -69,6 +69,8 @@ executable_t *elf_executable_load_executable(char *filename)
 				}
 			}
 
+			printf("Loading to 0x%08X, file size: 0x%08X, mem size: 0x%08X\n", phdr.virtual_address, phdr.file_size, phdr.mem_size);
+
 			/* Calculate page access flags */
 			int page_flags = 0;
 
