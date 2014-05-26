@@ -26,6 +26,8 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Initialize the processor's GDT and IDT */
 		while(1);
 
+		/* Install CPU exception handlers */
+
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
@@ -35,8 +37,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		//printf("Initialized free list\n");
 
 		/* Initialize paging, mapping our kernel and modules */
-
-		/* Install CPU exception handlers */
 
 		/* Initialize the slab allocator */
 
