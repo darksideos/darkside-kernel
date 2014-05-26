@@ -30,13 +30,11 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 
 		/* Install CPU exception handlers */
 		exceptions_install();
-		uint32_t *ptr = (uint32_t*) 0x70000000;
-		uint32_t val = *ptr;
-		*ptr = ++val;
-		while(1);
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
+
+		printf("PFN database initialized\n");
 
 		/* Initialize the free page list */
 		//printf("Initializing free list\n");
