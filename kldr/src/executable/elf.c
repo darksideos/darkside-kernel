@@ -97,16 +97,13 @@ executable_t *elf_executable_load_executable(char *filename)
 				/* Read the data from the file */
 				if (phdr.file_size < 0x1000)
 				{
-					printf("Reading 0x%08X bytes to 0x%08X from 0x%08X\n", phdr.file_size, phdr.virtual_address + j, phdr.offset + j);
 					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, phdr.file_size);
 				}
 				else
 				{
-					printf("Reading 0x1000 bytes to 0x%08X from 0x%08X\n", phdr.virtual_address + j, phdr.offset + j);
 					bytes_read = fs_read(elf, (void*) phdr.virtual_address + j, phdr.offset + j, 0x1000);
 					phdr.file_size -= 0x1000;
 				}
-				printf("Read 0x%08X bytes\n", (uint32_t) bytes_read);
 			}
 
 			/* Try to get to a page boundary */
