@@ -23,10 +23,11 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		/* Initialize the per-CPU and NUMA domain data areas */
 		cpu_data_area_init(&loader_block);
 
+		/* Initialize the processor's GDT and IDT */
+		while(1);
+
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
-
-		printf("Made it to the kernel\n");
 
 		/* Initialize the free page list */
 		//printf("Initializing free list\n");
@@ -34,8 +35,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		//printf("Initialized free list\n");
 
 		/* Initialize paging, mapping our kernel and modules */
-
-		/* Initialize the processor's GDT and IDT */
 
 		/* Install CPU exception handlers */
 
