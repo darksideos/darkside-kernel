@@ -51,6 +51,10 @@ void ba_main(loader_block_t *loader_block)
 	/* Detect the NUMA domain of each memory area */
 	memory_numa_domains_detect(loader_block);
 
+	uint32_t *ptr = (uint32_t*) 0x80000000;
+	printf("0x%08X\n", *ptr);
+	while(1);
+
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);
 
