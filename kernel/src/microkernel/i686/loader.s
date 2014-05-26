@@ -3,6 +3,8 @@
 ; Kernel startup code
 section .text
 start:
+	jmp $
+
 	; Save the loader block pointer in EBX, CPU number in ECX, and NUMA domain number in EDX
 	pop edx
 	pop ecx
