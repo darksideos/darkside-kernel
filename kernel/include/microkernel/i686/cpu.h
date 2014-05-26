@@ -3,6 +3,7 @@
 
 #include <mm/page.h>
 #include <microkernel/i686/gdt.h>
+#include <microkernel/i686/idt.h>
 
 /* Per-NUMA domain data area structure */
 typedef struct numa_domain
@@ -24,12 +25,9 @@ typedef struct cpu
 
 	/* GDT and TSS for the CPU */
 	struct gdt_entry gdt[6];
-	struct gdt_ptr gdtr;
-	uint16_t pad2;
+	struct gdtr gdtr;
 
 	/* Double fault stack */
-
-	/* IDT for the CPU */
 } __attribute__((packed)) cpu_t;
 
 #endif

@@ -13,7 +13,7 @@ struct gdt_entry
 } __attribute__((packed));
 
 /* GDT pointer structure */
-struct gdt_ptr
+struct gdtr
 {
     uint16_t limit;
     uint32_t base;
