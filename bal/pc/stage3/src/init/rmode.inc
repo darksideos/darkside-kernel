@@ -1,5 +1,5 @@
 %macro pm2rm 0
-; Set up the stack frame
+	; Set up the stack frame
 	push ebp
 	mov ebp, esp
 	

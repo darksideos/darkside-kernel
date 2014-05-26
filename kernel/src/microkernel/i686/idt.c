@@ -28,7 +28,6 @@ void idt_load(uint32_t idtr);
 /* Set an entry in the IDT */
 void idt_set_gate(int num, uint32_t base, uint8_t gate_type, bool user)
 {
-	/* Make sure we don't overflow the IDT */
 	if (num >= 0 && num < 256)
 	{
 		/* Set the ISR's base address */
