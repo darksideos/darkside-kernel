@@ -44,8 +44,6 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 			cpu[0] = (uint32_t) lapic_entry->lapic_id;
 			cpu[2] = lapic_entry->lapic_flags;
 
-			printf("Created entry for LAPIC ID 0x%08X\n", (uint32_t) lapic_entry->lapic_id);
-
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
 		}
@@ -54,8 +52,6 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		i += entry->length;
 		data += entry->length;
 	}
-
-	printf("Made CPU areas\n");
 
 	/* Calculate the start of the per-NUMA domain data area */
 	vaddr_t numa_domain_data_area = cpu_data_area;
