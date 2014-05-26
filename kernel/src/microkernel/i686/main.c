@@ -26,6 +26,7 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 
 		/* Initialize the processor's GDT and IDT */
 		gdt_init(bsp);
+		printf("New GDT initialized\n");
 		while(1);
 
 		/* Install CPU exception handlers */
