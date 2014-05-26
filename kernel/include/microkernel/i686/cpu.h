@@ -2,6 +2,7 @@
 #define __I686_CPU_H
 
 #include <mm/page.h>
+#include <microkernel/i686/gdt.h>
 
 /* Per-NUMA domain data area structure */
 typedef struct numa_domain
@@ -17,14 +18,18 @@ typedef struct cpu
 	uint32_t lapic_id;
 	numa_domain_t *numa_domain;
 	uint32_t flags;
+	uint8_t pad1[4084];
 
 	/* Scheduling information */
 
 	/* GDT and TSS for the CPU */
+	struct gdt_entry gdt[6];
+	struct gdt_ptr gdtr;
+	uint16_t pad2;
 
 	/* Double fault stack */
 
 	/* IDT for the CPU */
-} cpu_t;
+} __attribute__((packed)) cpu_t;
 
 #endif

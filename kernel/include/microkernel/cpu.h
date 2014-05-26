@@ -10,9 +10,11 @@
 
 /* Macros for special CPU numbers */
 #define CPU_CURRENT				-1
+#define CPU_BSP					-2
 
 /* Macros for special NUMA domain numbers */
 #define NUMA_DOMAIN_CURRENT		-1
+#define NUMA_DOMAIN_BSP			-2
 
 /* Get a pointer to the per-CPU and per-NUMA domain data areas */
 cpu_t *cpu_data_area(int cpu);
