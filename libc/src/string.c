@@ -141,7 +141,7 @@ char *my_strtok_r(char *str, char *delimeter, char **saveptr)
 	return retval;
 }
 
-/* Taken from the FreeBSD project */
+/* Taken from FreeBSD */
 char *strtok_r(char *s, const char *delim, char **last)
 {
 	char *spanp, *tok;
