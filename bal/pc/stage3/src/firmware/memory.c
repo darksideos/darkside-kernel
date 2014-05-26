@@ -15,6 +15,8 @@ void memory_numa_domains_detect(loader_block_t *loader_block)
 	/* If there is no SRAT, we're only using one NUMA domain */
 	if (!srat)
 	{
+		printf("No SRAT, one NUMA domain\n");
+
 		/* Set all memory to use NUMA domain 0 */
 		iterator_t iter = list_head(loader_block->phys_mem_map);
 
