@@ -3,6 +3,7 @@
 #include <bootvid.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
+#include <microkernel/i686/gdt.h>
 #include <mm/pfn.h>
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
@@ -24,6 +25,7 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 		cpu_data_area_init(&loader_block);
 
 		/* Initialize the processor's GDT and IDT */
+		gdt_init(bsp);
 		while(1);
 
 		/* Install CPU exception handlers */
