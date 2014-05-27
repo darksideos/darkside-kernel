@@ -26,7 +26,7 @@ static framebuffer_t *framebuffer_create(uint16_t mode)
 	
 	fb->buffer_phys = (paddr_t) mode_info->lfb;
 	fb->buffer = 0;
-	fb->length = (mode_info->width * mode_info->height * mode_info->bpp) + ((mode_info->height - 1) * mode_info->pitch);
+	fb->length = (mode_info->width * mode_info->height * (mode_info->bpp / 4)) + ((mode_info->height - 1) * mode_info->pitch);
 
 	fb->width = (int) mode_info->width;
 	fb->height = (int) mode_info->height;
