@@ -4,7 +4,7 @@
 void drawing_demo(framebuffer_t *fb)
 {
 	uint32_t *line = (uint32_t*) fb->buffer;
-	line[0] = 0x00FF00FF;
+	line[0] = 0x00FF0000;
 	int x = 0, y = 0;
 	uint32_t color = 0x00FF0000;
 	
@@ -40,7 +40,7 @@ void drawing_demo(framebuffer_t *fb)
 	 			case 0x4d:
 	 				if (x < fb->width)
 	 				{
-	 					if (!shift) line[++x] = color;
+						if (!shift) line[++x] = color;
 	 				}
 	 
 	 				break;
