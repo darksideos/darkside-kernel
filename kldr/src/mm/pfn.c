@@ -113,5 +113,4 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 
 	/* Calculate the size of the PFN database */
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
-	while(1);
 }
