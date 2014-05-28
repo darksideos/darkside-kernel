@@ -1,5 +1,23 @@
 #include <types.h>
 
+/* Divide a number by a divisor and round the result down */
+uint64_t floor(uint64_t num, uint64_t div)
+{
+	return (num % div == 0) ? num / div : ((num - num % div) / div);
+}
+
+/* Divide a number by a divisor and round the result up */
+uint64_t ceil(uint64_t num, uint64_t div)
+{
+	return (num % div == 0) ? num / div : ((num - num % div) / div + 1);
+}
+
+/* Calculate the absolute value of a number */
+uint64_t abs(int64_t num)
+{
+	return num > 0 ? num : -num;
+}
+
 /* Raise a number to a power */
 uint32_t pow(uint32_t x, uint32_t y)
 {
