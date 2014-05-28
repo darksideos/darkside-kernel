@@ -27,3 +27,4 @@ The project is laid out as follows:
 * libc - Minimal C library
 * libgcc - Low-level runtime support library
 * modules - Kernel modules (includes device drivers, filesystem drivers, executable formats, and device driver interfaces)
+* graphics - DarkSide Project and OS graphics
