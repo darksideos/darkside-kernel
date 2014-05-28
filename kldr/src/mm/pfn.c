@@ -53,7 +53,10 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 				to_next_page = 0x1000 - (pfn_database & 0xFFF);
 			}
 			pfn_database += to_next_page;
-			needed_space -= to_next_page;
+			if (needed_space >= to_next_page)
+			{
+				needed_space -= to_next_page;
+			}
 
 			/* If needed, allocate the page before */
 			if (to_next_page && get_mapping(pfn_database - to_next_page) == -1)
@@ -62,6 +65,8 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 			}
 
 			/* Allocate the space */
+			printf("Base: 0x%08X, length: 0x%08X, flags: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
+			printf("Allocating 0x%08X bytes starting at 0x%08X\n\n", (uint32_t) needed_space, pfn_database);
 			for (vaddr_t i = pfn_database; i < pfn_database + needed_space; i += 0x1000)
 			{
 				map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
@@ -94,4 +99,5 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 
 	/* Calculate the size of the PFN database */
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
+	while(1);
 }

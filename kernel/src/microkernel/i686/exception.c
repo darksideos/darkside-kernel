@@ -61,8 +61,7 @@ static void page_fault_handler(struct regs *regs)
 	uint32_t faulting_address;
 	__asm__ volatile("mov %%cr2, %0" : "=r" (faulting_address));
 
-	printf("Page fault at 0x%08X\n", faulting_address);
-	while(1);
+	panic("Page fault at 0x%08X\n", faulting_address);
 }
 
 /* Register an exception handler */

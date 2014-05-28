@@ -24,21 +24,9 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Read and parse the configuration file */
 
-	/* Initialize graphics */
+	/* Initialize graphics
 	framebuffer_t *fb = graphics_init(0, 0, 0);
-	loader_block->fb = fb;
-
-	paddr_t base = fb->buffer_phys;
-	vaddr_t length = (fb->width * fb->height * fb->bpp) + ((fb->height - 1) * fb->pitch);
-
-	for (vaddr_t i = 0; i < length; i += 0x1000)
-	{
-		map_page(0x80000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
-	}
-
-	fb->buffer = (void*) 0x80000000;
-
-	drawing_demo(fb);
+	loader_block->fb = fb; */
 
 	/* Create a list of modules */
 	list_t modules = list_create();
