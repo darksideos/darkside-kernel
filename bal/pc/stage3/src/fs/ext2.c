@@ -318,14 +318,12 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 
 	/* Calculate and store the block size */
 	superblock->block_size = 1024 << superblock->block_size;
-	printf("Block size: 0x%08X\n", superblock->block_size);
 
 	/* Calculate and store the inode size */
 	if (superblock->major_version < 1)
 	{
 		superblock->inode_size = 128;
 	}
-	printf("Inode size: 0x%08X\n", superblock->inode_size);
 
 	/* Allocate a block buffer */
 	superblock->block_buffer = malloc(superblock->block_size);
