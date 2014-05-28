@@ -1,10 +1,6 @@
 #ifndef __PAGE_H
 #define __PAGE_H
 
-#include <list.h>
-#include <init/loader.h>
-#include <microkernel/lock.h>
-
 /* Memory map entry flags */
 #define PAGE_FLAG_USABLE	0x01
 #define PAGE_FLAG_FREE		0x02
