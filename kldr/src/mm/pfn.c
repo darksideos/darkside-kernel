@@ -57,6 +57,10 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 			{
 				needed_space -= to_next_page;
 			}
+			else
+			{
+				needed_space = 0;
+			}
 
 			/* If needed, allocate the page before */
 			if (to_next_page && get_mapping(pfn_database - to_next_page) == -1)
@@ -99,5 +103,5 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 
 	/* Calculate the size of the PFN database */
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
-	while(1);
+	//while(1);
 }
