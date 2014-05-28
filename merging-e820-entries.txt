@@ -1,0 +1,36 @@
+For each entry in the list
+	-If entry->length is not page aligned
+		-Resize the entry to a page boundary
+		-If entry->length > 0x1000
+			old_length = entry->length
+			entry->length = (length & 0xFFFFF000)
+			lost_space = old_length - entry->length
+		-Else
+			old_length = entry->length
+			entry->length = 
+		
+
+		-Compute the new flags, based on the next entry
+		If entry->numa_domain is not the same as next->numa_domain
+			new_flags = Invalid
+		If entry->flags is Valid and next->flags is Invalid or vice versa
+			new_flags = Invalid
+		If entry->flags is Valid-Free and next->flags is just Valid or vice versa
+			new_flags = Valid
+		If entry->flags is Valid and next->flags is firmware-nonreclaimable or vice versa
+			new_flags = Firmware-Nonreclaimable
+		If entry->flags is Valid and next->flags is firmware-reclaimable or vice versa
+			new_flags = Valid
+		If entry->flags is Valid-Free and next->flags is firmware-reclaimable or vice versa
+			new_flags = Firmware-Reclaimable
+
+		-If next->flags == new_flags
+			-Change the next entry's base to be lower
+			next->base = entry->base + entry->length
+			next->length += lost_space
+		-Else
+			-Change the next entry's base to be lower
+			next->base = entry->base + entry->length
+			next->length += lost_space
+
+			-
