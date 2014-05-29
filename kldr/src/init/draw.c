@@ -117,7 +117,7 @@ void draw_bmp_32(framebuffer_t *fb, char *fname, uint32_t x, uint32_t y)
 	
 	for (uint32_t row = 0; row < abs(header.height); row++)
 	{
-		fs_read(&file, fb->buffer + fb_offset, file_offset, header.bpp / 8 * header.width);
+		fs_read(file, fb->buffer + fb_offset, file_offset, header.bpp / 8 * header.width);
 		file_offset += row_size;
 		fb_offset += fb->pitch;
 	}
