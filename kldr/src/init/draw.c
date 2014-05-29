@@ -5,16 +5,6 @@ void drawing_demo(framebuffer_t *fb)
 {
 	uint32_t *line = (uint32_t*) fb->buffer;
 	line[0] = 0x00FF0000;
-	line[1] = 0x00FF0000;
-	line[2] = 0x00FF0000;
-	line[3] = 0x00FF0000;
-	line[4] = 0x00FF0000;
-	line[5] = 0x00FF0000;
-	line[6] = 0x00FF0000;
-	line[7] = 0x00FF0000;
-	line[8] = 0x00FF0000;
-	line[9] = 0x00FF0000;
-	line[10] = 0x00FF0000;
 	int x = 0, y = 0;
 	uint32_t color = 0x00FF0000;
 	
@@ -106,3 +96,17 @@ void drawing_demo(framebuffer_t *fb)
 	}
 }
 
+void draw_bmp_32(framebuffer_t *fb, char *fname, uint32_t x, uint32_t y)
+{
+	inode_t *file = file_open(fname);
+	
+	bmp_header_t header;
+	
+	fs_read(file, &header, 0, sizeof(bmp_header_t));
+	
+	if(header.header_field != 0x424D) panic("Invalid BMP header field: %04X.\n", header.header_field);
+	if(header.color_planes != 1) panic("Invalid BMP # color planes: %d.\n", header.color_planes);
+	if(header.bpp != 32) panic("Invalid BMP bytes-per-pixel (must be 32): %d.\n", header.bpp);
+	
+	printf("WIDTH: %d\n", header.width);
+}
