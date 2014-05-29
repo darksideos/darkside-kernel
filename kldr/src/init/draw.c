@@ -1,4 +1,5 @@
 #include <types.h>
+#include <fs/fs.h>
 #include <graphics/graphics.h>
 #include <init/bmp.h>
 
@@ -99,13 +100,13 @@ void drawing_demo(framebuffer_t *fb)
 
 void draw_bmp_32(framebuffer_t *fb, char *fname, uint32_t x, uint32_t y)
 {
-	inode_t *file = file_open(fname);
+	inode_t *file = fs_open(fname);
 	
 	bmp_header_t header;
 	
 	fs_read(file, &header, 0, sizeof(bmp_header_t));
 	
-	if(header.header_field != 0x424D) panic("Invalid BMP header field: %04X.\n", header.header_field);
+	if(header.header_field != 0x4D42) panic("Invalid BMP header field: %04X.\n", header.header_field);
 	if(header.color_planes != 1) panic("Invalid BMP # color planes: %d.\n", header.color_planes);
 	if(header.bpp != 32) panic("Invalid BMP bytes-per-pixel (must be 32): %d.\n", header.bpp);
 	

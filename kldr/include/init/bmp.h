@@ -2,7 +2,7 @@
 #define __BMP_H
 
 /* BMP header structure */
-struct bmp_header_t
+typedef struct bmp_header
 {
 	uint16_t header_field; /* Since these should be Windows NT bitmaps, this field should be "BM"/0x424D */
 	uint32_t file_size;
@@ -22,6 +22,6 @@ struct bmp_header_t
 	int32_t v_res;
 	uint32_t colors_in_palette;
 	uint32_t important_colors;
-};
+} __attribute__((packed)) bmp_header_t;
 
 #endif
