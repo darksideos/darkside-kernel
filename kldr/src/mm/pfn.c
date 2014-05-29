@@ -1,6 +1,7 @@
 #include <types.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include <iterator.h>
 #include <list.h>
 #include <init/loader.h>
@@ -42,8 +43,27 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 	{
 		printf("Base: 0x%08X, length: 0x%08X, flags: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
 
+		/* If we're in the middle of a page in our entry, get to a page boundary */
+		if (entry->base & 0xFFF)
+		{
+			/* Try to get to a page boundary */
+			uint32_t to_next_page = 0;
+			to_next_page = 0x1000 - (entry->base & 0xFFF);
+			entry->base += to_next_page;
+
+			/* Can we remove this much and still have an entry left */
+			if (entry->length > to_next_page)
+			{
+				entry->length -= to_next_page;
+			}
+			else
+			{
+				entry->length = 0;
+			}
+		}
+
 		/* How much space is needed? */
-		uint64_t needed_space = (entry->length / 0x1000) * /*sizeof(page_t)*/ 16;
+		uint64_t needed_space = ceil(entry->length, 0x1000) * /*sizeof(page_t)*/ 16;
 		printf("Needs 0x%08X bytes\n", (uint32_t) needed_space);
 
 		/* Save the old start of the PFN database and old needed space */
@@ -113,4 +133,5 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 
 	/* Calculate the size of the PFN database */
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
+	while(1);
 }
