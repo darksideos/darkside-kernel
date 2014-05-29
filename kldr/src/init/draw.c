@@ -43,7 +43,11 @@ void drawing_demo(framebuffer_t *fb)
 	 			case 0x4d:
 	 				if (x < fb->width)
 	 				{
-						/*if (!shift) */line[++x] = color;
+						/*if (!shift) *//*line[++x] = color;*/
+						line[++x] = color;
+						line[++x] = color;
+						line[++x] = color;
+						line[++x] = color;
 	 				}
 	 
 	 				break;
@@ -51,9 +55,12 @@ void drawing_demo(framebuffer_t *fb)
 	 			case 0x50:
 	 				if (y < fb->height)
 	 				{
-	 					line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
-	 					/*if (!shift) */line[x] = color;
-	 					y++;
+						for (int i = 0; i < 4; i++)
+						{
+	 						line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
+	 						/*if (!shift) */line[x] = color;
+	 						y++;
+						}
 	 				}
 	 
 	 				break;
@@ -61,9 +68,12 @@ void drawing_demo(framebuffer_t *fb)
 	 			case 0x48:
 	 				if (y > 0)
 	 				{
-	 					line = (uint32_t*) (((uint8_t*) line) - (fb->width * 4) - fb->pitch);
-	 					/*if (!shift) */line[x] = color;
-	 					y--;
+						for (int i = 0; i < 4; i++)
+						{
+	 						line = (uint32_t*) (((uint8_t*) line) - (fb->width * 4) - fb->pitch);
+	 						/*if (!shift) */line[x] = color;
+	 						y--;
+						}
 	 				}
 	 
 	 				break;
@@ -71,7 +81,11 @@ void drawing_demo(framebuffer_t *fb)
 	 			case 0x4b:
 	 				if (x > 0)
 	 				{
-	 					/*if (!shift) */line[--x] = color;
+	 					/*if (!shift) *//*line[--x] = color;*/
+						line[--x] = color;
+						line[--x] = color;
+						line[--x] = color;
+						line[--x] = color;
 	 				}
 	 
 	 				break;
