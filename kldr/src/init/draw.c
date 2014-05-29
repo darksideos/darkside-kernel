@@ -5,6 +5,16 @@ void drawing_demo(framebuffer_t *fb)
 {
 	uint32_t *line = (uint32_t*) fb->buffer;
 	line[0] = 0x00FF0000;
+	line[1] = 0x00FF0000;
+	line[2] = 0x00FF0000;
+	line[3] = 0x00FF0000;
+	line[4] = 0x00FF0000;
+	line[5] = 0x00FF0000;
+	line[6] = 0x00FF0000;
+	line[7] = 0x00FF0000;
+	line[8] = 0x00FF0000;
+	line[9] = 0x00FF0000;
+	line[10] = 0x00FF0000;
 	int x = 0, y = 0;
 	uint32_t color = 0x00FF0000;
 	
@@ -40,6 +50,10 @@ void drawing_demo(framebuffer_t *fb)
 	 			case 0x4d:
 	 				if (x < fb->width)
 	 				{
+						int *ptr = (int*)0x50000000;
+						int val = *ptr;
+						val++;
+						*ptr = val;
 						if (!shift) line[++x] = color;
 	 				}
 	 
