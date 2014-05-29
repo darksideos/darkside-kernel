@@ -28,7 +28,7 @@ void ba_main(loader_block_t *loader_block)
 	framebuffer_t *fb = graphics_init(0, 0, 0);
 	loader_block->fb = fb; */
 
-	draw_bmp_32(NULL, "/boot/icon black alpha.bmp", 0, 0);
+	draw_bmp_32(NULL, "/boot/boot screen.bmp", 0, 0);
 	while(1);
 
 	/* Create a list of modules */
