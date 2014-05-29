@@ -1,5 +1,6 @@
 #include <types.h>
 #include <graphics/graphics.h>
+#include <init/bmp.h>
 
 void drawing_demo(framebuffer_t *fb)
 {
