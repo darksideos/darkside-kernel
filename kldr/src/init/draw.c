@@ -106,6 +106,7 @@ void draw_bmp_32(framebuffer_t *fb, char *fname, uint32_t x, uint32_t y)
 	
 	if(header.header_field != 0x424D) panic("Invalid BMP header field: %04X.\n", header.header_field);
 	if(header.color_planes != 1) panic("Invalid BMP # color planes: %d.\n", header.color_planes);
+	if(header.bpp != 32) panic("Invalid BMP bytes-per-pixel (must be 32): %d.\n", header.bpp);
 	
 	printf("WIDTH: %d\n", header.width);
 }
