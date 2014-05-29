@@ -112,11 +112,13 @@ void draw_bmp_32(framebuffer_t *fb, char *fname, uint32_t x, uint32_t y)
 	if(header.bpp != 32) panic("Invalid BMP bytes-per-pixel (must be 32): %d.\n", header.bpp);
 	
 	uint32_t file_offset = header.pixeldata_start;
+	uint32_t fb_offset = 0;
 	uint32_t row_size = floor(header.bpp * header.width + 31, 32) * 4;
 	
 	for (uint32_t row = 0; row < abs(header.height); row++)
 	{
-		fs_read(&file, fb->buffer, file_offset, header.bpp / 8 * header.width);
+		fs_read(&file, fb->buffer + fb_offset, file_offset, header.bpp / 8 * header.width);
 		file_offset += row_size;
+		fb_offset += fb->pitch;
 	}
 }
