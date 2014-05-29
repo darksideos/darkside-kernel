@@ -9,11 +9,8 @@ struct bmp_header_t
 	uint16_t reserved_1;
 	uint16_t reserved_2;
 	uint32_t pixeldata_start;
-};
 
-/* BMP Windows NT bitmap info header */
-struct bmp_info_header_t
-{
+	/* Using the default Windows NT format */
 	uint32_t header_size;		/* 40 bytes */
 	int32_t width;			/* According to spec, this is signed, so... */
 	int32_t height;			/* This one's signed too */
