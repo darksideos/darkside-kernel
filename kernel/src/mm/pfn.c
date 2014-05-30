@@ -49,8 +49,6 @@ void pfn_database_init(loader_block_t *loader_block)
 	paddr_t index = 0;
 	while (entry)
 	{
-		printf("Base: 0x%08X, length: 0x%08X, flags: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
-
 		/* If we're in the middle of a page in our entry, get to a page boundary */
 		if (entry->base & 0xFFF)
 		{
