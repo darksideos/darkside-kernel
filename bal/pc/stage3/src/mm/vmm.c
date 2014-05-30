@@ -13,7 +13,7 @@ static void flush_tlb()
 }
 
 /* Get a page */
-static uint32_t *get_page(vaddr_t virtual_address)
+static uint32_t *get_page(vaddr_t virtual_address, bool make)
 {
 	/* Find out which page the virtual address is in */
 	uint32_t page = virtual_address >> 12;
@@ -30,8 +30,8 @@ static uint32_t *get_page(vaddr_t virtual_address)
 	{
 		return &table[page % 1024];
 	}
-	/* Otherwise, create the page table and return the page */
-	else
+	/* If it doesn't exist, but we can create it, create the page table and return the page */
+	else if (make)
 	{
 		/* Create a new page table */
 		directory[table_index] = pmm_alloc_page() | 0x03;
@@ -41,20 +41,34 @@ static uint32_t *get_page(vaddr_t virtual_address)
 		/* Return the page */
 		return &table[page % 1024];
 	}
+	/* Otherwise, return NULL */
+	else
+	{
+		return NULL;
+	}
 }
 
 /* Get the physical address mapping of a virtual page */
 paddr_t get_mapping(vaddr_t virtual_address)
 {
-	uint32_t *page = get_page(virtual_address);
-	paddr_t physical_address = (paddr_t) *page & 0xFFFFF000;
+	/* Get a pointer to the page */
+	uint32_t *page = get_page(virtual_address, false);
 
-	if (*page & 1)
+	/* There's no containing page table */
+	if (!page)
 	{
-		return physical_address;
+		return -1;
 	}
-
-	return -1;
+	/* The page has the present bit set */
+	else if (*page & 1)
+	{
+		return *page & 0xFFFFF000;
+	}
+	/* Otherwise, the page has the present bit clear */
+	else
+	{
+		return -1;
+	}
 }
 
 /* Map a virtual address to a physical address */
@@ -73,7 +87,7 @@ void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 	}
 
 	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
-	uint32_t *page = get_page(virtual_address);
+	uint32_t *page = get_page(virtual_address, true);
 
 	/* Map the page to the physical address */
 	*page = physical_address | x86_flags;
