@@ -41,8 +41,6 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 	mem_map_entry_t *next = entry;
 	while (entry)
 	{
-		printf("Base: 0x%08X, length: 0x%08X, flags: 0x%08X\n", (uint32_t) entry->base, (uint32_t) entry->length, entry->flags);
-
 		/* If we're in the middle of a page in our entry, get to a page boundary */
 		if (entry->base & 0xFFF)
 		{
@@ -64,7 +62,6 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 
 		/* How much space is needed? */
 		uint64_t needed_space = ceil(entry->length, 0x1000) * /*sizeof(page_t)*/ 16;
-		printf("Needs 0x%08X bytes\n", (uint32_t) needed_space);
 
 		/* Save the old start of the PFN database and old needed space */
 		vaddr_t old_pfn_database = pfn_database;
@@ -96,7 +93,6 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 			}
 
 			/* Allocate the space */
-			printf("Allocating 0x%08X bytes starting at 0x%08X, originally from 0x%08X\n\n", (uint32_t) needed_space, pfn_database, pfn_database - to_next_page);
 			for (vaddr_t i = pfn_database; i < pfn_database + needed_space; i += 0x1000)
 			{
 				map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
@@ -109,10 +105,6 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 				space_remaining = 0x1000 - ((pfn_database + needed_space) & 0xFFF);
 			}
 			memset((void*) pfn_database + needed_space, 0, space_remaining);
-		}
-		else
-		{
-			printf("\n");
 		}
 
 		/* Increment the PFN database pointer by the needed space */
@@ -133,5 +125,4 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 
 	/* Calculate the size of the PFN database */
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
-	while(1);
 }
