@@ -78,8 +78,6 @@ a20_bios:
 	; If there was an error, try the next method
 	jc a20_kbc
 	
-	jmp $
-	
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1

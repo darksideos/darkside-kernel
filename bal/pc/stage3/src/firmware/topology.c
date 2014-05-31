@@ -34,9 +34,9 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 			struct madt_lapic_entry *lapic_entry = (struct madt_lapic_entry*) data;
 
 			/* Allocate 3 pages and map them */
-			for (int j = 0; j < 3; j++)
+			for (int j = 0; j < 0x3000; j += 0x1000)
 			{
-				map_page(cpu_data_area + (j * 0x1000), pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 
 			/* Fill in the Local APIC ID and flags */
@@ -63,8 +63,11 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 	/* If there is no SRAT, we're only using one NUMA domain */
 	if (!srat)
 	{
-		/* Allocate a page and map it */
-		map_page(numa_domain_data_area, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+		/* Allocate 3 pages and map them */
+		for (int j = 0; j < 0x3000; j += 0x1000)
+		{
+			map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+		}
 
 		/* Make every CPU point to it */
 		uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
@@ -99,8 +102,11 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 			vaddr_t current_numa_data_area = (vaddr_t) map_get(&numa_domains, numa_domain);
 			if (!current_numa_data_area)
 			{
-				/* Allocate a page and map it */
-				map_page(numa_domain_data_area, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				/* Allocate 3 page and map them */
+				for (int j = 0; j < 0x3000; j += 0x1000)
+				{
+					map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				}
 				current_numa_data_area = numa_domain_data_area;
 				map_append(&numa_domains, numa_domain, (void*) numa_domain_data_area);
 
