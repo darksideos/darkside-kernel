@@ -1,0 +1,34 @@
+Object manager
+-----------------------------------------------------------------
+-Manages all system resources and services as objects
+-Keeps track of resources allocated to processes
+-Generic object information
+	-Object type (0 - Executive object, 1 - Server object)
+	-Interfaces
+	-Access permissions (ACLs)
+	-Reference count
+-Two types of objects
+	-Executive objects
+		-System resources managed by the executive services
+		-Inodes, processes, threads, IPC primitives, synchronization objects
+		-Userspace makes a method call to an executive object
+		-Object manager calls the method and returns the result to the caller
+	-Server objects
+		-System resources and services managed by separate threads or processes (servers)
+		-Despite being managed in kernel-mode, devices are server objects because drivers are kernel threads
+		-Userspace still makes a method call to an executive object
+		-Object manager sends a message to the message queue corresponding to the interface
+		-Returns to the client immediately, who can get the reply later
+-Object handles
+	-Opaque structures that refer to objects
+	-Contain object pointer and access rights mask
+	-Stored in a process's handle table
+	-A process can only access objects it has a handle to
+	-Process creates a handle by opening the object in the object namespace
+		-Object manager traverses the namespace, searching the namespace
+		-Each path element is checked to verify the caller's rights to access it
+		-Upon finding the object, the security manager checks the ACL to see if the caller can access the object in the way it wants
+		-If the ACL check succeeds, the security manager verifies that the object is in the process's sandbox
+		-Assuming both checks succeed, the object manager creates a handle to the object and adds it to the process's handle table
+		-If the object is an executive object, incrememnt the reference count and return to the caller
+		-If the object is a server object, send an "open" request to the server and return to the caller immediately
