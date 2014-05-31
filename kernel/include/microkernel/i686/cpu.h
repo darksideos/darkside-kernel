@@ -8,8 +8,17 @@
 /* Per-NUMA domain data area structure */
 typedef struct numa_domain
 {
-	/* Free page list for the NUMA domain */
-	page_t *free_list_head, *free_list_tail;
+	/* Free page lists, one per color */
+	page_t *free_lists[256];
+	spinlock_t free_list_locks[256];
+
+	/* Zero page lists, one per color */
+	page_t *zero_lists[256];
+	spinlock_t zero_list_locks[256];
+
+	/* Standby lists, one per color */
+	page_t *standby_lists[256];
+	spinlock_t standby_list_locks[256];
 } numa_domain_t;
 
 /* Per-CPU data area structure */
