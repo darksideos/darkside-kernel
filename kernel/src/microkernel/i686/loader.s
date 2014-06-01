@@ -4,10 +4,9 @@
 section .text
 global start
 start:
-	; Save the loader block pointer in EBX, CPU number in ECX, and NUMA domain number in EDX
-	pop edx
-	pop ecx
+	; Save the loader block pointer in EAX and CPU number in EBX
 	pop ebx
+	pop eax
 
 	; Set up our initial kernel stack
 	mov esp, initial_stack
@@ -15,9 +14,8 @@ start:
 	; Jump to our C code
 	extern microkernel_init
 	push dword 1				; Running on the BSP
-	push edx					; NUMA domain
-	push ecx					; CPU
-	push ebx					; Loader block
+	push ebx					; CPU
+	push eax					; Loader block
 	call microkernel_init
 	
 ; Kernel BSS, which contains the initial kernel stack
