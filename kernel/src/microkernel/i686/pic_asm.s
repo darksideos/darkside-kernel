@@ -2,11 +2,11 @@
 
 ; IRQ vector
 %macro IRQ 1
-global irq%1
-irq%1:
+global pic_irq%1
+pic_irq%1:
 	push byte 0
 	push byte %1
-	jmp irq_common_stub
+	jmp pic_irq_common_stub
 %endmacro
 
 ; Declare the ASM exception handlers
@@ -27,8 +27,8 @@ IRQ	13
 IRQ	14
 IRQ 15
 
-; Common stub for all IRQs
-irq_common_stub:
+; Common stub for all PIC IRQs
+pic_irq_common_stub:
 	; Save all registers
 	pusha
 	push ds
