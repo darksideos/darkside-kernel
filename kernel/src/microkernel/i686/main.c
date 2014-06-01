@@ -38,12 +38,9 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
-		printf("PFN database has been initialized\n");
+		/* If present, initialize the Local APIC and start each additional CPU */
 
-		/* Initialize the free page list */
-		//printf("Initializing free list\n");
-		//freelist_init(&loader_block);
-		//printf("Initialized free list\n");
+		/* Initialize the free list manager */
 
 		/* Initialize paging, mapping our kernel and modules */
 
@@ -58,6 +55,10 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 		/* Initialize the RTC */
 
 		/* Create the advanced CPU topology map (taking NUMA domains, chips, cores, and logical CPUs into account) */
+
+		/* Initialize the scheduler */
+
+		/* Initialize the executive services */
 	}
 	/* Running on a secondary processor */
 	else
@@ -77,6 +78,8 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 		/* Detect the relevant CPU topology information for itself */
 
 		/* Wait for the BSP to initialize the scheduler */
+
+		/* Go to the scheduler ready function and wait for threads */
 	}
 
 	/* Enter the executive */
