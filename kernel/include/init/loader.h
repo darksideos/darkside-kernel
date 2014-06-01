@@ -25,6 +25,20 @@ typedef struct loader_block
 
 	/* Loaded modules */
 	list_t *modules;
+
+/* PC extension */
+#if defined(__i386__)
+	/* Bitmap for allocating DMA memory */
+	vaddr_t dma_bitmap;
+
+	/* ACPI root tables */
+	uint32_t rsdp;
+	uint32_t rsdt;
+	uint64_t xsdt;
+
+	/* Local APIC */
+	vaddr_t lapic;
+#endif
 } loader_block_t;
 
 #endif
