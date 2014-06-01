@@ -1,7 +1,9 @@
 #include <types.h>
 #include <init/loader.h>
+#include <microkernel/paging.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/isr.h>
+#include <microkernel/i686/msr.h>
 
 /* Local APIC registers */
 #define APICID		0x08
@@ -33,10 +35,14 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 	/* Running on the BSP */
 	if (bsp)
 	{
+		/* Set the address of the Local APIC */
 		lapic = (uint32_t*) loader_block->lapic;
+
+		/* Add the spurious interrupt vector to the IDT */
+		idt_set_gate(32, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
 	}
 
-	/* Set up the spurious interrupt vector */
-	idt_set_gate(32, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
+	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
+	wrmsr(MSR_APIC_BASE, vmm_get_mapping(-1, (vaddr_t) lapic), 0);
 	lapic[SPURIOUS] = 32 | 0x100;
 }
