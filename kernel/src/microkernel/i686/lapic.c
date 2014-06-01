@@ -22,7 +22,7 @@ void lapic_irq_spurious();
 void lapic_irq_timer();
 
 /* Local APIC address */
-static uint32_t *lapic;
+static uint32_t volatile *lapic;
 
 /* Handler for spurious LAPIC IRQs */
 void lapic_spurious_handler(struct regs *regs)
@@ -36,7 +36,7 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 	if (bsp)
 	{
 		/* Set the address of the Local APIC */
-		lapic = (uint32_t*) loader_block->lapic;
+		lapic = (uint32_t volatile*) loader_block->lapic;
 
 		/* Add the spurious interrupt vector to the IDT */
 		idt_set_gate(32, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
