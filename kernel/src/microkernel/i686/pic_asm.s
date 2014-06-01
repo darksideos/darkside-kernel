@@ -1,31 +1,31 @@
 [BITS 32]
 
 ; IRQ vector
-%macro IRQ 1
+%macro IRQ 2
 global pic_irq%1
 pic_irq%1:
 	push byte 0
-	push byte %1
+	push byte %2
 	jmp pic_irq_common_stub
 %endmacro
 
 ; Declare the ASM exception handlers
-IRQ 0
-IRQ 1
-IRQ 2
-IRQ 3
-IRQ 4
-IRQ 5
-IRQ 6
-IRQ 7
-IRQ	8
-IRQ 9
-IRQ	10
-IRQ	11
-IRQ	12
-IRQ	13
-IRQ	14
-IRQ 15
+IRQ 0, 32
+IRQ 1, 33
+IRQ 2, 34
+IRQ 3, 35
+IRQ 4, 36
+IRQ 5, 37
+IRQ 6, 38
+IRQ 7, 39
+IRQ	8, 40
+IRQ 9, 41
+IRQ	10, 42
+IRQ	11, 43
+IRQ	12, 44
+IRQ	13, 45
+IRQ	14, 46
+IRQ 15, 47
 
 ; Common stub for all PIC IRQs
 pic_irq_common_stub:
