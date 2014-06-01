@@ -31,7 +31,7 @@ typedef struct loader_block
 	/* Bitmap for allocating DMA memory */
 	vaddr_t dma_bitmap;
 
-	/* ACPI tables */
+	/* ACPI root tables */
 	uint32_t rsdp;
 	uint32_t rsdt;
 	uint64_t xsdt;
