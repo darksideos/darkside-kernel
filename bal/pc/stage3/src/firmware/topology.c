@@ -20,6 +20,30 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 
 	/* Get the MADT */
 	struct madt *madt = (struct madt*) acpi_find_table(MADT_SIGNATURE);
+
+	/* If there is no MADT, no Local APICs are supported */
+	if (!madt)
+	{
+		/* Allocate 3 pages and map them */
+		for (int j = 0; j < 0x3000; j += 0x1000)
+		{
+			map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+		}
+
+		/* Fill in the Local APIC ID and flags */
+		uint32_t *cpu = (uint32_t*) cpu_data_area;
+		cpu[0] = 0;
+		cpu[2] = 1;
+
+		/* Advance 3 pages */
+		cpu_data_area += 0x3000;
+
+		/* Local APIC does not exist */
+		loader_block->lapic = 0;
+
+		/* Skip ahead to the SRAT code */
+		goto srat_detect;
+	}
 	
 	/* Allocate the per-CPU data structures */
 	void *data = ((void*) madt) + sizeof(struct madt);
@@ -58,6 +82,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 	loader_block->lapic = cpu_data_area;
 	cpu_data_area += 0x1000;
 
+srat_detect:
 	/* Calculate the start of the per-NUMA domain data area */
 	vaddr_t numa_domain_data_area = cpu_data_area;
 	loader_block->numa_domain_data_area = numa_domain_data_area;
