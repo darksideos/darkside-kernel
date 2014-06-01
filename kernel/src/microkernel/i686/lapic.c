@@ -37,6 +37,6 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 	}
 
 	/* Set up the spurious interrupt vector */
-	idt_set_gate(39, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
-	lapic[SPURIOUS] = 39 | 0x100;
+	idt_set_gate(32, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
+	lapic[SPURIOUS] = 32 | 0x100;
 }
