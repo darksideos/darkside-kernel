@@ -22,6 +22,8 @@ class stat:
 
         self.types = {}
 
+        self.paths = []
+
         self.recurse(self.path)
 
     def recurse(self, path):
@@ -30,6 +32,7 @@ class stat:
             if os.path.isfile(subpath):
                 if item.startswith("."):
                     self.hidden += 1
+                    self.paths.append(subpath)
                 else:
                     self.files += 1
                     try:
@@ -53,7 +56,7 @@ class stat:
                     self.recurse(subpath)
                 self.size += os.path.getsize(subpath)
 
-    def report(self, file=None):
+    def report(self, file=None):       
         output = (
             (self.path),
             ("-" * 79),
@@ -72,6 +75,7 @@ class stat:
             (
             "\n".join((("  " + (t if t else "none")).ljust(15)
                      + str(self.types[t]) for t in self.types))))
+        
         if file:
             with open(file, "w") as file:
                 file.write("\n".join(output))
