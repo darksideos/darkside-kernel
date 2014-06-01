@@ -6,7 +6,7 @@ import os
 import collections
 
 # Main
-counter = 
+counter = \
 {
     "paths": [],
     
