@@ -11,7 +11,7 @@
 void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 {
 	/* Calculate the start of the per-CPU data area */
-	vaddr_t cpu_data_area = loader_block->pfn_database + ((loader_block->phys_mem_size / 0x1000) * 16);
+	vaddr_t cpu_data_area = loader_block->pfn_database_end;
 	if (cpu_data_area & 0xFFF)
 	{
 		cpu_data_area = (cpu_data_area & 0xFFFFF000) + 0x1000;
@@ -53,6 +53,11 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		data += entry->length;
 	}
 
+	/* Map the Local APIC into memory */
+	map_page(cpu_data_area, madt->lapic_address, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+	loader_block->lapic = cpu_data_area;
+	cpu_data_area += 0x1000;
+
 	/* Calculate the start of the per-NUMA domain data area */
 	vaddr_t numa_domain_data_area = cpu_data_area;
 	loader_block->numa_domain_data_area = numa_domain_data_area;
@@ -71,7 +76,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 
 		/* Make every CPU point to it */
 		uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
-		while (cpu < loader_block->numa_domain_data_area)
+		while (cpu < loader_block->lapic)
 		{
 			cpu[1] = (uint32_t) numa_domain_data_area;
 			cpu += 0xC00;
@@ -116,13 +121,13 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 
 			/* Find the CPU with the Local APIC ID and set its NUMA domain */
 			uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
-			while ((cpu[0] != (uint32_t) lapic_entry->lapic_id) && (cpu < loader_block->numa_domain_data_area))
+			while ((cpu[0] != (uint32_t) lapic_entry->lapic_id) && (cpu < loader_block->lapic))
 			{
 				cpu += 0xC00;
 			}
 
 			/* If we found the CPU */
-			if (cpu < loader_block->numa_domain_data_area)
+			if (cpu < loader_block->lapic)
 			{
 				cpu[1] = (uint32_t) current_numa_data_area;
 			}

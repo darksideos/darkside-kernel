@@ -9,13 +9,13 @@
 
 /* PFN database entries */
 static page_t *pfn_database_entries;
-static paddr_t pfn_database_end;
+static paddr_t phys_mem_size;
 
 /* Get a page in the PFN database by address */
 page_t *pfn_database_get(paddr_t address)
 {
 	/* Out of range */
-	if (address >= pfn_database_end)
+	if (address >= phys_mem_size)
 	{
 		return NULL;
 	}
@@ -40,7 +40,7 @@ void pfn_database_init(loader_block_t *loader_block)
 {
 	/* Assign the address of the PFN database entries */
 	pfn_database_entries = (page_t*) loader_block->pfn_database;
-	pfn_database_end = loader_block->pfn_database + ((loader_block->phys_mem_size / 0x1000) * sizeof(page_t));
+	phys_mem_size = loader_block->phys_mem_size;
 
 	/* Go through the physical memory map and add entries into the PFN database */
 	iterator_t iter = list_head(loader_block->phys_mem_map);
