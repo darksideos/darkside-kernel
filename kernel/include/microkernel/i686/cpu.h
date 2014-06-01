@@ -1,6 +1,7 @@
 #ifndef __I686_CPU_H
 #define __I686_CPU_H
 
+#include <microkernel/lock.h>
 #include <mm/page.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
