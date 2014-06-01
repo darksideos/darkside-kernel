@@ -4,6 +4,8 @@
 #include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/i686/gdt.h>
+#include <microkernel/i686/idt.h>
+#include <microkernel/i686/exception.h>
 #include <mm/pfn.h>
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
