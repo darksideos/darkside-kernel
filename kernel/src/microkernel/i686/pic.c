@@ -34,14 +34,14 @@ static isr_t handlers[16];
 /* Common handler for all PIC IRQs */
 void pic_irq_handler(struct regs *regs)
 {
-	if (handlers[regs->int_no])
+	if (handlers[regs->int_no - 32])
 	{
-		isr_t handler = handlers[regs->int_no];
+		isr_t handler = handlers[regs->int_no - 32];
 		handler(regs);
 	}
 	else
 	{
-		printf("Unhandled IRQ 0x%08X\n", regs->int_no);
+		printf("Unhandled IRQ 0x%08X\n", regs->int_no - 32);
 		while(1);
 	}
 }
