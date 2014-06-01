@@ -9,10 +9,10 @@ typedef struct loader_block
 {
 	/* Physical memory map */
 	list_t *phys_mem_map;
+	paddr_t phys_mem_size;
 
 	/* PFN database address */
-	vaddr_t pfn_database;
-	paddr_t phys_mem_size;
+	vaddr_t pfn_database, pfn_database_end;
 
 	/* Per-CPU and NUMA domain data areas */
 	vaddr_t cpu_data_area;

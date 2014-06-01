@@ -9,10 +9,10 @@ typedef struct loader_block
 {
 	/* Physical memory map */
 	list_t *phys_mem_map;
+	paddr_t phys_mem_size;
 
 	/* PFN database address */
-	vaddr_t pfn_database;
-	paddr_t phys_mem_size;
+	vaddr_t pfn_database, pfn_database_end;
 
 	/* Per-CPU and NUMA domain data areas */
 	vaddr_t cpu_data_area;
@@ -25,6 +25,20 @@ typedef struct loader_block
 
 	/* Loaded modules */
 	list_t *modules;
+
+/* PC extension */
+#if defined(__i386__)
+	/* Bitmap for allocating DMA memory */
+	vaddr_t dma_bitmap;
+
+	/* ACPI tables */
+	uint32_t rsdp;
+	uint32_t rsdt;
+	uint64_t xsdt;
+
+	/* Local APIC */
+	vaddr_t lapic;
+#endif
 } loader_block_t;
 
 /* Jump to the kernel */
