@@ -6,7 +6,8 @@ import os
 import collections
 
 # Main
-counter = {
+counter = 
+{
     "paths": [],
     
     "files": 0,
