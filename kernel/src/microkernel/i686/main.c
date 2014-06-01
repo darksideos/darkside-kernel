@@ -10,8 +10,10 @@
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
 
+/* Boot "checkpoints" for keeping the BSP and APs synchronized */
+
 /* Initialize the core microkernel */
-void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, bool bsp)
+void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 {
 	/* Running on the BSP */
 	if (bsp)
@@ -60,13 +62,21 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, int numa_domain, b
 	/* Running on a secondary processor */
 	else
 	{
-		/* Use the paging structures set up by the BSP */
+		/* Copy the GDT set up by the BSP and use its IDT */
 
-		/* Copy the GDT and IDT set up by the BSP */
+		/* Detect the number of cache colors needed for the free lists */
+
+		/* Wait for the BSP to set up basic memory management */
+
+		/* Use the paging structures set up by the BSP */
 
 		/* Initialize the Local APIC */
 
 		/* Initialize the Local APIC timer */
+
+		/* Detect the relevant CPU topology information for itself */
+
+		/* Wait for the BSP to initialize the scheduler */
 	}
 
 	/* Enter the executive */

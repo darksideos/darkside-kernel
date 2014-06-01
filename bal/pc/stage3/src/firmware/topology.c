@@ -5,7 +5,7 @@
 #include <mm/vmm.h>
 #include <firmware/acpi.h>
 #include <firmware/madt.h>
-#include <firmware/srat.h>`
+#include <firmware/srat.h>
 
 /* Allocate the per-CPU and NUMA domain data structures */
 void per_cpu_numa_area_alloc(loader_block_t *loader_block)
@@ -82,7 +82,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 	loader_block->lapic = cpu_data_area;
 	cpu_data_area += 0x1000;
 
-srat_detect:
+srat_detect: ;
 	/* Calculate the start of the per-NUMA domain data area */
 	vaddr_t numa_domain_data_area = cpu_data_area;
 	loader_block->numa_domain_data_area = numa_domain_data_area;
