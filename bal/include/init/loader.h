@@ -36,6 +36,9 @@ typedef struct loader_block
 	uint32_t rsdt;
 	uint64_t xsdt;
 
+	/* 8259 PIC is present */
+	bool pic_present;
+
 	/* Local APIC */
 	vaddr_t lapic;
 #endif

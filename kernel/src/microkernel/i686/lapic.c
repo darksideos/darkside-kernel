@@ -44,5 +44,6 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 
 	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
 	wrmsr(MSR_APIC_BASE, vmm_get_mapping(-1, (vaddr_t) lapic), 0);
+	printf("LAPIC phys: 0x%08X\n", vmm_get_mapping(-1, (vaddr_t) lapic));
 	lapic[SPURIOUS] = 32 | 0x100;
 }
