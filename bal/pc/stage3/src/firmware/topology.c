@@ -38,11 +38,22 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		/* Advance 3 pages */
 		cpu_data_area += 0x3000;
 
-		/* Local APIC does not exist */
+		/* 8259 PIC exists, Local APIC does not */
+		loader_block->pic_present = true;
 		loader_block->lapic = 0;
 
 		/* Skip ahead to the SRAT code */
 		goto srat_detect;
+	}
+
+	/* Is there are 8259 PIC? */
+	if (madt->pic_present)
+	{
+		loader_block->pic_present = true;
+	}
+	else
+	{
+		loader_block->pic_present = false;
 	}
 	
 	/* Allocate the per-CPU data structures */
