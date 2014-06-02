@@ -8,6 +8,8 @@
 #include <microkernel/i686/exception.h>
 #include <mm/pfn.h>
 #include <mm/freelist.h>
+#include <microkernel/i686/pic.h>
+#include <microkernel/i686/lapic.h>
 #include <microkernel/paging.h>
 
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
@@ -45,12 +47,15 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 			if (loader_block.pic_present)
 			{
 				pic_init();
-				printf("PIC initted\n");
 			}
 
 			/* Initialize the Local APIC */
 			lapic_init(&loader_block, true);
 		}
+
+		__asm__ volatile ("sti");
+		lapic_send_ipi(IPI_DEST_SELF, 32, IPI_DELIVER_FIXED, false);
+		printf("IPI sent\n");
 
 		/* Initialize the free list manager */
 
