@@ -13,7 +13,7 @@ struct madt
 {
 	struct acpi_table_header header;
 	uint32_t lapic_address;
-	uint32_t flags;
+	uint32_t pic_present;
 } __attribute__ ((packed));
 
 struct madt_entry_header

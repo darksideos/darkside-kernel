@@ -38,7 +38,19 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
 
-		/* If present, initialize the Local APIC and start each additional CPU */
+		/* If present, initialize the Local APIC */
+		if (loader_block.lapic)
+		{
+			/* Initialize the 8259 PIC if present */
+			if (loader_block.pic_present)
+			{
+				pic_init();
+				printf("PIC initted\n");
+			}
+
+			/* Initialize the Local APIC */
+			lapic_init(&loader_block, true);
+		}
 
 		/* Initialize the free list manager */
 
@@ -82,7 +94,7 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 		/* Go to the scheduler ready function and wait for threads */
 	}
 
-	/* Enter the executive */
+	printf("Hi\n");
 
 	/* Should never reach here */
 	while(1);
