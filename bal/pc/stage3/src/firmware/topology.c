@@ -7,6 +7,9 @@
 #include <firmware/madt.h>
 #include <firmware/srat.h>
 
+/* Write a byte to an I/O port */
+void outportb(uint16_t port, uint8_t data);
+
 /* Allocate the per-CPU and NUMA domain data structures */
 void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 {
@@ -50,6 +53,9 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 	if (madt->pic_present)
 	{
 		loader_block->pic_present = true;
+
+		outportb(0xA1, 0xFF);
+		outportb(0x21, 0xFF);
 	}
 	else
 	{
