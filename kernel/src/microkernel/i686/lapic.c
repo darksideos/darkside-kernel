@@ -1,6 +1,5 @@
 #include <types.h>
 #include <init/loader.h>
-#include <microkernel/paging.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/isr.h>
 #include <microkernel/i686/lapic.h>
@@ -90,7 +89,8 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 	}
 
 	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
-	wrmsr(MSR_APIC_BASE, vmm_get_mapping(-1, (vaddr_t) lapic), 0);
-	printf("LAPIC phys: 0x%08X\n", vmm_get_mapping(-1, (vaddr_t) lapic));
+	uint32_t eax, edx;
+	rdmsr(MSR_APIC_BASE, &eax, &edx);
+	wrmsr(MSR_APIC_BASE, eax, edx);
 	lapic[SPURIOUS] = 32 | 0x100;
 }
