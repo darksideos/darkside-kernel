@@ -35,7 +35,7 @@ void lapic_spurious_handler(struct regs *regs)
 /* Send an IPI to another processor */
 void lapic_send_ipi(int64_t destination, uint8_t vector, uint8_t delivery_mode, bool logical)
 {
-	/* Data to write into the high and low ICRs */
+	/* Data to write into the ICR */
 	uint32_t icr_low = 0, icr_high = 0;
 
 	/* Write the destination into the high ICR */

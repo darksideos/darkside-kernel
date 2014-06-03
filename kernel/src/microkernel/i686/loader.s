@@ -4,8 +4,7 @@
 section .text
 global start
 start:
-	; Save the loader block pointer in EAX and CPU number in EBX
-	pop ebx
+	; Save the loader block pointer in EAX
 	pop eax
 
 	; Set up our initial kernel stack
@@ -14,7 +13,6 @@ start:
 	; Jump to our C code
 	extern microkernel_init
 	push dword 1				; Running on the BSP
-	push ebx					; CPU
 	push eax					; Loader block
 	call microkernel_init
 	

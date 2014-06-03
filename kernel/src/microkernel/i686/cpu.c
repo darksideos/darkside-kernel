@@ -4,6 +4,7 @@
 /* Per-CPU and per-NUMA domain data area */
 static cpu_t *per_cpu_area;
 static numa_domain_t *per_numa_domain_area;
+static int num_cpus, num_numa_domains;
 
 /* Get a pointer to the per-CPU data area */
 cpu_t *cpu_data_area(int cpu)
@@ -38,4 +39,7 @@ void cpu_data_area_init(loader_block_t *loader_block)
 {
 	per_cpu_area = (cpu_t*) loader_block->cpu_data_area;
 	per_numa_domain_area = (numa_domain_t*) loader_block->numa_domain_data_area;
+	num_cpus = loader_block->num_cpus;
+	num_numa_domains = loader_block->num_numa_domains;
+	printf("CPUs: %d, NUMA domains: %d\n", num_cpus, num_numa_domains);
 }
