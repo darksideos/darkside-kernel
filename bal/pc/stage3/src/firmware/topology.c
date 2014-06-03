@@ -41,7 +41,8 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		/* Advance 3 pages */
 		cpu_data_area += 0x3000;
 
-		/* 8259 PIC exists, Local APIC does not */
+		/* One CPU, 8259 PIC exists, Local APIC does not */
+		loader_block->num_cpus = 1;
 		loader_block->pic_present = true;
 		loader_block->lapic = 0;
 
@@ -63,6 +64,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 	}
 	
 	/* Allocate the per-CPU data structures */
+	loader_block->num_cpus = 0;
 	void *data = ((void*) madt) + sizeof(struct madt);
 	uint32_t i = 0;
 	while (i < madt->header.length - sizeof(struct madt))
@@ -87,6 +89,9 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
+
+			/* One more CPU */
+			loader_block->num_cpus++;
 		}
 		
 		/* Continue in the loop */
@@ -124,6 +129,9 @@ srat_detect: ;
 			cpu += 0xC00;
 		}
 
+		/* One NUMA domain */
+		loader_block->num_numa_domains = 1;
+
 		return;
 	}	
 
@@ -131,6 +139,7 @@ srat_detect: ;
 	map_t numa_domains = map_create();
 
 	/* Allocate the per-NUMA domain data structures */
+	loader_block->num_numa_domains = 0;
 	data = ((void*) srat) + sizeof(struct srat);
 	i = 0;
 	while (i < srat->header.length - sizeof(struct srat))
@@ -159,6 +168,9 @@ srat_detect: ;
 
 				/* Advance one page */
 				numa_domain_data_area += 0x1000;
+
+				/* One more NUMA domain */
+				loader_block->num_numa_domains++;
 			}
 
 			/* Find the CPU with the Local APIC ID and set its NUMA domain */

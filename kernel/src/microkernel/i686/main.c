@@ -15,7 +15,7 @@
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
 
 /* Initialize the core microkernel */
-void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
+void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
 	/* Running on the BSP */
 	if (bsp)
@@ -55,7 +55,6 @@ void microkernel_init(loader_block_t *_loader_block, int cpu, bool bsp)
 
 		__asm__ volatile ("sti");
 		lapic_send_ipi(IPI_DEST_SELF, 32, IPI_DELIVER_FIXED, false);
-		printf("IPI sent\n");
 
 		/* Initialize the free list manager */
 
