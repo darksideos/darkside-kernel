@@ -1,0 +1,74 @@
+Bootloader firmware initialization - BIOS
+-------------------------------------------------------------------------
+-Attempt to initialize ACPI
+	-Search for an RSDP with a valid signature and checksum
+	-If RSDP is not found
+		-ACPI initialization failed
+	-If we're using the extended RSDP
+		-Map the XSDT into memory
+		-Verify its signature and checksum
+		-If signature or checksum does not match
+			-ACPI initialization failed
+		-ACPI initialization succeeded
+	-Otherwise
+		-Map the RSDT into memory
+		-Verify its signature and checksum
+		-If signature or checksum does not match
+			-ACPI initialization failed
+		-ACPI initialization succeeded
+	-Record the RSDP, RSDT, and XSDT physical addresses in the loader block
+-If initializing ACPI failed, try to initialize the MP tables
+	-Search for an MP floating point table with a valid signature and checksum
+	-If MP floating point table is not found
+		-MP initialization failed
+	-Map the MP table into memory
+	-Verify its signature and checksum
+	-If signature or checksum do not match
+		-MP initialization failed
+-Otherwise, we're on a uniprocessor system
+
+Bootloader CPU detection - BIOS
+-------------------------------------------------------------------------
+-If using ACPI
+	-Get the MADT
+	-If getting the MADT failed
+		-Allocate a per-CPU data area
+		-Set its Local APIC ID to 0
+		-Set its NUMA domain to NULL
+		-Set its flags to 1 (bootable)
+		-Record the number of CPUs (1)
+	-Otherwise
+		-For each xLAPIC entry or x2LAPIC entry
+			-Allocate a per-CPU data area
+			-Set its Local APIC ID to the one specified
+			-Set its flags to the ones specified
+			-Increment the number of CPUs
+-If using MP
+	-For each Local APIC entry
+		-Allocate a per-CPU data area
+		-Set its Local APIC ID to the one specified
+		-Set its flags to the one specified
+		-Increment the number of CPUs
+	-If there are 0 CPUs found
+		-Allocate a per-CPU data area
+		-Set its Local APIC ID to 0
+		-Set its NUMA domain to NULL
+		-Set its flags to 1 (bootable)
+		-Record the number of CPUs (1)
+-Otherwise
+	-Allocate a per-CPU data area
+	-Set its Local APIC ID to 0
+	-Set its NUMA domain to NULL
+	-Set its flags to 1 (bootable)
+	-Record the number of CPUs (1)
+
+Bootloader NUMA domain detection - BIOS
+-------------------------------------------------------------------------
+-If using ACPI
+	-Get the SRAT
+	-If getting the SRAT failed
+		-Allocate a per-CPU data area
+		-Set its Local APIC ID to 0
+		-Set its NUMA domain to NULL
+		-Set its flags to 1 (bootable)
+		-Record the number of CPUs (1)
