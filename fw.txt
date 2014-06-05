@@ -67,8 +67,46 @@ Bootloader NUMA domain detection - BIOS
 -If using ACPI
 	-Get the SRAT
 	-If getting the SRAT failed
-		-Allocate a per-CPU data area
-		-Set its Local APIC ID to 0
-		-Set its NUMA domain to NULL
-		-Set its flags to 1 (bootable)
-		-Record the number of CPUs (1)
+		-Allocate a per-NUMA domain data area
+		-Create a map of NUMA domains and add this to it
+		-Make each CPU point to it
+		-Record the number of NUMA domains (1)
+	-Otherwise
+		-Create a map of NUMA domains
+		-For each xLAPIC or x2LAPIC entry
+			-If the NUMA domain it refers to is not in the map
+				-Allocate a per-NUMA domain data area
+				-Add it to the map
+				-Increment the number of NUMA domains
+			-For every detected CPU
+				-If the CPU's Local APIC ID matches with the one in the entry
+					-Make it point to the per-NUMA domain data area
+					-Continue
+-Otherwise
+	-Allocate a per-NUMA domain data area
+	-Create a map of NUMA domains and add this to it
+	-Make each CPU point to it
+	-Record the number of NUMA domains (1)
+
+Bootloader expanded memory detection
+-------------------------------------------------------------------------
+-If using ACPI
+	-Get the SRAT
+	-If getting the SRAT failed
+		-For every memory map entry
+			-Set its NUMA domain to 0
+	-Otherwise
+		-NOT IMPLEMENTED (TOO HARD)
+
+	-Get the SLIT
+	-If getting the SLIT failed
+		-Build a distance matrix of NUMA domains * NUMA domains
+		-For each NUMA domain
+			-For each NUMA domain
+				-If both NUMA domains are the same
+					-Fill in 0 in the distance matrix
+				-Otherwise
+					-Fill in 1 in the distance matrix
+	-Otherwise
+		-Use the SLIT's data
+			
