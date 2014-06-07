@@ -9,7 +9,7 @@
 #include <mm/vmm.h>
 
 /* Allocate space for the PFN database */
-void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
+void pfn_database_alloc(loader_block_t *loader_block)
 {
 	/* Make a temporary copy of the memory map */
 	list_t phys_mem_map_copy = list_create();
@@ -33,6 +33,7 @@ void pfn_database_alloc(loader_block_t *loader_block, vaddr_t pfn_database)
 	}
 
 	/* Allocate space for the PFN database */
+	vaddr_t pfn_database = loader_block->numa_domain_data_area + (loader_block->num_numa_domains * 0x3000);
 	loader_block->pfn_database = pfn_database;
 
 	iter = list_head(&phys_mem_map_copy);
