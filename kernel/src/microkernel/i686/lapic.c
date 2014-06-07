@@ -85,12 +85,12 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 		lapic = (uint32_t volatile*) loader_block->lapic;
 
 		/* Add the spurious interrupt vector to the IDT */
-		idt_set_gate(32, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
+		idt_set_gate(255, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
 	}
 
 	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
 	uint32_t eax, edx;
 	rdmsr(MSR_APIC_BASE, &eax, &edx);
 	wrmsr(MSR_APIC_BASE, eax, edx);
-	lapic[SPURIOUS] = 32 | 0x100;
+	lapic[SPURIOUS] = 255 | 0x100;
 }
