@@ -24,12 +24,26 @@ void lapic_irq_spurious();
 void lapic_irq_timer();
 
 /* Local APIC address */
-static uint32_t volatile *lapic;
+static uint32_t volatile *lapic = NULL;
 
 /* Handler for spurious LAPIC IRQs */
 void lapic_spurious_handler(struct regs *regs)
 {
-	printf("IPI recv'd\n");
+}
+
+/* Get the current Local APIC ID */
+uint32_t lapic_current_id()
+{
+	/* Local APIC already initialized */
+	if (lapic)
+	{
+		return lapic[APICID];
+	}
+	/* Early in the boot process, not yet operational */
+	else
+	{
+		return -1;
+	}
 }
 
 /* Send an IPI to another processor */
