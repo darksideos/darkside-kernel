@@ -14,6 +14,9 @@
 #define IPI_DELIVER_INIT	5
 #define IPI_DELIVER_SIPI	6
 
+/* Get the current Local APIC ID */
+uint32_t lapic_current_id();
+
 /* Send an IPI to another processor */
 void lapic_send_ipi(int64_t destination, uint8_t vector, uint8_t delivery_mode, bool logical);
 

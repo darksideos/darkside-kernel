@@ -43,18 +43,32 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* If present, initialize the Local APIC */
 		if (loader_block.lapic)
 		{
-			/* Initialize the 8259 PIC if present */
-			if (loader_block.pic_present)
-			{
-				pic_init();
-			}
-
-			/* Initialize the Local APIC */
 			lapic_init(&loader_block, true);
 		}
 
-		__asm__ volatile ("sti");
-		lapic_send_ipi(IPI_DEST_SELF, 32, IPI_DELIVER_FIXED, false);
+		/* Start up each secondary CPU */
+		if (loader_block->num_cpus > 1)
+		{
+			/* Get the BSP's Local APIC ID */
+			uint32_t bsp_lapic_id = lapic_current_id();
+
+			/* For each detected CPU */
+			for (int i = 0; i < num_cpus; i++)
+			{
+				/* Get the per-CPU data area */
+				cpu_t *cpu = cpu_data_area(i);
+
+				/* Skip the BSP */
+				if (cpu->lapic_id == bsp_lapic_id)
+				{
+					continue;
+				}
+
+				/* Send an INIT IPI and delay */
+
+				/* Send a STARTUP IPI and wait for the AP to start */
+			}
+		}
 
 		/* Initialize the free list manager */
 
