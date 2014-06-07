@@ -5,7 +5,7 @@ global lapic_irq_spurious
 lapic_irq_spurious:
 	; Push the interrupt number and error code
 	push byte 0
-	push byte 32
+	push byte 255
 
 	; Save all registers
 	pusha
