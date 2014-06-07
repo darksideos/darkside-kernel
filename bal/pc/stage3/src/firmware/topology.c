@@ -11,14 +11,9 @@
 void outportb(uint16_t port, uint8_t data);
 
 /* Allocate the per-CPU and NUMA domain data structures */
-void per_cpu_numa_area_alloc(loader_block_t *loader_block)
+void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area)
 {
-	/* Calculate the start of the per-CPU data area */
-	vaddr_t cpu_data_area = loader_block->pfn_database_end;
-	if (cpu_data_area & 0xFFF)
-	{
-		cpu_data_area = (cpu_data_area & 0xFFFFF000) + 0x1000;
-	}
+	/* Set the start of the per-CPU data area */
 	loader_block->cpu_data_area = cpu_data_area;
 
 	/* Get the MADT */
