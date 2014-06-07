@@ -63,6 +63,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				{
 					continue;
 				}
+				/* Skip disabled CPUs */
+				if (cpu->flags == 0)
+				{
+					continue;
+				}
 
 				/* Send an INIT IPI and delay */
 
