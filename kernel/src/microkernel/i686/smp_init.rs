@@ -2,7 +2,6 @@
 
 [ORG ORG_LOC]
 [BITS 16]
-section .text
 
 ; Start of the bootstrap code
 global ap_trampoline
@@ -51,6 +50,8 @@ ap_trampoline:
 	jmp 0x08:.pm_entry
 .pm_entry:
 	; Enable paging
+	mov eax, [pdir]
+	mov cr3, eax
 	
 	; Jump to microkernel_init()
 	
