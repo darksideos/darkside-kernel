@@ -7,9 +7,8 @@
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/exception.h>
 #include <mm/pfn.h>
-#include <mm/freelist.h>
-#include <microkernel/i686/pic.h>
 #include <microkernel/i686/lapic.h>
+#include <mm/freelist.h>
 #include <microkernel/paging.h>
 
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
@@ -47,13 +46,15 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		}
 
 		/* Start up each secondary CPU */
-		if (loader_block->num_cpus > 1)
+		if (loader_block.num_cpus > 1)
 		{
 			/* Get the BSP's Local APIC ID */
 			uint32_t bsp_lapic_id = lapic_current_id();
 
+			/* Copy the AP initialization trampoline */
+
 			/* For each detected CPU */
-			for (int i = 0; i < num_cpus; i++)
+			for (int i = 0; i < loader_block.num_cpus; i++)
 			{
 				/* Get the per-CPU data area */
 				cpu_t *cpu = cpu_data_area(i);
@@ -70,6 +71,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				}
 
 				/* Send an INIT IPI and delay */
+				lapic_send_ipi(cpu->lapic_id, 0x8, IPI_DELIVER_INIT, false);
+				//delay(200);
 
 				/* Send a STARTUP IPI and wait for the AP to start */
 			}
