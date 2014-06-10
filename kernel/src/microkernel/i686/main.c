@@ -11,6 +11,12 @@
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
 
+/* AP trampoline symbols */
+extern void ap_trampoline();
+extern void ap_trampoline_end();
+extern uint64_t pdir;
+extern uint32_t kinit_func;
+
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
 
 /* Initialize the core microkernel */
@@ -52,6 +58,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 			uint32_t bsp_lapic_id = lapic_current_id();
 
 			/* Copy the AP initialization trampoline */
+			__asm__ volatile("mov %%cr3, %0" : "=r"(pdir));
+			kinit_func = (uint32_t) &microkernel_init;
+			memcpy(0x7000, &ap_trampoline, &ap_trampoline_end - &ap_trampoline);
+
+			//printf("AP trampoline in kernel: 0x%08X, AP trampoline end in kernel: 0x%08X\n", (uint32_t) &ap_trampoline, (uint32_t) &ap_trampoline_end);
+			//printf("AP trampoline's pdir: 0x%08X\n", ((uint32_t)&pdir) - ((uint32_t)&ap_trampoline) + 0x7000);
+			//while(1);
 
 			/* For each detected CPU */
 			for (int i = 0; i < loader_block.num_cpus; i++)
@@ -71,10 +84,17 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				}
 
 				/* Send an INIT IPI and delay */
-				lapic_send_ipi(cpu->lapic_id, 0x8, IPI_DELIVER_INIT, false);
-				//delay(200);
+				printf("%d\n", cpu->lapic_id);
+				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
+				//delay(10000);
 
 				/* Send a STARTUP IPI and wait for the AP to start */
+				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
+
+				uint32_t *ptr = (uint32_t*) (((uint32_t)&pdir) - ((uint32_t)&ap_trampoline) + 0x7000);
+				printf("0x%08X\n", ptr);
+				while (*ptr != 0xDEADBEEF);
+				printf("AP booted\n");
 			}
 		}
 
