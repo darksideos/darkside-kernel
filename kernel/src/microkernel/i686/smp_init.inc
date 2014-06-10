@@ -1,5 +1,5 @@
 ; Code location constants
-%define ORG_LOC			0x8000									; stage3's position in memory (where stage2 loads it)
+%define ORG_LOC			0x7000									; AP trampoline's position in memory
 
 ; GDT entry structure
 struc gdt_entry
@@ -18,5 +18,5 @@ struc gdt_ptr
 	.limit				resw 1
 	.base				resd 1
 endstruc
-%define GDTR_LOC		gdtr
+%define GDTR_LOC		(gdtr - ap_trampoline + ORG_LOC)
 %define GDTR(x)			GDTR_LOC + gdt_ptr. %+ x
