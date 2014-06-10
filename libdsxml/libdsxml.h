@@ -10,6 +10,8 @@ typedef struct xml_node
 {
 	char *name;
 	dict_t attribs;
+	
+	xml_node_t *parent;
 	list_t children;
 } xml_node_t;
 
