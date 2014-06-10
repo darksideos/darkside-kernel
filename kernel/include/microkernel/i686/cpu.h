@@ -38,6 +38,7 @@ typedef struct cpu
 	struct gdtr gdtr;
 
 	/* Double fault stack */
+	uint8_t pad2[8138];
 } __attribute__((packed)) cpu_t;
 
 #endif
