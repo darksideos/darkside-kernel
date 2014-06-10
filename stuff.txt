@@ -1,0 +1,15 @@
+CPU0 - Runs threads A and B
+CPU1 - Runs threads C and D
+
+1. Thread A is scheduled onto CPU0, with the LAPIC timer set to interrupt in 1ms
+2. Thread C is scheduled onto CPU1, with the LAPIC timer set to interrupt in 1ms
+3. Thread A enters a wait state for 2ms
+4. Kernel sets thread A's waiting time to 2ms and puts it on the per-CPU timer queue
+5. Thread B is scheduled onto CPU0
+6. LAPIC timer interrupt occurs
+	1. Thread A, at the head of the sleep queue, has its wait time changed to 1ms
+7. Thread B is scheduled onto CPU0 again, since it's the only one, with the LAPIC timer set to interrupt in 1ms
+8. LAPIC timer interrupt occurs
+	1. Thread A, at the head of the sleep queue, has its wait time changed to 0ms
+	2. Thread A is put onto CPU0's queue
+9. Thread A is scheduled onto CPU0, with the LAPIC timer set to interrupt in 1ms
