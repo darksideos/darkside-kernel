@@ -4,7 +4,8 @@
 #include <mm/vmm.h>
 
 /* Page directories and tables */
-extern uint32_t pd[], pt_lower[];
+extern uint32_t end;
+uint32_t *pd, *pt_lower;
 
 /* Flush the entire TLB */
 static void flush_tlb()
@@ -105,12 +106,20 @@ void vmm_init()
 	cr4 |= 0x80;
 	__asm__ volatile ("mov %0, %%cr4" :: "r" (cr4));
 
+	/* Calculate the address of the page directory and initial page table */
+	pd = &end;
+	if (((uint32_t)pd) & 0xFFF)
+	{
+		pd = (uint32_t*) ((((uint32_t)pd) & 0xFFFFF000) + 0x1000);
+	}
+	pt_lower = pd + 0x400;
+
 	/* Clear the page directory */
 	memset(pd, 0, 0x1000);
 
 	/* Add the page tables into the page directory */
-	pd[0] = (uint32_t) &pt_lower | 0x03;
-	pd[1023] = (uint32_t) &pd | 0x03;
+	pd[0] = (uint32_t) pt_lower | 0x03;
+	pd[1023] = (uint32_t) pd | 0x03;
 
 	/* Identity map the first 1 MB */
 	for (uint32_t i = 0; i < 0x100000; i++)
