@@ -1,12 +1,11 @@
 %include "src/microkernel/i686/smp_init.inc"
 
-[ORG ORG_LOC]
 [BITS 16]
 
 ; Start of the bootstrap code
 global ap_trampoline
 ap_trampoline:
-	jmp 0x0000:.real_to_pm
+	jmp 0x0000:(.real_to_pm - ap_trampoline + ORG_LOC)
 .real_to_pm:
 	; Set up the null GDT descriptor
 	mov eax, 0
@@ -47,10 +46,10 @@ ap_trampoline:
 	mov cr0, eax
 	
 	; Jump to our 32-bit protected mode entry point
-	jmp 0x08:.pm_entry
+	jmp 0x08:(.pm_entry - ap_trampoline + ORG_LOC)
 .pm_entry:
 	; Enable paging
-	mov eax, [pdir]
+	mov eax, [pdir - ap_trampoline + ORG_LOC]
 	mov cr3, eax
 	
 	; Jump to microkernel_init()
