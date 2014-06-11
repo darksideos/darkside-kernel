@@ -23,8 +23,8 @@ typedef struct page
 	/* Reference count */
 	uint32_t refcount;
 
-	/* Next page in its list */
-	struct page *next;
+	/* Previous and next page in its list */
+	struct page *prev, *next;
 } page_t;
 
 #endif
