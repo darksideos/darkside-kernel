@@ -1,5 +1,5 @@
-global spinlock_acquire_mode_0
-spinlock_acquire_mode_0:
+global spinlock_try_acquire
+spinlock_try_acquire:
 	push ebp				; Create a stack frame
 	mov ebp, esp
 
