@@ -89,7 +89,25 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		}
 
 		/* Initialize the free list manager */
-		freelist_init(bsp);
+		printf("Initializing free list\n");
+		freelist_init(&loader_block, bsp);
+		printf("Initialized free list\n");
+
+		printf("Beginning free list unit test\n");
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
 
 		/* Initialize paging, mapping our kernel and modules */
 
@@ -115,7 +133,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Copy the GDT set up by the BSP and use its IDT */
 
 		/* Detect the number of cache colors needed for the free lists */
-		freelist_init(bsp);
+		freelist_init(NULL, bsp);
 
 		/* Signal completion and wait for the BSP to set up basic memory management */
 

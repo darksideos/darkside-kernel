@@ -62,7 +62,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 		}
 
 		/* How much space is needed? */
-		uint64_t needed_space = ceil(entry->length, 0x1000) * /*sizeof(page_t)*/ 16;
+		uint64_t needed_space = ceil(entry->length, 0x1000) * /*sizeof(page_t)*/ 20;
 
 		/* Save the old start of the PFN database and old needed space */
 		vaddr_t old_pfn_database = pfn_database;

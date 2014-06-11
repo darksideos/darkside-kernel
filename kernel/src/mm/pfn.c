@@ -35,10 +35,17 @@ page_t *pfn_database_get(paddr_t address)
 	return entry;
 }
 
+/* Resolve a PFN database entry into an address */
+paddr_t pfn_database_address(page_t *page)
+{
+	vaddr_t offset = ((uint32_t) page) - ((uint32_t) pfn_database_entries);
+	return (offset / sizeof(page_t)) * 0x1000;
+}
+
 /* Initialize the PFN database from a physical memory map */
 void pfn_database_init(loader_block_t *loader_block)
 {
-	/* Assign the address of the PFN database entries */
+	/* Assign the address of the PFN database entries and physical memory size */
 	pfn_database_entries = (page_t*) loader_block->pfn_database;
 	phys_mem_size = loader_block->phys_mem_size;
 
