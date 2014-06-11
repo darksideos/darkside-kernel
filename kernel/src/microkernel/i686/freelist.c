@@ -41,6 +41,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			numa_area->zero_lists[color] = page->next;
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->zero_list_locks[color]);
+			page->flags &= ~PAGE_FLAG_FREE;
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->zero_list_locks[color]);
@@ -53,6 +54,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			numa_area->free_lists[color] = page->next;
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->free_list_locks[color]);
+			page->flags &= ~PAGE_FLAG_FREE;
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
@@ -70,6 +72,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			numa_area->free_lists[color] = page->next;
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->free_list_locks[color]);
+			page->flags &= ~PAGE_FLAG_FREE;
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
@@ -82,6 +85,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			numa_area->zero_lists[color] = page->next;
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->zero_list_locks[color]);
+			page->flags &= ~PAGE_FLAG_FREE;
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->zero_list_locks[color]);
@@ -91,6 +95,25 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 
 	/* No free pages */
 	return -1;
+}
+
+/* Free a physical page */
+void pmm_free_page(paddr_t address)
+{
+	/* Get the page */
+	page_t *page = pfn_database_get(address);
+	if (!page)
+	{
+		return;
+	}
+	else if (page->flags & PAGE_FLAG_FREE)
+	{
+		return;
+	}
+
+	/* Decrement the reference count */
+
+	/* If there are no more references, free the page */
 }
 
 /* Initialize the free page list manager */
