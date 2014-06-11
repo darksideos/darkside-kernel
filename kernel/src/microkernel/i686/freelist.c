@@ -14,7 +14,7 @@ static void detect_cache_colors()
 /* Allocate a physical page */
 paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 {
-	/* If allocating DMA memory, use the bitmap */
+	/* If allocating DMA memory, use the DMA bitmap */
 	if (flags & PAGE_DMA)
 	{
 		/* TODO: Actually implement this */
@@ -59,7 +59,9 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
 
-		/* Finally, try the lowest priority standby pages available */
+		/* Failing that, try the lowest priority standby pages available */
+
+		/* Finally, try the DMA bitmap */
 	}
 	/* If we want a regular free page */
 	else
@@ -90,7 +92,9 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		}
 		spinlock_release(&numa_area->zero_list_locks[color]);
 
-		/* Finally, try the lowest priority standby pages available */
+		/* Failing that, try the lowest priority standby pages available */
+
+		/* Finally, try the DMA bitmap */
 	}
 
 	/* No free pages */
