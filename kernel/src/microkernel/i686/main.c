@@ -89,6 +89,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		}
 
 		/* Initialize the free list manager */
+		freelist_init(bsp);
 
 		/* Initialize paging, mapping our kernel and modules */
 
@@ -114,8 +115,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Copy the GDT set up by the BSP and use its IDT */
 
 		/* Detect the number of cache colors needed for the free lists */
+		freelist_init(bsp);
 
-		/* Wait for the BSP to set up basic memory management */
+		/* Signal completion and wait for the BSP to set up basic memory management */
 
 		/* Use the paging structures set up by the BSP */
 
