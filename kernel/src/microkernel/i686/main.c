@@ -99,15 +99,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
 		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
 		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
 
 		/* Initialize paging, mapping our kernel and modules */
 
