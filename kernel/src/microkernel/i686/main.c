@@ -16,7 +16,6 @@ extern void ap_trampoline();
 extern void ap_trampoline_end();
 extern uint64_t pdir;
 extern uint32_t kinit_func;
-extern uint32_t magic;
 
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
 
@@ -61,7 +60,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 			/* Copy the AP initialization trampoline */
 			__asm__ volatile("mov %%cr3, %0" : "=r"(pdir));
 			kinit_func = (uint32_t) &microkernel_init;
-			memcpy(0x7000, &ap_trampoline, &ap_trampoline_end - &ap_trampoline);
+			memcpy((void*)0x7000, &ap_trampoline, &ap_trampoline_end - &ap_trampoline);
 
 			/* For each detected CPU */
 			for (int i = 0; i < loader_block.num_cpus; i++)
@@ -81,23 +80,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				}
 
 				/* Send an INIT IPI and delay */
-				printf("%d\n", cpu->lapic_id);
 				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
 				//delay(10000);
 
-				int i = 1000000000;
-				while(i > 0)
-				{
-					i--;
-				}
-
 				/* Send a STARTUP IPI and wait for the AP to start */
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
-
-				uint32_t *ptr = (uint32_t*) (((uint32_t)&magic) - ((uint32_t)&ap_trampoline) + 0x7000);
-				printf("0x%08X\n", ptr);
-				while (*ptr != 0xDEADBEEF);
-				printf("AP booted\n");
 			}
 		}
 
@@ -143,7 +130,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Go to the scheduler ready function and wait for threads */
 	}
 
-	printf("Hi\n");
+	printf("Finished microkernel init\n");
 
 	/* Should never reach here */
 	while(1);
