@@ -85,6 +85,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
 				//delay(10000);
 
+				int i = 1000000000;
+				while(i > 0)
+				{
+					i--;
+				}
+
 				/* Send a STARTUP IPI and wait for the AP to start */
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
 
