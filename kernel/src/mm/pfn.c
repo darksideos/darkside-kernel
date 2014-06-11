@@ -164,6 +164,8 @@ void pfn_database_init(loader_block_t *loader_block)
 				page->flags = entry->flags;
 				page->numa_domain = entry->numa_domain;
 				page->refcount = 0;
+				page->prev = NULL;
+				page->next = NULL;
 			}
 
 			/* Go to the next PFN database entry */
