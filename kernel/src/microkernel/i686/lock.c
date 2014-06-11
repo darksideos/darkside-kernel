@@ -2,7 +2,8 @@
 #include <microkernel/atomic.h>
 #include <microkernel/lock.h>
 
-uint32_t spinlock_acquire_mode_0(spinlock_t *lock);
+/* ASM helper function used to attempt to acquire a spinlock once */
+uint32_t spinlock_try_acquire(spinlock_t *lock);
 
 /* Initialize a spinlock's values */
 void spinlock_init(spinlock_t *lock)
@@ -24,7 +25,7 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 	/* Try to acquire the spinlock once */
 	if (timeout == TIMEOUT_ONCE)
 	{
-		uint32_t result = spinlock_acquire_mode_0(lock);
+		uint32_t result = spinlock_try_acquire(lock);
 		
 		if (result)
 		{
@@ -47,10 +48,8 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 	/* Wait until it's available */
 	else if (timeout == TIMEOUT_NEVER)
 	{
-		/* Get my ticket */
+		/* Get the ticket for entering and wait until it's called */
 		atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
-		
-		/* Wait until it's my turn */
 		while(atomic_read(&lock->dequeue_ticket) != my_ticket);
 
 		lock->interrupts = interrupts;
@@ -60,6 +59,8 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 	/* Wait for a specified number of milliseconds */
 	else
 	{
+		/* NOT SUPPORTED */
+		return 1;
 	}
 }
 
