@@ -94,10 +94,17 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initialized free list\n");
 
 		printf("Beginning free list unit test\n");
-		for (int i = 0; i < 0x2000; i++)
-		{
-			printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
-		}
+		paddr_t p1 = pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0);
+		paddr_t p2 = pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0);
+		paddr_t p3 = pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0);
+		printf("p1: 0x%08X\n", p1);
+		printf("p2: 0x%08X\n", p2);
+		printf("p3: 0x%08X\n", p3);
+		pmm_free_page(p2);
+		pmm_free_page(p3);
+		printf("Freed p2 and p3\n");
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
+		printf("0x%08X\n", pmm_alloc_page(PAGE_32BIT, NUMA_DOMAIN_BEST, 0));
 
 		/* Initialize paging, mapping our kernel and modules */
 
