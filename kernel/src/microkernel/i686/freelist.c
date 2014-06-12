@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/atomic.h>
