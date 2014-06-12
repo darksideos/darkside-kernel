@@ -2,10 +2,23 @@
 #include <string.h>
 #include <init/loader.h>
 #include <mm/freelist.h>
+#include <microkernel/cpu.h>
 #include <microkernel/paging.h>
 
 /* Current page directory */
 static paddr_t current_directory = -1;
+
+/* Calculate the cache color of a virtual address for a NUMA domain */
+static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
+{
+	/* Get the per-NUMA domain data area for the page */
+	numa_domain_t *numa_area = numa_domain_data_area(numa_domain);
+
+	/* Calculate the cache color, taking the bias into account */
+	int color_modulus = numa_area->num_cache_colors * 0x1000;
+	int color = (virtual_address % color_modulus) / 0x1000;
+	return (color + bias) % numa_area->num_cache_colors;
+}
 
 /* Get a page */
 static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool make)
@@ -102,4 +115,9 @@ paddr_t vmm_get_mapping(paddr_t address_space, vaddr_t virtual_address)
 	{
 		return -1;
 	}
+}
+
+/* Initialize the paging subsystem */
+void paging_init(loader_block_t *loader_block)
+{
 }
