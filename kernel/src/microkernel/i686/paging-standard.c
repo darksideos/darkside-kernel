@@ -8,6 +8,9 @@
 /* Current page directory */
 static paddr_t current_directory = -1;
 
+/* Hyperspace address */
+static vaddr_t hyperspace;
+
 /* Calculate the cache color of a virtual address for a NUMA domain */
 static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
 {
@@ -150,7 +153,20 @@ void vmm_map_page(paddr_t address_space, vaddr_t virtual_address, paddr_t physic
 	vmm_flush_tlb_entry(virtual_address);
 }
 
+/* Map pages into hyperspace */
+void *vmm_map_hyperspace(int index, paddr_t physical_address)
+{
+	if (index < NUM_HYPERSPACE_PAGES)
+	{
+		vmm_map_page(ADDR_SPACE_CURRENT, hyperspace + (index * 0x1000), physical_address, PAGE_READ | PAGE_WRITE);
+		return (void*) hyperspace + (index * 0x1000);
+	}
+	return NULL;
+}
+
 /* Initialize the paging subsystem */
 void paging_init(loader_block_t *loader_block)
 {
+	/* Set up hyperspace */
+	hyperspace = loader_block->hyperspace;
 }

@@ -17,6 +17,12 @@
 #define PAGE_USER			0x40
 #define PAGE_GLOBAL			0x80
 
+/* Hyperspace indices */
+#define NUM_HYPERSPACE_PAGES	3
+#define HYPERSPACE_ADDR_SPACE	0
+#define HYPERSPACE_ZEROPAGE	1
+#define HYPERSPACE_ANY		2
+
 /* Flush a TLB entry and flush the entire TLB */
 void vmm_flush_tlb_entry(vaddr_t virtual_address);
 void vmm_flush_tlb();
@@ -41,6 +47,9 @@ void vmm_unmap_pages(paddr_t address_space, vaddr_t virtual_address, int num_pag
 /* Set a virtual address range's protection */
 void vmm_protect_page(paddr_t address_space, vaddr_t virtual_address, int flags);
 void vmm_protect_pages(paddr_t address_space, vaddr_t virtual_address, int num_pages, int flags);
+
+/* Map pages into hyperspace */
+void *vmm_map_hyperspace(int index, paddr_t physical_address);
 
 /* Initialize the paging subsystem */
 void paging_init(loader_block_t *loader_block);
