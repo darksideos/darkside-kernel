@@ -98,6 +98,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		paging_init(&loader_block, bsp);
 		printf("Initialized paging\n");
 
+		printf("LAPIC ID is 0x%08X\n", lapic_current_id());
+		printf("Testing some memory allocation\n");
+		for (int i = 0; i < 8; i++)
+		{
+			printf("0x%08X\n", pmm_alloc_page(PAGE_ZERO, NUMA_DOMAIN_BEST, 0));
+		}
+
 		/* Initialize the slab allocator */
 
 		/* Initialize the kernel heap */
