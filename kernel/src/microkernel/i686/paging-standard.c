@@ -7,9 +7,6 @@
 /* Current page directory */
 static paddr_t current_directory = -1;
 
-/* Kernel page directory */
-static paddr_t kernel_directory = -1;
-
 /* Get a page */
 static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool make)
 {
