@@ -50,9 +50,9 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 	/* Get the page directory and page table from another page directory */
 	else
 	{
-		/* Set the addresses of the page directory and page table to point into hyperspace */
-
-		/* Temporarily map the page directory into hyperspace */
+		/* Temporarily map the page directory and page table into hyperspace */
+		directory = (uint32_t*) vmm_map_hyperspace(HYPERSPACE_ADDR_SPACE, address_space);
+		table = (uint32_t*) vmm_map_hyperspace(HYPERSPACE_ANY, directory[pde_index] & 0xFFFFF000);
 	}
 
 	/* If the page table already exists, return the page */
@@ -74,6 +74,10 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 		else
 		{
 			/* Map it into hyperspace */
+			int color = vaddr_cache_color((vaddr_t) table, NUMA_DOMAIN_BEST, 0);
+			paddr_t table_phys = pmm_alloc_page(PAGE_ZERO, NUMA_DOMAIN_BEST, color);
+			directory[pde_index] = table_phys | 0x03;
+			table = (uint32_t*) vmm_map_hyperspace(HYPERSPACE_ANY, table_phys);
 		}
 
 		/* Return the page */
