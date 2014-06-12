@@ -3,6 +3,7 @@
 #include <microkernel/cpu.h>
 #include <microkernel/atomic.h>
 #include <microkernel/lock.h>
+#include <microkernel/paging.h>
 #include <mm/page.h>
 #include <mm/pfn.h>
 
@@ -60,7 +61,11 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			spinlock_release(&numa_area->free_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
 			atomic_inc(&page->refcount);
-			return pfn_database_address(page);
+
+			paddr_t address = pfn_database_address(page);
+			void *tmp = vmm_map_hyperspace(HYPERSPACE_ZEROPAGE, address);
+			memset(tmp, 0, 0x1000);
+			return address;
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
 
