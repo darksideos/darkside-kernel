@@ -271,7 +271,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		{
 			for (vaddr_t i = module->start; i < module->end; i += 0x1000)
 			{
-				vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i));
+				vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 			}
 
 			module = (executable_t*) iter.next(&iter);
@@ -280,17 +280,17 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		/* Map the per-CPU and NUMA domain data areas */
 		for (vaddr_t i = loader_block->cpu_data_area; i < loader_block->cpu_data_area + (loader_block->num_cpus * sizeof(cpu_t)); i += 0x1000)
 		{
-			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i));
+			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 		for (vaddr_t i = loader_block->numa_domain_data_area; i < loader_block->numa_domain_data_area + (loader_block->num_numa_domains * sizeof(numa_domain_t)); i += 0x1000)
 		{
-			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i));
+			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 
 		/* Map the Local APIC MMIO area, if present */
 		if (loader_block->lapic)
 		{
-			vmm_map_page(kernel_directory, loader_block->lapic, vmm_get_mapping(ADDR_SPACE_CURRENT, loader_block->lapic), vmm_get_protection(ADDR_SPACE_CURRENT, loader_block->lapic));
+			vmm_map_page(kernel_directory, loader_block->lapic, vmm_get_mapping(ADDR_SPACE_CURRENT, loader_block->lapic), vmm_get_protection(ADDR_SPACE_CURRENT, loader_block->lapic) | PAGE_GLOBAL);
 		}
 
 		/* Map the PFN database */
@@ -302,7 +302,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 
 		for (vaddr_t i = loader_block->pfn_database; i < pfn_database_end; i += 0x1000)
 		{
-			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i));
+			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 
 		/* Map the DMA bitmap */
