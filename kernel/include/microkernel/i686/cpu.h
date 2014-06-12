@@ -21,6 +21,12 @@ typedef struct numa_domain
 	/* Standby lists, one per color */
 	page_t *standby_lists[MAX_CACHE_COLORS];
 	spinlock_t standby_list_locks[MAX_CACHE_COLORS];
+
+	/* Number of cache colors in use */
+	int num_cache_colors;
+
+	/* Kernel address space */
+	paddr_t kernel_directory;
 } numa_domain_t;
 
 /* Per-CPU data area structure */
