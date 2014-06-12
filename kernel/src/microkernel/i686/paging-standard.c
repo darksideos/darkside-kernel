@@ -159,6 +159,7 @@ void *vmm_map_hyperspace(int index, paddr_t physical_address)
 	if (index < NUM_HYPERSPACE_PAGES)
 	{
 		vmm_map_page(ADDR_SPACE_CURRENT, hyperspace + (index * 0x1000), physical_address, PAGE_READ | PAGE_WRITE);
+		printf("Index %d, address 0x%08X\n", index, hyperspace + (index * 0x1000));
 		return (void*) hyperspace + (index * 0x1000);
 	}
 	return NULL;
@@ -169,4 +170,5 @@ void paging_init(loader_block_t *loader_block)
 {
 	/* Set up hyperspace */
 	hyperspace = loader_block->hyperspace;
+	printf("HS: 0x%08X\n", hyperspace);
 }
