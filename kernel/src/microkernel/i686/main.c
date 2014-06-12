@@ -94,7 +94,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initialized free list\n");
 
 		/* Initialize paging, mapping our kernel and modules */
-		paging_init(&loader_block);
+		printf("Initializing paging\n");
+		paging_init(&loader_block, bsp);
+		printf("Initialized paging\n");
 
 		/* Initialize the slab allocator */
 
