@@ -53,6 +53,9 @@ void ba_main(loader_block_t *loader_block)
 	/* Allocate space for the PFN database */
 	pfn_database_alloc(loader_block);
 
+	/* Allocate space for hyperspace */
+	hyperspace_alloc(loader_block);
+
 	/* Call the kernel, passing it the loader block */
 	bal_enter_kernel(kernel->entry_point, loader_block);
 
