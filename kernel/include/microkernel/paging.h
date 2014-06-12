@@ -20,8 +20,8 @@
 /* Hyperspace indices */
 #define NUM_HYPERSPACE_PAGES	3
 #define HYPERSPACE_ADDR_SPACE	0
-#define HYPERSPACE_ZEROPAGE	1
-#define HYPERSPACE_ANY		2
+#define HYPERSPACE_ZEROPAGE		1
+#define HYPERSPACE_ANY			2
 
 /* Flush a TLB entry and flush the entire TLB */
 void vmm_flush_tlb_entry(vaddr_t virtual_address);
@@ -52,6 +52,6 @@ void vmm_protect_pages(paddr_t address_space, vaddr_t virtual_address, int num_p
 void *vmm_map_hyperspace(int index, paddr_t physical_address);
 
 /* Initialize the paging subsystem */
-void paging_init(loader_block_t *loader_block);
+void paging_init(loader_block_t *loader_block, bool bsp);
 
 #endif
