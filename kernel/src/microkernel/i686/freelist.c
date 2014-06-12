@@ -9,7 +9,9 @@
 /* Detect the number of cache colors needed for the free lists */
 static void detect_cache_colors()
 {
-	/* NOT IMPLEMENTED */
+	/* TODO: Actually implement this */
+	numa_domain_t *numa_domain = numa_domain_data_area(NUMA_DOMAIN_CURRENT);
+	numa_domain->num_cache_colors = 1;
 }
 
 /* Allocate a physical page */
