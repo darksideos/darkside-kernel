@@ -62,16 +62,13 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 		{
 			/* Map it recursively */
 			int color = vaddr_cache_color((vaddr_t) table, NUMA_DOMAIN_BEST, 0);
-			directory[pde_index] = pmm_alloc_page(0, NUMA_DOMAIN_BEST, color) | 0x03;
+			directory[pde_index] = pmm_alloc_page(PAGE_ZERO, NUMA_DOMAIN_BEST, color) | 0x03;
 			vmm_flush_tlb();
 		}
 		else
 		{
 			/* Map it into hyperspace */
 		}
-
-		/* Clear the page table's contents */
-		memset(table, 0, 0x1000);
 
 		/* Return the page */
 		return &table[pte_index % 1024];
@@ -116,6 +113,41 @@ paddr_t vmm_get_mapping(paddr_t address_space, vaddr_t virtual_address)
 	{
 		return -1;
 	}
+}
+
+/* Map a virtual address to a physical address */
+void vmm_map_page(paddr_t address_space, vaddr_t virtual_address, paddr_t physical_address, int flags)
+{
+	/* Create the page protection flags */
+	uint32_t x86_flags = 0x1;
+
+	if (flags & PAGE_WRITE)
+	{
+		x86_flags |= 0x2;
+	}
+	if (flags & PAGE_INVALID)
+	{
+		x86_flags &= ~0x1;
+	}
+	if (flags & PAGE_NOCACHE)
+	{
+		x86_flags |= 0x10;
+	}
+	if (flags & PAGE_USER)
+	{
+		x86_flags |= 0x4;
+	}
+	if (flags & PAGE_GLOBAL)
+	{
+		x86_flags |= 0x100;
+	}
+
+	/* Get the PTE for the page, creating it if it doesn't exist, and fill it in */
+	uint32_t *page = get_page(address_space, virtual_address, true);
+	*page = (physical_address & 0xFFFFF000) | x86_flags;
+
+	/* Invalidate the TLB entry for the page */
+	vmm_flush_tlb_entry(virtual_address);
 }
 
 /* Initialize the paging subsystem */
