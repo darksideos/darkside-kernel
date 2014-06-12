@@ -1,6 +1,7 @@
 #include <types.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
+#include <microkernel/atomic.h>
 #include <microkernel/lock.h>
 #include <mm/page.h>
 #include <mm/pfn.h>
@@ -42,6 +43,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->zero_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
+			atomic_inc(&page->refcount);
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->zero_list_locks[color]);
@@ -55,6 +57,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->free_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
+			atomic_inc(&page->refcount);
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
@@ -75,6 +78,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->free_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
+			atomic_inc(&page->refcount);
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
@@ -88,6 +92,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			page->next->prev = NULL;
 			spinlock_release(&numa_area->zero_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
+			atomic_inc(&page->refcount);
 			return pfn_database_address(page);
 		}
 		spinlock_release(&numa_area->zero_list_locks[color]);
@@ -115,9 +120,28 @@ void pmm_free_page(paddr_t address)
 		return;
 	}
 
-	/* Decrement the reference count */
+	/* Decrement the reference count, and free the page if we hit 0 */
+	if (atomic_xsub(&page->refcount, 1) == 1)
+	{
+		/* Page under 16MiB */
+		if (address < 0x1000000)
+		{
+		}
+		else
+		{
+			/* Get the per-NUMA domain data area and page color */
+			numa_domain_t *numa_domain = numa_domain_data_area(page->numa_domain);
+			int color = page->color;
 
-	/* If there are no more references, free the page */
+			/* Return the page to the free list */
+			spinlock_acquire(&numa_domain->free_list_locks[color], TIMEOUT_NEVER);
+			numa_domain->free_lists[color]->prev = page;
+			page->next = numa_domain->free_lists[color];
+			numa_domain->free_lists[color] = page;
+			spinlock_release(&numa_domain->free_list_locks[color]);
+		}
+	}
+
 }
 
 /* Initialize the free page list manager */
@@ -155,6 +179,7 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 
 			/* Calculate the cache color for the page */
 			int color = 0;
+			page->color = color;
 
 			/* Page list not initialized yet */
 			if (!numa_domain->free_lists[color])
