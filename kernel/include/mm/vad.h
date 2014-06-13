@@ -9,6 +9,9 @@ typedef struct vad
 
 	/* Page protection flags */
 	int flags;
+
+	/* Left and right children */
+	struct vad *left, *right;
 } vad_t;
 
 #endif
