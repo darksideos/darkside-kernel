@@ -35,6 +35,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize the per-CPU and NUMA domain data areas */
 		cpu_data_area_init(&loader_block);
 
+		/* If present, initialize the Local APIC */
+		if (loader_block.lapic)
+		{
+			lapic_init(&loader_block, true);
+		}
+
 		/* Initialize the processor's GDT and IDT */
 		gdt_init(bsp);
 		idt_init(bsp);
@@ -44,12 +50,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
-
-		/* If present, initialize the Local APIC */
-		if (loader_block.lapic)
-		{
-			lapic_init(&loader_block, true);
-		}
 
 		/* Start up each secondary CPU */
 		if (loader_block.num_cpus > 1)
@@ -124,6 +124,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 	/* Running on a secondary processor */
 	else
 	{
+		/* Initialize the Local APIC */
+
 		/* Copy the GDT set up by the BSP and use its IDT */
 
 		/* Detect the number of cache colors needed for the free lists */
@@ -132,8 +134,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Signal completion and wait for the BSP to set up basic memory management */
 
 		/* Use the paging structures set up by the BSP */
-
-		/* Initialize the Local APIC */
 
 		/* Initialize the Local APIC timer */
 
