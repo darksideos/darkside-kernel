@@ -3,6 +3,7 @@
 
 #include <microkernel/lock.h>
 #include <mm/page.h>
+#include <mm/freelist.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
 
@@ -10,16 +11,22 @@
 typedef struct numa_domain
 {
 	/* Free page lists, one per color */
-	page_t *free_lists[256];
-	spinlock_t free_list_locks[256];
+	page_t *free_lists[MAX_CACHE_COLORS];
+	spinlock_t free_list_locks[MAX_CACHE_COLORS];
 
 	/* Zero page lists, one per color */
-	page_t *zero_lists[256];
-	spinlock_t zero_list_locks[256];
+	page_t *zero_lists[MAX_CACHE_COLORS];
+	spinlock_t zero_list_locks[MAX_CACHE_COLORS];
 
 	/* Standby lists, one per color */
-	page_t *standby_lists[256];
-	spinlock_t standby_list_locks[256];
+	page_t *standby_lists[MAX_CACHE_COLORS];
+	spinlock_t standby_list_locks[MAX_CACHE_COLORS];
+
+	/* Number of cache colors in use */
+	int num_cache_colors;
+
+	/* Kernel address space */
+	paddr_t kernel_directory;
 } numa_domain_t;
 
 /* Per-CPU data area structure */
@@ -29,7 +36,8 @@ typedef struct cpu
 	uint32_t lapic_id;
 	numa_domain_t *numa_domain;
 	uint32_t flags;
-	uint8_t pad1[4084];
+	paddr_t current_directory;
+	uint8_t pad1[4076];
 
 	/* Scheduling information */
 
