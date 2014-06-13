@@ -93,26 +93,24 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
 			node = new Node(key, value);
 		} else if(key.compareTo(node.key) < 0) {
 			node.left = insert(node.left, key, value);
-			
-			if(balance(node) == 2) {
-				if(balance(node.left) == -1) {
-					node.left = rotateLeft(node.left);
-				}
-				
-				node = rotateRight(node);
-			}
 		} else if(key.compareTo(node.key) > 0) {
 			node.right = insert(node.right, key, value);
-			
-			if(balance(node) == -2) {
-				if(balance(node.right) == 1) {
-					node.right = rotateRight(node.right);
-				}
-				
-				node = rotateLeft(node);
-			}
 		} else {
 			node.value = value;
+		}
+		
+		if(balance(node) == 2) {
+			if(balance(node.left) == -1) {
+				node.left = rotateLeft(node.left);
+			}
+			
+			node = rotateRight(node);
+		} else if(balance(node) == -2) {
+			if(balance(node.right) == 1) {
+				node.right = rotateRight(node.right);
+			}
+			
+			node = rotateLeft(node);
 		}
 		
 		node.height = max(height(node.left), height(node.right)) + 1;
