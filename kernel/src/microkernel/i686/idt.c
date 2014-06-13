@@ -55,9 +55,6 @@ void idt_init(bool bsp)
 		idtr.limit = (sizeof(struct idt_entry) * 256) - 1;
 		idtr.base = (uint32_t) &idt;
 
-		/* Clear out the entire IDT so unhandled interrupts will triple fault */
-		memset(&idt, 0, sizeof(struct idt_entry) * 256);
-
 		/* Load our new IDT */
 		idt_load((uint32_t)&idtr);
 	}
