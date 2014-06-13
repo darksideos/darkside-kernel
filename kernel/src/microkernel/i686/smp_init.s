@@ -48,10 +48,6 @@ ap_trampoline:
 	; Jump to our 32-bit protected mode entry point
 	jmp 0x08:(.pm_entry - ap_trampoline + ORG_LOC)
 .pm_entry:	
-	mov eax, 0xDEADBEEF
-	mov [magic - ap_trampoline + ORG_LOC], eax
-	jmp $
-
 	; Enable paging
 	mov eax, [pdir - ap_trampoline + ORG_LOC]
 	mov cr3, eax
@@ -69,9 +65,6 @@ pdir       dq 0
 ; Address of microkernel_init()
 global kinit_func
 kinit_func dd 0
-
-global magic
-magic dd 0
 
 ; End of AP trampoline
 global ap_trampoline_end

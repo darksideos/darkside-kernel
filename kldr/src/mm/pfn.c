@@ -33,7 +33,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 	}
 
 	/* Allocate space for the PFN database */
-	vaddr_t pfn_database = loader_block->numa_domain_data_area + (loader_block->num_numa_domains * 0x3000);
+	vaddr_t pfn_database = loader_block->numa_domain_data_area + (loader_block->num_numa_domains * 0x4000);
 	loader_block->pfn_database = pfn_database;
 
 	iter = list_head(&phys_mem_map_copy);
@@ -62,7 +62,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 		}
 
 		/* How much space is needed? */
-		uint64_t needed_space = ceil(entry->length, 0x1000) * /*sizeof(page_t)*/ 16;
+		uint64_t needed_space = ceil(entry->length, 0x1000) * /*sizeof(page_t)*/ 24;
 
 		/* Save the old start of the PFN database and old needed space */
 		vaddr_t old_pfn_database = pfn_database;

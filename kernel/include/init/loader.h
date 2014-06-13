@@ -14,6 +14,9 @@ typedef struct loader_block
 	/* PFN database address */
 	vaddr_t pfn_database, pfn_database_end;
 
+	/* Hyperspace address */
+	vaddr_t hyperspace;
+
 	/* Per-CPU and NUMA domain data areas */
 	vaddr_t cpu_data_area, numa_domain_data_area;
 	int num_cpus, num_numa_domains;

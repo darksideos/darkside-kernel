@@ -20,11 +20,14 @@ typedef struct page
 	int flags;
 	int numa_domain;
 
-	/* Reference count */
-	uint32_t refcount;
+	/* Cache color */
+	int color;
 
-	/* Next page in its list */
-	struct page *next;
+	/* Reference count */
+	atomic_t refcount;
+
+	/* Previous and next page in its list */
+	struct page *prev, *next;
 } page_t;
 
 #endif
