@@ -1,5 +1,6 @@
 #include <init/loader.h>
 #include <microkernel/cpu.h>
+#include <microkernel/i686/lapic.h>
 
 /* Per-CPU and per-NUMA domain data area */
 static cpu_t *per_cpu_area;
@@ -12,8 +13,30 @@ cpu_t *cpu_data_area(int cpu)
 	/* Get the data area for the current CPU */
 	if (cpu == CPU_CURRENT)
 	{
-		/* TODO: Actually get the current CPU */
-		cpu = 0;
+		/* On single-CPU systems, there's only one possibility */
+		if (num_cpus == 1)
+		{
+			cpu = 0;
+		}
+		/* On multi-CPU systems, use the Local APIC to find out */
+		else
+		{
+			/* Find the CPU with the same Local APIC ID */
+			uint32_t lapic_id = lapic_current_id();
+			for (int i = 0; i < num_cpus; i++)
+			{
+				if (per_cpu_area[i].lapic_id == lapic_id)
+				{
+					cpu = i;
+				}
+			}
+
+			/* If there isn't one, we failed */
+			if (cpu == CPU_CURRENT)
+			{
+				return NULL;
+			}
+		}
 	}
 
 	return &per_cpu_area[cpu];
