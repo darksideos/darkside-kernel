@@ -13,3 +13,4 @@ CPU1 - Runs threads C and D
 	1. Thread A, at the head of the sleep queue, has its wait time changed to 0ms
 	2. Thread A is put onto CPU0's queue
 9. Thread A is scheduled onto CPU0, with the LAPIC timer set to interrupt in 1ms
+10.
