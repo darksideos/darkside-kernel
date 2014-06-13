@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <map.h>
 #include <init/loader.h>
 #include <mm/pmm.h>
@@ -110,10 +111,11 @@ srat_detect: ;
 	/* If there is no SRAT, we're only using one NUMA domain */
 	if (!srat)
 	{
-		/* Allocate 3 pages and map them */
-		for (int j = 0; j < 0x3000; j += 0x1000)
+		/* Allocate 4 pages and map them */
+		for (int j = 0; j < 0x4000; j += 0x1000)
 		{
 			map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+			memset(numa_domain_data_area + j, 0, 0x1000);
 		}
 
 		/* Make every CPU point to it */
@@ -153,16 +155,17 @@ srat_detect: ;
 			vaddr_t current_numa_data_area = (vaddr_t) map_get(&numa_domains, numa_domain);
 			if (!current_numa_data_area)
 			{
-				/* Allocate 3 page and map them */
-				for (int j = 0; j < 0x3000; j += 0x1000)
+				/* Allocate 4 pages and map them */
+				for (int j = 0; j < 0x4000; j += 0x1000)
 				{
 					map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+					memset(numa_domain_data_area + j, 0, 0x1000);
 				}
 				current_numa_data_area = numa_domain_data_area;
 				map_append(&numa_domains, numa_domain, (void*) numa_domain_data_area);
 
-				/* Advance one page */
-				numa_domain_data_area += 0x1000;
+				/* Advance 4 pages */
+				numa_domain_data_area += 0x4000;
 
 				/* One more NUMA domain */
 				loader_block->num_numa_domains++;
