@@ -31,10 +31,9 @@ bool bitmap_test(bitmap_t *bitmap, size_t index)
 }
 
 /* Find the first clear bit in a bitmap */
-int64_t bitmap_first_clear(bitmap_t *bitmap)
+int64_t bitmap_first_clear(bitmap_t *bitmap, size_t start)
 {
-	int64_t offset;
-	for (offset = 0; offset < bitmap->max_bits / 8; offset++)
+	for (int64_t offset = start / 8; offset < bitmap->max_bits / 8; offset++)
 	{
 		uint8_t byte = bitmap->data[offset];
 

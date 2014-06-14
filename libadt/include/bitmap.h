@@ -21,6 +21,6 @@ void bitmap_clear(bitmap_t *bitmap, size_t index);
 bool bitmap_test(bitmap_t *bitmap, size_t index);
 
 /* Find the first clear bit in a bitmap */
-int64_t bitmap_first_clear(bitmap_t *bitmap);
+int64_t bitmap_first_clear(bitmap_t *bitmap, size_t start);
 
 #endif
