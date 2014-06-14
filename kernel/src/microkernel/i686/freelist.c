@@ -12,6 +12,8 @@
 static uint8_t *dma_bitmap;
 static uint32_t dma_bitmap_nbytes;
 static uint8_t dma_bitmap_nbits;
+static spinlock_t dma_bitmap_lock;
+static bool dma_bitmap_atstart = true;
 
 /* Detect the number of cache colors needed for the free lists */
 static void detect_cache_colors()
@@ -27,7 +29,46 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 	/* If allocating DMA memory, use the DMA bitmap */
 	if (flags & PAGE_DMA)
 	{
-		/* TODO: Actually implement this */
+		/* Lock the entire DMA bitmap while we search */
+		spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+
+		/* First, search each whole byte */
+		for (uint32_t i = 0; i < dma_bitmap_nbytes; i++)
+		{
+			uint8_t byte = dma_bitmap[i];
+
+			for (uint8_t j = 0; j < 8; j++)
+			{
+				if (byte & 1)
+				{
+					byte >>= 1;
+					continue;
+				}
+
+				dma_bitmap[i] |= (1 << j);
+				spinlock_release(&dma_bitmap_lock);
+				return ((i * 8) + j) * 0x1000;
+			}
+		}
+
+		/* Next, search the remaining bits */
+		uint8_t byte = dma_bitmap[dma_bitmap_nbytes];
+		for (uint8_t i = 0; i < dma_bitmap_nbits; i++)
+		{
+			if (byte & 1)
+			{
+				byte >>= 1;
+				continue;
+			}
+			
+			dma_bitmap[dma_bitmap_nbytes] |= (1 << i);
+			spinlock_release(&dma_bitmap_lock);
+			return ((dma_bitmap_nbytes * 8) + i) * 0x1000;
+		}
+
+		/* No free pages in the bitmap */
+		spinlock_release(&dma_bitmap_lock);
+		return -1;
 	}
 
 	/* If needed, calculate the best NUMA domain */
@@ -84,6 +125,13 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		/* Failing that, try the lowest priority standby pages available */
 
 		/* Finally, try the DMA bitmap */
+		paddr_t address = pmm_alloc_page(flags | PAGE_DMA, 0, 0);
+		if (address != -1)
+		{
+			void *tmp = vmm_map_hyperspace(HYPERSPACE_ZEROPAGE, address);
+			memset(tmp, 0, 0x1000);
+			return address;
+		}
 	}
 	/* If we want a regular free page */
 	else
@@ -125,6 +173,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		/* Failing that, try the lowest priority standby pages available */
 
 		/* Finally, try the DMA bitmap */
+		return pmm_alloc_page(flags | PAGE_DMA, 0, 0);
 	}
 
 	/* No free pages */
@@ -180,6 +229,9 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	{
 		/* Initialize the DMA bitmap covering the lower 16MiB of memory */
 		dma_bitmap = (uint8_t*) loader_block->dma_bitmap;
+		spinlock_init(&dma_bitmap_lock);
+
+		/* Calculate the amount of memory under 16MiB */
 		paddr_t lowmem_size = loader_block->phys_mem_size;
 		if (lowmem_size > 0x1000000)
 		{
