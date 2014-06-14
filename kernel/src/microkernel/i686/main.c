@@ -96,15 +96,19 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize paging, mapping our kernel and modules */
 		paging_init(&loader_block, bsp);
 
-		for (uint32_t i = 1; i < 6; i++)
-		{
-			printf("Allocating 1 page: %d\n", pmm_alloc_page(PAGE_DMA, NUMA_DOMAIN_BEST, 0) / 0x1000);
-		}
-
-		for (uint32_t i = 1; i < 17; i++)
-		{
-			printf("Allocating %d pages: %d\n", i, pmm_alloc_pages(i, PAGE_DMA, NUMA_DOMAIN_BEST, 0) / 0x1000);
-		}
+		paddr_t p1 = pmm_alloc_pages(4, PAGE_DMA, 0, 0);
+		printf("Allocated 4 pages: 0x%08X\n", p1);
+		paddr_t p2 = pmm_alloc_pages(8, PAGE_DMA, 0, 0);
+		printf("Allocated 8 pages: 0x%08X\n", p2);
+		paddr_t p3 = pmm_alloc_pages(4, PAGE_DMA, 0, 0);
+		printf("Allocated 4 pages: 0x%08X\n", p3);
+		pmm_free_pages(p2, 8);
+		printf("Freed 8 pages at 0x%08X\n", p2);
+		paddr_t p4 = pmm_alloc_pages(4, PAGE_DMA, 0, 0);
+		printf("Allocated 4 pages: 0x%08X\n", p4);
+		paddr_t p5 = pmm_alloc_pages(4, PAGE_DMA, 0, 0);
+		printf("Allocated 4 pages: 0x%08X\n", p5);
+		printf("Allocated 8 pages: 0x%08X\n", pmm_alloc_pages(8, PAGE_DMA, 0, 0));
 
 		/* Complete the memory manager's initialization */
 
