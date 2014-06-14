@@ -25,7 +25,7 @@ void dma_bitmap_alloc(loader_block_t *loader_block)
 
 	/* Calculate the DMA bitmap size, rounded up to a page */
 	uint32_t num_pages = ceil(dma_phys_mem_size, 0x1000);
-	uint32_t num_bytes = ceil(num_bytes, 8);
+	uint32_t num_bytes = ceil(num_pages, 8);
 
 	/* Allocate space for the DMA bitmap */
 	for (vaddr_t i = dma_bitmap; i < dma_bitmap + num_bytes; i += 0x1000)
