@@ -52,7 +52,12 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 
 				dma_bitmap[i] |= (1 << j);
 				spinlock_release(&dma_bitmap_lock);
-				return ((i * 8) + j) * 0x1000;
+
+				paddr_t address = ((i * 8) + j) * 0x1000;
+				page_t *page = pfn_database_get(address);
+				page->flags &= ~PAGE_FLAG_FREE;
+				atomic_inc(&page->refcount);
+				return address;
 			}
 		}
 
@@ -68,7 +73,12 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 			
 			dma_bitmap[dma_bitmap_nbytes] |= (1 << i);
 			spinlock_release(&dma_bitmap_lock);
-			return ((dma_bitmap_nbytes * 8) + i) * 0x1000;
+
+			paddr_t address = ((dma_bitmap_nbytes * 8) + i) * 0x1000;
+			page_t *page = pfn_database_get(address);
+			page->flags &= ~PAGE_FLAG_FREE;
+			atomic_inc(&page->refcount);
+			return address;
 		}
 
 		/* No free pages in the bitmap */
@@ -265,8 +275,15 @@ found: ;
 		paddr_t address = ((byte_start * 8) + bit_start) * 0x1000;
 		for (int i = 0; i < num_pages; i++)
 		{
+			/* Set bit in the bitmap */
 			dma_bitmap[byte_start] |= (1 << bit_start);
 
+			/* Mark the page as used */
+			page_t *page = pfn_database_get(address + (i * 0x1000));
+			page->flags &= ~PAGE_FLAG_FREE;
+			atomic_inc(&page->refcount);
+
+			/* Advance in the bitmap */
 			bit_start++;
 			if (bit_start == 8)
 			{
@@ -304,6 +321,21 @@ void pmm_free_page(paddr_t address)
 		/* Page under 16MiB */
 		if (address < 0x1000000)
 		{
+			/* Lock the entire DMA bitmap while we search */
+			spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+
+			/* Calculate the corresponding byte and bit */
+			uint32_t byte_start = address / 0x8000;
+			uint8_t bit_start = (address / 0x1000) % 8;
+
+			/* Verify the bit is actually set, and if so, clear it */
+			if (dma_bitmap[byte_start] & (1 << bit_start))
+			{
+				dma_bitmap[byte_start] &= ~(1 << bit_start);
+			}
+
+			/* Release the lock on the DMA bitmap */
+			spinlock_release(&dma_bitmap_lock);
 		}
 		else
 		{
@@ -319,7 +351,11 @@ void pmm_free_page(paddr_t address)
 			spinlock_release(&numa_domain->free_list_locks[color]);
 		}
 	}
+}
 
+/* Free multiple physical pages */
+void pmm_free_pages(paddr_t address, int num_pages)
+{
 }
 
 /* Initialize the free page list manager */
