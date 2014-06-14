@@ -10,6 +10,8 @@
 
 /* DMA bitmap */
 static uint8_t *dma_bitmap;
+static uint32_t dma_bitmap_nbytes;
+static uint8_t dma_bitmap_nbits;
 
 /* Detect the number of cache colors needed for the free lists */
 static void detect_cache_colors()
@@ -178,6 +180,41 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	{
 		/* Initialize the DMA bitmap covering the lower 16MiB of memory */
 		dma_bitmap = (uint8_t*) loader_block->dma_bitmap;
+		paddr_t lowmem_size = loader_block->phys_mem_size;
+		if (lowmem_size > 0x1000000)
+		{
+			lowmem_size = 0x1000000;
+		}
+
+		/* Build the DMA bitmap from the PFN database */
+		uint32_t byte = 0;
+		uint8_t bit = 0;
+		for (paddr_t page_address = 0; page_address < lowmem_size; page_address += 0x1000)
+		{
+			/* Get the page */
+			page_t *page = pfn_database_get(page_address);
+
+			/* Page does not exist */
+			if (!page)
+			{
+				dma_bitmap[byte] |= (1 << bit);
+			}
+			/* Page is not free */
+			else if ((page->flags & (PAGE_FLAG_USABLE | PAGE_FLAG_FREE)) != (PAGE_FLAG_USABLE | PAGE_FLAG_FREE))
+			{
+				dma_bitmap[byte] |= (1 << bit);
+			}
+
+			/* Go forward in the bitmap */
+			bit++;
+			if (bit == 8)
+			{
+				bit = 0;
+				byte++;
+			}
+		}
+		dma_bitmap_nbytes = byte;
+		dma_bitmap_nbits = bit;
 
 		/* Add each free page into the list for its NUMA domain and cache color */
 		paddr_t page_address = loader_block->phys_mem_size - 0x1000;
