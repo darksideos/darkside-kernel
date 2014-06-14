@@ -32,7 +32,7 @@ typedef struct loader_block
 /* PC extension */
 #if defined(__i386__)
 	/* Bitmap for allocating DMA memory */
-	vaddr_t dma_bitmap;
+	vaddr_t dma_bitmap, dma_bitmap_end;
 
 	/* ACPI root tables */
 	uint32_t rsdp;
