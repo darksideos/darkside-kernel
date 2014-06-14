@@ -318,10 +318,13 @@ void pmm_free_page(paddr_t address)
 	/* Decrement the reference count, and free the page if we hit 0 */
 	if (atomic_xsub(&page->refcount, 1) == 1)
 	{
+		/* Mark it as free again */
+		page->flags |= PAGE_FLAG_FREE;
+
 		/* Page under 16MiB */
 		if (address < 0x1000000)
 		{
-			/* Lock the entire DMA bitmap while we search */
+			/* Lock the entire DMA bitmap while we free */
 			spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
 
 			/* Calculate the corresponding byte and bit */
@@ -356,6 +359,56 @@ void pmm_free_page(paddr_t address)
 /* Free multiple physical pages */
 void pmm_free_pages(paddr_t address, int num_pages)
 {
+	/* Make sure the pages are under 16MiB */
+	if (address < 0x1000000)
+	{
+		uint32_t byte_start = address / 0x8000;
+		uint8_t bit_start = (address / 0x1000) % 8;
+
+		for (int i = 0; i < num_pages; i++)
+		{
+			/* Get the page */
+			page_t *page = pfn_database_get(address);
+			if (!page)
+			{
+				return;
+			}
+			else if (page->flags & PAGE_FLAG_FREE)
+			{
+				return;
+			}
+
+			/* Decrement the reference count, and free the page if we hit 0 */
+			if (atomic_xsub(&page->refcount, 1) == 1)
+			{
+				/* Mark it as free again */
+				page->flags |= PAGE_FLAG_FREE;
+
+				/* Lock the entire DMA bitmap while we free */
+				spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+
+				/* Verify the bit is actually set, and if so, clear it */
+				if (dma_bitmap[byte_start] & (1 << bit_start))
+				{
+					dma_bitmap[byte_start] &= ~(1 << bit_start);
+				}
+
+				/* Advance in the bitmap */
+				bit_start++;
+				if (bit_start == 8)
+				{
+					byte_start++;
+					bit_start = 0;
+				}
+
+				/* Release the lock on the DMA bitmap */
+				spinlock_release(&dma_bitmap_lock);
+			}
+
+			/* Next page */
+			address += 0x1000;
+		}
+	}
 }
 
 /* Initialize the free page list manager */
