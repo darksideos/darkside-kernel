@@ -39,6 +39,11 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 
 			for (uint8_t j = 0; j < 8; j++)
 			{
+				if (byte == 0xFF)
+				{
+					break;
+				}
+
 				if (byte & 1)
 				{
 					byte >>= 1;
@@ -201,6 +206,13 @@ paddr_t pmm_alloc_pages(int num_pages, int flags, int numa_domain, int color)
 
 			for (uint8_t j = 0; j < 8; j++)
 			{
+				if (byte == 0xFF)
+				{
+					byte_start = i + 1;
+					bit_start = 0;
+					break;
+				}
+
 				if (byte & 1)
 				{
 					byte >>= 1;
