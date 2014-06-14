@@ -38,7 +38,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* If present, initialize the Local APIC */
 		if (loader_block.lapic)
 		{
-			lapic_init(&loader_block, true);
+			lapic_init(&loader_block, bsp);
 		}
 
 		/* Initialize the processor's GDT and IDT */
@@ -94,18 +94,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initialized free list\n");
 
 		/* Initialize paging, mapping our kernel and modules */
-		printf("Initializing paging\n");
 		paging_init(&loader_block, bsp);
-		printf("Initialized paging\n");
 
-		printf("LAPIC ID is 0x%08X\n", lapic_current_id());
-		printf("Testing some memory allocation\n");
-		for (int i = 0; i < 8; i++)
-		{
-			printf("0x%08X\n", pmm_alloc_page(PAGE_ZERO, NUMA_DOMAIN_BEST, 0));
-		}
-
-		/* Initialize the slab allocator */
+		/* Complete the memory manager's initialization */
 
 		/* Initialize the kernel heap */
 
@@ -125,8 +116,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 	else
 	{
 		/* Initialize the Local APIC */
+		lapic_init(NULL, bsp);
 
 		/* Copy the GDT set up by the BSP and use its IDT */
+		gdt_init(bsp);
+		idt_init(bsp);
 
 		/* Detect the number of cache colors needed for the free lists */
 		freelist_init(NULL, bsp);

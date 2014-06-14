@@ -54,14 +54,8 @@ void idt_init(bool bsp)
 		/* Set up the IDT register structure */
 		idtr.limit = (sizeof(struct idt_entry) * 256) - 1;
 		idtr.base = (uint32_t) &idt;
+	}
 
-		/* Load our new IDT */
-		idt_load((uint32_t)&idtr);
-	}
-	/* Running on a secondary processor */
-	else
-	{
-		/* Load the IDT that the BSP set up */
-		idt_load((uint32_t)&idtr);
-	}
+	/* Load our new IDT */
+	idt_load((uint32_t)&idtr);
 }
