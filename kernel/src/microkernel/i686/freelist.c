@@ -44,7 +44,10 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		{
 			page_t *page = numa_area->zero_lists[color];
 			numa_area->zero_lists[color] = page->next;
-			page->next->prev = NULL;
+			if (page->next)
+			{
+				page->next->prev = NULL;
+			}
 			spinlock_release(&numa_area->zero_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
 			atomic_inc(&page->refcount);
@@ -58,7 +61,10 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		{
 			page_t *page = numa_area->free_lists[color];
 			numa_area->free_lists[color] = page->next;
-			page->next->prev = NULL;
+			if (page->next)
+			{
+				page->next->prev = NULL;
+			}
 			spinlock_release(&numa_area->free_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
 			atomic_inc(&page->refcount);
@@ -83,7 +89,10 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		{
 			page_t *page = numa_area->free_lists[color];
 			numa_area->free_lists[color] = page->next;
-			page->next->prev = NULL;
+			if (page->next)
+			{
+				page->next->prev = NULL;
+			}
 			spinlock_release(&numa_area->free_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
 			atomic_inc(&page->refcount);
@@ -97,7 +106,10 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		{
 			page_t *page = numa_area->zero_lists[color];
 			numa_area->zero_lists[color] = page->next;
-			page->next->prev = NULL;
+			if (page->next)
+			{
+				page->next->prev = NULL;
+			}
 			spinlock_release(&numa_area->zero_list_locks[color]);
 			page->flags &= ~PAGE_FLAG_FREE;
 			atomic_inc(&page->refcount);

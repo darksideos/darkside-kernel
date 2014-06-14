@@ -125,7 +125,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Detect the number of cache colors needed for the free lists */
 		freelist_init(NULL, bsp);
 
-		/* Signal completion and wait for the BSP to set up basic memory management */
+		/* Signal completion and wait for the BSP to set up memory management */
 
 		/* Use the paging structures set up by the BSP */
 
