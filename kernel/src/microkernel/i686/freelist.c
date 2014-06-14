@@ -8,6 +8,9 @@
 #include <mm/page.h>
 #include <mm/pfn.h>
 
+/* DMA bitmap */
+static uint8_t *dma_bitmap;
+
 /* Detect the number of cache colors needed for the free lists */
 static void detect_cache_colors()
 {
@@ -173,7 +176,8 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	/* Running on the BSP */
 	if (bsp)
 	{
-		/* Initialize the bitmap covering the lower 16MiB of memory */
+		/* Initialize the DMA bitmap covering the lower 16MiB of memory */
+		dma_bitmap = (uint8_t*) loader_block->dma_bitmap;
 
 		/* Add each free page into the list for its NUMA domain and cache color */
 		paddr_t page_address = loader_block->phys_mem_size - 0x1000;
