@@ -60,10 +60,9 @@ numa_domain_t *numa_domain_data_area(int numa_domain)
 /* Initialize the per-CPU data area */
 void cpu_data_area_init(loader_block_t *loader_block)
 {
+	/* Set up all the pointers */
 	per_cpu_area = (cpu_t*) loader_block->cpu_data_area;
 	per_numa_domain_area = (numa_domain_t*) loader_block->numa_domain_data_area;
 	num_cpus = loader_block->num_cpus;
 	num_numa_domains = loader_block->num_numa_domains;
-
-	printf("0x%08X 0x%08X\n", (uint32_t) &per_cpu_area[0], (uint32_t) &per_cpu_area[1]);
 }
