@@ -122,7 +122,7 @@ void vmm_init()
 	pd[1023] = (uint32_t) pd | 0x03;
 
 	/* Identity map the first 1 MB */
-	for (uint32_t i = 0; i < 0x100000; i++)
+	for (uint32_t i = 0; i < 0x100000; i += 0x1000)
 	{
 		pt_lower[i / 0x1000] = i | 0x03;
 	}
