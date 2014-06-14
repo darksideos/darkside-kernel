@@ -310,6 +310,9 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 
+		/* TEMPORARY: Map the VGA text framebuffer */
+		vmm_map_page(kernel_directory, 0xB8000, 0xB8000, PAGE_READ | PAGE_WRITE);
+
 		/* Switch to the new kernel address space */
 		vmm_switch_address_space(kernel_directory);
 	}
