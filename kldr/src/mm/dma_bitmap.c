@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <math.h>
 #include <init/loader.h>
 #include <mm/pmm.h>
@@ -30,6 +31,7 @@ void dma_bitmap_alloc(loader_block_t *loader_block)
 	for (vaddr_t i = dma_bitmap; i < dma_bitmap + num_bytes; i += 0x1000)
 	{
 		map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+		memset((void*) i, 0, 0x1000);
 	}
 
 	/* Record the end of the DMA bitmap */
