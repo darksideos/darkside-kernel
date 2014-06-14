@@ -299,6 +299,16 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		}
 
 		/* Map the DMA bitmap */
+		vaddr_t dma_bitmap_end = loader_block->dma_bitmap_end;
+		if (dma_bitmap_end & 0xFFF)
+		{
+			dma_bitmap_end = (dma_bitmap_end & 0xFFFFF000) + 0x1000;
+		}
+
+		for (vaddr_t i = loader_block->dma_bitmap; i < dma_bitmap_end; i += 0x1000)
+		{
+			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
+		}
 
 		/* Switch to the new kernel address space */
 		vmm_switch_address_space(kernel_directory);

@@ -96,6 +96,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize paging, mapping our kernel and modules */
 		paging_init(&loader_block, bsp);
 
+		for (uint32_t i = 0; i < 0xA0000; i += 0x1000)
+		{
+			printf("0x%08X\n", pmm_alloc_page(PAGE_DMA, NUMA_DOMAIN_BEST, 0));
+		}
+
 		/* Complete the memory manager's initialization */
 
 		/* Initialize the kernel heap */
