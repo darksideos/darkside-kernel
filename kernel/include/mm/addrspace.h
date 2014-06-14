@@ -18,7 +18,7 @@ addrspace_t *addrspace_create(paddr_t address_space);
 void addrspace_destroy(addrspace_t *addrspace);
 
 /* Allocate and free regions of a virtual address space */
-void *addrspace_alloc(addrspace_t *addrspace, uint32_t size);
-void addrspace_free(addrspace_t *addrspace, void *ptr, uint32_t size);
+void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed);
+void addrspace_free(addrspace_t *addrspace, void *ptr, size_t size);
 
 #endif
