@@ -36,8 +36,7 @@ typedef struct cpu
 	uint32_t lapic_id;
 	numa_domain_t *numa_domain;
 	uint32_t flags;
-	paddr_t current_directory;
-	uint8_t pad1[4076];
+	uint8_t pad1[4084];
 
 	/* Scheduling information */
 

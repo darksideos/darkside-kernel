@@ -8,9 +8,6 @@
 #include <microkernel/cpu.h>
 #include <microkernel/paging.h>
 
-/* Current page directory */
-static paddr_t current_directory = -1;
-
 /* Hyperspace address */
 static vaddr_t hyperspace = -1;
 
@@ -37,12 +34,6 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 	uint32_t *directory, *table;
 	if (address_space == -1)
 	{
-		/* If we lack the current page directory, read it in */
-		if (current_directory == -1)
-		{
-			__asm__ volatile("mov %%cr3, %0" : "=r"(current_directory));
-		}
-
 		/* Get the address of the recursive page directory and recursive page table */
 		directory = (uint32_t*) 0xFFFFF000;
 		table = (uint32_t*) (0xFFC00000 + (0x1000 * pde_index));
@@ -99,6 +90,8 @@ void vmm_flush_tlb_entry(vaddr_t virtual_address)
 /* Flush the entire TLB */
 void vmm_flush_tlb()
 {
+	paddr_t current_directory;
+	__asm__ volatile("mov %%cr3, %0" : "=r"(current_directory));
 	__asm__ volatile("mov %0, %%cr3" :: "r" (current_directory));
 }
 
