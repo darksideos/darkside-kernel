@@ -180,6 +180,98 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 	return -1;
 }
 
+/* Allocate multiple physical pages */
+paddr_t pmm_alloc_pages(int num_pages, int flags, int numa_domain, int color)
+{
+	/* Only support DMA allocations */
+	if (flags & PAGE_DMA)
+	{
+		/* Lock the entire DMA bitmap while we search */
+		spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+
+		/* Starting point and number of free pages we've found so far */
+		uint32_t byte_start = 0;
+		uint8_t bit_start = 0;
+		int num_found = 0;
+
+		/* First, search each whole byte */
+		for (uint32_t i = 0; i < dma_bitmap_nbytes; i++)
+		{
+			uint8_t byte = dma_bitmap[i];
+
+			for (uint8_t j = 0; j < 8; j++)
+			{
+				if (byte & 1)
+				{
+					byte >>= 1;
+					
+					bit_start = j + 1;
+					if (bit_start == 8)
+					{
+						byte_start = i + 1;
+						bit_start = 0;
+					}
+					num_found = 0;
+
+					continue;
+				}
+
+				num_found++;
+				if (num_found == num_pages)
+				{
+					goto found;
+				}
+			}
+		}
+
+		/* Next, search the remaining bits */
+		uint8_t byte = dma_bitmap[dma_bitmap_nbytes];
+		for (uint8_t i = 0; i < dma_bitmap_nbits; i++)
+		{
+			if (byte & 1)
+			{
+				byte >>= 1;
+
+				bit_start = i + 1;
+				num_found = 0;
+
+				continue;
+			}
+			
+			num_found++;
+			if (num_found == num_pages)
+			{
+				goto found;
+			}
+		}
+
+		/* No free pages in the bitmap */
+		spinlock_release(&dma_bitmap_lock);
+		return -1;
+found: ;
+		/* Save the address found and set every bit */
+		paddr_t address = ((byte_start * 8) + bit_start) * 0x1000;
+		for (int i = 0; i < num_pages; i++)
+		{
+			dma_bitmap[byte_start] |= (1 << bit_start);
+
+			bit_start++;
+			if (bit_start == 8)
+			{
+				byte_start++;
+				bit_start = 0;
+			}
+		}
+
+		/* Return the address */
+		spinlock_release(&dma_bitmap_lock);
+		return address;
+	}
+
+	/* No free pages */
+	return -1;
+}
+
 /* Free a physical page */
 void pmm_free_page(paddr_t address)
 {
