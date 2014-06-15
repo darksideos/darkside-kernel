@@ -89,9 +89,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		}
 
 		/* Initialize the free list manager */
-		printf("Initializing free list\n");
 		freelist_init(&loader_block, bsp);
-		printf("Initialized free list\n");
 
 		/* Initialize paging, mapping our kernel and modules */
 		paging_init(&loader_block, bsp);
