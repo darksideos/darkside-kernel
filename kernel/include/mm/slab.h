@@ -6,8 +6,8 @@
 /* Slab cache header structure */
 typedef struct slab_cache
 {
-	/* Size of the entire slab */
-	size_t slab_size;
+	/* Start of object data */
+	size_t object_data_start;
 
 	/* Object size and number of objects (total and free) */
 	size_t object_size;
