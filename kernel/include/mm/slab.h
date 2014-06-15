@@ -23,8 +23,9 @@ typedef struct slab_cache
 	uint8_t free_bitmap[];
 } slab_cache_t;
 
-/* Create and destroy a slab cache */
+/* Create, initialize, and destroy a slab cache */
 slab_cache_t *slab_cache_create(size_t object_size);
+void slab_cache_init(slab_cache_t *slab_cache, size_t object_size);
 void slab_cache_destroy(slab_cache_t *slab_cache);
 
 /* Allocate and free slabs */
