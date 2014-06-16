@@ -1,28 +1,29 @@
 #include <types.h>
+#include <microkernel/cpu.h>
+#include <microkernel/lock.h>
+#include <microkernel/paging.h>
+#include <mm/freelist.h>
 #include <mm/vad.h>
 #include <mm/addrspace.h>
 
 /* System address space */
 static addrspace_t system_addrspace;
 
-/* Create an address space */
-addrspace_t *addrspace_create(paddr_t address_space)
+/* Calculate the cache color of a virtual address for a NUMA domain */
+static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
 {
-	/* No low-level address space specified */
-	if (!address_space)
-	{
-		return NULL;
-	}
-	/* Initializing the system address space */
-	else
-	{
-		/* Set the low-level address space */
-		system_addrspace.address_space = address_space;
+	/* Get the per-NUMA domain data area for the page */
+	numa_domain_t *numa_area = numa_domain_data_area(numa_domain);
 
-		/* Calculate the usable start of the address space */
+	/* Calculate the cache color, taking the bias into account */
+	int color_modulus = numa_area->num_cache_colors * 0x1000;
+	int color = (virtual_address % color_modulus) / 0x1000;
+	return (color + bias) % numa_area->num_cache_colors;
+}
 
-		return &system_addrspace;
-	}
+/* Create an address space */
+addrspace_t *addrspace_create()
+{
 }
 
 /* Destroy an address space */
@@ -31,8 +32,18 @@ void addrspace_destroy(addrspace_t *addrspace)
 }
 
 /* Allocate regions of a virtual address space */
-void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed)
+void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags)
 {
+	/* Current address space */
+	if (addrspace == (addrspace_t*) ADDRSPACE_CURRENT)
+	{
+	}
+	/* System address space */
+	else if (addrspace == (addrspace_t*) ADDRSPACE_SYSTEM)
+	{
+		addrspace = &system_addrspace;
+	}
+
 	/* Round up both the reserved and committed sizes to a page boundary */
 	if (size_reserved & 0xFFF)
 	{
@@ -50,7 +61,44 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 	}
 
 	/* Search the address space for a free region of suitable size */
+	spinlock_acquire(&addrspace->lock, TIMEOUT_NEVER);
+	vad_t *vad = &addrspace->free;
+	while (vad)
+	{
+		/* Move on if it doesn't fit our allocation */
+		if (vad->length < size_reserved)
+		{
+			vad = vad->right;
+			continue;
+		}
 
+		/* Commit all the needed pages */
+		vaddr_t address = vad->start;
+		for (size_t i = address; i < address + size_committed; i += 0x1000)
+		{
+			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
+			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
+		}
+
+		/* Modify the free VAD or remove it entirely */
+		if (size_reserved < vad->length)
+		{
+			vad->start += size_reserved;
+			vad->length -= size_reserved;
+		}
+		else
+		{
+			if (vad != &addrspace->free)
+			{
+				/* TODO: Free the VAD and adjust the list */
+			}
+		}
+
+		/* Create a new VAD to represent the now-used region */
+	}
+
+	/* No free region of the address space available */
+	spinlock_release(&addrspace->lock);
 	return NULL;
 }
 
