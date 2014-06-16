@@ -507,13 +507,18 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	}
 
 	/* Unit testing */
+#ifdef UNIT_TESTING
 	printf("Begin free list unit test\n");
 	paddr_t p1 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
 	paddr_t p2 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
 	paddr_t p3 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
 	paddr_t p4 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
 	paddr_t p5 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
-	printf("Allocated 0x%08X\nAllocated 0x%08X\nAllocated 0x%08X\nAllocated 0x%08X\nAllocated 0x%08X\n", p1, p2, p3, p4, p5);
+	printf("Allocated 0x%08X\n", p1);
+	printf("Allocated 0x%08X\n", p2);
+	printf("Allocated 0x%08X\n", p3);
+	printf("Allocated 0x%08X\n", p4);
+	printf("Allocated 0x%08X\n", p5);
 	pmm_free_page(p3);
 	printf("Freed 0x%08X\n", p3);
 	pmm_free_page(p5);
@@ -527,4 +532,5 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	printf("Allocated 0x%08X\n", pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0));
 	printf("Allocated 0x%08X\n", pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0));
 	printf("End free list unit test\n\n");
+#endif
 }
