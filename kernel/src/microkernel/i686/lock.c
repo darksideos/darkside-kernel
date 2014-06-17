@@ -116,9 +116,6 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 			/* Increment the recursion count */
 			atomic_inc(&lock->num_recursion);
 
-			/* Save the interrupt state */
-			lock->interrupts = interrupts;
-
 			return 0;
 		}
 		/* Otherwise, we can't get the lock yet, so acquire it with a ticket */
