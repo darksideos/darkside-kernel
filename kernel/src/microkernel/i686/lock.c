@@ -111,7 +111,7 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 	else if (timeout == TIMEOUT_NEVER)
 	{
 		/* If the owner count is 0, try to acquire the lock */
-		if (atomic_cmpxchg(&lock->num_owners, 0, lock->num_owners + 1) == 0)
+		if (atomic_cmpxchg(&lock->num_owners, 0, 1) == 0)
 		{
 			/* Set our current TID */
 			lock->owner = tid_current();
@@ -142,6 +142,12 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 			/* Get the ticket for entering and wait until it's called */
 			atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
 			while(atomic_read(&lock->dequeue_ticket) != my_ticket);
+
+			/* Increment the owner count */
+			atomic_inc(&lock->num_owners);
+
+			/* Set our current TID */
+			lock->owner = tid_current();
 
 			/* Save the interrupt state */
 			lock->interrupts = interrupts;
