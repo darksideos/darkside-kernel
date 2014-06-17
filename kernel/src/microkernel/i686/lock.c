@@ -113,9 +113,6 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 		/* If we own the lock, acquire it */
 		if (lock->owner == tid_current())
 		{
-			/* Increment the queue ticket */
-			atomic_inc(&lock->queue_ticket);
-
 			/* Increment the recursion count */
 			atomic_inc(&lock->num_recursion);
 
