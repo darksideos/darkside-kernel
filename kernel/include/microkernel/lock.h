@@ -19,7 +19,7 @@ typedef struct spinlock_recursive
 	atomic_t queue_ticket;
 	atomic_t dequeue_ticket;
 	tid_t owner;
-	atomic_t num_owners;
+	atomic_t num_recursion;
 	uint32_t interrupts;
 } spinlock_recursive_t;
 
