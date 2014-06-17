@@ -88,7 +88,7 @@ void spinlock_recursive_init(spinlock_recursive_t *lock)
 	atomic_set(&lock->queue_ticket, 0);
 	atomic_set(&lock->dequeue_ticket, 0);
 	lock->owner = 0;
-	atomic_set(&lock->num_owners, 0);
+	atomic_set(&lock->num_recursion, 0);
 	lock->interrupts = 0;
 }
 
