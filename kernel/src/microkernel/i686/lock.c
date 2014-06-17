@@ -124,13 +124,17 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 		/* If the lock is held but we're the owner, we can still get it */
 		else if (lock->owner == tid_current())
 		{
-			/* Increment the owner count */
-			atomic_inc(&lock->num_owners);
+			/* Verify the TID hasn't changed */
+			if (lock->owner == tid_current())
+			{
+				/* Increment the owner count */
+				atomic_inc(&lock->num_owners);
 
-			/* Save the interrupt state */
-			lock->interrupts = interrupts;
+				/* Save the interrupt state */
+				lock->interrupts = interrupts;
 
-			return 0;
+				return 0;
+			}
 		}
 		/* Otherwise, we can't get the lock yet, so acquire it with a ticket */
 		else
