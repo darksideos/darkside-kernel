@@ -113,6 +113,9 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 		/* If the owner count is 0, try to acquire the lock */
 		if (atomic_cmpxchg(&lock->num_owners, 0, 1) == 0)
 		{
+			/* Increment the ticket */
+			atomic_inc(&lock->queue_ticket);
+
 			/* Set our current TID */
 			lock->owner = tid_current();
 
@@ -127,6 +130,9 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 			/* Verify the TID hasn't changed */
 			if (lock->owner == tid_current())
 			{
+				/* Increment the ticket */
+				atomic_inc(&lock->queue_ticket);
+
 				/* Increment the owner count */
 				atomic_inc(&lock->num_owners);
 
