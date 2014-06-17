@@ -110,37 +110,19 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 	/* Wait until it's available */
 	else if (timeout == TIMEOUT_NEVER)
 	{
-		/* If the owner count is 0, try to acquire the lock */
-		if (atomic_cmpxchg(&lock->num_owners, 0, 1) == 0)
+		/* If we own the lock, acquire it */
+		if (lock->owner == tid_current())
 		{
-			/* Increment the ticket */
+			/* Increment the queue ticket */
 			atomic_inc(&lock->queue_ticket);
 
-			/* Set our current TID */
-			lock->owner = tid_current();
+			/* Increment the recursion count */
+			atomic_inc(&lock->num_recursion);
 
 			/* Save the interrupt state */
 			lock->interrupts = interrupts;
 
 			return 0;
-		}
-		/* If the lock is held but we're the owner, we can still get it */
-		else if (lock->owner == tid_current())
-		{
-			/* Verify the TID hasn't changed */
-			if (lock->owner == tid_current())
-			{
-				/* Increment the ticket */
-				atomic_inc(&lock->queue_ticket);
-
-				/* Increment the owner count */
-				atomic_inc(&lock->num_owners);
-
-				/* Save the interrupt state */
-				lock->interrupts = interrupts;
-
-				return 0;
-			}
 		}
 		/* Otherwise, we can't get the lock yet, so acquire it with a ticket */
 		else
@@ -150,7 +132,7 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 			while(atomic_read(&lock->dequeue_ticket) != my_ticket);
 
 			/* Increment the owner count */
-			atomic_inc(&lock->num_owners);
+			atomic_inc(&lock->num_recursion);
 
 			/* Set our current TID */
 			lock->owner = tid_current();
@@ -175,6 +157,7 @@ void spinlock_recursive_release(spinlock_recursive_t *lock)
 	/* Decrement the number of owners and release the lock if it is 0 */
 	if (atomic_xsub(&lock->num_owners, 1) == 1)
 	{
+		lock->owner = -1;
 		atomic_inc(&lock->dequeue_ticket);
 	}
 	
