@@ -61,7 +61,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 	}
 
 	/* Search the address space for a free region of suitable size */
-	spinlock_acquire(&addrspace->lock, TIMEOUT_NEVER);
+	spinlock_recursive_acquire(&addrspace->lock, TIMEOUT_NEVER);
 	vad_t *vad = &addrspace->free;
 	while (vad)
 	{
@@ -95,10 +95,13 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		}
 
 		/* Create a new VAD to represent the now-used region */
+
+		/* Return the address of the allocated region */
+		return (void*) address;
 	}
 
 	/* No free region of the address space available */
-	spinlock_release(&addrspace->lock);
+	spinlock_recursive_release(&addrspace->lock);
 	return NULL;
 }
 
