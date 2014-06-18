@@ -2,11 +2,12 @@
 #define __ADDRSPACE_H
 
 #include <microkernel/lock.h>
+#include <microkernel/paging.h>
 #include <mm/vad.h>
 
 /* Special address space pointers */
-#define ADDRSPACE_CURRENT	1
-#define ADDRSPACE_SYSTEM	2
+#define ADDRSPACE_CURRENT	(addrspace_t*) 1
+#define ADDRSPACE_SYSTEM	(addrspace_t*) 2
 
 /* Address space structure */
 typedef struct addrspace

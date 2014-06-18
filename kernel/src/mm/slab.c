@@ -11,6 +11,9 @@
 /* Create a slab cache */
 slab_cache_t *slab_cache_create(size_t object_size)
 {
+	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, PAGE_READ | PAGE_WRITE);
+	slab_cache_init(slab_cache, object_size);
+	return slab_cache;
 }
 
 /* Initialize a slab cache */
@@ -18,7 +21,7 @@ void slab_cache_init(slab_cache_t *slab_cache, size_t object_size)
 {
 	/* Fill in basic information */
 	slab_cache->object_size = object_size;
-	spinlock_init(&slab_cache->lock);
+	spinlock_recursive_init(&slab_cache->lock);
 	slab_cache->next = NULL;
 
 	/* Calculate the amount of available space in the slab */

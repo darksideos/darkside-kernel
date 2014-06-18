@@ -35,11 +35,11 @@ void addrspace_destroy(addrspace_t *addrspace)
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags)
 {
 	/* Current address space */
-	if (addrspace == (addrspace_t*) ADDRSPACE_CURRENT)
+	if (addrspace == ADDRSPACE_CURRENT)
 	{
 	}
 	/* System address space */
-	else if (addrspace == (addrspace_t*) ADDRSPACE_SYSTEM)
+	else if (addrspace == ADDRSPACE_SYSTEM)
 	{
 		addrspace = &system_addrspace;
 	}

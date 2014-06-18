@@ -14,7 +14,7 @@ typedef struct slab_cache
 	atomic_t num_total_objs, num_free_objs;
 
 	/* Lock protecting the slab */
-	spinlock_t lock;
+	spinlock_recursive_t lock;
 
 	/* Pointer to the next slab */
 	struct slab_cache *next;
