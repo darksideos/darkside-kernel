@@ -21,7 +21,7 @@ typedef struct addrspace
 	int numa_domain;
 
 	/* Address space lock */
-	spinlock_t lock;
+	spinlock_recursive_t lock;
 } addrspace_t;
 
 /* Create and destroy an address space */
