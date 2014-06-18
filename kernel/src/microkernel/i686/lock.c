@@ -87,7 +87,7 @@ void spinlock_recursive_init(spinlock_recursive_t *lock)
 {
 	atomic_set(&lock->queue_ticket, 0);
 	atomic_set(&lock->dequeue_ticket, 0);
-	lock->owner = 0;
+	lock->owner = -1;
 	atomic_set(&lock->num_recursion, 0);
 	lock->interrupts = 0;
 }
@@ -116,6 +116,8 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 			/* Increment the recursion count */
 			atomic_inc(&lock->num_recursion);
 
+			printf("Acquired lock again\n");
+
 			return 0;
 		}
 		/* Otherwise, we can't get the lock yet, so acquire it with a ticket */
@@ -130,6 +132,8 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 
 			/* Set our current TID */
 			lock->owner = tid_current();
+
+			printf("Acquired lock the first time\n");
 
 			/* Save the interrupt state */
 			lock->interrupts = interrupts;
@@ -148,20 +152,24 @@ uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout
 /* Release a recursive spinlock */
 void spinlock_recursive_release(spinlock_recursive_t *lock)
 {
-	/* Decrement the number of owners and release the lock if it is 0 */
-	if (atomic_xsub(&lock->num_owners, 1) == 1)
+	printf("Releasing lock\n");
+	/* Decrement the number of recursions and release the lock if it is 0 */
+	if (atomic_xsub(&lock->num_recursion, 1) == 1)
 	{
+		/* Invalidate the owner and call the next ticket */
 		lock->owner = -1;
 		atomic_inc(&lock->dequeue_ticket);
-	}
 	
-	/* Restore the interrupt state */
-	if (lock->interrupts)
-	{
-		__asm__ volatile("sti");
-	}
-	else
-	{
-		__asm__ volatile("cli");
+		/* Restore the interrupt state */
+		if (lock->interrupts)
+		{
+			__asm__ volatile("sti");
+		}
+		else
+		{
+			__asm__ volatile("cli");
+		}
+
+		printf("Lock released for the final time\n");
 	}
 }
