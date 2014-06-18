@@ -11,6 +11,8 @@
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
 
+#include <microkernel/lock.h>
+
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
@@ -93,6 +95,17 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize paging, mapping our kernel and modules */
 		paging_init(&loader_block, bsp);
+
+		spinlock_recursive_t lock;
+		spinlock_recursive_init(&lock);
+		spinlock_recursive_acquire(&lock, TIMEOUT_NEVER);
+		spinlock_recursive_acquire(&lock, TIMEOUT_NEVER);
+		spinlock_recursive_acquire(&lock, TIMEOUT_NEVER);
+		spinlock_recursive_acquire(&lock, TIMEOUT_NEVER);
+		spinlock_recursive_release(&lock);
+		spinlock_recursive_release(&lock);
+		spinlock_recursive_release(&lock);
+		spinlock_recursive_release(&lock);
 
 		/* Complete the memory manager's initialization */
 
