@@ -26,6 +26,36 @@ addrspace_t *addrspace_create()
 {
 }
 
+/* Initialize an address space */
+void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length)
+{
+	/* Current address space */
+	if (addrspace == ADDRSPACE_CURRENT)
+	{
+	}
+	/* System address space */
+	else if (addrspace == ADDRSPACE_SYSTEM)
+	{
+		addrspace = &system_addrspace;
+	}
+
+	/* Fill in the information */
+	addrspace->address_space = address_space;
+	addrspace->numa_domain = NUMA_DOMAIN_CURRENT;
+	spinlock_recursive_init(&addrspace->lock);
+
+	/* Initialize the free VAD */
+	addrspace->free.start = free_start;
+	addrspace->free.length = free_length;
+	addrspace->free.flags = 0;
+	addrspace->free.left = addrspace->free.right = NULL;
+
+	/* Initialize the used VAD */
+	addrspace->used.start = addrspace->used.length = 0;
+	addrspace->used.flags = 0;
+	addrspace->used.left = addrspace->used.right = NULL;
+}
+
 /* Destroy an address space */
 void addrspace_destroy(addrspace_t *addrspace)
 {
