@@ -3,6 +3,9 @@
 
 #include <microkernel/lock.h>
 
+/* Size of a slab */
+#define SLAB_SIZE	0x2000
+
 /* Slab cache header structure */
 typedef struct slab_cache
 {

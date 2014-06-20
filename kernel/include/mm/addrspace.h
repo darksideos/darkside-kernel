@@ -27,7 +27,7 @@ typedef struct addrspace
 
 /* Create, initialize, and destroy an address space */
 addrspace_t *addrspace_create();
-void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_end);
+void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length);
 void addrspace_destroy(addrspace_t *addrspace);
 
 /* Allocate and free regions of a virtual address space */
