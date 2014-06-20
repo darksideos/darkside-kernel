@@ -5,9 +5,6 @@
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 
-/* Size of a slab */
-#define SLAB_SIZE	0x2000
-
 /* Create a slab cache */
 slab_cache_t *slab_cache_create(size_t object_size)
 {

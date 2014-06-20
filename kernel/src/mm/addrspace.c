@@ -16,8 +16,8 @@ static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
 	numa_domain_t *numa_area = numa_domain_data_area(numa_domain);
 
 	/* Calculate the cache color, taking the bias into account */
-	int color_modulus = numa_area->num_cache_colors * 0x1000;
-	int color = (virtual_address % color_modulus) / 0x1000;
+	int color_modulus = numa_area->num_cache_colors * PAGE_SIZE;
+	int color = (virtual_address % color_modulus) / PAGE_SIZE;
 	return (color + bias) % numa_area->num_cache_colors;
 }
 
@@ -75,14 +75,8 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 	}
 
 	/* Round up both the reserved and committed sizes to a page boundary */
-	if (size_reserved & 0xFFF)
-	{
-		size_reserved = (size_reserved & 0xFFFFF000) + 0x1000;
-	}
-	if (size_committed & 0xFFF)
-	{
-		size_committed = (size_committed & 0xFFFFF000) + 0x1000;
-	}
+	size_reserved = PAGE_ALIGN_UP(size_reserved);
+	size_committed = PAGE_ALIGN_UP(size_committed);
 
 	/* Make sure we don't commit more than we reserve */
 	if (size_committed > size_reserved)
@@ -104,7 +98,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 
 		/* Commit all the needed pages */
 		vaddr_t address = vad->start;
-		for (size_t i = address; i < address + size_committed; i += 0x1000)
+		for (size_t i = address; i < address + size_committed; i += PAGE_SIZE)
 		{
 			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
 			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
