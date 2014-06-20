@@ -18,8 +18,8 @@ static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
 	numa_domain_t *numa_area = numa_domain_data_area(numa_domain);
 
 	/* Calculate the cache color, taking the bias into account */
-	int color_modulus = numa_area->num_cache_colors * 0x1000;
-	int color = (virtual_address % color_modulus) / 0x1000;
+	int color_modulus = numa_area->num_cache_colors * PAGE_SIZE;
+	int color = (virtual_address % color_modulus) / PAGE_SIZE;
 	return (color + bias) % numa_area->num_cache_colors;
 }
 
@@ -262,7 +262,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		executable_t *module = (executable_t*) iter.now(&iter);
 		while (module)
 		{
-			for (vaddr_t i = module->start; i < module->end; i += 0x1000)
+			for (vaddr_t i = module->start; i < module->end; i += PAGE_SIZE)
 			{
 				vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 			}
@@ -271,11 +271,11 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		}
 
 		/* Map the per-CPU and NUMA domain data areas */
-		for (vaddr_t i = loader_block->cpu_data_area; i < loader_block->cpu_data_area + (loader_block->num_cpus * sizeof(cpu_t)); i += 0x1000)
+		for (vaddr_t i = loader_block->cpu_data_area; i < loader_block->cpu_data_area + (loader_block->num_cpus * sizeof(cpu_t)); i += PAGE_SIZE)
 		{
 			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
-		for (vaddr_t i = loader_block->numa_domain_data_area; i < loader_block->numa_domain_data_area + (loader_block->num_numa_domains * sizeof(numa_domain_t)); i += 0x1000)
+		for (vaddr_t i = loader_block->numa_domain_data_area; i < loader_block->numa_domain_data_area + (loader_block->num_numa_domains * sizeof(numa_domain_t)); i += PAGE_SIZE)
 		{
 			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
@@ -287,25 +287,15 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		}
 
 		/* Map the PFN database */
-		vaddr_t pfn_database_end = loader_block->pfn_database_end;
-		if (pfn_database_end & 0xFFF)
-		{
-			pfn_database_end = (pfn_database_end & 0xFFFFF000) + 0x1000;
-		}
-
-		for (vaddr_t i = loader_block->pfn_database; i < pfn_database_end; i += 0x1000)
+		vaddr_t pfn_database_end = PAGE_ALIGN_UP(loader_block->pfn_database_end);
+		for (vaddr_t i = loader_block->pfn_database; i < pfn_database_end; i += PAGE_SIZE)
 		{
 			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 
 		/* Map the DMA bitmap */
-		vaddr_t dma_bitmap_end = loader_block->dma_bitmap_end;
-		if (dma_bitmap_end & 0xFFF)
-		{
-			dma_bitmap_end = (dma_bitmap_end & 0xFFFFF000) + 0x1000;
-		}
-
-		for (vaddr_t i = loader_block->dma_bitmap; i < dma_bitmap_end; i += 0x1000)
+		vaddr_t dma_bitmap_end = PAGE_ALIGN_UP(loader_block->dma_bitmap_end);
+		for (vaddr_t i = loader_block->dma_bitmap; i < dma_bitmap_end; i += PAGE_SIZE)
 		{
 			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}

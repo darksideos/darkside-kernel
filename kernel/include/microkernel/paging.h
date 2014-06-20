@@ -3,6 +3,11 @@
 
 #include <init/loader.h>
 
+/* i386 */
+#if defined(__i386__)
+#include <microkernel/i686/paging.h>
+#endif
+
 /* Address space mnemonics */
 #define ADDR_SPACE_CURRENT	-1
 
