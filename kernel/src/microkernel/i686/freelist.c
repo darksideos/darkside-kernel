@@ -132,7 +132,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 
 			paddr_t address = pfn_database_address(page);
 			void *tmp = vmm_map_hyperspace(HYPERSPACE_ZEROPAGE, address);
-			memset(tmp, 0, 0x1000);
+			memset(tmp, 0, PAGE_SIZE);
 			return address;
 		}
 		spinlock_release(&numa_area->free_list_locks[color]);
@@ -144,7 +144,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		if (address != -1)
 		{
 			void *tmp = vmm_map_hyperspace(HYPERSPACE_ZEROPAGE, address);
-			memset(tmp, 0, 0x1000);
+			memset(tmp, 0, PAGE_SIZE);
 			return address;
 		}
 	}
@@ -328,8 +328,8 @@ void pmm_free_page(paddr_t address)
 			spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
 
 			/* Calculate the corresponding byte and bit */
-			uint32_t byte_start = address / 0x8000;
-			uint8_t bit_start = (address / 0x1000) % 8;
+			uint32_t byte_start = (address / PAGE_SIZE) / 8;
+			uint8_t bit_start = (address / PAGE_SIZE) % 8;
 
 			/* Verify the bit is actually set, and if so, clear it */
 			if (dma_bitmap[byte_start] & (1 << bit_start))
@@ -362,8 +362,8 @@ void pmm_free_pages(paddr_t address, int num_pages)
 	/* Make sure the pages are under 16MiB */
 	if (address < 0x1000000)
 	{
-		uint32_t byte_start = address / 0x8000;
-		uint8_t bit_start = (address / 0x1000) % 8;
+		uint32_t byte_start = (address / PAGE_SIZE) / 8;
+		uint8_t bit_start = (address / PAGE_SIZE) % 8;
 
 		for (int i = 0; i < num_pages; i++)
 		{
@@ -406,7 +406,7 @@ void pmm_free_pages(paddr_t address, int num_pages)
 			}
 
 			/* Next page */
-			address += 0x1000;
+			address += PAGE_SIZE;
 		}
 	}
 }
@@ -434,7 +434,7 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 		/* Build the DMA bitmap from the PFN database */
 		uint32_t byte = 0;
 		uint8_t bit = 0;
-		for (paddr_t page_address = 0; page_address < lowmem_size; page_address += 0x1000)
+		for (paddr_t page_address = 0; page_address < lowmem_size; page_address += PAGE_SIZE)
 		{
 			/* Get the page */
 			page_t *page = pfn_database_get(page_address);
@@ -462,21 +462,21 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 		dma_bitmap_nbits = bit;
 
 		/* Add each free page into the list for its NUMA domain and cache color */
-		paddr_t page_address = loader_block->phys_mem_size - 0x1000;
+		paddr_t page_address = loader_block->phys_mem_size - PAGE_SIZE;
 		while (page_address >= 0x1000000)
 		{
 			/* Get the page */
 			page_t *page = pfn_database_get(page_address);
 			if (!page)
 			{
-				page_address -= 0x1000;
+				page_address -= PAGE_SIZE;
 				continue;
 			}
 			
 			/* Skip non-free pages */
 			if ((page->flags & (PAGE_FLAG_USABLE | PAGE_FLAG_FREE)) != (PAGE_FLAG_USABLE | PAGE_FLAG_FREE))
 			{
-				page_address -= 0x1000;
+				page_address -= PAGE_SIZE;
 				continue;
 			}
 
@@ -502,13 +502,13 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 			}
 
 			/* Go to the previous page in memory */
-			page_address -= 0x1000;
+			page_address -= PAGE_SIZE;
 		}
 	}
 
 	/* Unit testing */
 #ifdef UNIT_TESTING
-	printf("Begin free list unit test\n");
+	printf("Beginning free list unit test\n");
 	paddr_t p1 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
 	paddr_t p2 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
 	paddr_t p3 = pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0);
@@ -531,6 +531,6 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	printf("Freed 0x%08X\n", p6);
 	printf("Allocated 0x%08X\n", pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0));
 	printf("Allocated 0x%08X\n", pmm_alloc_page(0, NUMA_DOMAIN_BEST, 0));
-	printf("End free list unit test\n\n");
+	printf("End of free list unit test\n\n");
 #endif
 }
