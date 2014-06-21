@@ -8,7 +8,7 @@
 /* Create a slab cache */
 slab_cache_t *slab_cache_create(size_t object_size)
 {
-	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, PAGE_READ | PAGE_WRITE);
+	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
 	slab_cache_init(slab_cache, object_size);
 	return slab_cache;
 }
