@@ -21,4 +21,7 @@ void hyperspace_alloc(loader_block_t *loader_block)
 	{
 		map_page(i, 0, PAGE_READ | PAGE_WRITE);
 	}
+
+	/* Mark the free start of the system address space */
+	loader_block->system_free_start = hyperspace + (NUM_HYPERSPACE_PAGES * 0x1000);
 }
