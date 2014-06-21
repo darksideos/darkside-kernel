@@ -10,8 +10,7 @@
 #include <microkernel/i686/lapic.h>
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
-
-#include <microkernel/lock.h>
+#include <mm/addrspace.h>
 
 /* AP trampoline symbols */
 extern void ap_trampoline();
@@ -96,7 +95,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize paging, mapping our kernel and modules */
 		paging_init(&loader_block, bsp);
 
-		/* Complete the memory manager's initialization */
+		/* Initialize the system address space */
+		paddr_t address_space;
+		__asm__ volatile("mov %%cr3, %0" : "=r"(address_space));
+		addrspace_init(ADDRSPACE_SYSTEM, address_space, 0, 0);
 
 		/* Initialize the kernel heap */
 

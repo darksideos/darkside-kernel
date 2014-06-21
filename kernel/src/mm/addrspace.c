@@ -5,9 +5,13 @@
 #include <mm/freelist.h>
 #include <mm/vad.h>
 #include <mm/addrspace.h>
+#include <mm/slab.h>
 
 /* System address space */
 static addrspace_t system_addrspace;
+
+/* Slab caches for address spaces and VADs */
+static slab_cache_t *addrspace_cache, *vad_cache;
 
 /* Calculate the cache color of a virtual address for a NUMA domain */
 static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
@@ -36,6 +40,29 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	/* System address space */
 	else if (addrspace == ADDRSPACE_SYSTEM)
 	{
+		/* Create the initial slab cache for address spaces */
+		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
+		{
+			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
+			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+		}
+		addrspace_cache = (slab_cache_t*) free_start;
+		slab_cache_init(addrspace_cache, sizeof(addrspace_t));
+		free_start += SLAB_SIZE;
+		free_length -= SLAB_SIZE;
+
+		/* Create the initial slab cache for VADs */
+		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
+		{
+			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
+			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+		}
+		vad_cache = (slab_cache_t*) free_start;
+		slab_cache_init(vad_cache, sizeof(vad_t));
+		free_start += SLAB_SIZE;
+		free_length -= SLAB_SIZE;
+
+		/* Set up the pointer to the system address space */
 		addrspace = &system_addrspace;
 	}
 
