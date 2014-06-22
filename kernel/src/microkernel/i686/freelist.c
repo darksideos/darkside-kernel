@@ -10,7 +10,7 @@
 
 /* DMA bitmap */
 static uint8_t *dma_bitmap;
-static uint32_t dma_bitmap_nbytes;
+static size_t dma_bitmap_nbytes;
 static uint8_t dma_bitmap_nbits;
 static spinlock_t dma_bitmap_lock;
 static bool dma_bitmap_atstart = true;
@@ -33,7 +33,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
 
 		/* First, search each whole byte */
-		for (uint32_t i = 0; i < dma_bitmap_nbytes; i++)
+		for (size_t i = 0; i < dma_bitmap_nbytes; i++)
 		{
 			uint8_t byte = dma_bitmap[i];
 
@@ -205,12 +205,12 @@ paddr_t pmm_alloc_pages(int num_pages, int flags, int numa_domain, int color)
 		spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
 
 		/* Starting point and number of free pages we've found so far */
-		uint32_t byte_start = 0;
+		size_t byte_start = 0;
 		uint8_t bit_start = 0;
 		int num_found = 0;
 
 		/* First, search each whole byte */
-		for (uint32_t i = 0; i < dma_bitmap_nbytes; i++)
+		for (size_t i = 0; i < dma_bitmap_nbytes; i++)
 		{
 			uint8_t byte = dma_bitmap[i];
 
@@ -328,7 +328,7 @@ void pmm_free_page(paddr_t address)
 			spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
 
 			/* Calculate the corresponding byte and bit */
-			uint32_t byte_start = (address / PAGE_SIZE) / 8;
+			size_t byte_start = (address / PAGE_SIZE) / 8;
 			uint8_t bit_start = (address / PAGE_SIZE) % 8;
 
 			/* Verify the bit is actually set, and if so, clear it */
@@ -362,7 +362,7 @@ void pmm_free_pages(paddr_t address, int num_pages)
 	/* Make sure the pages are under 16MiB */
 	if (address < 0x1000000)
 	{
-		uint32_t byte_start = (address / PAGE_SIZE) / 8;
+		size_t byte_start = (address / PAGE_SIZE) / 8;
 		uint8_t bit_start = (address / PAGE_SIZE) % 8;
 
 		for (int i = 0; i < num_pages; i++)
@@ -432,7 +432,7 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 		}
 
 		/* Build the DMA bitmap from the PFN database */
-		uint32_t byte = 0;
+		size_t byte = 0;
 		uint8_t bit = 0;
 		for (paddr_t page_address = 0; page_address < lowmem_size; page_address += PAGE_SIZE)
 		{

@@ -14,7 +14,7 @@ typedef struct slab_cache
 
 	/* Object size and number of objects (total and free) */
 	size_t object_size;
-	atomic_t num_total_objs, num_free_objs;
+	size_t num_total_objs, num_free_objs;
 
 	/* Lock protecting the slab */
 	spinlock_recursive_t lock;
@@ -31,7 +31,7 @@ slab_cache_t *slab_cache_create(size_t object_size);
 void slab_cache_init(slab_cache_t *slab_cache, size_t object_size);
 void slab_cache_destroy(slab_cache_t *slab_cache);
 
-/* Allocate and free slabs */
+/* Allocate and free objects from a slab cache */
 void *slab_cache_alloc(slab_cache_t *slab_cache);
 void slab_cache_free(slab_cache_t *slab_cache, void *ptr);
 
