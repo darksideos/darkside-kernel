@@ -79,7 +79,7 @@ void vmm_flush_tlb_entry(vaddr_t virtual_address)
 void vmm_flush_tlb()
 {
 	paddr_t current_directory;
-	__asm__ volatile("mov %%cr3, %0" : "=r"(current_directory));
+	__asm__ volatile("mov %%cr3, %0" : "=r" (current_directory));
 	__asm__ volatile("mov %0, %%cr3" :: "r" (current_directory));
 }
 
