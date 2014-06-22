@@ -101,6 +101,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		addrspace_init(ADDRSPACE_SYSTEM, address_space, loader_block.system_free_start, 0xFFC00000 - loader_block.system_free_start);
 
 		/* Initialize the kernel heap */
+		heap_init();
 
 		/* Detect the interrupt controller and initialize it */
 	
