@@ -56,6 +56,9 @@ void vmm_protect_pages(paddr_t address_space, vaddr_t virtual_address, int num_p
 /* Map pages into hyperspace */
 void *vmm_map_hyperspace(int index, paddr_t physical_address);
 
+/* Calculate the cache color of a virtual address */
+int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias);
+
 /* Initialize the paging subsystem */
 void paging_init(loader_block_t *loader_block, bool bsp);
 
