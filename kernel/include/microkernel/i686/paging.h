@@ -20,4 +20,8 @@ inline vaddr_t PAGE_ALIGN_UP(vaddr_t address)
 	return address;
 }
 
+/* Start of user and kernel address spaces */
+#define USER_ADDRSPACE_START	PAGE_SIZE
+#define KERNEL_ADDRSPACE_START	0x80000000
+
 #endif
