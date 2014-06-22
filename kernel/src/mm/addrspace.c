@@ -56,14 +56,6 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 
 		/* Set up the pointer to the system address space */
 		addrspace = &system_addrspace;
-
-		/* TEST ALLOCATIONS */
-		for (int i = 0; i < 5; i++)
-		{
-			void *alloc1 = slab_cache_alloc(addrspace_cache);
-			void *alloc2 = slab_cache_alloc(vad_cache);
-			printf("Addrspace allocation: 0x%08X, VAD allocation: 0x%08X\n", (uint32_t) alloc1, (uint32_t) alloc2);
-		} 
 	}
 
 	/* Fill in the information */
