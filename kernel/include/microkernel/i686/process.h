@@ -1,14 +1,16 @@
 #ifndef __I686_PROCESS_H
 #define __I686_PROCESS_H
 
+#include <mm/addrspace.h>
+
 /* Process ID type */
 typedef unsigned tid_t;
 
 /* Process structure */
 typedef struct process
 {
-	/* Low-level address space */
-	paddr_t address_space;
+	/* Address space */
+	addrspace_t addrspace;
 
 	/* Process ID */
 	pid_t pid;

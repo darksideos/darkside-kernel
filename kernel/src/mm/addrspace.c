@@ -10,17 +10,8 @@
 /* System address space */
 static addrspace_t system_addrspace;
 
-/* Slab caches for address spaces and VADs */
-static slab_cache_t *addrspace_cache, *vad_cache;
-
-/* Create an address space */
-addrspace_t *addrspace_create()
-{
-	addrspace_t *addrspace = (addrspace_t*) slab_cache_alloc(addrspace_cache);
-	paddr_t address_space = vmm_create_address_space();
-	addrspace_init(addrspace, address_space, USER_ADDRSPACE_START, KERNEL_ADDRSPACE_START - USER_ADDRSPACE_START);
-	return addrspace;
-}
+/* Slab caches for VADs */
+static slab_cache_t *vad_cache;
 
 /* Initialize an address space */
 void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length)
@@ -32,17 +23,6 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	/* System address space */
 	else if (addrspace == ADDRSPACE_SYSTEM)
 	{
-		/* Create the initial slab cache for address spaces */
-		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
-		{
-			int color = vaddr_cache_color(i, NUMA_DOMAIN_BEST, 0);
-			vmm_map_page(address_space, i, pmm_alloc_page(0, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
-		}
-		addrspace_cache = (slab_cache_t*) free_start;
-		slab_cache_init(addrspace_cache, sizeof(addrspace_t));
-		free_start += SLAB_SIZE;
-		free_length -= SLAB_SIZE;
-
 		/* Create the initial slab cache for VADs */
 		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
 		{

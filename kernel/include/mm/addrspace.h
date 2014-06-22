@@ -25,8 +25,7 @@ typedef struct addrspace
 	spinlock_recursive_t lock;
 } addrspace_t;
 
-/* Create, initialize, and destroy an address space */
-addrspace_t *addrspace_create();
+/* Initialize and destroy an address space */
 void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length);
 void addrspace_destroy(addrspace_t *addrspace);
 
