@@ -43,8 +43,8 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 		/* Create the initial slab cache for address spaces */
 		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
 		{
-			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
-			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+			int color = vaddr_cache_color(i, NUMA_DOMAIN_BEST, 0);
+			vmm_map_page(address_space, i, pmm_alloc_page(0, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
 		}
 		addrspace_cache = (slab_cache_t*) free_start;
 		slab_cache_init(addrspace_cache, sizeof(addrspace_t));
@@ -54,8 +54,8 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 		/* Create the initial slab cache for VADs */
 		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
 		{
-			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
-			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+			int color = vaddr_cache_color(i, NUMA_DOMAIN_BEST, 0);
+			vmm_map_page(address_space, i, pmm_alloc_page(0, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
 		}
 		vad_cache = (slab_cache_t*) free_start;
 		slab_cache_init(vad_cache, sizeof(vad_t));
@@ -64,6 +64,14 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 
 		/* Set up the pointer to the system address space */
 		addrspace = &system_addrspace;
+
+		/* TEST ALLOCATIONS */
+		for (int i = 0; i < 5; i++)
+		{
+			void *alloc1 = slab_cache_alloc(addrspace_cache);
+			void *alloc2 = slab_cache_alloc(vad_cache);
+			printf("Addrspace allocation: 0x%08X, VAD allocation: 0x%08X\n", (uint32_t) alloc1, (uint32_t) alloc2);
+		} 
 	}
 
 	/* Fill in the information */
