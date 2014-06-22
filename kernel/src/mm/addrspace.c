@@ -56,6 +56,18 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 
 		/* Set up the pointer to the system address space */
 		addrspace = &system_addrspace;
+
+		/* TEST */
+		void *ptr1 = slab_cache_alloc(vad_cache);
+		void *ptr2 = slab_cache_alloc(vad_cache);
+		void *ptr3 = slab_cache_alloc(vad_cache);
+		printf("0x%08X 0x%08X 0x%08X\n", ptr1, ptr2, ptr3);
+		printf("Freeing 0x%08X\n", ptr2);
+		slab_cache_free(vad_cache, ptr2);
+		printf("Freeing 0x%08X\n", ptr3);
+		slab_cache_free(vad_cache, ptr3);
+		printf("New allocation: 0x%08X\n", slab_cache_alloc(vad_cache));
+		printf("New allocation: 0x%08X\n", slab_cache_alloc(vad_cache));
 	}
 
 	/* Fill in the information */

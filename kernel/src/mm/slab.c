@@ -81,6 +81,7 @@ allocation: ;
 			spinlock_recursive_release(&slab_cache->lock);
 			prev_slab_cache = slab_cache;
 			slab_cache = slab_cache->next;
+			continue;
 		}
 
 		/* Search the bitmap for an available free object */
@@ -122,4 +123,37 @@ allocation: ;
 	/* Perform the allocation again */
 	spinlock_recursive_release(&prev_slab_cache->lock);
 	goto allocation;
+}
+
+/* Free an object from a slab cache */
+void slab_cache_free(slab_cache_t *slab_cache, void *ptr)
+{
+	/* Iterate through each slab cache */
+	while (slab_cache)
+	{
+		/* If we're not in range, go to the next slab cache */
+		if (ptr < (void*) slab_cache || ptr > (((void*) slab_cache) + SLAB_SIZE))
+		{
+			slab_cache = slab_cache->next;
+			continue;
+		}
+
+		/* Acquire the lock on the slab cache */
+		spinlock_recursive_acquire(&slab_cache->lock, TIMEOUT_NEVER);
+
+		/* Clear the object's location in the bitmap and increment the number of free objects */
+		size_t object_num = (size_t) (ptr - ((void*) slab_cache) - slab_cache->object_data_start) / slab_cache->object_size;
+		printf("Object num: %d\n", object_num);
+		if (object_num < slab_cache->num_total_objs)
+		{
+			size_t byte_start = object_num / 8;
+			uint8_t bit_start = object_num % 8;
+			slab_cache->free_bitmap[byte_start] &= ~(1 << bit_start);
+		}
+		slab_cache->num_free_objs++;
+
+		/* Release the lock and return */
+		spinlock_recursive_release(&slab_cache->lock);
+		return;
+	}
 }
