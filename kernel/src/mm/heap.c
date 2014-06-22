@@ -1,4 +1,5 @@
 #include <types.h>
+#include <mm/slab.h>
 
 /* Allocate memory from the kernel heap */
 void *malloc(size_t size)
@@ -18,4 +19,9 @@ void *realloc(void *ptr, size_t size)
 {
 	/* Not implemented */
 	return NULL;
+}
+
+/* Initialize the kernel heap */
+void heap_init()
+{
 }
