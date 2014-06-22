@@ -143,7 +143,6 @@ void slab_cache_free(slab_cache_t *slab_cache, void *ptr)
 
 		/* Clear the object's location in the bitmap and increment the number of free objects */
 		size_t object_num = (size_t) (ptr - ((void*) slab_cache) - slab_cache->object_data_start) / slab_cache->object_size;
-		printf("Object num: %d\n", object_num);
 		if (object_num < slab_cache->num_total_objs)
 		{
 			size_t byte_start = object_num / 8;
