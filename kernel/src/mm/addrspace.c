@@ -18,7 +18,7 @@ addrspace_t *addrspace_create()
 {
 	addrspace_t *addrspace = (addrspace_t*) slab_cache_alloc(addrspace_cache);
 	paddr_t address_space = vmm_create_address_space();
-	addrspace_init(addrspace, address_space, PAGE_SIZE, 0x80000000 - PAGE_SIZE);
+	addrspace_init(addrspace, address_space, USER_ADDRSPACE_START, KERNEL_ADDRSPACE_START - USER_ADDRSPACE_START);
 	return addrspace;
 }
 
