@@ -1,6 +1,7 @@
 #ifndef __I686_THREAD
 #define __I686_THREAD
 
+#include <microkernel/process.h>
 #include <microkernel/i686/isr.h>
 
 /* Thread ID type */
@@ -13,22 +14,20 @@ typedef unsigned tid_t;
 #define THREAD_BLOCKED		3
 #define THREAD_DEAD			4
 
-/* Thread scheduling policies */
-#define POLICY_REALTIME		0
-#define POLICY_HIGH			1
-#define POLICY_LOW			2
-#define POLICY_BACKGROUND	3
-
 /* Thread structure */
 typedef struct thread
 {
 	/* Parent process */
+	process_t *process;
 
 	/* Thread ID */
 	tid_t tid;
 
 	/* Register context */
 	struct regs *context;
+
+	/* Kernel stack */
+	vaddr_t kernel_stack;
 
 	/* Thread state */
 	int state;
