@@ -95,12 +95,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize paging, mapping our kernel and modules */
 		paging_init(&loader_block, bsp);
 
-		printf("Free start of system address space: 0x%08X\n", loader_block.system_free_start);
-
 		/* Initialize the system address space */
-		//paddr_t address_space;
-		//__asm__ volatile("mov %%cr3, %0" : "=r"(address_space));
-		//addrspace_init(ADDRSPACE_SYSTEM, address_space, loader_block.system_free_start, 0xFFC00000 - loader_block.system_free_start);
+		paddr_t address_space;
+		__asm__ volatile("mov %%cr3, %0" : "=r"(address_space));
+		addrspace_init(ADDRSPACE_SYSTEM, address_space, loader_block.system_free_start, 0xFFC00000 - loader_block.system_free_start);
 
 		/* Initialize the kernel heap */
 
