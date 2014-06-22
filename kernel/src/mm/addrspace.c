@@ -13,21 +13,13 @@ static addrspace_t system_addrspace;
 /* Slab caches for address spaces and VADs */
 static slab_cache_t *addrspace_cache, *vad_cache;
 
-/* Calculate the cache color of a virtual address for a NUMA domain */
-static int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
-{
-	/* Get the per-NUMA domain data area for the page */
-	numa_domain_t *numa_area = numa_domain_data_area(numa_domain);
-
-	/* Calculate the cache color, taking the bias into account */
-	int color_modulus = numa_area->num_cache_colors * PAGE_SIZE;
-	int color = (virtual_address % color_modulus) / PAGE_SIZE;
-	return (color + bias) % numa_area->num_cache_colors;
-}
-
 /* Create an address space */
 addrspace_t *addrspace_create()
 {
+	addrspace_t *addrspace = (addrspace_t*) slab_cache_alloc(addrspace_cache);
+	paddr_t address_space = vmm_create_address_space();
+	addrspace_init(addrspace, address_space, PAGE_SIZE, 0x80000000 - PAGE_SIZE);
+	return addrspace;
 }
 
 /* Initialize an address space */
