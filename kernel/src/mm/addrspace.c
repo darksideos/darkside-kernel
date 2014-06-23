@@ -153,20 +153,4 @@ void addrspace_free(addrspace_t *addrspace, void *ptr, size_t size)
 /* Set the protection of a virtual address range */
 void addrspace_protect(addrspace_t *addrspace, void *ptr, size_t size, int flags)
 {
-	/* Current address space */
-	if (addrspace == ADDRSPACE_CURRENT)
-	{
-	}
-
-	/* System address space */
-	if (addrspace == ADDRSPACE_SYSTEM)
-	{
-		addrspace = &system_addrspace;
-	}
-	/* Other address space */
-	else
-	{
-		flags &= ~PAGE_GLOBAL;
-		flags |= PAGE_USER;
-	}
 }
