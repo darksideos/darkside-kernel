@@ -141,6 +141,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Go to the scheduler ready function and wait for threads */
 	}
 
+	int num = 0;
+	printf("Start\n");
+	for (int i = 0; i < 10000000; i++)
+	{
+		num++;
+	}
 	printf("Finished microkernel init\n");
 
 	/* Should never reach here */
