@@ -50,9 +50,20 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	addrspace->free.left = addrspace->free.right = NULL;
 
 	/* Initialize the used VAD */
-	addrspace->used.start = addrspace->used.length = 0;
-	addrspace->used.flags = 0;
-	addrspace->used.left = addrspace->used.right = NULL;
+	if (addrspace == &system_addrspace)
+	{
+		addrspace->used.start = KERNEL_ADDRSPACE_START;
+		addrspace->used.length = free_start - KERNEL_ADDRSPACE_START;
+		addrspace->used.flags = PAGE_READ | PAGE_WRITE | PAGE_EXECUTE;
+		addrspace->used.left = addrspace->used.right = NULL;
+	}
+	else
+	{
+		addrspace->used.start = 0;
+		addrspace->used.length = PAGE_SIZE;
+		addrspace->used.flags = PAGE_INVALID;
+		addrspace->used.left = addrspace->used.right = NULL;
+	}
 
 	/* TEST */
 	for (int i = 0; i < 0x1000; i++)
