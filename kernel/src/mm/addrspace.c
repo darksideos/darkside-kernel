@@ -59,8 +59,8 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	}
 	else
 	{
-		addrspace->used.start = 0;
-		addrspace->used.length = PAGE_SIZE;
+		addrspace->used.start = USER_ADDRSPACE_START;
+		addrspace->used.length = free_start - USER_ADDRSPACE_START;
 		addrspace->used.flags = PAGE_INVALID | PAGE_PRIVATE;
 		addrspace->used.left = addrspace->used.right = NULL;
 	}
