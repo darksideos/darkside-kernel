@@ -33,4 +33,10 @@ void addrspace_destroy(addrspace_t *addrspace);
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags);
 void addrspace_free(addrspace_t *addrspace, void *ptr, size_t size);
 
+/* Map and unmap views of section objects */
+
+/* Get and set the protection of a virtual address range */
+int addrspace_query(addrspace_t *addrspace, void *ptr);
+void addrspace_protect(addrspace_t *addrspace, void *ptr, size_t size, int flags);
+
 #endif
