@@ -2,6 +2,7 @@
 #include <string.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/isr.h>
+#include <mm/mmfault.h>
 
 /* ASM exception handlers */
 void exception0();
@@ -50,18 +51,16 @@ void exception_handler(struct regs *regs)
 	}
 	else
 	{
-		printf("Unhandled exception 0x%08X\n", regs->int_no);
-		while(1);
+		panic("Unhandled exception 0x%08X\n", regs->int_no);
 	}
 }
 
 /* Page fault handler */
 static void page_fault_handler(struct regs *regs)
 {
-	uint32_t faulting_address;
+	vaddr_t faulting_address;
 	__asm__ volatile("mov %%cr2, %0" : "=r" (faulting_address));
-
-	panic("Page fault at 0x%08X\n", faulting_address);
+	vmm_fault_handler(faulting_address);
 }
 
 /* Register an exception handler */
@@ -120,6 +119,5 @@ void exceptions_install()
     idt_set_gate(31, (uint32_t) exception31, IDT_GATE_INT, true);
 
 	/* Install the C handlers */
-	memset(handlers, 0, sizeof(isr_t) * 32);
 	exception_register_handler(14, &page_fault_handler);
 }
