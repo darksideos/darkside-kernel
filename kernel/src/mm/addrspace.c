@@ -54,14 +54,14 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	{
 		addrspace->used.start = KERNEL_ADDRSPACE_START;
 		addrspace->used.length = free_start - KERNEL_ADDRSPACE_START;
-		addrspace->used.flags = PAGE_READ | PAGE_WRITE | PAGE_EXECUTE;
+		addrspace->used.flags = PAGE_READ | PAGE_WRITE | PAGE_EXECUTE | PAGE_PRIVATE;
 		addrspace->used.left = addrspace->used.right = NULL;
 	}
 	else
 	{
 		addrspace->used.start = 0;
 		addrspace->used.length = PAGE_SIZE;
-		addrspace->used.flags = PAGE_INVALID;
+		addrspace->used.flags = PAGE_INVALID | PAGE_PRIVATE;
 		addrspace->used.left = addrspace->used.right = NULL;
 	}
 
