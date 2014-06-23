@@ -1,5 +1,5 @@
-#ifndef __THREAD_H
-#define __THREAD_H
+#ifndef __PROCESS_H
+#define __PROCESS_H
 
 /* i386 */
 #if defined(__i386__)

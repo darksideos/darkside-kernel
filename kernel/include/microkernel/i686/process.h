@@ -4,7 +4,7 @@
 #include <mm/addrspace.h>
 
 /* Process ID type */
-typedef unsigned tid_t;
+typedef unsigned pid_t;
 
 /* Process structure */
 typedef struct process
