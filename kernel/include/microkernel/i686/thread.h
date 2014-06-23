@@ -1,7 +1,6 @@
 #ifndef __I686_THREAD
 #define __I686_THREAD
 
-#include <microkernel/process.h>
 #include <microkernel/i686/isr.h>
 
 /* Thread ID type */
@@ -15,10 +14,11 @@ typedef unsigned tid_t;
 #define THREAD_DEAD			4
 
 /* Thread structure */
+struct process;
 typedef struct thread
 {
 	/* Parent process */
-	process_t *process;
+	struct process *process;
 
 	/* Thread ID */
 	tid_t tid;
