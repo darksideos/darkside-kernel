@@ -34,16 +34,7 @@ void lapic_spurious_handler(struct regs *regs)
 /* Get the current Local APIC ID */
 uint32_t lapic_current_id()
 {
-	/* Local APIC already initialized */
-	if (lapic)
-	{
-		return lapic[APICID];
-	}
-	/* Early in the boot process, not yet operational */
-	else
-	{
-		return -1;
-	}
+	return lapic[APICID];
 }
 
 /* Send an IPI to another processor */
