@@ -64,12 +64,6 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 		addrspace->used.flags = PAGE_INVALID | PAGE_PRIVATE;
 		addrspace->used.left = addrspace->used.right = NULL;
 	}
-
-	/* TEST */
-	for (int i = 0; i < 0x1000; i++)
-	{
-		printf("%d: 0x%08X\n", i, slab_cache_alloc(vad_cache));
-	}
 }
 
 /* Destroy an address space */
