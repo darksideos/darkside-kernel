@@ -7,6 +7,7 @@ global ap_trampoline
 ap_trampoline:
 	jmp 0x0000:(.real_to_pm - ap_trampoline + ORG_LOC)
 .real_to_pm:
+	jmp $
 	; Set up the null GDT descriptor
 	mov eax, 0
 	mov [GDT(eax, limit_low)], word 0
@@ -33,6 +34,8 @@ ap_trampoline:
 	mov [GDT(eax, access)], byte 0x92
 	mov [GDT(eax, granularity)], byte 0xCF
 	mov [GDT(eax, base_high)], byte 0
+
+	jmp $
 	
 	; Load the GDT pointer
 	mov [GDTR(limit)], word 0x17
