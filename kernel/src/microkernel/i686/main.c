@@ -23,8 +23,6 @@ extern uint32_t kinit_stack, kinit_func;
 
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
 
-spinlock_t screen_lock;
-
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -56,8 +54,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
-
-		spinlock_init(&screen_lock);
 
 		/* Start up each secondary CPU */
 		if (loader_block.num_cpus > 1)
@@ -126,10 +122,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
 
-		spinlock_acquire(&screen_lock, TIMEOUT_NEVER);
-		printf("BSP initialization done\n");
-		spinlock_release(&screen_lock);
-
 		/* Detect the interrupt controller and initialize it */
 	
 		/* Detect the system timer and initialize it */
@@ -163,10 +155,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the paging structures set up by the BSP */
 		paging_init(NULL, bsp);
-
-		spinlock_acquire(&screen_lock, TIMEOUT_NEVER);
-		printf("AP initialization done\n");
-		spinlock_release(&screen_lock);
 
 		/* Initialize the Local APIC timer */
 
