@@ -39,7 +39,7 @@ typedef struct cpu
 	/* CPU information */
 	uint32_t lapic_id;
 	numa_domain_t *numa_domain;
-	uint32_t flags;
+	volatile uint32_t flags;
 	uint8_t pad1[4084];
 
 	/* Scheduling information */
