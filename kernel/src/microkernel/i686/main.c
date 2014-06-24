@@ -69,13 +69,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 			{
 				/* Get the per-CPU data area */
 				cpu_t *cpu = cpu_data_area(i);
-				
-				/* Set the stack pointer */
-				printf("sizeof(cpu_t): 0x%08X\n", sizeof(cpu_t));
-				uint32_t *cpu_stack = (uint32_t*) (((void*)&kinit_stack) - ((void*)&ap_trampoline) + 0x7000);
-				printf("Stack pointer address: 0x%08X\n", cpu_stack);
-				*cpu_stack = (uint32_t) &cpu->double_fault_stack[8127];
-				printf("Stack pointer: 0x%08X\n", *cpu_stack);
 
 				/* Skip the BSP */
 				if (cpu->lapic_id == bsp_lapic_id)
@@ -87,6 +80,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				{
 					continue;
 				}
+
+				/* Set the stack pointer */
+				uint32_t *cpu_stack = (uint32_t*) (((void*)&kinit_stack) - ((void*)&ap_trampoline) + 0x7000);
+				*cpu_stack = (uint32_t) &cpu->double_fault_stack[8128];
 
 				/* Send an INIT IPI and delay */
 				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
@@ -158,8 +155,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Go to the scheduler ready function and wait for threads */
 	}
-
-	printf("Finished microkernel init\n");
 
 	/* Should never reach here */
 	while(1);
