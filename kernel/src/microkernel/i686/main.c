@@ -13,8 +13,6 @@
 #include <mm/addrspace.h>
 #include <mm/heap.h>
 
-#include <microkernel/lock.h>
-
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
