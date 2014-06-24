@@ -46,12 +46,7 @@ typedef struct cpu
 	uint32_t features[2];
 	uint32_t ext_features[2];
 
-	/* Cache information */
-	uint16_t cache_size;
-	uint8_t cache_associativity;
-	uint8_t num_cache_colors;
-
-	uint8_t pad1[4052];
+	uint8_t pad1[4056];
 
 	/* Scheduling information */
 
