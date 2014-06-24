@@ -29,6 +29,10 @@ typedef struct numa_domain
 	paddr_t kernel_directory;
 } numa_domain_t;
 
+/* CPU flags */
+#define CPU_BOOTABLE	0x01
+#define CPU_MM_INIT	0x02
+
 /* Per-CPU data area structure */
 typedef struct cpu
 {
