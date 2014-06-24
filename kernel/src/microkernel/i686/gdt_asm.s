@@ -17,3 +17,11 @@ gdt_reload:
 	jmp 0x08:.reload_code
 .reload_code:
 	ret
+	
+; Load our normal TSS
+global tss_load
+tss_load:
+	; Load the TSS segment
+	mov eax, [esp + 4]
+	ltr ax
+	ret

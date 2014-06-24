@@ -1,9 +1,13 @@
 #include <types.h>
+#include <string.h>
 #include <microkernel/cpu.h>
 #include <microkernel/i686/gdt.h>
 
 /* Load our new GDT and reload the segment registers */
 void gdt_reload(uint32_t gdtr);
+
+/* Load our normal TSS */
+void tss_load(uint32_t tss_seg);
 
 /* Set an entry in the GDT */
 static void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
@@ -31,7 +35,7 @@ void gdt_init()
 {
 	/* Set up the GDT register structure */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	cpu->gdtr.limit = (sizeof(struct gdt_entry) * 6) - 1;
+	cpu->gdtr.limit = (sizeof(struct gdt_entry) * 7) - 1;
 	cpu->gdtr.base = (uint32_t) &cpu->gdt[0];
 
 	/* Create the NULL selector */
@@ -45,8 +49,27 @@ void gdt_init()
 	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
 	gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
 
-	/* Create the TSS selector */
+	/* Create the normal TSS selector */
+	uint32_t base = (uint32_t) &cpu->normal_tss;
+	gdt_set_gate(5, base, base + sizeof(struct tss_entry) - 1, 0xE9, 0x00);
+	cpu->normal_tss.ss0 = cpu->normal_tss.esp0 = 0;
+	cpu->normal_tss.cs = KERNEL_CS | 3;
+	cpu->normal_tss.ds = cpu->normal_tss.es = cpu->normal_tss.fs = cpu->normal_tss.gs = KERNEL_DS | 3;
+	cpu->normal_tss.iomap_base = sizeof(struct tss_entry);
+
+	/* Create the double-fault TSS selector */
+	base = (uint32_t) &cpu->double_fault_tss;
+	gdt_set_gate(6, base, base + sizeof(struct tss_entry) - 1, 0xE9, 0x00);
+	memset(&cpu->double_fault_tss, 0, sizeof(struct tss_entry));
+	cpu->normal_tss.ss0 = KERNEL_DS;
+	cpu->normal_tss.esp0 = (uint32_t) &cpu->double_fault_stack[3771];
+	cpu->normal_tss.cs = KERNEL_CS;
+	cpu->normal_tss.ds = cpu->normal_tss.es = cpu->normal_tss.fs = cpu->normal_tss.gs = KERNEL_DS;
+	cpu->normal_tss.iomap_base = sizeof(struct tss_entry);
 
 	/* Load our new GDT and reload the segment registers */
 	gdt_reload((uint32_t)&cpu->gdtr);
+
+	/* Load our normal TSS */
+	tss_load(NORMAL_TSS);
 }

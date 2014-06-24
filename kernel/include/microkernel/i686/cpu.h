@@ -41,23 +41,30 @@ typedef struct cpu
 	numa_domain_t *numa_domain;
 	volatile uint32_t flags;
 
+	/* Topology information */
+	int chip, core, logical_cpu;
+
 	/* CPUID information */
 	char vendor_string[12];
 	uint32_t features[2];
 	uint32_t ext_features[2];
 
-	uint8_t pad1[4056];
-
 	/* Scheduling information */
 
-	/* GDT and TSS for the CPU */
-	struct gdt_entry gdt[6];
+	/* Timer queue */
+
+	/* GDT for the CPU */
+	struct gdt_entry gdt[7];
 	struct gdtr gdtr;
+	uint8_t pad[2];
 
-	uint8_t pad2[10];
+	/* Normal and double-fault TSS */
+	struct tss_entry normal_tss;
+	struct tss_entry double_fault_tss;
 
-	/* Double fault stack */
-	uint8_t double_fault_stack[8128];
+	/* Bootup and double-fault stack */
+	uint8_t boot_stack[8192];
+	uint8_t double_fault_stack[3772];
 } __attribute__((packed)) cpu_t;
 
 #endif
