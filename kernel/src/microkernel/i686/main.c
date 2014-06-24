@@ -44,7 +44,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu_data_area_init(&loader_block);
 
 		/* Initialize the processor's GDT and IDT */
-		gdt_init(bsp);
+		gdt_init();
 		idt_init(bsp);
 
 		/* Install CPU exception handlers */
@@ -97,7 +97,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				//}
 
 				/* Send a STARTUP IPI and wait for the AP to start */
+				printf("CPU we're waiting on: 0x%08X\n", cpu);
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
+				while (!(cpu->flags & CPU_MM_INIT));
+				printf("AP startup complete\n");
 			}
 		}
 
@@ -133,17 +136,18 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize the Local APIC */
 		lapic_init(NULL, bsp);
 
-		printf("AP booted to kernel\n");
-		while(1);
-
-		/* Copy the GDT set up by the BSP and use its IDT */
-		gdt_init(bsp);
+		/* Initialize the processor's GDT and use the BSP's IDT */
+		gdt_init();
 		idt_init(bsp);
 
 		/* Detect the number of cache colors needed for the free lists */
 		freelist_init(NULL, bsp);
 
 		/* Signal completion and wait for the BSP to set up memory management */
+		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+		cpu->flags |= CPU_MM_INIT;
+		printf("Flag set in 0x%08X\n", cpu);
+		while(1);
 
 		/* Use the paging structures set up by the BSP */
 
@@ -155,6 +159,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Go to the scheduler ready function and wait for threads */
 	}
+
+	printf("Microkernel init done\n");
 
 	/* Should never reach here */
 	while(1);
