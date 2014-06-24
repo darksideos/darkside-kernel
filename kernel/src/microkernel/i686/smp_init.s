@@ -59,15 +59,20 @@ pm_entry:
 	mov gs, ax
 	mov ss, ax
 
-	; Fill in magic
-	mov [kinit_func - ap_trampoline + ORG_LOC], dword 0xDEADBEEF
-	jmp $
-
-	; Enable paging
+	; Load the initial page directory/page directory pointer table
 	mov eax, [pdir - ap_trampoline + ORG_LOC]
 	mov cr3, eax
 	
-	; Jump to microkernel_init()
+	; Enable paging
+	mov eax, cr0
+	or eax, 0x80000000
+	mov cr0, eax
+	
+	; Set up a stack and jump to microkernel_init()
+	mov esp, [kinit_stack - ap_trampoline + ORG_LOC]
+	push dword 0
+	push dword 0
+	call (kinit_func - ap_trampoline + ORG_LOC)
 	
 ; Initial 32-bit protected mode GDT
 gdt times 0x18 db 0
@@ -75,7 +80,11 @@ gdtr times 0x06 db 0
 
 ; Initial page directory/page directory pointer table
 global pdir
-pdir       dq 0
+pdir dq 0
+
+; Initial stack
+global kinit_stack
+kinit_stack	dd 0
 
 ; Address of microkernel_init()
 global kinit_func
