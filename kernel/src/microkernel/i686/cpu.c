@@ -7,6 +7,9 @@ static cpu_t *per_cpu_area;
 static numa_domain_t *per_numa_domain_area;
 static int num_cpus, num_numa_domains;
 
+/* BSP CPU number */
+static int bsp_cpu;
+
 /* Get a pointer to the per-CPU data area */
 cpu_t *cpu_data_area(int cpu)
 {
@@ -38,6 +41,11 @@ cpu_t *cpu_data_area(int cpu)
 			}
 		}
 	}
+	/* Get the data area for the BSP */
+	else if (cpu == CPU_BSP)
+	{
+		cpu = bsp_cpu;
+	}
 
 	return &per_cpu_area[cpu];
 }
@@ -49,6 +57,11 @@ numa_domain_t *numa_domain_data_area(int numa_domain)
 	if (numa_domain == NUMA_DOMAIN_CURRENT)
 	{
 		return cpu_data_area(CPU_CURRENT)->numa_domain;
+	}
+	/* Get the data area for the NUMA domain of the BSP */
+	else if (numa_domain == NUMA_DOMAIN_BSP)
+	{
+		return cpu_data_area(CPU_BSP)->numa_domain;
 	}
 	/* Get the data area for a specific NUMA domain */
 	else
@@ -65,4 +78,22 @@ void cpu_data_area_init(loader_block_t *loader_block)
 	per_numa_domain_area = (numa_domain_t*) loader_block->numa_domain_data_area;
 	num_cpus = loader_block->num_cpus;
 	num_numa_domains = loader_block->num_numa_domains;
+
+	/* Find out the BSP CPU number */
+	uint32_t lapic_id = lapic_current_id();
+	if (lapic_id == -1)
+	{
+		bsp_cpu = 0;
+	}
+	else
+	{
+		for (int i = 0; i < num_cpus; i++)
+		{
+			if (per_cpu_area[i].lapic_id == lapic_id)
+			{
+				bsp_cpu = i;
+				break;
+			}
+		}
+	}
 }

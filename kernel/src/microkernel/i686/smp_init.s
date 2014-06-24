@@ -47,7 +47,11 @@ ap_trampoline:
 	
 	; Jump to our 32-bit protected mode entry point
 	jmp 0x08:(.pm_entry - ap_trampoline + ORG_LOC)
-.pm_entry:	
+.pm_entry:
+	; Fill in magic
+	mov [kinit_func - ap_trampoline + ORG_LOC], dword 0xDEADBEEF
+	jmp $
+
 	; Enable paging
 	mov eax, [pdir - ap_trampoline + ORG_LOC]
 	mov cr3, eax
