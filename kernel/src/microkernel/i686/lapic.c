@@ -34,7 +34,16 @@ void lapic_spurious_handler(struct regs *regs)
 /* Get the current Local APIC ID */
 uint32_t lapic_current_id()
 {
-	return lapic[APICID];
+	/* LAPIC exists */
+	if (lapic)
+	{
+		return lapic[APICID];
+	}
+	/* LAPIC does not exist */
+	else
+	{
+		return -1;
+	}
 }
 
 /* Send an IPI to another processor */
