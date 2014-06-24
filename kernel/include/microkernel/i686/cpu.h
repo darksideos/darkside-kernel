@@ -31,16 +31,27 @@ typedef struct numa_domain
 
 /* CPU flags */
 #define CPU_BOOTABLE	0x01
-#define CPU_MM_INIT	0x02
+#define CPU_MM_INIT		0x02
 
 /* Per-CPU data area structure */
 typedef struct cpu
 {
-	/* CPU information */
+	/* General CPU information */
 	uint32_t lapic_id;
 	numa_domain_t *numa_domain;
 	volatile uint32_t flags;
-	uint8_t pad1[4084];
+
+	/* CPUID information */
+	char vendor_string[12];
+	uint32_t features[2];
+	uint32_t ext_features[2];
+
+	/* Cache information */
+	uint16_t cache_size;
+	uint8_t cache_associativity;
+	uint8_t num_cache_colors;
+
+	uint8_t pad1[4052];
 
 	/* Scheduling information */
 
