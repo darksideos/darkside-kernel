@@ -11,12 +11,13 @@
 #include <mm/freelist.h>
 #include <microkernel/paging.h>
 #include <mm/addrspace.h>
+#include <mm/heap.h>
 
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
 extern uint64_t pdir;
-extern uint32_t kinit_func;
+extern uint32_t kinit_stack, kinit_func;
 
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
 
@@ -68,6 +69,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 			{
 				/* Get the per-CPU data area */
 				cpu_t *cpu = cpu_data_area(i);
+				
+				/* Set the stack pointer */
+				printf("0x%08X\n", sizeof(cpu_t));
+				uint32_t *cpu_stack = (uint32_t*) (((void*)&kinit_stack) - ((void*)&ap_trampoline) + 0x7000);
+				printf("0x%08X\n", cpu_stack);
+				*cpu_stack = (uint32_t) &cpu->double_fault_stack[0];
 
 				/* Skip the BSP */
 				if (cpu->lapic_id == bsp_lapic_id)
@@ -93,12 +100,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 				/* Send a STARTUP IPI and wait for the AP to start */
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
-
-				/* Wait for kinit_func to be 0xDEADBEEF */
-				uint32_t *ptr = (uint32_t*) (((void*)&kinit_func) - ((void*)&ap_trampoline) + ((void*)0x7000));
-				printf("Pointer is at 0x%08X\n", ptr);
-				while (*ptr != 0xDEADBEEF);
-				printf("AP booted\n");
 			}
 		}
 
@@ -133,6 +134,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 	{
 		/* Initialize the Local APIC */
 		lapic_init(NULL, bsp);
+
+		printf("AP booted to kernel\n");
+		while(1);
 
 		/* Copy the GDT set up by the BSP and use its IDT */
 		gdt_init(bsp);

@@ -44,8 +44,10 @@ typedef struct cpu
 	struct gdt_entry gdt[6];
 	struct gdtr gdtr;
 
+	uint8_t pad2[10];
+
 	/* Double fault stack */
-	uint8_t pad2[8138];
+	uint8_t double_fault_stack[8128];
 } __attribute__((packed)) cpu_t;
 
 #endif
