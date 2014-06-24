@@ -72,7 +72,7 @@ pm_entry:
 	mov esp, [kinit_stack - ap_trampoline + ORG_LOC]
 	push dword 0
 	push dword 0
-	call (kinit_func - ap_trampoline + ORG_LOC)
+	call [kinit_func - ap_trampoline + ORG_LOC]
 	
 ; Initial 32-bit protected mode GDT
 gdt times 0x18 db 0
