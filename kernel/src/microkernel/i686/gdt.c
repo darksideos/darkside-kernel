@@ -10,12 +10,8 @@ void gdt_reload(uint32_t gdtr);
 void tss_load(uint32_t tss_seg);
 
 /* Set an entry in the GDT */
-static void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
+static void gdt_set_gate(struct gdt_entry *gdt, int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
 {
-	/* Get a pointer to the current CPU's GDT */
-	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	struct gdt_entry *gdt = &cpu->gdt[0];
-
 	/* Set the entry's base address */
 	gdt[num].base_low = (base & 0xFFFF);
 	gdt[num].base_middle = (base >> 16) & 0xFF;
@@ -35,23 +31,24 @@ void gdt_init()
 {
 	/* Set up the GDT register structure */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+	struct gdt_entry *gdt = &cpu->gdt[0];
 	cpu->gdtr.limit = (sizeof(struct gdt_entry) * 7) - 1;
-	cpu->gdtr.base = (uint32_t) &cpu->gdt[0];
+	cpu->gdtr.base = (uint32_t) gdt;
 
 	/* Create the NULL selector */
-	gdt_set_gate(0, 0, 0, 0, 0);
+	gdt_set_gate(gdt, 0, 0, 0, 0, 0);
 
 	/* Create the kernel-mode code and data selectors */
-	gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
-	gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
+	gdt_set_gate(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+	gdt_set_gate(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xCF);
 
 	/* Create the user-mode code and data selectors */
-	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
-	gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
+	gdt_set_gate(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
+	gdt_set_gate(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
 
 	/* Create the normal TSS selector */
 	uint32_t base = (uint32_t) &cpu->normal_tss;
-	gdt_set_gate(5, base, base + sizeof(struct tss_entry) - 1, 0xE9, 0x00);
+	gdt_set_gate(gdt, 5, base, sizeof(struct tss_entry) - 1, 0xE9, 0x00);
 	cpu->normal_tss.ss0 = cpu->normal_tss.esp0 = 0;
 	cpu->normal_tss.cs = KERNEL_CS | 3;
 	cpu->normal_tss.ds = cpu->normal_tss.es = cpu->normal_tss.fs = cpu->normal_tss.gs = KERNEL_DS | 3;
@@ -59,7 +56,7 @@ void gdt_init()
 
 	/* Create the double-fault TSS selector */
 	base = (uint32_t) &cpu->double_fault_tss;
-	gdt_set_gate(6, base, base + sizeof(struct tss_entry) - 1, 0xE9, 0x00);
+	gdt_set_gate(gdt, 6, base, sizeof(struct tss_entry) - 1, 0xE9, 0x00);
 	memset(&cpu->double_fault_tss, 0, sizeof(struct tss_entry));
 	cpu->normal_tss.ss0 = KERNEL_DS;
 	cpu->normal_tss.esp0 = (uint32_t) &cpu->double_fault_stack[3771];
