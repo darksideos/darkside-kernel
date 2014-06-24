@@ -71,10 +71,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				cpu_t *cpu = cpu_data_area(i);
 				
 				/* Set the stack pointer */
-				printf("0x%08X\n", sizeof(cpu_t));
+				printf("sizeof(cpu_t): 0x%08X\n", sizeof(cpu_t));
 				uint32_t *cpu_stack = (uint32_t*) (((void*)&kinit_stack) - ((void*)&ap_trampoline) + 0x7000);
-				printf("0x%08X\n", cpu_stack);
-				*cpu_stack = (uint32_t) &cpu->double_fault_stack[0];
+				printf("Stack pointer address: 0x%08X\n", cpu_stack);
+				*cpu_stack = (uint32_t) &cpu->double_fault_stack[8127];
+				printf("Stack pointer: 0x%08X\n", *cpu_stack);
 
 				/* Skip the BSP */
 				if (cpu->lapic_id == bsp_lapic_id)
