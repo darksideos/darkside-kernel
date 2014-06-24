@@ -148,8 +148,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Signal completion and wait for the BSP to set up memory management */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
-		cpu_t *bsp = cpu_data_area(CPU_BSP);
-		while (!(bsp->flags & CPU_MM_INIT));
+		cpu_t *bsp_cpu = cpu_data_area(CPU_BSP);
+		while (!(bsp_cpu->flags & CPU_MM_INIT));
 
 		/* Use the paging structures set up by the BSP */
 		paging_init(NULL, bsp);
