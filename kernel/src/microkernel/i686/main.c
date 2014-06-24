@@ -97,10 +97,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				//}
 
 				/* Send a STARTUP IPI and wait for the AP to start */
-				printf("CPU we're waiting on: 0x%08X\n", cpu);
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
 				while (!(cpu->flags & CPU_MM_INIT));
-				printf("AP startup complete\n");
 			}
 		}
 
@@ -117,6 +115,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the kernel heap */
 		heap_init();
+
+		/* Signal memory manager initialization to the APs */
+		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+		cpu->flags |= CPU_MM_INIT;
 
 		/* Detect the interrupt controller and initialize it */
 	
@@ -146,10 +148,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Signal completion and wait for the BSP to set up memory management */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
-		printf("Flag set in 0x%08X\n", cpu);
-		while(1);
+		cpu_t *bsp = cpu_data_area(CPU_BSP);
+		while (!(bsp->flags & CPU_MM_INIT));
 
 		/* Use the paging structures set up by the BSP */
+		paging_init(NULL, bsp);
+
+		printf("AP init done\n");
 
 		/* Initialize the Local APIC timer */
 
@@ -159,8 +164,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Go to the scheduler ready function and wait for threads */
 	}
-
-	printf("Microkernel init done\n");
 
 	/* Should never reach here */
 	while(1);
