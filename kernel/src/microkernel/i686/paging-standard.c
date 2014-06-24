@@ -306,4 +306,19 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		/* Switch to the new kernel address space */
 		vmm_switch_address_space(kernel_directory);
 	}
+	/* Running on a secondary processor */
+	else
+	{
+		/* Get the kernel address space created by the BSP and switch to it */
+		numa_domain_t *bsp_domain = numa_domain_data_area(NUMA_DOMAIN_BSP);
+		paddr_t kernel_directory = bsp_domain->kernel_directory;
+		vmm_switch_address_space(kernel_directory);
+
+		/* If in a different NUMA domain, set it as ours */
+		numa_domain_t *numa_domain = numa_domain_data_area(NUMA_DOMAIN_CURRENT);
+		if (numa_domain != bsp_domain)
+		{
+			numa_domain->kernel_directory = kernel_directory;
+		}
+	}
 }
