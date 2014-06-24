@@ -33,14 +33,14 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		loader_block_t loader_block;
 		memcpy(&loader_block, _loader_block, sizeof(loader_block_t));
 
-		/* Initialize the per-CPU and NUMA domain data areas */
-		cpu_data_area_init(&loader_block);
-
 		/* If present, initialize the Local APIC */
 		if (loader_block.lapic)
 		{
 			lapic_init(&loader_block, bsp);
 		}
+
+		/* Initialize the per-CPU and NUMA domain data areas */
+		cpu_data_area_init(&loader_block);
 
 		/* Initialize the processor's GDT and IDT */
 		gdt_init(bsp);
@@ -84,8 +84,21 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
 				//udelay(10000);
 
+				/* DELAY */
+				int num = 0;
+				for (int i = 0; i < 2000000000; i++)
+				{
+					num++;
+				}
+
 				/* Send a STARTUP IPI and wait for the AP to start */
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
+
+				/* Wait for kinit_func to be 0xDEADBEEF */
+				uint32_t *ptr = (uint32_t*) (((void*)&kinit_func) - ((void*)&ap_trampoline) + ((void*)0x7000));
+				printf("Pointer is at 0x%08X\n", ptr);
+				while (*ptr != 0xDEADBEEF);
+				printf("AP booted\n");
 			}
 		}
 
@@ -141,12 +154,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Go to the scheduler ready function and wait for threads */
 	}
 
-	int num = 0;
-	printf("Start\n");
-	for (int i = 0; i < 10000000; i++)
-	{
-		num++;
-	}
 	printf("Finished microkernel init\n");
 
 	/* Should never reach here */
