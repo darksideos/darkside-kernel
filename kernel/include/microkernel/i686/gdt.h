@@ -1,6 +1,14 @@
 #ifndef __GDT_H
 #define __GDT_H
 
+/* Segment registers */
+#define KERNEL_CS			0x08
+#define KERNEL_DS			0x10
+#define USER_CS				0x18
+#define USER_DS				0x20
+#define NORMAL_TSS			0x28
+#define DOUBLE_FAULT_TSS	0x30
+
 /* GDT entry structure */
 struct gdt_entry
 {
@@ -46,6 +54,7 @@ struct tss_entry
 	uint32_t ds;
 	uint32_t fs;
 	uint32_t gs;
+	uint32_t ldtr;
 	uint16_t trap;
 	uint16_t iomap_base;
 } __attribute__((packed));

@@ -83,7 +83,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 				/* Set the stack pointer */
 				uint32_t *cpu_stack = (uint32_t*) (((void*)&kinit_stack) - ((void*)&ap_trampoline) + 0x7000);
-				*cpu_stack = (uint32_t) &cpu->double_fault_stack[8128];
+				*cpu_stack = (uint32_t) &cpu->boot_stack[8192];
 
 				/* Send an INIT IPI and delay */
 				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
