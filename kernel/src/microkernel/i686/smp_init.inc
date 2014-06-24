@@ -10,7 +10,7 @@ struc gdt_entry
 	.granularity		resb 1
 	.base_high			resb 1
 endstruc
-%define GDT_LOC			gdt
+%define GDT_LOC			(gdt - ap_trampoline + ORG_LOC)
 %define GDT(n, x)		GDT_LOC + n + gdt_entry. %+ x
 
 ; GDT pointer structure
