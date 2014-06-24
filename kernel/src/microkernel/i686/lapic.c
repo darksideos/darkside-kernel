@@ -37,7 +37,7 @@ uint32_t lapic_current_id()
 	/* LAPIC exists */
 	if (lapic)
 	{
-		return lapic[APICID];
+		return (lapic[APICID] & 0xFF000000) >> 24;
 	}
 	/* LAPIC does not exist */
 	else

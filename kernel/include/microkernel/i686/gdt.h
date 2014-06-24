@@ -51,6 +51,6 @@ struct tss_entry
 } __attribute__((packed));
 
 /* Initialize the GDT */
-void gdt_init(bool bsp);
+void gdt_init();
 
 #endif
