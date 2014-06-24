@@ -3,7 +3,6 @@
 #include <bootvid.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
-#include <microkernel/i686/cpuid.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/exception.h>
