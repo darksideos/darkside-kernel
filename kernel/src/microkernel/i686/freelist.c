@@ -5,6 +5,7 @@
 #include <microkernel/atomic.h>
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
+#include <microkernel/i686/cpuid.h>
 #include <mm/page.h>
 #include <mm/pfn.h>
 
@@ -18,9 +19,45 @@ static bool dma_bitmap_atstart = true;
 /* Detect the number of cache colors needed for the free lists */
 static void detect_cache_colors()
 {
-	/* TODO: Actually implement this */
+	/* Number of cache colors */
+	int num_cache_colors = 0;
+	int l1_cache_colors = 0, l2_cache_colors = 0;
+
+	/* Detect the number of L1 cache colors */
+	l1_cache_colors = 1;
+
+	/* Detect the number of L2 cache colors */
+	l2_cache_colors = 1;
+
+	/* Pick the greatest of the two */
+	if (l1_cache_colors > l2_cache_colors)
+	{
+		num_cache_colors = l1_cache_colors;
+	}
+	else
+	{
+		num_cache_colors = l2_cache_colors;
+	}
+
+	/* Round the number of cache colors up to the nearest power-of-two */
+	int logarithm = 31 - __builtin_clz(num_cache_colors);
+	if (num_cache_colors != (1 << logarithm))
+	{
+		num_cache_colors = 1 << (logarithm + 1);
+	}
+
+	/* Limit it to the maximum number */
+	if (num_cache_colors > MAX_CACHE_COLORS)
+	{
+		num_cache_colors = MAX_CACHE_COLORS;
+	}
+
+	/* If we've detected more cache colors than before, record that for the NUMA domain */
 	numa_domain_t *numa_domain = numa_domain_data_area(NUMA_DOMAIN_CURRENT);
-	numa_domain->num_cache_colors = 1;
+	if (num_cache_colors > numa_domain->num_cache_colors)
+	{
+		numa_domain->num_cache_colors = num_cache_colors;
+	}
 }
 
 /* Allocate a physical page */
