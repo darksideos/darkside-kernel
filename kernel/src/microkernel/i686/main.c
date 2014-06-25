@@ -117,10 +117,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		heap_init();
 
 		/* TEST */
-		for (int i = 3; i < 512; i++)
+		for (int i = 1; i < 8; i++)
 		{
-			addrspace_alloc(ADDRSPACE_SYSTEM, i * 0x1000, 0, PAGE_READ | PAGE_WRITE);
+			void *ptr = addrspace_alloc(ADDRSPACE_SYSTEM, i * 0x1000, 0, PAGE_READ | PAGE_WRITE);
+			printf("0x%08X bytes at 0x%08X\n", i * 0x1000, ptr);
 		}
+		addrspace_print();
 
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
