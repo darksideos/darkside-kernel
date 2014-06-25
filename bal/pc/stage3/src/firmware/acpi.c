@@ -1,5 +1,6 @@
 #include <types.h>
 #include <map.h>
+#include <init/loader.h>
 #include <mm/vmm.h>
 #include <firmware/acpi.h>
 
@@ -120,7 +121,7 @@ struct acpi_table_header *acpi_find_table(uint32_t signature)
 }
 
 /* Initialize the ACPI firmware interface */
-int acpi_init()
+int acpi_init(loader_block_t *loader_block)
 {
 	/* RSDP pointer and extended RSDP pointer */
 	struct rsdp *rsdp = NULL;
@@ -192,6 +193,9 @@ int acpi_init()
 	return -1;
 /* A valid RSDP was found */
 rsdp_found:
+	/* Record its address in the loader block */
+	loader_block->rsdp = (paddr_t) rsdp;
+
 	/* Map the RSDT or XSDT, depending on which one we want to use */
 	if (using_xsdt)
 	{
@@ -201,8 +205,13 @@ rsdp_found:
 		/* Verify its signature and checksum */
 		if ((xsdt->header.signature != XSDT_SIGNATURE) || !do_checksum(xsdt, xsdt->header.length))
 		{
+			loader_block->xsdt = loader_block->rsdt = 0;
 			return -1;
 		}
+
+		/* Record its address in the loader block */
+		loader_block->xsdt = (paddr_t) rsdp_ext->xsdt_address;
+		loader_block->rsdt = 0;
 	}
 	else
 	{
@@ -212,8 +221,13 @@ rsdp_found:
 		/* Verify its signature and checksum */
 		if ((rsdt->header.signature != RSDT_SIGNATURE) || !do_checksum(rsdt, rsdt->header.length))
 		{
+			loader_block->rsdt = loader_block->xsdt = 0;
 			return -1;
 		}
+
+		/* Record its address in the loader block */
+		loader_block->rsdt = (paddr_t) rsdp->rsdt_address;
+		loader_block->xsdt = 0;
 	}
 
 	/* Create the ACPI table cache */
