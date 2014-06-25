@@ -3,13 +3,15 @@
 #include <mm/heap.h>
 
 /* Root of the kernel heap */
-static heap_header_t *heap_root;
+static heap_header_t *heap_root = NULL;
 
 /* Allocate memory from the kernel heap */
 void *malloc(size_t size)
 {
-	/* Not implemented */
-	return NULL;
+	/* HACK ALERT - We use watermark for now */
+	void *tmp = (void*) heap_root;
+	heap_root = (heap_header_t*) (((void*)heap_root) + size);
+	return tmp;
 }
 
 /* Free memory from the kernel heap */
