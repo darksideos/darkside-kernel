@@ -117,6 +117,7 @@ allocation: ;
 	spinlock_recursive_acquire(&prev_slab_cache->lock, TIMEOUT_NEVER);
 
 	/* Allocate a new slab and initialize it */
+	printf("Need to allocate new slab cache\n");
 	slab_cache = slab_cache_create(prev_slab_cache->object_size);
 	prev_slab_cache->next = slab_cache;
 
