@@ -109,7 +109,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 
 		/* Commit all the needed pages */
 		vaddr_t address = vad->start;
-		for (size_t i = address; i < address + size_committed; i += PAGE_SIZE)
+		for (vaddr_t i = address; i < address + size_committed; i += PAGE_SIZE)
 		{
 			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
 			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
@@ -146,6 +146,14 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		}
 
 		/* Create a new VAD to represent the now-used region */
+		vad = slab_cache_alloc(vad_cache);
+		vad->start = address;
+		vad->length = size_reserved;
+		vad->flags = flags;
+		vad->left = vad->right = NULL;
+		vad->height = 0;
+
+		/* Insert it into the tree */
 
 		/* Return the address of the allocated region */
 		spinlock_recursive_release(&addrspace->lock);
