@@ -57,7 +57,6 @@ static void detect_cache_colors()
 	if (num_cache_colors > numa_domain->num_cache_colors)
 	{
 		numa_domain->num_cache_colors = num_cache_colors;
-		printf("Num cache colors: %d\n", num_cache_colors);
 	}
 }
 
