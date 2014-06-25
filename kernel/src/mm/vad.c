@@ -1,0 +1,90 @@
+#include <types.h>
+#include <mm/vad.h>
+
+/* Maximum of two values */
+static int max(int val1, int val2)
+{
+	return (val1 > val2) ? val1 : val2;
+}
+
+/* Height of a VAD node */
+static int height(vad_t *node)
+{
+	return (!node) ? -1 : node->height;
+}
+
+/* Balance of a VAD node */
+static int balance(vad_t *node)
+{
+	return height(node->left) - height(node->right);
+}
+
+/* Rotate a VAD tree left */
+static vad_t *rotate_left(vad_t *node)
+{
+	vad_t *new_node = node->right;
+	node->right = new_node->left;
+	new_node->left = node;
+
+	new_node->height = max(height(new_node->right), node->height) + 1;
+	node->height = max(height(node->left), height(node->right)) + 1;
+
+	return new_node;
+}
+
+/* Rotate a VAD tree right */
+static vad_t *rotate_right(vad_t *node)
+{
+	vad_t *new_node = node->left;
+	node->left = new_node->right;
+	new_node->right = node;
+
+	new_node->height = max(height(new_node->left), node->height) + 1;
+	node->height = max(height(node->left), height(node->right)) + 1;
+
+	return new_node;
+}
+
+/* Insert a VAD into a VAD tree */
+vad_t *vad_tree_insert(vad_t *node, vad_t *leaf)
+{
+	/* Reached the end */
+	if (!node)
+	{
+		node = leaf;
+	}
+	/* Insert at the left */
+	else if (leaf->start < node->start)
+	{
+		node->left = vad_tree_insert(node->left, leaf);
+	}
+	/* Insert at the right */
+	else if (leaf->start > (node->start + node->length))
+	{
+		node->right = vad_tree_insert(node->right, leaf);
+	}
+
+	/* Rebalance the tree */
+	if (balance(node) == 2)
+	{
+		if (balance(node->left) == -1)
+		{
+			node->left = rotate_left(node->left);
+		}
+
+		node = rotate_right(node);
+	}
+	else if (balance(node) == -2)
+	{
+		if (balance(node->right) == 1)
+		{
+			node->right = rotate_right(node->right);
+		}
+
+		node = rotate_left(node);
+	}
+
+	/* Adjust the node height and return it */
+	node->height = max(height(node->left), height(node->right)) + 1;
+	return node;
+}

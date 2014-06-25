@@ -48,7 +48,7 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	addrspace->free.start = free_start;
 	addrspace->free.length = free_length;
 	addrspace->free.flags = 0;
-	addrspace->free.left = addrspace->free.right = NULL;
+	addrspace->free.prev = addrspace->free.next = NULL;
 
 	/* Initialize the used VAD */
 	if (addrspace == &system_addrspace)
