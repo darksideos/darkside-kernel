@@ -9,7 +9,7 @@
 /* Create a slab cache */
 slab_cache_t *slab_cache_create(size_t object_size)
 {
-	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL | PAGE_PRIVATE);
 	slab_cache_init(slab_cache, object_size);
 	return slab_cache;
 }
@@ -117,7 +117,6 @@ allocation: ;
 	spinlock_recursive_acquire(&prev_slab_cache->lock, TIMEOUT_NEVER);
 
 	/* Allocate a new slab and initialize it */
-	printf("Need to allocate new slab cache\n");
 	slab_cache = slab_cache_create(prev_slab_cache->object_size);
 	prev_slab_cache->next = slab_cache;
 
