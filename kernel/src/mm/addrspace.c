@@ -14,6 +14,22 @@ static addrspace_t system_addrspace;
 /* Slab caches for VADs */
 static slab_cache_t *vad_cache;
 
+static void print_vad(vad_t *node, int spaces)
+{
+	if (node)
+	{
+		for (int i = 0; i < spaces; i++) printf(" ");
+		printf("Start: 0x%08X, Length: 0x%08X\n", node->start, node->length);
+		print_vad(node->left, spaces + 2);
+		print_vad(node->right, spaces + 2);
+	}
+}
+
+void addrspace_print()
+{
+	print_vad(system_addrspace.used_root, 0);
+}
+
 /* Initialize an address space */
 void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length)
 {
@@ -96,11 +112,6 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		size_committed = size_reserved;
 	}
 
-	if (size_reserved == SLAB_SIZE)
-	{
-		printf("Allocating slab cache\n");
-	}
-
 	/* Search the address space for a free region of suitable size */
 	spinlock_recursive_acquire(&addrspace->lock, TIMEOUT_NEVER);
 	vad_t *vad = &addrspace->free;
@@ -119,7 +130,6 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		{
 			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
 			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
-			printf("Committed page\n");
 		}
 
 		/* Modify the free VAD or remove it entirely */
@@ -152,17 +162,20 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 			}
 		}
 
-		/* Create a new VAD to represent the now-used region */
-		printf("Allocating a VAD\n");
-		vad = slab_cache_alloc(vad_cache);
-		vad->start = address;
-		vad->length = size_reserved;
-		vad->flags = flags;
-		vad->left = vad->right = NULL;
-		vad->height = 0;
+		/* Record metadata, unless told not to */
+		if (!(flags & PAGE_PRIVATE))
+		{
+			/* Create a new VAD to represent the now-used region */
+			vad = slab_cache_alloc(vad_cache);
+			vad->start = address;
+			vad->length = size_reserved;
+			vad->flags = flags;
+			vad->left = vad->right = NULL;
+			vad->height = 0;
 
-		/* Insert it into the tree */
-		addrspace->used_root = vad_tree_insert(addrspace->used_root, vad);
+			/* Insert it into the tree */
+			addrspace->used_root = vad_tree_insert(addrspace->used_root, vad);
+		}
 
 		/* Return the address of the allocated region */
 		spinlock_recursive_release(&addrspace->lock);
