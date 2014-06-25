@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <microkernel/cpu.h>
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
@@ -102,7 +103,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		/* Move on if it doesn't fit our allocation */
 		if (vad->length < size_reserved)
 		{
-			vad = vad->right;
+			vad = vad->next;
 			continue;
 		}
 
@@ -122,15 +123,32 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		}
 		else
 		{
+			/* Later VAD */
 			if (vad != &addrspace->free)
 			{
-				/* TODO: Free the VAD and adjust the list */
+				/* Readjust the linked list */
+				vad->prev->next = vad->next;
+				vad->next->prev = vad->prev;
+
+				/* Free the VAD */
+				slab_cache_free(vad_cache, vad);
+			}
+			/* Root VAD */
+			else
+			{
+				/* Copy the next VAD into the root one */
+				vad_t *vad_next = vad->next;
+				memcpy(vad, vad_next, sizeof(vad_t));
+
+				/* Free the dynamically-allocated VAD */
+				slab_cache_free(vad_cache, vad_next);
 			}
 		}
 
 		/* Create a new VAD to represent the now-used region */
 
 		/* Return the address of the allocated region */
+		spinlock_recursive_release(&addrspace->lock);
 		return (void*) address;
 	}
 

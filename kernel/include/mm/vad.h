@@ -15,8 +15,22 @@ typedef struct vad
 	/* Page protection flags */
 	int flags;
 
-	/* Left and right children */
-	struct vad *left, *right;
+	/* Previous node or left child */
+	union
+	{
+		struct vad *prev;
+		struct vad *left;
+	};
+	
+	/* Next node or right child */
+	union
+	{
+		struct vad *next;
+		struct vad *right;
+	};
+
+	/* Height in the VAD tree */
+	int height;
 } vad_t;
 
 #endif
