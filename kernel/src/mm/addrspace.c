@@ -154,6 +154,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		vad->height = 0;
 
 		/* Insert it into the tree */
+		addrspace->used_root = vad_tree_insert(addrspace->used_root, vad);
 
 		/* Return the address of the allocated region */
 		spinlock_recursive_release(&addrspace->lock);

@@ -18,6 +18,9 @@ typedef struct addrspace
 	/* Used and free regions */
 	vad_t used, free;
 
+	/* Root of the used region tree */
+	vad_t *used_root;
+
 	/* NUMA domain */
 	int numa_domain;
 
