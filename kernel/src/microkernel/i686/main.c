@@ -120,6 +120,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
 
+		/* Initialize the kernel firmware interface */
+
 		/* Detect the interrupt controller and initialize it */
 	
 		/* Detect the system timer and initialize it */

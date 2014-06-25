@@ -60,6 +60,6 @@ struct xsdt
 struct acpi_table_header *acpi_find_table(uint32_t signature);
 
 /* Initialize the ACPI firmware interface */
-int acpi_init();
+int acpi_init(loader_block_t *loader_block);
 
 #endif

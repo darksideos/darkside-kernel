@@ -44,14 +44,14 @@ void bal_main(data_t *_data)
 	fs_init();
 	ext2_init();
 
-	/* Initialize the firmware code (either ACPI or MP table) */
-	int status = acpi_init();
-
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
 
 	loader_block->phys_mem_map = phys_mem_map;
 	loader_block->fb = NULL;
+
+	/* Initialize the firmware code (either ACPI or MP table) */
+	int status = acpi_init(loader_block);
 
 	/* Pass control to the Boot Application */
 	ba_main(loader_block);
