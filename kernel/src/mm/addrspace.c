@@ -51,6 +51,7 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	addrspace->free.prev = addrspace->free.next = NULL;
 
 	/* Initialize the used VAD */
+	addrspace->used_root = &addrspace->used;
 	if (addrspace == &system_addrspace)
 	{
 		addrspace->used.start = KERNEL_ADDRSPACE_START;
@@ -95,6 +96,11 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		size_committed = size_reserved;
 	}
 
+	if (size_reserved == SLAB_SIZE)
+	{
+		printf("Allocating slab cache\n");
+	}
+
 	/* Search the address space for a free region of suitable size */
 	spinlock_recursive_acquire(&addrspace->lock, TIMEOUT_NEVER);
 	vad_t *vad = &addrspace->free;
@@ -113,6 +119,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		{
 			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
 			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
+			printf("Committed page\n");
 		}
 
 		/* Modify the free VAD or remove it entirely */
@@ -146,6 +153,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		}
 
 		/* Create a new VAD to represent the now-used region */
+		printf("Allocating a VAD\n");
 		vad = slab_cache_alloc(vad_cache);
 		vad->start = address;
 		vad->length = size_reserved;
