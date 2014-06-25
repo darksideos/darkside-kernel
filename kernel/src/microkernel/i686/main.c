@@ -116,6 +116,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize the kernel heap */
 		heap_init();
 
+		/* TEST */
+		for (int i = 3; i < 512; i++)
+		{
+			addrspace_alloc(ADDRSPACE_SYSTEM, i * 0x1000, 0, PAGE_READ | PAGE_WRITE);
+		}
+
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
