@@ -117,7 +117,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		heap_init();
 
 		/* TEST */
-		for (int i = 1; i < 8; i++)
+		for (int i = 2; i < 9; i++)
 		{
 			void *ptr = addrspace_alloc(ADDRSPACE_SYSTEM, i * 0x1000, 0, PAGE_READ | PAGE_WRITE);
 			printf("0x%08X bytes at 0x%08X\n", i * 0x1000, ptr);
@@ -136,7 +136,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the RTC */
 
-		/* Create the advanced CPU topology map (taking NUMA domains, chips, cores, and logical CPUs into account) */
+		/* Detect the relevant CPU topology information for itself */
 
 		/* Initialize the scheduler */
 
