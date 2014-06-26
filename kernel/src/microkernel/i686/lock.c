@@ -38,10 +38,6 @@ uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
 			{
 				__asm__ volatile("sti");
 			}
-			else
-			{
-				__asm__ volatile("cli");
-			}
 		}
 		
 		return result;
@@ -75,10 +71,6 @@ void spinlock_release(spinlock_t *lock)
 	if (lock->interrupts)
 	{
 		__asm__ volatile("sti");
-	}
-	else
-	{
-		__asm__ volatile("cli");
 	}
 }
 
@@ -159,10 +151,6 @@ void spinlock_recursive_release(spinlock_recursive_t *lock)
 		if (lock->interrupts)
 		{
 			__asm__ volatile("sti");
-		}
-		else
-		{
-			__asm__ volatile("cli");
 		}
 	}
 }

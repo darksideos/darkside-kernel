@@ -13,6 +13,8 @@
 #include <mm/addrspace.h>
 #include <mm/heap.h>
 
+#include <microkernel/lock.h>
+
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
@@ -20,6 +22,7 @@ extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
 
 /* Boot "checkpoints" for keeping the BSP and APs synchronized */
+spinlock_t screen_lock;
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
@@ -52,6 +55,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
+
+		spinlock_init(&screen_lock);
 
 		/* Start up each secondary CPU */
 		if (loader_block.num_cpus > 1)
@@ -103,22 +108,30 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		}
 
 		/* Initialize the free list manager */
+		printf("Initializing free lists\n");
 		freelist_init(&loader_block, bsp);
 
 		/* Initialize paging, mapping our kernel and modules */
+		printf("Initializing paging\n");
 		paging_init(&loader_block, bsp);
 
 		/* Initialize the system address space */
 		paddr_t address_space;
 		__asm__ volatile("mov %%cr3, %0" : "=r"(address_space));
+		printf("Initializing system address space\n");
 		addrspace_init(ADDRSPACE_SYSTEM, address_space, loader_block.system_free_start, 0xFFC00000 - loader_block.system_free_start);
 
 		/* Initialize the kernel heap */
+		printf("Initializing kernel heap\n");
 		heap_init();
 
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
+
+		spinlock_acquire(&screen_lock, TIMEOUT_NEVER);
+		printf("BSP finished\n");
+		spinlock_release(&screen_lock);
 
 		/* Initialize the kernel firmware interface */
 
@@ -155,6 +168,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the paging structures set up by the BSP */
 		paging_init(NULL, bsp);
+
+		spinlock_acquire(&screen_lock, TIMEOUT_NEVER);
+		int num = cpu_data_area(CPU_CURRENT)->number;
+		printf("AP %d finished\n", num);
+		spinlock_release(&screen_lock);
 
 		/* Initialize the Local APIC timer */
 
