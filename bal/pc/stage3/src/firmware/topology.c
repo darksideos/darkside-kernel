@@ -29,10 +29,12 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 			map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 		}
 
-		/* Fill in the Local APIC ID and flags */
+		/* Fill in the CPU number, Local APIC ID, flags, and current thread */
 		uint32_t *cpu = (uint32_t*) cpu_data_area;
 		cpu[0] = 0;
-		cpu[2] = 1;
+		cpu[1] = 0;
+		cpu[3] = 1;
+		cpu[56] = 0;
 
 		/* Advance 3 pages */
 		cpu_data_area += 0x3000;
@@ -78,10 +80,12 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 				map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 
-			/* Fill in the Local APIC ID and flags */
+			/* Fill in the CPU number, Local APIC ID, flags, and current thread */
 			uint32_t *cpu = (uint32_t*) cpu_data_area;
-			cpu[0] = (uint32_t) lapic_entry->lapic_id;
-			cpu[2] = lapic_entry->lapic_flags;
+			cpu[0] = loader_block->num_cpus;
+			cpu[1] = (uint32_t) lapic_entry->lapic_id;
+			cpu[3] = lapic_entry->lapic_flags;
+			cpu[56] = 0;
 
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
@@ -115,14 +119,14 @@ srat_detect: ;
 		for (int j = 0; j < 0x4000; j += 0x1000)
 		{
 			map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
-			memset(numa_domain_data_area + j, 0, 0x1000);
+			memset((void*)numa_domain_data_area + j, 0, 0x1000);
 		}
 
 		/* Make every CPU point to it */
 		uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
-		while (cpu < loader_block->lapic)
+		while ((vaddr_t)cpu < loader_block->lapic)
 		{
-			cpu[1] = (uint32_t) numa_domain_data_area;
+			cpu[2] = (uint32_t) numa_domain_data_area;
 			cpu += 0xC00;
 		}
 
@@ -159,7 +163,7 @@ srat_detect: ;
 				for (int j = 0; j < 0x4000; j += 0x1000)
 				{
 					map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
-					memset(numa_domain_data_area + j, 0, 0x1000);
+					memset((void*)numa_domain_data_area + j, 0, 0x1000);
 				}
 				current_numa_data_area = numa_domain_data_area;
 				map_append(&numa_domains, numa_domain, (void*) numa_domain_data_area);
@@ -173,15 +177,15 @@ srat_detect: ;
 
 			/* Find the CPU with the Local APIC ID and set its NUMA domain */
 			uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
-			while ((cpu[0] != (uint32_t) lapic_entry->lapic_id) && (cpu < loader_block->lapic))
+			while ((cpu[0] != (uint32_t) lapic_entry->lapic_id) && ((vaddr_t)cpu < loader_block->lapic))
 			{
 				cpu += 0xC00;
 			}
 
 			/* If we found the CPU */
-			if (cpu < loader_block->lapic)
+			if ((vaddr_t)cpu < loader_block->lapic)
 			{
-				cpu[1] = (uint32_t) current_numa_data_area;
+				cpu[2] = (uint32_t) current_numa_data_area;
 			}
 		}
 		
