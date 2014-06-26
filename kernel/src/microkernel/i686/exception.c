@@ -60,7 +60,12 @@ static void page_fault_handler(struct regs *regs)
 {
 	vaddr_t faulting_address;
 	__asm__ volatile("mov %%cr2, %0" : "=r" (faulting_address));
-	vmm_fault_handler(faulting_address);
+	printf("Page fault at 0x%08X, error code 0x%x\n", faulting_address, regs->err_code);
+	printf("EIP=0x%08X\n", regs->eip);
+	printf("EAX=0x%08X    EBX=0x%08X    ECX=0x%08X    EDX=0x%08X\n", regs->eax, regs->ebx, regs->ecx, regs->edx);
+	printf("ESI=0x%08X    EDI=0x%08X    ESP=0x%08X    EBP=0x%08X\n", regs->esi, regs->edi, regs->esp, regs->ebp);
+	while(1);
+	//vmm_fault_handler(faulting_address);
 }
 
 /* Register an exception handler */

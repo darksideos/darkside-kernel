@@ -34,7 +34,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 		cpu[0] = 0;
 		cpu[1] = 0;
 		cpu[3] = 1;
-		cpu[56] = 0;
+		cpu[14] = 0;
 
 		/* Advance 3 pages */
 		cpu_data_area += 0x3000;
@@ -85,7 +85,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 			cpu[0] = loader_block->num_cpus;
 			cpu[1] = (uint32_t) lapic_entry->lapic_id;
 			cpu[3] = lapic_entry->lapic_flags;
-			cpu[56] = 0;
+			cpu[14] = 0;
 
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
