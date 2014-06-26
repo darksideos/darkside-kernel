@@ -13,16 +13,11 @@
 #include <mm/addrspace.h>
 #include <mm/heap.h>
 
-#include <microkernel/lock.h>
-
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
 extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
-
-/* Boot "checkpoints" for keeping the BSP and APs synchronized */
-spinlock_t screen_lock;
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
@@ -55,8 +50,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
-
-		spinlock_init(&screen_lock);
 
 		/* Start up each secondary CPU */
 		if (loader_block.num_cpus > 1)
@@ -129,10 +122,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
 
-		spinlock_acquire(&screen_lock, TIMEOUT_NEVER);
-		printf("BSP finished\n");
-		spinlock_release(&screen_lock);
-
 		/* Initialize the kernel firmware interface */
 
 		/* Detect the interrupt controller and initialize it */
@@ -168,11 +157,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the paging structures set up by the BSP */
 		paging_init(NULL, bsp);
-
-		spinlock_acquire(&screen_lock, TIMEOUT_NEVER);
-		int num = cpu_data_area(CPU_CURRENT)->number;
-		printf("AP %d finished\n", num);
-		spinlock_release(&screen_lock);
 
 		/* Initialize the Local APIC timer */
 
