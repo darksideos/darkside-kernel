@@ -37,6 +37,12 @@ void bal_main(data_t *_data)
 	list_t *phys_mem_map = pmm_init(data->e820_entries, data->num_e820_entries);
 	vmm_init();
 
+	volatile int x = 1;
+	if (x < 2)
+	{
+		printf("Hi\n");
+	}
+
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
 
