@@ -59,7 +59,7 @@ vad_t *vad_tree_insert(vad_t *node, vad_t *leaf)
 		node->left = vad_tree_insert(node->left, leaf);
 	}
 	/* Insert at the right */
-	else if (leaf->start > (node->start + node->length))
+	else if (leaf->start >= (node->start + node->length))
 	{
 		node->right = vad_tree_insert(node->right, leaf);
 	}
