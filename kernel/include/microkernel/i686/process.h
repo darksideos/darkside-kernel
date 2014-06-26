@@ -19,11 +19,12 @@ typedef struct process
 	/* Address space */
 	addrspace_t addrspace;
 
-	/* TLB shootdown information */
-	bool tlb_shootdown;
-	vaddr_t tlb_shootdown_start;
-	int tlb_shootdown_num_pages;
-	spinlock_t tlb_shootdown_lock;
+	/* SMP TLB shootdown information */
+	bool tlb_flushing;
+	vaddr_t tlb_flush_start;
+	int tlb_flush_num_pages;
+	atomic_t tlb_flush_remaining;
+	spinlock_t tlb_flush_lock;
 
 	/* Scheduling policy and priority */
 	int policy, priority;
