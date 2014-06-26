@@ -45,6 +45,34 @@ static vad_t *rotate_right(vad_t *node)
 	return new_node;
 }
 
+/* Lookup a VAD in a VAD tree */
+vad_t *vad_tree_lookup(vad_t *root, vaddr_t address)
+{
+	/* Iterate through the tree */
+	vad_t *node = root;
+	while (node)
+	{
+		/* Found node */
+		if ((address >= node->start) && (address < (node->start + node->length)))
+		{
+			return node;
+		}
+		/* Lookup at the left */
+		else if (address < node->start)
+		{
+			node = node->left;
+		}
+		/* Lookup at the right */
+		else if (address >= (node->start + node->length))
+		{
+			node = node->right;
+		}
+	}
+
+	/* No corresponding VAD */
+	return NULL;
+}
+
 /* Insert a VAD into a VAD tree */
 vad_t *vad_tree_insert(vad_t *node, vad_t *leaf)
 {
