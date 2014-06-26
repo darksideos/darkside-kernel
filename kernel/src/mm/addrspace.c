@@ -14,22 +14,6 @@ static addrspace_t system_addrspace;
 /* Slab caches for VADs */
 static slab_cache_t *vad_cache;
 
-static void print_vad(vad_t *node, int spaces)
-{
-	if (node)
-	{
-		for (int i = 0; i < spaces; i++) printf(" ");
-		printf("Start: 0x%08X, Length: 0x%08X\n", node->start, node->length);
-		print_vad(node->left, spaces + 2);
-		print_vad(node->right, spaces + 2);
-	}
-}
-
-void addrspace_print()
-{
-	print_vad(system_addrspace.used_root, 0);
-}
-
 /* Initialize an address space */
 void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length)
 {
