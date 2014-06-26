@@ -33,6 +33,9 @@ typedef struct vad
 	int height;
 } vad_t;
 
+/* Lookup a VAD in a VAD tree */
+vad_t *vad_tree_lookup(vad_t *root, vaddr_t address);
+
 /* Insert a VAD into a VAD tree */
 vad_t *vad_tree_insert(vad_t *node, vad_t *leaf);
 
