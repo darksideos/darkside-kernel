@@ -104,7 +104,7 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 
 	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
 	uint32_t eax, edx;
-	rdmsr(MSR_APIC_BASE, &eax, &edx);
-	wrmsr(MSR_APIC_BASE, eax, edx);
+	rdmsr(IA32_MSR_APIC_BASE, &eax, &edx);
+	wrmsr(IA32_MSR_APIC_BASE, eax, edx);
 	lapic[SPURIOUS] = 255 | 0x100;
 }
