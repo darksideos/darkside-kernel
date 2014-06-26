@@ -6,10 +6,21 @@
 #include <executable/executable.h>
 #include <mm/freelist.h>
 #include <microkernel/cpu.h>
+#include <microkernel/lock.h>
 #include <microkernel/paging.h>
+
+/* Kernel address space */
+static paddr_t kernel_directory;
 
 /* Hyperspace address */
 static vaddr_t hyperspace = -1;
+
+/* SMP global TLB shootdown information */
+static bool tlb_flushing;
+static vaddr_t tlb_flush_start;
+static int tlb_flush_num_pages;
+static atomic_t tlb_flush_remaining;
+static spinlock_t tlb_flush_lock;
 
 /* Get a page */
 static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool make)
@@ -241,18 +252,16 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		hyperspace = loader_block->hyperspace;
 
 		/* Create a new kernel address space */
-		paddr_t kernel_directory = vmm_create_address_space();
-		numa_domain_t *numa_domain = numa_domain_data_area(NUMA_DOMAIN_CURRENT);
-		numa_domain->kernel_directory = kernel_directory;
+		kernel_directory = vmm_create_address_space();
 
 		/* Generate page tables for the entire kernel address space, except the recursive mapping area */
 		for (vaddr_t i = 0x80000000; i < 0xFFC00000; i += 0x400000)
 		{
-			/* Calculate the table address and associated cache color */
+			/* Calculate the table address */
 			vaddr_t table = 0xFFC00000 + (i / 0x400000);
-			int color = vaddr_cache_color(table, NUMA_DOMAIN_BEST, 0);
 
 			/* Allocate and map a page table */
+			int color = vaddr_cache_color(table, NUMA_DOMAIN_BEST, 0);
 			vmm_map_page(kernel_directory, table, pmm_alloc_page(PAGE_ZERO, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE);
 		}
 
@@ -309,16 +318,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 	/* Running on a secondary processor */
 	else
 	{
-		/* Get the kernel address space created by the BSP and switch to it */
-		numa_domain_t *bsp_domain = numa_domain_data_area(NUMA_DOMAIN_BSP);
-		paddr_t kernel_directory = bsp_domain->kernel_directory;
+		/* Switch to the kernel address space created by the BSP */
 		vmm_switch_address_space(kernel_directory);
-
-		/* If in a different NUMA domain, set it as ours */
-		numa_domain_t *numa_domain = numa_domain_data_area(NUMA_DOMAIN_CURRENT);
-		if (numa_domain != bsp_domain)
-		{
-			numa_domain->kernel_directory = kernel_directory;
-		}
 	}
 }

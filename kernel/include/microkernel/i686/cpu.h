@@ -25,9 +25,6 @@ typedef struct numa_domain
 
 	/* Number of cache colors in use */
 	int num_cache_colors;
-
-	/* Kernel address space */
-	paddr_t kernel_directory;
 } numa_domain_t;
 
 /* CPU flags */
