@@ -9,6 +9,10 @@
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
 
+/* ASM IPI handlers for global and local TLB shootdowns */
+void ipi_global_tlb_flush();
+void ipi_local_tlb_flush();
+
 /* Kernel address space */
 static paddr_t kernel_directory;
 
@@ -314,6 +318,8 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 
 		/* Switch to the new kernel address space */
 		vmm_switch_address_space(kernel_directory);
+
+		/* Register IPI handlers for global and local TLB shootdowns */
 	}
 	/* Running on a secondary processor */
 	else
