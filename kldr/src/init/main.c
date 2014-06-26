@@ -45,19 +45,19 @@ void ba_main(loader_block_t *loader_block)
 	/* Initialize the bootloader firmware interface */
 
 	/* Detect the CPUs and NUMA domains on the system */
-	//printf("Allocating per-CPU and NUMA domain areas\n");
+	printf("Allocating per-CPU and NUMA domain areas\n");
 	per_cpu_numa_area_alloc(loader_block, kernel->end);
 
 	/* Add more information to the physical memory map */
-	//printf("Detecting NUMA memory map info\n");
+	printf("Detecting NUMA memory map info\n");
 	memory_numa_domains_detect(loader_block);
 
 	/* Allocate space for the PFN database */
-	//printf("Allocating PFN database\n");
+	printf("Allocating PFN database\n");
 	pfn_database_alloc(loader_block);
 
 	/* Allocate space for the DMA bitmap */
-	//printf("Allocating DMA bitmap\n");
+	printf("Allocating DMA bitmap\n");
 	dma_bitmap_alloc(loader_block);
 
 	/* Allocate space for hyperspace */
