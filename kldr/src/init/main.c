@@ -53,11 +53,11 @@ void ba_main(loader_block_t *loader_block)
 	memory_numa_domains_detect(loader_block);
 
 	/* Allocate space for the PFN database */
-	printf("Allocating PFN database\n");
+	//printf("Allocating PFN database\n");
 	pfn_database_alloc(loader_block);
 
 	/* Allocate space for the DMA bitmap */
-	printf("Allocating DMA bitmap\n");
+	//printf("Allocating DMA bitmap\n");
 	dma_bitmap_alloc(loader_block);
 
 	/* Allocate space for hyperspace */
