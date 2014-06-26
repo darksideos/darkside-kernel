@@ -68,6 +68,7 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 
 	/* Initialize the used VAD */
 	addrspace->used_root = &addrspace->used;
+	addrspace->used.height = 0;
 	if (addrspace == &system_addrspace)
 	{
 		addrspace->used.start = KERNEL_ADDRSPACE_START;
