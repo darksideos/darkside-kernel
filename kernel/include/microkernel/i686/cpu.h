@@ -2,10 +2,11 @@
 #define __I686_CPU_H
 
 #include <microkernel/lock.h>
-#include <mm/page.h>
-#include <mm/freelist.h>
+#include <microkernel/thread.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
+#include <mm/page.h>
+#include <mm/freelist.h>
 
 /* Per-NUMA domain data area structure */
 typedef struct numa_domain
@@ -37,6 +38,7 @@ typedef struct numa_domain
 typedef struct cpu
 {
 	/* General CPU information */
+	int number;
 	uint32_t lapic_id;
 	numa_domain_t *numa_domain;
 	volatile uint32_t flags;
@@ -49,7 +51,10 @@ typedef struct cpu
 	uint32_t features[2];
 	uint32_t ext_features[2];
 
-	/* Scheduling information */
+	/* Current thread */
+	thread_t *current_thread;
+
+	/* Scheduling queues */
 
 	/* Timer queue */
 
@@ -64,7 +69,7 @@ typedef struct cpu
 
 	/* Bootup and double-fault stack */
 	uint8_t boot_stack[8192];
-	uint8_t double_fault_stack[3772];
+	uint8_t double_fault_stack[3764];
 } __attribute__((packed)) cpu_t;
 
 #endif
