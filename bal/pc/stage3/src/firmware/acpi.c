@@ -194,7 +194,7 @@ int acpi_init(loader_block_t *loader_block)
 /* A valid RSDP was found */
 rsdp_found:
 	/* Record its address in the loader block */
-	loader_block->rsdp = (paddr_t) rsdp;
+	loader_block->rsdp = (uint32_t) rsdp;
 
 	/* Map the RSDT or XSDT, depending on which one we want to use */
 	if (using_xsdt)
@@ -210,7 +210,7 @@ rsdp_found:
 		}
 
 		/* Record its address in the loader block */
-		loader_block->xsdt = (paddr_t) rsdp_ext->xsdt_address;
+		loader_block->xsdt = rsdp_ext->xsdt_address;
 		loader_block->rsdt = 0;
 	}
 	else
@@ -226,7 +226,7 @@ rsdp_found:
 		}
 
 		/* Record its address in the loader block */
-		loader_block->rsdt = (paddr_t) rsdp->rsdt_address;
+		loader_block->rsdt = rsdp->rsdt_address;
 		loader_block->xsdt = 0;
 	}
 
