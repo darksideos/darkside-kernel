@@ -9,7 +9,7 @@ static struct rsdt *rsdt = NULL;
 static struct xsdt *xsdt = NULL;
 
 /* Using the XSDT */
-static bool using_xsdt;
+static bool using_xsdt = false;
 
 /* ACPI table cache */
 static map_t table_cache;
