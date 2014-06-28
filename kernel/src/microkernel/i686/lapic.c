@@ -23,7 +23,7 @@
 void lapic_irq_spurious();
 void lapic_irq_timer();
 
-/* Local APIC address */
+/* Local APIC MMIO address */
 static uint32_t volatile *lapic = NULL;
 
 /* Handler for spurious LAPIC IRQs */
