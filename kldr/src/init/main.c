@@ -46,7 +46,7 @@ void ba_main(loader_block_t *loader_block)
 	loader_block->modules = &modules;
 
 	/* Load the kernel into virtual memory */
-	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i386.elf");
+	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
 
 	/* Load bootvid into virtual memory */
