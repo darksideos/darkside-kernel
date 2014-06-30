@@ -306,13 +306,6 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 
-		/* Map the DMA bitmap */
-		vaddr_t dma_bitmap_end = PAGE_ALIGN_UP(loader_block->dma_bitmap_end);
-		for (vaddr_t i = loader_block->dma_bitmap; i < dma_bitmap_end; i += PAGE_SIZE)
-		{
-			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
-		}
-
 		/* TEMPORARY: Map the VGA text framebuffer */
 		vmm_map_page(kernel_directory, 0xB8000, 0xB8000, PAGE_READ | PAGE_WRITE);
 
