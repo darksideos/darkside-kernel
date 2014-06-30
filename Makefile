@@ -1,4 +1,4 @@
-CCBASE			?= i586-elf
+CCBASE			?= i686-elf
 
 i686: i686-libs
 		cd bal/pc; make ext2 CCBASE="$(CCBASE)"
