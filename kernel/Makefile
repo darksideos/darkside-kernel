@@ -14,7 +14,7 @@ SFILES			:= $(shell find $(SRCDIR) -type f -name "*.s")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(SFILES))
 
 i686: $(OBJFILES)
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/kernel-i686.elf $(BUILDDIR)/microkernel/i686/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lc-i686 -ladt-i686 -lbootvid-i686 -lgcc-i686
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/kernel-i686.elf `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lc-i686 -ladt-i686 -lbootvid-i686 -lgcc-i686
 		$(OBJDUMP) -S $(BUILDDIR)/kernel-i686.elf > $(BUILDDIR)/disasm.s
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
