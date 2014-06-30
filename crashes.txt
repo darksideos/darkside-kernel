@@ -1,4 +1,0 @@
-0 or 1 printf()s - Page fault immediately
-2 or 3 printf()s - A lot of memory allocated followed by page fault
-4 printf()s - Failure to mount boot device
-5 or more printf()s - Success
