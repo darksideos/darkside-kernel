@@ -8,7 +8,7 @@ if [ "$(uname -s)" == "Darwin" ]
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
-		sudo cp kernel/build/kernel-i386.elf /mnt/hdd/boot
+		sudo cp kernel/build/kernel-i686.elf /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
@@ -21,18 +21,18 @@ if [ "$(uname -s)" == "Linux" ]
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
-		sudo cp kernel/build/kernel-i386.elf /mnt/hdd/boot
+		sudo cp kernel/build/kernel-i686.elf /mnt/hdd/boot
 		sudo cp "graphics/boot screen.bmp" /mnt/hdd/boot
 		sudo umount img/images/ext2.img
 		sudo rm -rf /mnt/hdd
 		sudo cp kldr/build/stage3.bin /media/george/DarkSide/boot
-		sudo cp kernel/build/kernel-i386.elf /media/george/DarkSide/boot
+		sudo cp kernel/build/kernel-i686.elf /media/george/DarkSide/boot
 		sudo cp "graphics/boot screen.bmp" /media/george/DarkSide/boot
 fi
 
 if [[ "$(uname -s)" == CYGWIN* ]]
 	then
-		read -p "Waiting for kernel-i386.elf to be copied into ext2.img [Press Enter to continue]..."
+		read -p "Waiting for bigbang and kernel to be copied into ext2.img [Press Enter to continue]..."
 fi
 
 dd if=img/images/ext2.img of=img/images/os.img bs=1048576 seek=1 conv=notrunc
