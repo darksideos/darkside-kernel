@@ -8,7 +8,7 @@ BUILDDIR		:= build
 CFILES			:= $(shell find $(SRCDIR) -type f -name "*.c")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES))
 
-i386: $(OBJFILES)
+i686: $(OBJFILES)
 		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libbootvid-i386.a `find $(BUILDDIR) -type f -name *.o`
 		cp $(BUILDDIR)/libbootvid-i386.a ../build/libbootvid-i386.a
  
