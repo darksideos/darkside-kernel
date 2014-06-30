@@ -120,12 +120,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		printf("\nRSDP address: 0x%08X\n", loader_block.rsdp);
 		printf("RSDT address: 0x%08X\n", loader_block.rsdt);
-		printf("XSDT address: 0x%08X\n\n", (uint32_t) loader_block.xsdt);
-
-		for (int i = 0; i < 0xA0; i++)
-		{
-			printf("%02X: 0x%08X\n", i, pmm_alloc_page(PAGE_DMA, 0, 0));
-		}
+		printf("XSDT address: 0x%08X\n", (uint32_t) loader_block.xsdt);
 
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
