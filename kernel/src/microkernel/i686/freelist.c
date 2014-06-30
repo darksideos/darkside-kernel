@@ -458,7 +458,6 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	if (bsp)
 	{
 		/* Initialize the DMA bitmap */
-		memset(dma_bitmap, 0, 512);
 		spinlock_init(&dma_bitmap_lock);
 
 		/* Calculate the amount of memory under 16MiB */
