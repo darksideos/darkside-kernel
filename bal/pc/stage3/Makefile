@@ -1,4 +1,3 @@
-CCBASE          ?= i586-elf
 CC				:= $(CCBASE)-gcc
 ASM				:= nasm
 LD				:= $(CCBASE)-ld
@@ -16,7 +15,7 @@ OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES)) $(patsubst $(SR
 
 all: $(OBJFILES)
 		rm -f $(BUILDDIR)/stage3.o
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.o $(BUILDDIR)/init/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../../../libgcc/build -L ../../../libc/build -L ../../../libadt/build -L ../../../bootvid/build -lgcc-i386 -lc-i386 -ladt-i386 -lbootvid-i386
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/stage3.o $(BUILDDIR)/init/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o` -L ../../../libgcc/build -L ../../../libc/build -L ../../../libadt/build -L ../../../bootvid/build -lgcc-i686 -lc-i686 -ladt-i686 -lbootvid-i686
 		cp $(BUILDDIR)/stage3.o $(BUILDDIR)/../../../build/bal.o
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
