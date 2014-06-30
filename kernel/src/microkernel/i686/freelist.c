@@ -10,7 +10,7 @@
 #include <mm/pfn.h>
 
 /* DMA bitmap */
-static uint8_t *dma_bitmap;
+static uint8_t dma_bitmap[512];
 static size_t dma_bitmap_nbytes;
 static uint8_t dma_bitmap_nbits;
 static spinlock_t dma_bitmap_lock;
@@ -457,8 +457,8 @@ void freelist_init(loader_block_t *loader_block, bool bsp)
 	/* Running on the BSP */
 	if (bsp)
 	{
-		/* Initialize the DMA bitmap covering the lower 16MiB of memory */
-		dma_bitmap = (uint8_t*) loader_block->dma_bitmap;
+		/* Initialize the DMA bitmap */
+		memset(dma_bitmap, 0, 512);
 		spinlock_init(&dma_bitmap_lock);
 
 		/* Calculate the amount of memory under 16MiB */
