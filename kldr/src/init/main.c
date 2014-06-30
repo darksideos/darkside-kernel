@@ -66,9 +66,6 @@ void ba_main(loader_block_t *loader_block)
 	/* Allocate space for the PFN database */
 	pfn_database_alloc(loader_block);
 
-	/* Allocate space for the DMA bitmap */
-	dma_bitmap_alloc(loader_block);
-
 	/* Allocate space for hyperspace */
 	hyperspace_alloc(loader_block);
 
