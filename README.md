@@ -17,9 +17,8 @@ Directory Layout
 ----------------
 The project is laid out as follows:
 * bal - Boot Abstraction Layer (platform-specific component of bootloader)
+* biosldr - MBR and VBRs for BIOS-based PCs, responsible for loading the boot application
 * bootvid - Boot video driver (includes text output and graphics primitive drawing routines)
-* demo - Boot Application that demonstrates VESA graphics drawing
-* hal - Hardware Abstraction Layer (machine-specific code)
 * img - Disk images and scripts to manage them
 * kernel - Kernel
 * kldr - Kernel Loader (platform-independent component of bootloader)
@@ -27,4 +26,3 @@ The project is laid out as follows:
 * libc - Minimal C library
 * libgcc - Low-level runtime support library
 * modules - Kernel modules (includes device drivers, filesystem drivers, executable formats, and device driver interfaces)
-* graphics - DarkSide Project and OS graphics
