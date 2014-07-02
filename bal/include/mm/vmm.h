@@ -1,7 +1,12 @@
 #ifndef __VMM_H
 #define __VMM_H
 
-/* Page flags */
+/* i386 */
+#if defined(__i386__)
+#include <arch/i686/vmm.h>
+#endif
+
+/* Page protections */
 #define PAGE_READ		0x02
 #define PAGE_WRITE		0x04
 #define PAGE_EXECUTE	0x08
