@@ -2,7 +2,7 @@ CCBASE			?= i686-elf
 
 i686: i686-libs
 		cd biosldr; make ext2
-		cd bal/pc; make all CCBASE="$(CCBASE)"
+		cd bal; make i686-bios CCBASE="$(CCBASE)"
 		cd kldr; make all CCBASE="$(CCBASE)"
 		cd kernel; make i686 CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
