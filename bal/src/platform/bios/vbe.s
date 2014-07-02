@@ -1,4 +1,4 @@
-%include "src/init/rmode.inc"
+%include "src/arch/i686/rmode.inc"
 
 [BITS 32]
 section .text

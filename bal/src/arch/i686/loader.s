@@ -1,4 +1,4 @@
-%include "src/init/loader.inc"
+%include "src/arch/i686/loader.inc"
 
 [BITS 16]
 section .text
