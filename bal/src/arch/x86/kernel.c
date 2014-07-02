@@ -7,8 +7,6 @@
 /* Jump to the kernel */
 void bal_enter_kernel(vaddr_t entry_point, loader_block_t *loader_block)
 {
-	printf("About to jump to kernel at 0x%08X\n", entry_point);
-
 	/* Jump to the kernel entry point, passing the loader block */
 	__asm__ ("push %0\n\tjmp *%1"
 	:
