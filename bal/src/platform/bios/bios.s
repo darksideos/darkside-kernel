@@ -1,5 +1,5 @@
-%include "src/init/rmode.inc"
-%include "src/storage/bios.inc"
+%include "src/arch/i686/rmode.inc"
+%include "src/platform/bios/bios.inc"
 
 [BITS 32]
 section .text
