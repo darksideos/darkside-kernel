@@ -9,11 +9,7 @@
 void hyperspace_alloc(loader_block_t *loader_block)
 {
 	/* Calculate the start of hyperspace */
-	vaddr_t hyperspace = loader_block->pfn_database_end;
-	if (hyperspace & 0xFFF)
-	{
-		hyperspace = (hyperspace & 0xFFFFF000) + 0x1000;
-	}
+	vaddr_t hyperspace = PAGE_ALIGN_UP(loader_block->pfn_database_end);
 	loader_block->hyperspace = hyperspace;
 
 	/* Allocate the hyperspace region */
