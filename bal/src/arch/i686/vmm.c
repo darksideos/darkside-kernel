@@ -107,11 +107,7 @@ void vmm_init()
 	__asm__ volatile ("mov %0, %%cr4" :: "r" (cr4));
 
 	/* Calculate the address of the page directory and initial page table */
-	pd = &end;
-	if (((uint32_t)pd) & 0xFFF)
-	{
-		pd = (uint32_t*) ((((uint32_t)pd) & 0xFFFFF000) + 0x1000);
-	}
+	pd = (uint32_t*) PAGE_ALIGN_UP((vaddr_t)&end);
 	pt_lower = pd + 0x400;
 
 	/* Clear the page directory */
