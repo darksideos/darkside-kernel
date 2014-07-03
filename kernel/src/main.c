@@ -17,7 +17,7 @@ void executive_init(loader_block_t *_loader_block)
 	microkernel_init(&loader_block, true);
 
 	/* Initialize the memory manager */
-	printf("Starting MM init\n");
+	//printf("Starting MM init\n");
 
 	/* Initialize the object manager */
 
