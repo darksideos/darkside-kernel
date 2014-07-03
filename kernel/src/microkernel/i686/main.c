@@ -131,6 +131,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize the HAL */
 
 		/* Initialize the scheduler */
+
+		/* Start the executive services */
 	}
 	/* Running on a secondary processor */
 	else
@@ -161,7 +163,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Wait for the BSP to initialize the scheduler */
 
 		/* Go to the scheduler ready function and wait for threads */
-		while(1);
 	}
 
 	/* Should never reach here */
