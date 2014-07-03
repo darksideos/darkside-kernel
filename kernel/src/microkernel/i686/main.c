@@ -103,10 +103,6 @@ void microkernel_init(loader_block_t *loader_block, bool bsp)
 		printf("Initializing kernel heap\n");
 		heap_init();
 
-		printf("\nRSDP address: 0x%08X\n", loader_block->rsdp);
-		printf("RSDT address: 0x%08X\n", loader_block->rsdt);
-		printf("XSDT address: 0x%08X\n", (uint32_t) loader_block->xsdt);
-
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
