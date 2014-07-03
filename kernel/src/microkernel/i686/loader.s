@@ -11,10 +11,9 @@ start:
 	mov esp, initial_stack
 
 	; Jump to our C code
-	extern microkernel_init
-	push dword 1				; Running on the BSP
+	extern executive_init
 	push eax					; Loader block
-	call microkernel_init
+	call executive_init
 	
 ; Kernel BSS, which contains the initial kernel stack
 section .bss
