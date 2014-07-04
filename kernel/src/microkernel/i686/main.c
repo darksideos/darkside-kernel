@@ -12,6 +12,7 @@
 #include <microkernel/paging.h>
 #include <mm/addrspace.h>
 #include <mm/heap.h>
+#include <hal/hal.h>
 
 /* AP trampoline symbols */
 extern void ap_trampoline();
@@ -87,13 +88,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				lapic_send_ipi(cpu->lapic_id, 0, IPI_DELIVER_INIT, false);
 				//udelay(10000);
 
-				/* DELAY */
-				//int num = 0;
-				//for (int i = 0; i < 2000000000; i++)
-				//{
-					//num++;
-				//}
-
 				/* Send a STARTUP IPI and wait for the AP to start */
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
 				while (!(cpu->flags & CPU_MM_INIT));
@@ -129,6 +123,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Detect the relevant CPU topology information for itself */
 
 		/* Initialize the HAL */
+		hal_init(bsp);
 
 		/* Initialize the scheduler */
 
@@ -159,6 +154,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Detect the relevant CPU topology information for itself */
 
 		/* Initialize the HAL */
+		hal_init(bsp);
 
 		/* Wait for the BSP to initialize the scheduler */
 
