@@ -1,7 +1,7 @@
 #ifndef __QUEUE_H
 #define __QUEUE_H
 
-#include <lib/libadt/list.h>
+#include <list.h>
 
 /* Queue structure */
 #define queue_t list_t;
