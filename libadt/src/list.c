@@ -15,8 +15,8 @@ list_t list_create()
 {
 	list_t list;
 
-	list.head = 0;
-	list.tail = 0;
+	list.head = NULL;
+	list.tail = NULL;
 
 	return list;
 }
@@ -25,7 +25,7 @@ list_t list_create()
 void list_destroy(list_t *list)
 {
 	list_entry_t *curr = list->head;
-	list_entry_t *new = 0;
+	list_entry_t *new = NULL;
 
 	while (curr)
 	{
@@ -40,7 +40,7 @@ void list_insert_head(list_t *list, void *item)
 {
 	list_entry_t *head = (list_entry_t*) malloc(sizeof(list_entry_t));
 
-	head->prev = 0;
+	head->prev = NULL;
 	head->next = list->head;
 	head->value = item;
 
@@ -62,7 +62,7 @@ void list_insert_tail(list_t *list, void *item)
 	list_entry_t *tail = (list_entry_t*) malloc(sizeof(list_entry_t));
 
 	tail->prev = list->tail;
-	tail->next = 0;
+	tail->next = NULL;
 	tail->value = item;
 
 	list->tail = tail;
@@ -82,11 +82,11 @@ void *list_remove_head(list_t *list)
 {
 	if (list->head->next)
 	{
-		list->head->next->prev = 0;
+		list->head->next->prev = NULL;
 	}
 	else
 	{
-		list->tail = 0;
+		list->tail = NULL;
 	}
 
 	void *value = list->head->value;
@@ -101,11 +101,11 @@ void *list_remove_tail(list_t *list)
 {
 	if (list->tail->prev)
 	{
-		list->head->prev->next = 0;
+		list->head->prev->next = NULL;
 	}
 	else
 	{
-		list->head = 0;
+		list->head = NULL;
 	}
 
 	void *value = list->tail->value;
@@ -126,7 +126,7 @@ static void *list_entry_now(iterator_t *iter)
 	}
 	else
 	{
-		return 0;
+		return NULL;
 	}
 }
 
@@ -144,7 +144,7 @@ static void *list_entry_prev(iterator_t *iter)
 	}
 	else
 	{
-		return 0;
+		return NULL;
 	}
 }
 
@@ -162,7 +162,7 @@ static void *list_entry_next(iterator_t *iter)
 	}
 	else
 	{
-		return 0;
+		return NULL;
 	}
 }
 
