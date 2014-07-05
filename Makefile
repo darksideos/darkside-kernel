@@ -1,16 +1,24 @@
-CCBASE			?= i686-elf
-
-i686: i686-libs
-		cd biosldr; make ext2
-		cd bal; make i686-bios CCBASE="$(CCBASE)"
-		cd kldr; make all CCBASE="$(CCBASE)"
-		cd kernel; make i686 CCBASE="$(CCBASE)"
-		img/utils/updateimage.sh
-		
 i686-libs:
+		$(eval CCBASE ?= i686-elf)
+		
 		cd libc; make i686 CCBASE="$(CCBASE)"
 		cd libadt; make i686 CCBASE="$(CCBASE)"
 		cd bootvid/pc; make i686 CCBASE="$(CCBASE)"
+
+i686: i686-libs
+		$(eval CCBASE ?= i686-elf)
+		
+		cd kernel; make i686 CCBASE="$(CCBASE)"
+		
+i686-pc: i686
+		$(eval CCBASE ?= i686-elf)
+		$(eval FIRMWARE ?= bios)
+		$(eval FS ?= ext2)
+		
+		cd biosldr; make $(FS)
+		cd bal; make i686-$(FIRMWARE) CCBASE="$(CCBASE)"
+		cd kldr; make $(FIRMWARE) CCBASE="$(CCBASE)"
+		img/utils/updateimage.sh
 
 clean:
 		$(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a" | xargs rm)
