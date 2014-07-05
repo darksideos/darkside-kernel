@@ -7,11 +7,11 @@
 typedef unsigned tid_t;
 
 /* Thread states */
-#define THREAD_INIT			0
-#define THREAD_READY		1
-#define THREAD_RUNNING		2
-#define THREAD_BLOCKED		3
-#define THREAD_DEAD			4
+#define THREAD_INIT		0
+#define THREAD_READY	1
+#define THREAD_RUNNING	2
+#define THREAD_BLOCKED	3
+#define THREAD_DEAD		4
 
 /* Thread structure */
 struct process;
@@ -31,6 +31,9 @@ typedef struct thread
 
 	/* Thread state */
 	int state;
+
+	/* Time left to wait */
+	uint64_t wait_time_left;
 
 	/* Scheduling policy and priority */
 	int policy, priority;
