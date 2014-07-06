@@ -1,5 +1,3 @@
-.PHONY: clean
-
 i686-libs:
 		$(eval CCBASE ?= i686-elf)
 		
