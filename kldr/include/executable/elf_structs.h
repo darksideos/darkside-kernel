@@ -41,14 +41,14 @@ typedef struct elf_header
 	uint16_t machine;
 	uint32_t obj_file_version;
 	uint32_t entry_point;
-	uint32_t program_header_offset;
-	uint32_t section_header_offset;
+	uint32_t program_header_table_offset;
+	uint32_t section_header_table_offset;
 	uint32_t flags;
 	uint16_t header_size;
-	uint16_t program_header_entry_size;
-	uint16_t num_program_header_entries;
-	uint16_t section_header_entry_size;
-	uint16_t num_section_header_entries;
+	uint16_t program_header_size;
+	uint16_t num_program_headers;
+	uint16_t section_header_size;
+	uint16_t num_section_headers;
 	uint16_t string_table_index;
 } __attribute__((packed)) elf_header_t;
 
