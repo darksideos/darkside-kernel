@@ -36,8 +36,8 @@ executable_t *elf_executable_load_executable(char *filename)
 
 	/* Go through each program header and load it */
 	elf_program_header_t phdr;
-	uint64_t offset = header.program_header_offset;
-	for (int i = 0; i < header.num_program_header_entries; i++)
+	uint64_t offset = header.program_header_table_offset;
+	for (int i = 0; i < header.num_program_headers; i++)
 	{
 		/* Read the program header */
 		bytes_read = fs_read(elf, &phdr, offset, sizeof(elf_program_header_t));
@@ -146,7 +146,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			}
 		}
 
-		offset += header.program_header_entry_size;
+		offset += header.program_header_size;
 	}
 
 	/* Allocate the executable structure */
@@ -171,7 +171,7 @@ executable_t *elf_executable_load_executable(char *filename)
 /* Load an object file */
 executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 {
-	return NULL;
+	return 0;
 }
 
 /* Executable format operations */
