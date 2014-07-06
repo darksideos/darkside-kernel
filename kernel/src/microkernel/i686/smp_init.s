@@ -80,7 +80,7 @@ gdtr times 0x06 db 0
 
 ; Initial page directory/page directory pointer table
 global pdir
-pdir dq 0
+pdir dq 0.0
 
 ; Initial stack
 global kinit_stack
