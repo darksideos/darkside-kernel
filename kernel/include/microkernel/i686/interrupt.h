@@ -23,7 +23,10 @@ typedef struct interrupt_controller_ops
 
 	/* Mask and unmask an interrupt */
 	void (*irq_mask)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
-	void (*irq_unmask)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);	
+	void (*irq_unmask)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
+
+	/* Send an EOI for an interrupt */
+	void (*eoi)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
 } interrupt_controller_ops_t;
 
 /* Interrupt handler structure */
