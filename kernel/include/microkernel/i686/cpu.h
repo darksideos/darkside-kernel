@@ -28,8 +28,11 @@ typedef struct numa_domain
 } numa_domain_t;
 
 /* CPU flags */
-#define CPU_BOOTABLE	0x01
-#define CPU_MM_INIT		0x02
+#define CPU_BOOTABLE		0x01
+#define CPU_MM_INIT			0x02
+#define CPU_INTERRUPT_INIT	0x04
+#define CPU_TOPOLOGY_INIT	0x08
+#define CPU_SCHEDULER_INIT	0x10
 
 /* Per-CPU data area structure */
 typedef struct cpu
