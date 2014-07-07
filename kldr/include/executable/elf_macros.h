@@ -57,6 +57,11 @@
 #define ELF_ST_LOUSER						0x80000000
 #define ELF_ST_HIUSER						0xffffffff
 
+#define ELF_SF_WRITE						0x01
+#define ELF_SF_ALLOC						0x02
+#define ELF_SF_EXECINSTR					0x04
+#define ELF_SF_EXECPROC						0xf0000000
+
 #define ELF32_ST_BIND(i)	((i)>>4)
 #define ELF32_ST_TYPE(i)	((i)&0xf)
 #define ELF32_ST_INFO(b,t)	(((b)<<4)+((t)&0xf))
