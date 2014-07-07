@@ -2,6 +2,7 @@
 #define __SLAB_H
 
 #include <microkernel/lock.h>
+#include <microkernel/paging.h>
 
 /* Size of a slab */
 #define SLAB_SIZE	0x2000
