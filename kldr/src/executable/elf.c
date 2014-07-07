@@ -7,8 +7,6 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
-static char *elf_get_string(inode_t *
-
 /* Load a standard executable */
 executable_t *elf_executable_load_executable(char *filename)
 {
@@ -156,14 +154,8 @@ executable_t *elf_executable_load_executable(char *filename)
 
 	/* Fill in the start, end, and entry point */
 	executable->start = start;
-	executable->end = end;
+	executable->end = PAGE_ALIGN_UP(end);
 	executable->entry_point = (vaddr_t) header.entry_point;
-
-	/* Page align the end */
-	if (executable->end & 0xFFF)
-	{
-		executable->end = (executable->end & 0xFFFFF000) + 0x1000;
-	}
 
 	/* Fill in the symbol table */
 
@@ -199,12 +191,21 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	{
 		return NULL;
 	}
+	
+	elf_section_header_t shdr;
+	bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * header.string_table_index, header.section_header_size);
+	if (bytes_read != header.section_header_size)
+	{
+		return NULL;
+	}
+	
+	char strtab[shdr.size];
+	fs_read(elf, strtab, shdr.offset, shdr.size);
 
 	/* ELF object in memory */
 	vaddr_t end = address;
 
 	/* Go through each section header and load it */
-	elf_section_header_t shdr;
 	vaddr_t section_addrs[header.num_section_headers];
 	uint64_t offset = header.section_header_table_offset;
 	for (int section = 0; section < header.num_section_headers; section++)
@@ -266,18 +267,15 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			}
 			
 			end += shdr.size;
-			
-			/* Page align the end */
-			if (end & 0xFFF)
-			{
-				end = (end & 0xFFFFF000) + 0x1000;
-			}
+			end = PAGE_ALIGN_UP(end);
 		}
 		
 		if (shdr.type == ELF_ST_SYMTAB)
 		{
-			
+			//for (int symbol = 0; symbol < 
 		}
+		
+		offset += header.section_header_size;
 	}
 
 	/* Allocate the executable structure */
