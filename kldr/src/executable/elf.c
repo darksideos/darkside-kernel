@@ -193,17 +193,19 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	}
 	
 	elf_section_header_t shdr;
-	bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * header.string_table_index, header.section_header_size);
+	bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * header.section_string_table_index, header.section_header_size);
 	if (bytes_read != header.section_header_size)
 	{
 		return NULL;
 	}
 	
-	char strtab[shdr.size];
-	fs_read(elf, strtab, shdr.offset, shdr.size);
+	char section_strtab[shdr.size];
+	fs_read(elf, section_strtab, shdr.offset, shdr.size);
 
 	/* ELF object in memory */
 	vaddr_t end = address;
+	
+	elf_section_header_t strtab_shdr, symtab_shdr;
 
 	/* Go through each section header and load it */
 	vaddr_t section_addrs[header.num_section_headers];
@@ -270,13 +272,20 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			end = PAGE_ALIGN_UP(end);
 		}
 		
-		if (shdr.type == ELF_ST_SYMTAB)
+		if (strcmp(&section_strtab[shdr.name], ".strtab") == 0)
 		{
-			//for (int symbol = 0; symbol < 
+			strtab_shdr = shdr;
+		}
+		else if (strcmp(&section_strtab[shdr.name], ".symtab") == 0)
+		{
+			symtab_shdr = shdr;
 		}
 		
 		offset += header.section_header_size;
 	}
+	
+	char strtab[strtab_shdr.size];
+	bytes_read = fs_read(elf, strtab, strtab_shdr.offset, strtab_shdr.size);
 
 	/* Allocate the executable structure */
 	executable_t *executable = (executable_t*) malloc(sizeof(executable_t));
@@ -284,6 +293,17 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	/* Fill in the start and end */
 	executable->start = address;
 	executable->end = end;
+	
+	elf_symbol_t sym;
+	for (int symbol = 0; symbol < symtab_shdr.size; symbol += symtab_shdr.subentry_size)
+	{
+		bytes_read = fs_read(elf, &sym, symtab_shdr.offset + symbol, symtab_shdr.subentry_size);
+		
+		if (strcmp(&strtab[sym.name], "module_init") == 0)
+		{
+			executable->entry_point = section_addrs[sym.section_index] + sym.value;
+		}
+	}
 
 	return executable;
 }

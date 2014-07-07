@@ -1,4 +1,4 @@
-int main()
+int module_init()
 {
-	return 42;
+	return 7893;
 }
