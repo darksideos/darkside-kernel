@@ -49,7 +49,7 @@ typedef struct elf_header
 	uint16_t num_program_headers;
 	uint16_t section_header_size;
 	uint16_t num_section_headers;
-	uint16_t string_table_index;
+	uint16_t section_string_table_index;
 } __attribute__((packed)) elf_header_t;
 
 /* ELF symtab entry */
