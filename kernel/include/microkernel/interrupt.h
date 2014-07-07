@@ -6,6 +6,12 @@
 #include <microkernel/i686/interrupt.h>
 #endif
 
+/* Create an interrupt object */
+interrupt_t *interrupt_create();
+
+/* Destroy an interrupt object */
+void interrupt_destroy(interrupt_t *interrupt);
+
 /* Register an interrupt object and its handler */
 void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t handler);
 

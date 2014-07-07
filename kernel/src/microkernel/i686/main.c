@@ -118,6 +118,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_MM_INIT;
 
 		/* Initialize the interrupt manager and signal it to the APs */
+		printf("Initializing interrupt manager\n");
+		interrupts_init();
 		cpu->flags |= CPU_INTERRUPT_INIT;
 
 		/* Initialize the HAL */
