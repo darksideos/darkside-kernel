@@ -114,7 +114,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			}
 
 			phdr.mem_size -= file_size;
-			if (phdr.mem_size < to_next_page)
+			if (phdr.mem_size <= to_next_page)
 			{
 				memset((void*) phdr.virtual_address + file_size, 0, phdr.mem_size);
 				phdr.mem_size = 0;
