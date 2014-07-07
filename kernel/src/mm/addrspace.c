@@ -31,7 +31,7 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 			vmm_map_page(address_space, i, pmm_alloc_page(0, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
 		}
 		vad_cache = (slab_cache_t*) free_start;
-		slab_cache_init(vad_cache, sizeof(vad_t));
+		slab_cache_init(vad_cache, sizeof(vad_t), PAGE_READ | PAGE_WRITE);
 		free_start += SLAB_SIZE;
 		free_length -= SLAB_SIZE;
 
