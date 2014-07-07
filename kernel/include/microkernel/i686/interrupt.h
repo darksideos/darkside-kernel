@@ -26,6 +26,9 @@ typedef struct interrupt_controller_ops
 	void (*irq_unmask)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);	
 } interrupt_controller_ops_t;
 
+/* Interrupt handler structure */
+typedef void (*interrupt_handler_t)(struct interrupt *interrupt);
+
 /* Interrupt object structure */
 typedef struct interrupt
 {
@@ -35,7 +38,7 @@ typedef struct interrupt
 	/* IDT vector, GSI number, and handler */
 	uint8_t vector;
 	int gsi;
-	void *handler;
+	interrupt_handler_t handler;
 
 	/* Trigger mode and pin polarity */
 	uint8_t trigger_mode;
