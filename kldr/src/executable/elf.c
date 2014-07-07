@@ -7,6 +7,8 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
+static char *elf_get_string(inode_t *
+
 /* Load a standard executable */
 executable_t *elf_executable_load_executable(char *filename)
 {
@@ -40,8 +42,8 @@ executable_t *elf_executable_load_executable(char *filename)
 	for (int i = 0; i < header.num_program_headers; i++)
 	{
 		/* Read the program header */
-		bytes_read = fs_read(elf, &phdr, offset, sizeof(elf_program_header_t));
-		if (bytes_read != sizeof(elf_program_header_t))
+		bytes_read = fs_read(elf, &phdr, offset, header.program_header_size);
+		if (bytes_read != header.program_header_size)
 		{
 			return NULL;
 		}
@@ -171,7 +173,121 @@ executable_t *elf_executable_load_executable(char *filename)
 /* Load an object file */
 executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 {
-	return 0;
+	/* Page align the address */
+	if (address & 0xFFF)
+	{
+		address = (address & 0xFFFFF000) + 0x1000;
+	}
+			
+	/* Open the ELF file */
+	inode_t *elf = fs_open(filename);
+	if (!elf)
+	{
+		return NULL;
+	}
+
+	/* Read and check the header */
+	elf_header_t header;
+	uint64_t bytes_read = fs_read(elf, &header, 0, sizeof(elf_header_t));
+	if (bytes_read != sizeof(elf_header_t))
+	{
+		return NULL;
+	}
+
+	char magic[4] = {0x7F, 'E', 'L', 'F'};
+	if (memcmp(header.magic, magic, 4))
+	{
+		return NULL;
+	}
+
+	/* ELF object in memory */
+	vaddr_t end = address;
+
+	/* Go through each section header and load it */
+	elf_section_header_t shdr;
+	vaddr_t section_addrs[header.num_section_headers];
+	uint64_t offset = header.section_header_table_offset;
+	for (int section = 0; section < header.num_section_headers; section++)
+	{
+		/* Read the section header */
+		bytes_read = fs_read(elf, &shdr, offset, header.section_header_size);
+		if (bytes_read != header.section_header_size)
+		{
+			return NULL;
+		}
+
+		/* Check if it should be loaded into memory */
+		if (shdr.flags & ELF_SF_ALLOC)
+		{
+			section_addrs[section] = end;
+			/* Calculate page access flags */
+			int page_flags = PAGE_READ;
+
+			if (shdr.flags & ELF_SF_WRITE)
+			{
+				page_flags |= PAGE_WRITE;
+			}
+
+			if (shdr.flags & ELF_SF_EXECINSTR)
+			{
+				page_flags |= PAGE_EXECUTE;
+			}
+
+			if (shdr.type == ELF_ST_PROGBITS)
+			{
+				uint32_t size = shdr.size;
+				
+				/* Load each page from the file into memory */
+				for (int page = 0; page < size; page += 0x1000)
+				{
+					/* Allocate pages and map them */
+					map_page(end + page, pmm_alloc_page(), page_flags);
+
+					/* Read the data from the file */
+					if (size < 0x1000)
+					{
+						bytes_read = fs_read(elf, end + page, shdr.offset + page, size);
+					}
+					else
+					{
+						bytes_read = fs_read(elf, end + page, shdr.offset + page, 0x1000);
+						size -= 0x1000;
+					}
+				}
+			}
+			else if (shdr.type == ELF_ST_NOBITS)
+			{
+				/* Allocate a page and zero it */
+				for (int page = 0; page < shdr.size; page += 0x1000)
+				{
+					map_page(end + page, pmm_alloc_page(), page_flags);
+					memset(end + page, 0, 0x1000);
+				}
+			}
+			
+			end += shdr.size;
+			
+			/* Page align the end */
+			if (end & 0xFFF)
+			{
+				end = (end & 0xFFFFF000) + 0x1000;
+			}
+		}
+		
+		if (shdr.type == ELF_ST_SYMTAB)
+		{
+			
+		}
+	}
+
+	/* Allocate the executable structure */
+	executable_t *executable = (executable_t*) malloc(sizeof(executable_t));
+
+	/* Fill in the start and end */
+	executable->start = address;
+	executable->end = end;
+
+	return executable;
 }
 
 /* Executable format operations */
