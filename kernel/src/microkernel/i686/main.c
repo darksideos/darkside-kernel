@@ -12,6 +12,7 @@
 #include <microkernel/paging.h>
 #include <mm/addrspace.h>
 #include <mm/heap.h>
+#include <microkernel/interrupt.h>
 #include <hal/hal.h>
 
 /* AP trampoline symbols */
@@ -112,18 +113,17 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initializing kernel heap\n");
 		heap_init();
 
-		printf("\nRSDP address: 0x%08X\n", loader_block.rsdp);
-		printf("RSDT address: 0x%08X\n", loader_block.rsdt);
-		printf("XSDT address: 0x%08X\n", (uint32_t) loader_block.xsdt);
-
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 		cpu->flags |= CPU_MM_INIT;
 
-		/* Detect the relevant CPU topology information for itself */
+		/* Initialize the interrupt manager and signal it to the APs */
+		cpu->flags |= CPU_INTERRUPT_INIT;
 
 		/* Initialize the HAL */
 		hal_init(bsp);
+
+		/* Detect the relevant CPU topology information for itself */
 
 		/* Initialize the scheduler */
 
@@ -151,10 +151,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Use the paging structures set up by the BSP */
 		paging_init(NULL, bsp);
 
-		/* Detect the relevant CPU topology information for itself */
+		/* Wait for the BSP to initialize the interrupt manager */
+		while (!(bsp_cpu->flags & CPU_INTERRUPT_INIT));
 
 		/* Initialize the HAL */
 		hal_init(bsp);
+
+		/* Detect the relevant CPU topology information for itself */
 
 		/* Wait for the BSP to initialize the scheduler */
 
