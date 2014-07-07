@@ -1,19 +1,53 @@
 #include <types.h>
+#include <string.h>
+#include <microkernel/lock.h>
 #include <microkernel/interrupt.h>
 #include <microkernel/i686/idt.h>
+#include <microkernel/i686/isr.h>
 #include <mm/slab.h>
 
 /* Registered interrupt object list */
 static interrupt_t *interrupts[224];
+static spinlock_t interrupts_lock;
 
-/* ASM interrupt code template */
-void asm_interrupt_code_template();
+/* ASM interrupt stub template */
+void interrupt_common_stub();
 
 /* Interrupt object slab cache */
 static slab_cache_t *interrupt_cache;
 
 /* ASM interrupt stub slab cache */
 static slab_cache_t *asm_interrupt_stub_cache;
+
+/* Common handler for all interrupts */
+void interrupt_handler(struct regs *regs)
+{
+	/* Translate the IDT vector into an interrupt object */
+	interrupt_t *interrupt = interrupts[regs->int_no - 32];
+
+	/* If an unregistered interrupt triggers, panic */
+	if (!interrupt)
+	{
+		panic("Unhandled interrupt 0x%08X\n", regs->int_no);
+	}
+
+	/* Call each handler in the chain to try and resolve the IRQ */
+	bool irq_resolved = false;
+	while (!irq_resolved && interrupt)
+	{
+		if (interrupt->handler)
+		{
+			irq_resolved = interrupt->handler(interrupt);
+		}
+		interrupt = interrupt->next;
+	}
+
+	/* If the interrupt still failed to resolve, panic */
+	if (!irq_resolved)
+	{
+		panic("Failed to resolve interrupt 0x%08X\n", regs->int_no);
+	}
+}
 
 /* Create an interrupt object */
 interrupt_t *interrupt_create()
@@ -35,6 +69,8 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 
 	/* Insert the interrupt object into the registered interrupt list */
 	int offset = interrupt->vector - 32;
+	bool chained = false;
+	spinlock_acquire(&interrupts_lock, TIMEOUT_NEVER);
 	if (interrupts[offset])
 	{
 		/* Iterate through the linked list of interrupt objects */
@@ -46,24 +82,41 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 
 		/* Place the interrupt object at the end of the linked list */
 		head->next = interrupt;
+		chained = true;
 	}
 	else
 	{
 		interrupts[offset] = interrupt;
 	}
+	spinlock_release(&interrupts_lock);
 
-	/* Allocate an ASM interrupt stub, copy in the template, and modify it */
+	/* If the interrupt is the first in a chain */
+	if (!chained)
+	{
+		/* Allocate an ASM interrupt stub and copy in the template */
+		uint8_t *asm_interrupt_stub = slab_cache_alloc(asm_interrupt_stub_cache);
+		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x30);
 
-	/* Register the handler with the interrupt controller */
-	(*interrupt->controller)->irq_register_handler(interrupt->controller, interrupt);
+		/* Modify the stub to contain the proper IDT vector number */
+		asm_interrupt_stub[3] = interrupt->vector;
+
+		/* Install an IDT entry for the interrupt */
+		idt_set_gate(interrupt->vector, (uint32_t) asm_interrupt_stub, IDT_GATE_INT, true);
+	}
+
+	/* Register the interrupt with the interrupt controller */
+	(*interrupt->controller)->irq_register(interrupt->controller, interrupt);
 }
 
 /* Initialize the interrupt manager */
 void interrupts_init()
 {
+	/* Initialize the spinlock on the registered interrupts list */
+	spinlock_init(&interrupts_lock);
+
 	/* Calculate the size of the ASM interrupt stub template */
 
 	/* Create the interrupt object and ASM interrupt code slab caches */
 	interrupt_cache = slab_cache_create(sizeof(interrupt_t), PAGE_READ | PAGE_WRITE);
-	asm_interrupt_stub_cache = slab_cache_create(32, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
+	asm_interrupt_stub_cache = slab_cache_create(0x30, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
 }
