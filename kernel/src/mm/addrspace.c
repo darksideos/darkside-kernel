@@ -11,7 +11,7 @@
 /* System address space */
 static addrspace_t system_addrspace;
 
-/* Slab caches for VADs */
+/* VAD slab cache */
 static slab_cache_t *vad_cache;
 
 /* Initialize an address space */
