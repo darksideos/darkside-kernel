@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <microkernel/lock.h>
 #include <microkernel/interrupt.h>
 #include <microkernel/i686/idt.h>
@@ -21,6 +22,31 @@ static slab_cache_t *asm_interrupt_stub_cache;
 /* Common handler for all interrupts */
 void interrupt_handler(struct regs *regs)
 {
+	/* Translate the IDT vector into an interrupt object */
+	interrupt_t *interrupt = interrupts[regs->int_no - 32];
+
+	/* If an unregistered interrupt triggers, panic */
+	if (!interrupt)
+	{
+		panic("Unhandled interrupt 0x%08X\n", regs->int_no);
+	}
+
+	/* Call each handler in the chain to try and resolve the IRQ */
+	bool irq_resolved = false;
+	while (!irq_resolved && interrupt)
+	{
+		if (interrupt->handler)
+		{
+			irq_resolved = interrupt->handler(interrupt);
+		}
+		interrupt = interrupt->next;
+	}
+
+	/* If the interrupt still failed to resolve, panic */
+	if (!irq_resolved)
+	{
+		panic("Failed to resolve interrupt 0x%08X\n", regs->int_no);
+	}
 }
 
 /* Create an interrupt object */
