@@ -48,6 +48,10 @@ void ba_main(loader_block_t *loader_block)
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
+	
+	executable_t *test_module = elf_executable_load_object("/boot/testmod.elf", 0x40000000);
+	printf("Test module entry point: %08X.\n", test_module->entry_point);
+	while(1);
 
 	/* Load bootvid into virtual memory */
 
