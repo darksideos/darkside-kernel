@@ -27,7 +27,7 @@ typedef struct interrupt_controller_ops
 } interrupt_controller_ops_t;
 
 /* Interrupt handler structure */
-typedef void (*interrupt_handler_t)(struct interrupt *interrupt);
+typedef bool (*interrupt_handler_t)(struct interrupt *interrupt);
 
 /* Interrupt object structure */
 typedef struct interrupt
