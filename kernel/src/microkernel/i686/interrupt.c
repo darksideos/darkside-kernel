@@ -104,8 +104,8 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 		idt_set_gate(interrupt->vector, (uint32_t) asm_interrupt_stub, IDT_GATE_INT, true);
 	}
 
-	/* Register the handler with the interrupt controller */
-	(*interrupt->controller)->irq_register_handler(interrupt->controller, interrupt);
+	/* Register the interrupt with the interrupt controller */
+	(*interrupt->controller)->irq_register(interrupt->controller, interrupt);
 }
 
 /* Initialize the interrupt manager */

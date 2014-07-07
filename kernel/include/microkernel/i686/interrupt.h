@@ -17,9 +17,9 @@ typedef struct interrupt_controller_ops
 	void (*init)(struct interrupt_controller_ops **controller);
 	void (*shutdown)(struct interrupt_controller_ops **controller);
 
-	/* Register and unregister a handler for an interrupt */
-	int (*irq_register_handler)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
-	int (*irq_unregister_handler)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
+	/* Register and unregister an interrupt */
+	int (*irq_register)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
+	int (*irq_unregister)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
 
 	/* Mask and unmask an interrupt */
 	void (*irq_mask)(struct interrupt_controller_ops **controller, struct interrupt *interrupt);
