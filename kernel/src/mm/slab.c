@@ -7,18 +7,19 @@
 #include <mm/slab.h>
 
 /* Create a slab cache */
-slab_cache_t *slab_cache_create(size_t object_size)
+slab_cache_t *slab_cache_create(size_t object_size, int flags)
 {
-	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL | PAGE_PRIVATE);
-	slab_cache_init(slab_cache, object_size);
+	slab_cache_t *slab_cache = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, flags | PAGE_GLOBAL | PAGE_PRIVATE);
+	slab_cache_init(slab_cache, object_size, flags);
 	return slab_cache;
 }
 
 /* Initialize a slab cache */
-void slab_cache_init(slab_cache_t *slab_cache, size_t object_size)
+void slab_cache_init(slab_cache_t *slab_cache, size_t object_size, int flags)
 {
 	/* Fill in basic information */
 	slab_cache->object_size = object_size;
+	slab_cache->flags = flags;
 	spinlock_recursive_init(&slab_cache->lock);
 	slab_cache->next = NULL;
 
@@ -117,7 +118,7 @@ allocation: ;
 	spinlock_recursive_acquire(&prev_slab_cache->lock, TIMEOUT_NEVER);
 
 	/* Allocate a new slab and initialize it */
-	slab_cache = slab_cache_create(prev_slab_cache->object_size);
+	slab_cache = slab_cache_create(prev_slab_cache->object_size, prev_slab_cache->flags);
 	prev_slab_cache->next = slab_cache;
 
 	/* Perform the allocation again */
