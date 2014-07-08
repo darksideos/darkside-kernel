@@ -251,4 +251,8 @@
 #define ELF_R_386_GOT32						3
 #define ELF_R_386_GLT32						4
 
+#define ELF32_R_SYM(i)						((i)>>8)
+#define ELF32_R_TYPE(i)						((unsigned char)(i))
+#define ELF32_R_INFO(s,t)					(((s)<<8)+(unsigned char)(t))
+
 #endif

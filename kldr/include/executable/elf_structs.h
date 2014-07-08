@@ -63,4 +63,11 @@ typedef struct elf_symbol
 	uint16_t section_index;
 } __attribute__((packed)) elf_symbol_t;
 
+/* ELF rel entry */
+typedef struct elf_rel32
+{
+	uint32_t offset;
+	uint32_t info;
+} __attribute__((packed)) elf_rel32_t;
+
 #endif

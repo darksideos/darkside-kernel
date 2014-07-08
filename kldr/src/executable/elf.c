@@ -284,6 +284,40 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 		offset += header.section_header_size;
 	}
 	
+	elf_symbol_t sym;
+	elf_section_header_t rel_shdr, rel_symtab_shdr;
+	offset = header.section_header_table_offset;
+	for (int section = 0; section < header.num_section_headers; section++)
+	{
+		/* Read the section header */
+		bytes_read = fs_read(elf, &rel_shdr, offset, header.section_header_size);
+		if (bytes_read != header.section_header_size)
+		{
+			return NULL;
+		}
+		
+		if (rel_shdr.type == ELF_ST_REL)
+		{
+			bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * rel_shdr.info, header.section_header_size);
+			bytes_read = fs_read(elf, &rel_symtab_shdr, header.section_header_table_offset + header.section_header_size * rel_shdr.link, header.section_header_size);
+			
+			elf_rel32_t rel;
+			for (int i = 0; i < rel_shdr.size; i += rel_shdr.subentry_size)
+			{
+				bytes_read = fs_read(elf, &rel, rel_shdr.offset + i, rel_shdr.subentry_size);
+				bytes_read = fs_read(elf, &sym, rel_symtab_shdr.offset + ELF32_R_SYM(rel.info) * rel_symtab_shdr.subentry_size, rel_symtab_shdr.subentry_size);
+				
+				uint32_t *ptr = section_addrs[rel_shdr.info] + rel.offset;
+				if (ELF32_R_TYPE(rel.info) == ELF_R_386_PC32)
+				{
+					*ptr = sym.value + *ptr - rel.offset;
+				}
+			}
+		}
+		
+		offset += header.section_header_size;
+	}
+	
 	char strtab[strtab_shdr.size];
 	bytes_read = fs_read(elf, strtab, strtab_shdr.offset, strtab_shdr.size);
 
@@ -294,7 +328,6 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	executable->start = address;
 	executable->end = end;
 	
-	elf_symbol_t sym;
 	for (int symbol = 0; symbol < symtab_shdr.size; symbol += symtab_shdr.subentry_size)
 	{
 		bytes_read = fs_read(elf, &sym, symtab_shdr.offset + symbol, symtab_shdr.subentry_size);
