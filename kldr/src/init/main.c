@@ -45,30 +45,12 @@ void ba_main(loader_block_t *loader_block)
 	list_t modules = list_create();
 	loader_block->modules = &modules;
 
-	/* Any file should break this */
-	printf("Commencing test.\n");
-	inode_t *test_inode = fs_open("/boot/disasm.s");
-	char test_buffer[40];
-	
-	for (int q = 36820; q < 36860; q++)
-	{
-		printf("Testing with %d\n", q);
-		fs_read(test_inode, test_buffer, q, 40);
-	}
-	
-	while(1);
-
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
 	
-	/*executable_t *test_module = elf_executable_load_object("/boot/testmod.elf", 0x40000000);
-	printf("Test module entry point: %08X.\n", test_module->entry_point);
-	
-	int (*entry)() = test_module->entry_point;
-	printf("Value: %d\n", entry());
-	
-	while(1);*/
+	executable_t *test_module = elf_executable_load_object("/boot/testmod.elf", 0x40000000);
+	list_insert_tail(&modules, test_module);
 
 	/* Load bootvid into virtual memory */
 
