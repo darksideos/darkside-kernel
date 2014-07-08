@@ -1,3 +1,5 @@
+extern int do_module_test();
+
 int test()
 {
 	return 34;
@@ -5,5 +7,5 @@ int test()
 
 int module_init()
 {
-	return 7893 + test();
+	return 3 + do_module_test();
 }
