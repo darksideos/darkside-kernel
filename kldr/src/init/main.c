@@ -45,7 +45,7 @@ void ba_main(loader_block_t *loader_block)
 	list_t modules = list_create();
 	loader_block->modules = &modules;
 
-	/* Any file should break this
+	/* Any file should break this */
 	printf("Commencing test.\n");
 	inode_t *test_inode = fs_open("/boot/disasm.s");
 	char test_buffer[40];
@@ -56,7 +56,7 @@ void ba_main(loader_block_t *loader_block)
 		fs_read(test_inode, test_buffer, q, 40);
 	}
 	
-	while(1); */
+	while(1);
 
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
