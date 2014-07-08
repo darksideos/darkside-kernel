@@ -7,9 +7,9 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
-static int read_section(inode_t *elf, elf_header_t header, elf_section_header_t *shdr, int index)
+static int read_section(inode_t *elf, elf_header_t *header, elf_section_header_t *shdr, int index)
 {
-	uint64_t bytes_read = fs_read(elf, shdr, header.section_header_table_offset + (sizeof(elf_section_header_t) * index), sizeof(elf_section_header_t));
+	uint64_t bytes_read = fs_read(elf, shdr, header->section_header_table_offset + (sizeof(elf_section_header_t) * index), sizeof(elf_section_header_t));
 	if (bytes_read == sizeof(elf_section_header_t))
 	{
 		return 0;
@@ -207,7 +207,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	
 	/* Read the 'section header string table', which tells us the names of the sections */
 	elf_section_header_t shdr;
-	if (read_section(elf, header, &shdr, header.section_string_table_index)) return NULL;
+	if (read_section(elf, &header, &shdr, header.section_string_table_index)) return NULL;
 	char section_strtab[shdr.size];
 	fs_read(elf, section_strtab, shdr.offset, shdr.size);
 
@@ -310,10 +310,10 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 		if (rel_shdr.type == ELF_ST_REL)
 		{
 			/* The section affected in the relocation has an index in the info field */
-			if (read_section(elf, header, &shdr, rel_shdr.info)) return NULL;
+			if (read_section(elf, &header, &shdr, rel_shdr.info)) return NULL;
 			
 			/* The symbol table for the relocation has an index in the link field */
-			if (read_section(elf, header, &rel_symtab_shdr, rel_shdr.link)) return NULL;
+			if (read_section(elf, &header, &rel_symtab_shdr, rel_shdr.link)) return NULL;
 			
 			/* Read each relocation entry and do it */
 			elf_rel32_t rel;
