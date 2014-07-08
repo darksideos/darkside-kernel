@@ -54,7 +54,7 @@ executable_t *elf_executable_load_executable(char *filename)
 	{
 		/* Read the program header */
 		bytes_read = fs_read(elf, &phdr, offset, sizeof(elf_program_header_t));
-		if (bytes_read != header.program_header_size)
+		if (bytes_read != sizeof(elf_program_header_t))
 		{
 			return NULL;
 		}
