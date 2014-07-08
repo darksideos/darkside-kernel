@@ -136,19 +136,11 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		{
 			if (*offset + length >= superblock->block_size)
 			{
-				length -= *offset;
+				length = superblock->block_size - *offset;
 			}
 
-			printf("Values: %08X, %08X, %08X\n", (uint32_t) buffer, (uint32_t) (superblock->block_buffer + *offset), (uint32_t) length);
-			if (((int) length) > 0)
-			{
-				printf("Success!\n");
-			}
-			else
-			{
-				printf("Failure\n");
-			}
-			//memcpy(buffer, superblock->block_buffer + *offset, length);
+			memcpy(buffer, superblock->block_buffer + *offset, length);
+			
 			(*offset) = 0;
 		}
 		else
