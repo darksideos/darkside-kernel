@@ -49,8 +49,16 @@ void ba_main(loader_block_t *loader_block)
 	printf("Commencing test.\n");
 	inode_t *test_inode = fs_open("/boot/disasm.s");
 	char test_buffer[40];
+	
+	printf("Test A: offset of 40000\n");
+	fs_read(test_inode, test_buffer, 40000, 40);
+	printf("Test A successful.\n");
+	
+	printf("Test B: offset of 36860\n");
 	fs_read(test_inode, test_buffer, 36860, 40);
-	printf("Test successful.\n");
+	printf("Test B successful.\n");
+	
+	while(1);
 
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
