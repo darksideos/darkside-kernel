@@ -170,7 +170,42 @@ executable_t *elf_executable_load_executable(char *filename)
 	executable->end = PAGE_ALIGN_UP(end);
 	executable->entry_point = (vaddr_t) header.entry_point;
 
-	/* Fill in the symbol table */
+	/* Read the 'section header string table', which tells us the names of the sections */
+	elf_section_header_t shdr;
+	if (read_section(elf, &header, &shdr, header.section_string_table_index)) return NULL;
+	char section_strtab[shdr.size];
+	fs_read(elf, section_strtab, shdr.offset, shdr.size);
+	
+	/* Find the ELF symbol table */
+	offset = header.section_header_table_offset;
+	for (int section = 0; section < header.num_section_headers; section++)
+	{
+		bytes_read = fs_read(elf, &shdr, offset, sizeof(elf_section_header_t));
+		
+		/* If this is the symbol table */
+		if (!strcmp(&section_strtab[shdr.name], ".symtab"))
+		{
+			/* Pull the strtab for this symtab, found in the link field */
+			elf_section_header_t strtab_shdr;
+			if (read_section(elf, &header, &strtab_shdr, shdr.link)) return NULL;
+			char strtab[strtab_shdr.size];
+			fs_read(elf, strtab, strtab_shdr.offset, strtab_shdr.size);
+			
+			/* Iterate through all symbols, finding the GLOBAL ones (ones that need to be exported) */
+			elf_symbol_t sym;
+			for (int symbol = 0; symbol < shdr.size; symbol += sizeof(elf_symbol_t))
+			{
+				bytes_read = fs_read(elf, &sym, shdr.offset + symbol, sizeof(elf_symbol_t));
+				
+				if (ELF32_SYMBOL_BIND(sym.info) == ELF_SYMBOL_BIND_GLOBAL && ELF32_SYMBOL_TYPE(sym.info) == ELF_SYMBOL_TYPE_FUNC)
+				{
+					printf("Export: %s\n", &strtab[sym.name]);
+				}
+			}
+		}
+		
+		offset += sizeof(elf_section_header_t);
+	}
 
 	return executable;
 }
@@ -179,10 +214,7 @@ executable_t *elf_executable_load_executable(char *filename)
 executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 {
 	/* Page align the base address */
-	if (address & 0xFFF)
-	{
-		address = (address & 0xFFFFF000) + 0x1000;
-	}
+	address = PAGE_ALIGN_UP(address);
 			
 	/* Open the ELF file */
 	inode_t *elf = fs_open(filename);
@@ -295,7 +327,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	}
 	
 	elf_symbol_t sym;
-	elf_section_header_t rel_shdr, rel_symtab_shdr;
+	elf_section_header_t rel_shdr, rel_symtab_shdr, rel_strtab_shdr;
 	offset = header.section_header_table_offset;
 	for (int section = 0; section < header.num_section_headers; section++)
 	{
@@ -315,6 +347,12 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			/* The symbol table for the relocation has an index in the link field */
 			if (read_section(elf, &header, &rel_symtab_shdr, rel_shdr.link)) return NULL;
 			
+			/* The string table for the relocation has an index in the link field of the symtab */
+			if (read_section(elf, &header, &rel_strtab_shdr, rel_symtab_shdr.link)) return NULL;
+			
+			char rel_strtab[rel_strtab_shdr.size];
+			fs_read(elf, rel_strtab, rel_strtab_shdr.offset, rel_strtab_shdr.size);
+			
 			/* Read each relocation entry and do it */
 			elf_rel32_t rel;
 			for (int i = 0; i < rel_shdr.size; i += rel_shdr.subentry_size)
@@ -323,11 +361,34 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 				
 				/* Get the affected symbol */
 				bytes_read = fs_read(elf, &sym, rel_symtab_shdr.offset + ELF32_R_SYM(rel.info) * rel_symtab_shdr.subentry_size, rel_symtab_shdr.subentry_size);
-				
 				uint32_t *ptr = section_addrs[rel_shdr.info] + rel.offset;
+				
+				printf("Symbol to be relocated: %s\n", &rel_strtab[sym.name]);
+				
+				/* S represents the symbols value and P represents the "place" of the relocation */
+				uint32_t S, P;
+				
+				/* If the section index is UNDEF (0), then we need to resolve this symbol against the kernel */
+				if (sym.section_index == ELF_SN_UNDEF)
+				{
+					/* The value is the virtual address of the kernel symbol */
+					S = 0xD460;
+					P = (uint32_t) ptr;
+				}
+				else
+				{
+					/* The value is simply the value in that symbol */
+					S = sym.value;
+					P = rel.offset;
+				}
+				
+				/* The addend of the relocation, which for Rel entries is stored in the memory to be modified */
+				uint32_t A;
+				A = *ptr;
+				
 				if (ELF32_R_TYPE(rel.info) == ELF_R_386_PC32)
 				{
-					*ptr = sym.value + *ptr - rel.offset;
+					*ptr = S + A - P;
 				}
 			}
 		}
@@ -371,5 +432,10 @@ void elf_init()
 {
 	/* Register the executable format operations */
 	executable_format_register("elf", &elf_executable_ops);
+}
+
+int do_module_test()
+{
+	return 10;
 }
 

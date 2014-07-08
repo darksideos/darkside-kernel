@@ -34,7 +34,13 @@
 #define ELF_PF_READ							0x04
 
 /* ELF section headers */
-#define ELF_SECTION_UNDEF					0
+#define ELF_SN_UNDEF						0
+#define ELF_SN_LORESERVE					0xff00
+#define ELF_SN_LOPROC						0xff00
+#define ELF_SN_HIPROC						0xff1f
+#define ELF_SN_ABS							0xfff1
+#define ELF_SN_COMMON						0xfff2
+#define ELF_SN_HIRESERVE					0xffff
 
 #define ELF_ST_NULL							0
 #define ELF_ST_PROGBITS						1
