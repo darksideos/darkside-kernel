@@ -1,6 +1,7 @@
 #ifndef __ELF_MACROS_H
 #define __ELF_MACROS_H
 
+/* ELF header and general info */
 #define ELF_CLASS_32						1
 #define ELF_CLASS_64						2
 
@@ -17,6 +18,7 @@
 #define ELF_OBJ_FILE_VERSION_INVALID		0
 #define ELF_OBJ_FILE_VERSION_CURRENT		1
 
+/* ELF program headers */
 #define ELF_PT_NULL							0
 #define ELF_PT_LOAD							1
 #define ELF_PT_DYNAMIC						2
@@ -31,6 +33,7 @@
 #define ELF_PF_WRITE						0x02
 #define ELF_PF_READ							0x04
 
+/* ELF section headers */
 #define ELF_SECTION_UNDEF					0
 
 #define ELF_ST_NULL							0
@@ -62,10 +65,7 @@
 #define ELF_SF_EXECINSTR					0x04
 #define ELF_SF_EXECPROC						0xf0000000
 
-#define ELF32_ST_BIND(i)	((i)>>4)
-#define ELF32_ST_TYPE(i)	((i)&0xf)
-#define ELF32_ST_INFO(b,t)	(((b)<<4)+((t)&0xf))
-
+/* ELF architectures */
 #define ELF_ARCH_NONE						0
 #define ELF_ARCH_M32						1
 #define ELF_ARCH_SPARC						2
@@ -225,6 +225,7 @@
 #define ELF_ARCH_XCORE						203
 #define ELF_ARCH_MCHP_PIC					204
 
+/* ELF symbols */
 #define ELF_SYMBOL_TYPE_NOTYPE				0
 #define ELF_SYMBOL_TYPE_OBJECT				1
 #define ELF_SYMBOL_TYPE_FUNC				2
@@ -245,6 +246,11 @@
 #define ELF_SYMBOL_BIND_LOPROC				13
 #define ELF_SYMBOL_BIND_HIPROC				15
 
+#define ELF32_SYMBOL_BIND(i)				((i)>>4)
+#define ELF32_SYMBOL_TYPE(i)				((i)&0xf)
+#define ELF32_SYMBOL_INFO(b,t)				(((b)<<4)+((t)&0xf))
+
+/* ELF relocations */
 #define ELF_R_386_NONE						0
 #define ELF_R_386_32						1
 #define ELF_R_386_PC32						2
