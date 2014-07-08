@@ -170,20 +170,20 @@ executable_t *elf_executable_load_executable(char *filename)
 	executable->end = PAGE_ALIGN_UP(end);
 	executable->entry_point = (vaddr_t) header.entry_point;
 
-	/* Read the 'section header string table', which tells us the names of the sections */
+	/* Read the 'section header string table', which tells us the names of the sections
 	elf_section_header_t shdr;
 	if (read_section(elf, &header, &shdr, header.section_string_table_index)) return NULL;
 	char section_strtab[shdr.size];
 	bytes_read = fs_read(elf, section_strtab, shdr.offset, shdr.size);
 	if (bytes_read != shdr.size) return NULL;
 	
-	/* Find the ELF symbol table */
+	/* Find the ELF symbol table
 	offset = header.section_header_table_offset;
 	for (int section = 0; section < header.num_section_headers; section++)
 	{
 		printf("Reading section header, inode %08X, buffer %08X, offset %d\n", elf, &shdr, (uint32_t) offset);
 		
-		/* Read the section header */
+		/* Read the section header
 		bytes_read = fs_read(elf, &shdr, offset, sizeof(elf_section_header_t));
 		
 		if (bytes_read != sizeof(elf_section_header_t))
@@ -193,23 +193,23 @@ executable_t *elf_executable_load_executable(char *filename)
 		
 		printf("Section name: %s\n", &section_strtab[shdr.name]);
 		
-		/* If this is the symbol table */
+		/* If this is the symbol table
 		if (!strcmp(&section_strtab[shdr.name], ".symtab"))
 		{
 			while(1);
 			
-			/* Pull the strtab for this symtab, found in the link field */
+			/* Pull the strtab for this symtab, found in the link field
 			elf_section_header_t strtab_shdr;
 			if (read_section(elf, &header, &strtab_shdr, shdr.link)) return NULL;
 			char strtab[strtab_shdr.size];
 			bytes_read = fs_read(elf, strtab, strtab_shdr.offset, strtab_shdr.size);
 			if (bytes_read != strtab_shdr.size) return NULL;
 			
-			/* Iterate through all symbols, finding the GLOBAL ones (ones that need to be exported) */
+			/* Iterate through all symbols, finding the GLOBAL ones (ones that need to be exported)
 			elf_symbol_t sym;
 			for (int symbol = 0; symbol < shdr.size; symbol += sizeof(elf_symbol_t))
 			{
-				/* Read the symbol */
+				/* Read the symbol
 				bytes_read = fs_read(elf, &sym, shdr.offset + symbol, sizeof(elf_symbol_t));
 				if (bytes_read != sizeof(elf_symbol_t))
 				{
@@ -224,7 +224,7 @@ executable_t *elf_executable_load_executable(char *filename)
 		}
 		
 		offset += sizeof(elf_section_header_t);
-	}
+	}*/
 
 	return executable;
 }
