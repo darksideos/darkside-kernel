@@ -51,6 +51,10 @@ void ba_main(loader_block_t *loader_block)
 	
 	executable_t *test_module = elf_executable_load_object("/boot/testmod.elf", 0x40000000);
 	printf("Test module entry point: %08X.\n", test_module->entry_point);
+	
+	int (*entry)() = test_module->entry_point;
+	printf("Value: %d\n", entry());
+	
 	while(1);
 
 	/* Load bootvid into virtual memory */
