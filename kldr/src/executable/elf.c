@@ -181,16 +181,17 @@ executable_t *elf_executable_load_executable(char *filename)
 	offset = header.section_header_table_offset;
 	for (int section = 0; section < header.num_section_headers; section++)
 	{
-		printf("Reading section header, %08X, offset %d, length %d\n", &shdr, (uint32_t) offset, sizeof(elf_section_header_t));
+		printf("Reading section header, inode %08X, buffer %08X, offset %d\n", elf, &shdr, (uint32_t) offset);
+		
 		/* Read the section header */
 		bytes_read = fs_read(elf, &shdr, offset, sizeof(elf_section_header_t));
+		
 		if (bytes_read != sizeof(elf_section_header_t))
 		{
 			return NULL;
 		}
 		
-		printf("Printing name\n");
-		printf("NAME: %s\n", &section_strtab[shdr.name]);
+		printf("Section name: %s\n", &section_strtab[shdr.name]);
 		
 		/* If this is the symbol table */
 		if (!strcmp(&section_strtab[shdr.name], ".symtab"))
