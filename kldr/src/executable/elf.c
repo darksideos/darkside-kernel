@@ -7,6 +7,21 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
+static elf_section_header_t elf_read_section(inode_t *elf, elf_header_t header, int index)
+{
+	elf_section_header_t shdr;
+	
+	uint64_t bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * index, header.section_header_size);
+	if (bytes_read == header.section_header_size)
+	{
+		return shdr;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 /* Load a standard executable */
 executable_t *elf_executable_load_executable(char *filename)
 {
@@ -192,13 +207,8 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 		return NULL;
 	}
 	
-	elf_section_header_t shdr;
-	bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * header.section_string_table_index, header.section_header_size);
-	if (bytes_read != header.section_header_size)
-	{
-		return NULL;
-	}
-	
+	/* Read the 'section header string table', which tells us the names of the sections */
+	elf_section_header_t shdr = elf_section_read(elf, header, header.section_string_table_index);
 	char section_strtab[shdr.size];
 	fs_read(elf, section_strtab, shdr.offset, shdr.size);
 
@@ -223,6 +233,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 		if (shdr.flags & ELF_SF_ALLOC)
 		{
 			section_addrs[section] = end;
+			
 			/* Calculate page access flags */
 			int page_flags = PAGE_READ;
 
@@ -272,6 +283,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			end = PAGE_ALIGN_UP(end);
 		}
 		
+		/* Check if it's .strtab (the ELF string table) or .symtab (the ELF symbol table), we need those later */
 		if (strcmp(&section_strtab[shdr.name], ".strtab") == 0)
 		{
 			strtab_shdr = shdr;
@@ -296,15 +308,22 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			return NULL;
 		}
 		
+		/* TODO: Add support for Rela entries (GCC doesn't seem to use them but we should have them anyways) */
 		if (rel_shdr.type == ELF_ST_REL)
 		{
-			bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * rel_shdr.info, header.section_header_size);
-			bytes_read = fs_read(elf, &rel_symtab_shdr, header.section_header_table_offset + header.section_header_size * rel_shdr.link, header.section_header_size);
+			/* The section affected in the relocation has an index in the info field */
+			shdr = elf_section_read(elf, header, rel_shdr.info);
 			
+			/* The symbol table for the relocation has an index in the link field */
+			rel_symtab_shdr = elf_section_read(elf, header, rel_shdr.link);
+			
+			/* Read each relocation entry and do it */
 			elf_rel32_t rel;
 			for (int i = 0; i < rel_shdr.size; i += rel_shdr.subentry_size)
 			{
 				bytes_read = fs_read(elf, &rel, rel_shdr.offset + i, rel_shdr.subentry_size);
+				
+				/* Get the affected symbol */
 				bytes_read = fs_read(elf, &sym, rel_symtab_shdr.offset + ELF32_R_SYM(rel.info) * rel_symtab_shdr.subentry_size, rel_symtab_shdr.subentry_size);
 				
 				uint32_t *ptr = section_addrs[rel_shdr.info] + rel.offset;
@@ -328,11 +347,12 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	executable->start = address;
 	executable->end = end;
 	
+	/* Check every symbol, looking for 'module_init' */
 	for (int symbol = 0; symbol < symtab_shdr.size; symbol += symtab_shdr.subentry_size)
 	{
 		bytes_read = fs_read(elf, &sym, symtab_shdr.offset + symbol, symtab_shdr.subentry_size);
 		
-		if (strcmp(&strtab[sym.name], "module_init") == 0)
+		if (strcmp(&strtab[sym.name], "module_init") == 0 && sym.type == ELF_SYMBOL_TYPE_FUNC)
 		{
 			executable->entry_point = section_addrs[sym.section_index] + sym.value;
 		}
