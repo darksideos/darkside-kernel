@@ -50,13 +50,11 @@ void ba_main(loader_block_t *loader_block)
 	inode_t *test_inode = fs_open("/boot/disasm.s");
 	char test_buffer[40];
 	
-	printf("Test A: offset of 40000\n");
-	fs_read(test_inode, test_buffer, 40000, 40);
-	printf("Test A successful.\n");
-	
-	printf("Test B: offset of 36860\n");
-	fs_read(test_inode, test_buffer, 36860, 40);
-	printf("Test B successful.\n");
+	for (int q = 36820; q < 36860; q++)
+	{
+		printf("Testing with %d\n", q);
+		fs_read(test_inode, test_buffer, q, 40);
+	}
 	
 	while(1);
 
