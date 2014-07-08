@@ -7,18 +7,16 @@
 #include <executable/executable.h>
 #include <executable/elf.h>
 
-static elf_section_header_t elf_read_section(inode_t *elf, elf_header_t header, int index)
+static int read_section(inode_t *elf, elf_header_t header, elf_section_header_t *shdr, int index)
 {
-	elf_section_header_t shdr;
-	
-	uint64_t bytes_read = fs_read(elf, &shdr, header.section_header_table_offset + header.section_header_size * index, header.section_header_size);
-	if (bytes_read == header.section_header_size)
+	uint64_t bytes_read = fs_read(elf, shdr, header.section_header_table_offset + (sizeof(elf_section_header_t) * index), sizeof(elf_section_header_t));
+	if (bytes_read == sizeof(elf_section_header_t))
 	{
-		return shdr;
+		return 0;
 	}
 	else
 	{
-		return NULL;
+		return -1;
 	}
 }
 
@@ -55,7 +53,7 @@ executable_t *elf_executable_load_executable(char *filename)
 	for (int i = 0; i < header.num_program_headers; i++)
 	{
 		/* Read the program header */
-		bytes_read = fs_read(elf, &phdr, offset, header.program_header_size);
+		bytes_read = fs_read(elf, &phdr, offset, sizeof(elf_program_header_t));
 		if (bytes_read != header.program_header_size)
 		{
 			return NULL;
@@ -161,7 +159,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			}
 		}
 
-		offset += header.program_header_size;
+		offset += sizeof(elf_program_header_t);
 	}
 
 	/* Allocate the executable structure */
@@ -180,7 +178,7 @@ executable_t *elf_executable_load_executable(char *filename)
 /* Load an object file */
 executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 {
-	/* Page align the address */
+	/* Page align the base address */
 	if (address & 0xFFF)
 	{
 		address = (address & 0xFFFFF000) + 0x1000;
@@ -208,7 +206,8 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	}
 	
 	/* Read the 'section header string table', which tells us the names of the sections */
-	elf_section_header_t shdr = elf_section_read(elf, header, header.section_string_table_index);
+	elf_section_header_t shdr;
+	if (read_section(elf, header, &shdr, header.section_string_table_index)) return NULL;
 	char section_strtab[shdr.size];
 	fs_read(elf, section_strtab, shdr.offset, shdr.size);
 
@@ -223,8 +222,8 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	for (int section = 0; section < header.num_section_headers; section++)
 	{
 		/* Read the section header */
-		bytes_read = fs_read(elf, &shdr, offset, header.section_header_size);
-		if (bytes_read != header.section_header_size)
+		bytes_read = fs_read(elf, &shdr, offset, sizeof(elf_section_header_t));
+		if (bytes_read != sizeof(elf_section_header_t))
 		{
 			return NULL;
 		}
@@ -252,7 +251,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 				uint32_t size = shdr.size;
 				
 				/* Load each page from the file into memory */
-				for (int page = 0; page < size; page += 0x1000)
+				for (vaddr_t page = 0; page < size; page += 0x1000)
 				{
 					/* Allocate pages and map them */
 					map_page(end + page, pmm_alloc_page(), page_flags);
@@ -272,28 +271,27 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			else if (shdr.type == ELF_ST_NOBITS)
 			{
 				/* Allocate a page and zero it */
-				for (int page = 0; page < shdr.size; page += 0x1000)
+				for (vaddr_t page = 0; page < shdr.size; page += 0x1000)
 				{
 					map_page(end + page, pmm_alloc_page(), page_flags);
 					memset(end + page, 0, 0x1000);
 				}
 			}
 			
-			end += shdr.size;
-			end = PAGE_ALIGN_UP(end);
+			end = PAGE_ALIGN_UP(end + shdr.size);
 		}
 		
 		/* Check if it's .strtab (the ELF string table) or .symtab (the ELF symbol table), we need those later */
-		if (strcmp(&section_strtab[shdr.name], ".strtab") == 0)
+		if (!strcmp(&section_strtab[shdr.name], ".strtab"))
 		{
 			strtab_shdr = shdr;
 		}
-		else if (strcmp(&section_strtab[shdr.name], ".symtab") == 0)
+		else if (!strcmp(&section_strtab[shdr.name], ".symtab"))
 		{
 			symtab_shdr = shdr;
 		}
 		
-		offset += header.section_header_size;
+		offset += sizeof(elf_section_header_t);
 	}
 	
 	elf_symbol_t sym;
@@ -302,8 +300,8 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	for (int section = 0; section < header.num_section_headers; section++)
 	{
 		/* Read the section header */
-		bytes_read = fs_read(elf, &rel_shdr, offset, header.section_header_size);
-		if (bytes_read != header.section_header_size)
+		bytes_read = fs_read(elf, &rel_shdr, offset, sizeof(elf_section_header_t));
+		if (bytes_read != sizeof(elf_section_header_t))
 		{
 			return NULL;
 		}
@@ -312,10 +310,10 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 		if (rel_shdr.type == ELF_ST_REL)
 		{
 			/* The section affected in the relocation has an index in the info field */
-			shdr = elf_section_read(elf, header, rel_shdr.info);
+			if (read_section(elf, header, &shdr, rel_shdr.info)) return NULL;
 			
 			/* The symbol table for the relocation has an index in the link field */
-			rel_symtab_shdr = elf_section_read(elf, header, rel_shdr.link);
+			if (read_section(elf, header, &rel_symtab_shdr, rel_shdr.link)) return NULL;
 			
 			/* Read each relocation entry and do it */
 			elf_rel32_t rel;
@@ -334,7 +332,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 			}
 		}
 		
-		offset += header.section_header_size;
+		offset += sizeof(elf_section_header_t);
 	}
 	
 	char strtab[strtab_shdr.size];
@@ -352,7 +350,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 	{
 		bytes_read = fs_read(elf, &sym, symtab_shdr.offset + symbol, symtab_shdr.subentry_size);
 		
-		if (strcmp(&strtab[sym.name], "module_init") == 0 && sym.type == ELF_SYMBOL_TYPE_FUNC)
+		if (strcmp(&strtab[sym.name], "module_init") == 0 && ELF32_SYMBOL_TYPE(sym.info) == ELF_SYMBOL_TYPE_FUNC)
 		{
 			executable->entry_point = section_addrs[sym.section_index] + sym.value;
 		}
