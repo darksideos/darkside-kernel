@@ -24,6 +24,22 @@ extern void ap_trampoline_end();
 extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
 
+thread_t thread1, thread2;
+
+void test1()
+{
+	printf("thread1\n");
+	for (int i = 0; i < 8000000; i++) {}
+	thread_run(&thread2);
+}
+
+void test2()
+{
+	printf("thread2\n");
+	for (int i = 0; i < 8000000; i++) {}
+	thread_run(&thread1);
+}
+
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -138,6 +154,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Detect the relevant CPU topology information for itself */
 
 		/* Initialize the scheduler */
+		thread_init(&thread1, NULL, &test1, NULL, 0);
+		thread_init(&thread2, NULL, &test2, NULL, 0);
+		thread_run(&thread1);
 
 		/* Start the executive services */
 	}
