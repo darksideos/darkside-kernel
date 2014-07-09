@@ -60,7 +60,7 @@ static void context_init(struct regs *context, void (*fn)(void *arg), vaddr_t us
 }
 
 /* Initialize a thread */
-void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size)
+void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size, int ideal_numa_domain, uint8_t *cpu_affinity)
 {
 	/* Set the thread's parent process */
 	thread->process = parent_process;
@@ -92,6 +92,46 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 
 	/* Set the thread's state to ready-to-run */
 	thread->state = THREAD_READY;
+
+	/* Inherit the ideal NUMA domain from the parent process */
+	if (ideal_numa_domain == -1)
+	{
+		/* User thread */
+		if (parent_process)
+		{
+			thread->ideal_numa_domain = parent_process->ideal_numa_domain;
+		}
+		/* Kernel thread */
+		else
+		{
+			panic("Kernel thread has no ideal NUMA domain specified\n");
+		}
+	}
+	/* Override its parent's ideal NUMA domain */
+	else
+	{
+		thread->ideal_numa_domain = ideal_numa_domain;
+	}
+
+	/* Override its parent's CPU affinity */
+	if (cpu_affinity)
+	{
+		thread->cpu_affinity = cpu_affinity;
+	}
+	/* Inherit the CPU affinity from the parent process */
+	else
+	{
+		/* User thread */
+		if (parent_process)
+		{
+			thread->ideal_numa_domain = parent_process->ideal_numa_domain;
+		}
+		/* Kernel thread */
+		else
+		{
+			/* TODO: Every CPU available */
+		}
+	}
 }
 
 /* Run a thread on the current CPU */
