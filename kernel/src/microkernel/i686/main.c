@@ -28,16 +28,22 @@ extern uint32_t kinit_stack, kinit_func;
 /* TESTS */
 static void test1()
 {
-	printf("Thread 1\n");
-	thread_yield();
-	while(1);
+	while(1)
+	{
+		printf("Thread 1\n");
+		for (int i = 0; i < 8000000; i++) {}
+		thread_yield();
+	}
 }
 
 static void test2()
 {
-	printf("Thread 2\n");
-	thread_yield();
-	while(1);
+	while(1)
+	{
+		printf("Thread 2\n");
+		for (int i = 0; i < 8000000; i++) {}
+		thread_yield();
+	}
 }
 
 /* Initialize the core microkernel */
