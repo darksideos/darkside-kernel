@@ -8,6 +8,7 @@
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/isr.h>
 #include <microkernel/i686/msr.h>
+#include <microkernel/i686/scheduler.h>
 #include <mm/addrspace.h>
 
 /* Kernel stack size */
@@ -92,6 +93,9 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 
 	/* Set the thread's state to ready-to-run */
 	thread->state = THREAD_READY;
+
+	/* Enqueue the thread on a scheduling queue */
+	scheduler_enqueue(thread);
 }
 
 /* Run a thread on the current CPU */
