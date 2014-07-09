@@ -29,12 +29,14 @@ extern uint32_t kinit_stack, kinit_func;
 static void test1()
 {
 	printf("Thread 1\n");
+	thread_yield();
 	while(1);
 }
 
 static void test2()
 {
 	printf("Thread 2\n");
+	thread_yield();
 	while(1);
 }
 
