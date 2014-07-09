@@ -6,10 +6,14 @@
 #include <microkernel/process.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/isr.h>
+#include <microkernel/i686/msr.h>
 #include <mm/addrspace.h>
 
 /* Kernel stack size */
 #define KERNEL_STACK_SIZE 0x2000
+
+/* Switch the CPU's register context */
+void switch_context(struct regs *regs);
 
 /* Current thread ID to assign */
 static tid_t current_tid;
@@ -99,15 +103,22 @@ void thread_run(thread_t *thread)
 		/* This thread is a userspace process, so switch to its address space */
 		if (thread->process)
 		{
-			vmm_switch_address_space(thread->process->addrspace->address_space);
+			vmm_switch_address_space(thread->process->addrspace.address_space);
 		}
 	}
 
-	/* Get the per-CPU data area and set the current thread to our new thread */
+	/* Get the per-CPU data area of the current CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+
+	/* Set the CPU's current thread to our new thread */
 	cpu->current_thread = thread;
 
+	/* Make the TSS and SYSENTER MSR point to the thread's kernel stack */
+	cpu->normal_tss.esp0 = thread->kernel_stack;
+	wrmsr(IA32_MSR_SYSENTER_ESP, thread->kernel_stack, 0);
+
 	/* Switch to the new thread's register context */
+	switch_context(thread->context);
 }
 
 /* Get the current thread */
