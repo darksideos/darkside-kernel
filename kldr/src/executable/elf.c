@@ -169,6 +169,8 @@ executable_t *elf_executable_load_executable(char *filename)
 	executable->start = start;
 	executable->end = PAGE_ALIGN_UP(end);
 	executable->entry_point = (vaddr_t) header.entry_point;
+	
+	executable->exports = dict_create();
 
 	/* Read the 'section header string table', which tells us the names of the sections */
 	elf_section_header_t shdr;
@@ -209,9 +211,10 @@ executable_t *elf_executable_load_executable(char *filename)
 					return NULL;
 				}
 				
+				/* Add it to the kernel's exports if it's an exported function */
 				if (ELF32_SYMBOL_BIND(sym.info) == ELF_SYMBOL_BIND_GLOBAL && ELF32_SYMBOL_TYPE(sym.info) == ELF_SYMBOL_TYPE_FUNC)
 				{
-					
+					dict_append(&executable->exports, &strtab[sym.name], sym.value);
 				}
 			}
 		}
@@ -223,7 +226,7 @@ executable_t *elf_executable_load_executable(char *filename)
 }
 
 /* Load an object file */
-executable_t *elf_executable_load_object(char *filename, vaddr_t address)
+executable_t *elf_executable_load_object(char *filename, vaddr_t address, executable_t *kernel)
 {
 	/* Page align the base address */
 	address = PAGE_ALIGN_UP(address);
@@ -387,27 +390,30 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address)
 				uint32_t *ptr = section_addrs[rel_shdr.info] + rel.offset;
 				
 				/* S represents the symbols value and P represents the "place" of the relocation */
-				uint32_t S, P;
+				uint32_t S;
 				
 				/* If the section index is UNDEF (0), then we need to resolve this symbol against the kernel */
 				if (sym.section_index == ELF_SN_UNDEF)
 				{
 					/* The value is the virtual address of the kernel symbol */
-					S = 0xD460;
-					P = (uint32_t) ptr;
+					S = dict_get(&(kernel->exports), &rel_strtab[sym.name]);
 				}
 				else
 				{
 					/* The value is simply the value in that symbol */
-					S = sym.value;
-					P = rel.offset;
+					S = section_addrs[sym.section_index] + sym.value;
 				}
 				
 				/* The addend of the relocation, which for Rel entries is stored in the memory to be modified */
-				uint32_t A;
-				A = *ptr;
+				uint32_t A = *ptr;
 				
-				if (ELF32_R_TYPE(rel.info) == ELF_R_386_PC32)
+				uint32_t P = (uint32_t) ptr;
+				
+				if (ELF32_R_TYPE(rel.info) == ELF_R_386_32)
+				{
+					*ptr = S + A;
+				}
+				else if (ELF32_R_TYPE(rel.info) == ELF_R_386_PC32)
 				{
 					*ptr = S + A - P;
 				}
@@ -461,10 +467,5 @@ void elf_init()
 {
 	/* Register the executable format operations */
 	executable_format_register("elf", &elf_executable_ops);
-}
-
-int do_module_test()
-{
-	return 10;
 }
 

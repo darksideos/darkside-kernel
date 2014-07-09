@@ -11,8 +11,8 @@ static uint64_t hash(char *key)
 	{
 		hash_key *= 0x1F;
 		hash_key += *key;
-
 		key++;
+
 	}
 
 	return hash_key;
