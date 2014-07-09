@@ -1,5 +1,6 @@
 #include <types.h>
 #include <init/loader.h>
+#include <microkernel/atomic.h>
 #include <microkernel/cpu.h>
 #include <microkernel/paging.h>
 #include <microkernel/thread.h>
@@ -16,7 +17,7 @@
 void switch_context(struct regs *regs);
 
 /* Current thread ID to assign */
-static tid_t current_tid;
+static atomic_t current_tid;
 
 /* Initialize a thread register context */
 static void context_init(struct regs *context, void (*fn)(void *arg), vaddr_t user_stack)
@@ -65,7 +66,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 	thread->process = parent_process;
 	
 	/* Choose a thread ID for the thread */
-	thread->tid = current_tid++;
+	thread->tid = (tid_t) atomic_xadd(&current_tid, 1);
 	
 	/* Allocate the thread's kernel stack */
 	thread->kernel_stack = (vaddr_t) addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
