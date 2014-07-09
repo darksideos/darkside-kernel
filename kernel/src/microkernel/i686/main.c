@@ -25,6 +25,19 @@ extern void ap_trampoline_end();
 extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
 
+/* TESTS */
+static void test1()
+{
+	printf("Thread 1\n");
+	while(1);
+}
+
+static void test2()
+{
+	printf("Thread 2\n");
+	while(1);
+}
+
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -141,6 +154,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize multithreading and the scheduler */
 		threading_init(&loader_block);
 		scheduler_init(&loader_block);
+
+		/* Thread test */
+		thread_t thread1, thread2;
+		thread_init(&thread1, NULL, &test1, NULL, 0);
+		thread_init(&thread2, NULL, &test2, NULL, 0);
+		scheduler_run(NULL);
 
 		/* Start the executive services */
 	}
