@@ -14,6 +14,9 @@
 #include <mm/heap.h>
 #include <microkernel/interrupt.h>
 #include <hal/hal.h>
+#include <executable/executable.h>
+
+#include <list.h>
 
 /* AP trampoline symbols */
 extern void ap_trampoline();
@@ -52,6 +55,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
+		
+		/* TODO: we might need to copy this */
+		iterator_t tail = list_tail(loader_block.modules);
+		executable_t *executable = (executable_t*) tail.now(&tail);
+		
+		int (*mmm)() = executable->entry_point;
+		printf("Value: %d\n", mmm());
 
 		/* Start up each secondary CPU */
 		if (loader_block.num_cpus > 1)
@@ -168,4 +178,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 	/* Should never reach here */
 	while(1);
+}
+
+void puts_test(const char *str)
+{
+	printf("%08X\n", str);
+	printf(str);
 }

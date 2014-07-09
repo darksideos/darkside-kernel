@@ -134,8 +134,10 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 		/* Copy it into our buffer */
 		if (*offset != 0)
 		{
+			/* What we want to read doesn't fit in one block */
 			if (*offset + length >= superblock->block_size)
 			{
+				/* Read as much as we can */
 				length = superblock->block_size - *offset;
 			}
 
