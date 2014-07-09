@@ -10,6 +10,9 @@
 #define POLICY_LOW			2
 #define POLICY_BACKGROUND	3
 
+/* Enqueue a thread onto a scheduling queue */
+void scheduler_enqueue(thread_t *thread);
+
 /* Run the scheduler */
 void scheduler_run(struct regs *context);
 

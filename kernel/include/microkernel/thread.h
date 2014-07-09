@@ -11,6 +11,9 @@
 /* Initialize a thread */
 void thread_init(thread_t *thread, struct process *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size);
 
+/* Yield execution to another thread */
+void thread_yield();
+
 /* Run a thread */
 void thread_run(thread_t *thread);
 
