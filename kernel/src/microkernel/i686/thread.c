@@ -10,7 +10,7 @@
 static tid_t current_tid;
 
 /* Initialize a CPU register context */
-static void cpu_context_init(struct regs* context, void (*main_fn)(void *arg), vaddr_t user_stack)
+static void context_init(struct regs* context, void (*main_fn)(void *arg), vaddr_t user_stack)
 {
 	/* Interrupts are enabled */
 	context->eflags = 0x202;
@@ -74,12 +74,12 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*main_fn)(vo
 	if (parent_process)
 	{
 		vaddr_t user_stack = addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
-		cpu_context_init(thread->context, main_fn, user_stack);
+		context_init(thread->context, main_fn, user_stack);
 	}
 	/* No user stack */
 	else
 	{
-		cpu_context_init(thread->context, main_fn, 0);
+		context_init(thread->context, main_fn, 0);
 	}
 	
 }
