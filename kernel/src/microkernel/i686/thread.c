@@ -54,7 +54,7 @@ static void context_init(struct regs *context, void (*fn)(void *arg), vaddr_t us
 }
 
 /* Initialize a thread */
-void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size, uint8_t *cpu_affinity)
+void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size)
 {
 	/* Set the thread's parent process */
 	thread->process = parent_process;
@@ -86,21 +86,6 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 
 	/* Set the thread's state to ready-to-run */
 	thread->state = THREAD_READY;
-
-	/* Inherit the scheduling policy and priority from its parent process */
-	thread->policy = parent_process->policy;
-	thread->priority = parent_process->priority;
-
-	/* Override the CPU affinity of its parent */
-	if (cpu_affinity)
-	{
-		thread->cpu_affinity = cpu_affinity;
-	}
-	/* Inherit the parent's CPU affinity */
-	else
-	{
-		thread->cpu_affinity = parent_process->cpu_affinity;
-	}
 }
 
 /* Get the current thread */
