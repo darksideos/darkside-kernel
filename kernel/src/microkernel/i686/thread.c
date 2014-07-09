@@ -182,5 +182,6 @@ tid_t tid_current()
 /* Initialize multithreading */
 void threading_init(loader_block_t *loader_block)
 {
+	/* Keep track of thread IDs to assign to threads */
 	current_tid = (atomic_t) loader_block->num_cpus;
 }
