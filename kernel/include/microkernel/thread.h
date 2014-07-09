@@ -11,6 +11,9 @@
 /* Initialize a thread */
 void thread_init(thread_t *thread, struct process *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size);
 
+/* Run a thread */
+void thread_run(thread_t *thread);
+
 /* Get the current thread and thread ID */
 thread_t *thread_current();
 tid_t tid_current();
