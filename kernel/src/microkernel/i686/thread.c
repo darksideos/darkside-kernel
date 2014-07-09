@@ -1,6 +1,7 @@
 #include <types.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
+#include <microkernel/paging.h>
 #include <microkernel/thread.h>
 #include <microkernel/process.h>
 #include <microkernel/i686/gdt.h>
@@ -15,7 +16,6 @@ static tid_t current_tid;
 
 /* Initialize a thread register context */
 static void context_init(struct regs *context, void (*fn)(void *arg), vaddr_t user_stack)
-
 {
 	/* Interrupts are enabled */
 	context->eflags = 0x202;
@@ -102,27 +102,12 @@ void thread_run(thread_t *thread)
 			vmm_switch_address_space(thread->process->addrspace->address_space);
 		}
 	}
-	
-	/* Save the interrupt state */
-	uint32_t interrupts;
-	__asm__ volatile("pushf; pop %0" : "=r" (interrupts));
-	interrupts &= 0x200;
 
-	/* Avoid preemption while we get the per-CPU data area */
-	__asm__ volatile("cli");
-
-	/* Get the per-CPU data area */
+	/* Get the per-CPU data area and set the current thread to our new thread */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	
-	/* Set the current thread to our new thread */
 	cpu->current_thread = thread;
 
-	/* Restore the interrupt state */
-	if (interrupts)
-	{
-		__asm__ volatile("sti");
-	}
-	
+	/* Switch to the new thread's register context */
 }
 
 /* Get the current thread */
