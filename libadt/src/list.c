@@ -88,10 +88,12 @@ void *list_remove_head(list_t *list)
 	{
 		list->tail = NULL;
 	}
+	
+	list_entry_t *head = list->head;
 
 	void *value = list->head->value;
 	list->head = list->head->next;
-	free(list->head->prev);
+	free(head);
 
 	return value;
 }
@@ -108,9 +110,11 @@ void *list_remove_tail(list_t *list)
 		list->head = NULL;
 	}
 
+	list_entry_t *tail = list->tail;
+
 	void *value = list->tail->value;
 	list->tail = list->tail->prev;
-	free(list->tail->next);
+	free(tail);
 
 	return value;
 }
