@@ -1,85 +1,141 @@
 #include <types.h>
+#include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/thread.h>
 #include <microkernel/process.h>
-#include <init/loader.h>
+#include <microkernel/i686/gdt.h>
+#include <microkernel/i686/isr.h>
 #include <mm/addrspace.h>
 
+/* Kernel stack size */
 #define KERNEL_STACK_SIZE 0x2000
 
+/* Current thread ID to assign */
 static tid_t current_tid;
 
-/* Initialize a CPU register context */
-static void context_init(struct regs* context, void (*main_fn)(void *arg), vaddr_t user_stack)
+/* Initialize a thread register context */
+static void context_init(struct regs *context, void (*fn)(void *arg), vaddr_t user_stack)
+
 {
 	/* Interrupts are enabled */
 	context->eflags = 0x202;
 	
-	/* Instruction pointer to the thread's main function */
-	context->eip = (uint32_t) main_fn;
+	/* EIP is set to the thread's entry point */
+	context->eip = (uint32_t) fn;
 
-	/* Clear GPRs */
+	/* Clear the GPRs */
 	context->edi = context->esi = context->ebp = context->esp = context->ebx = context->edx = context->ecx = context->eax = 0;
 
+	/* User thread */
 	if (user_stack)
 	{
-		/* User mode stack segment and pointer */
-		context->ss = 0x23;
-		context->useresp = user_stack;
-
 		/* User mode code segment */
-		context->cs = 0x1B;
+		context->cs = USER_CS | 3;
 		
 		/* User mode data segment */
-		context->ds = context->es = context->fs = context->gs = 0x23;
+		context->ds = context->es = context->fs = context->gs = USER_DS | 3;
+
+		/* User mode stack segment and pointer */
+		context->ss = USER_DS | 3;
+		context->useresp = user_stack;
 	}
+	/* Kernel thread */
 	else
-	{
+	{		
+		/* Kernel mode code segment */
+		context->cs = KERNEL_CS;
+
+		/* Kernel mode data segment */
+		context->ds = context->es = context->fs = context->gs = KERNEL_DS;
+
 		/* Clear user mode stack segment and pointer */
 		context->ss = 0;
 		context->useresp = 0;
-		
-		/* Kernel mode code segment */
-		context->cs = 0x08;
-
-		/* Kernel mode data segment */
-		context->ds = context->es = context->fs = context->gs = 0x10;
 	}
-}
-
-/* Initialize kernel threading */
-void threading_init(loader_block_t *loader_block)
-{
-	current_tid = (tid_t) loader_block->num_cpus;
 }
 
 /* Initialize a thread */
-void thread_init(thread_t *thread, process_t *parent_process, void (*main_fn)(void *args), void *args, uint32_t stack_size)
+void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size, uint8_t *cpu_affinity)
 {
+	/* Set the thread's parent process */
 	thread->process = parent_process;
 	
-	/* Set the thread's TID to the current TID and increment the current TID */
+	/* Choose a thread ID for the thread */
 	thread->tid = current_tid++;
 	
-	/* Set the default CPU priority and thread state */
-	thread->priority = 0;
-	thread->state = THREAD_READY;
+	/* Allocate the thread's kernel stack */
+	thread->kernel_stack = (vaddr_t) addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
 	
-	thread->kernel_stack = addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+	/* Point the thread's register context to the end of the kernel stack */
+	thread->context = (struct regs*) (thread->kernel_stack - sizeof(struct regs));
 	
-	/* Create the thread's register context */
-	thread->context = (void*) thread->kernel_stack - sizeof(struct regs);
-	
-	/* If it's a user thread, then we need to allocate a user stack for it */
+	/* User thread */
 	if (parent_process)
 	{
-		vaddr_t user_stack = addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
-		context_init(thread->context, main_fn, user_stack);
+		/* Allocate a user stack for the thread */
+		vaddr_t user_stack = (vaddr_t) addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_USER);
+
+		/* Initialize the register context for a user thread */
+		context_init(thread->context, fn, user_stack);
 	}
-	/* No user stack */
+	/* Kernel thread */
 	else
 	{
-		context_init(thread->context, main_fn, 0);
+		/* Initialize the register context for a kernel thread */
+		context_init(thread->context, fn, 0);
+	}
+
+	/* Set the thread's state to ready-to-run */
+	thread->state = THREAD_READY;
+
+	/* Inherit the scheduling policy and priority from its parent process */
+	thread->policy = parent_process->policy;
+	thread->priority = parent_process->priority;
+
+	/* Override the CPU affinity of its parent */
+	if (cpu_affinity)
+	{
+		thread->cpu_affinity = cpu_affinity;
+	}
+	/* Inherit the parent's CPU affinity */
+	else
+	{
+		thread->cpu_affinity = parent_process->cpu_affinity;
+	}
+}
+
+/* Run a thread on the current CPU */
+void thread_run(thread_t *thread)
+{
+	/* Check if we need to switch address spaces to a different process */
+	process_t *process = thread_current()->process;
+	if (!process || thread->process != process)
+	{
+		/* This thread is a userspace process, so switch to its address space */
+		if (thread->process)
+		{
+			vmm_switch_address_space(thread->process->addrspace->address_space);
+		}
+	}
+	
+	/* Save the interrupt state */
+	uint32_t interrupts;
+	__asm__ volatile("pushf; pop %0" : "=r" (interrupts));
+	interrupts &= 0x200;
+
+	/* Avoid preemption while we get the per-CPU data area */
+	__asm__ volatile("cli");
+
+	/* Get the per-CPU data area */
+	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+	
+	/* Set the current thread to our new thread */
+	cpu->current_thread = thread;
+
+	/* Restore the interrupt state */
+	if (interrupts)
+	{
+		__asm__ volatile("sti");
 	}
 	
 }
@@ -139,4 +195,10 @@ tid_t tid_current()
 		__asm__ volatile("sti");
 	}
 	return tid;
+}
+
+/* Initialize multithreading */
+void threading_init(loader_block_t *loader_block)
+{
+	current_tid = (tid_t) loader_block->num_cpus;
 }

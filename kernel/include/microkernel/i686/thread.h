@@ -7,11 +7,10 @@
 typedef unsigned tid_t;
 
 /* Thread states */
-#define THREAD_INIT		0
-#define THREAD_READY	1
-#define THREAD_RUNNING	2
-#define THREAD_BLOCKED	3
-#define THREAD_DEAD		4
+#define THREAD_READY	0
+#define THREAD_RUNNING	1
+#define THREAD_BLOCKED	2
+#define THREAD_DEAD		3
 
 /* Thread structure */
 struct process;
