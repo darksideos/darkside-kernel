@@ -114,6 +114,9 @@ void thread_run(thread_t *thread)
 	/* Set the CPU's current thread to our new thread */
 	cpu->current_thread = thread;
 
+	/* Mark the thread as running */
+	thread->state = THREAD_RUNNING;
+
 	/* Make the TSS and SYSENTER MSR point to the thread's kernel stack */
 	cpu->normal_tss.esp0 = thread->kernel_stack;
 	wrmsr(IA32_MSR_SYSENTER_ESP, thread->kernel_stack, 0);
