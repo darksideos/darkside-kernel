@@ -22,12 +22,12 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-i686.elf /mnt/hdd/boot
-		sudo cp "graphics/boot screen.bmp" /mnt/hdd/boot
+		sudo cp modules/test/testmod.elf /mnt/hdd/boot
 		sudo umount img/images/ext2.img
 		sudo rm -rf /mnt/hdd
 		sudo cp kldr/build/stage3.bin /media/george/DarkSide/boot
 		sudo cp kernel/build/kernel-i686.elf /media/george/DarkSide/boot
-		sudo cp "graphics/boot screen.bmp" /media/george/DarkSide/boot
+		sudo cp modules/test/testmod.elf /media/george/DarkSide/boot
 fi
 
 if [[ "$(uname -s)" == CYGWIN* ]]
