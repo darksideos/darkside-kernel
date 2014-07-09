@@ -166,7 +166,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Thread test */
 		thread_t thread1, thread2;
 		thread_init(&thread1, NULL, &test1, NULL, 0);
-		thread_init(&thread2, NULL, &test2, NULL, 0);
+		//thread_init(&thread2, NULL, &test2, NULL, 0);
 		scheduler_run(NULL);
 
 		/* Start the executive services */
