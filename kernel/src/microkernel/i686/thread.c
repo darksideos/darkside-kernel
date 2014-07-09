@@ -97,8 +97,8 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 /* Run a thread on the current CPU */
 void thread_run(thread_t *thread)
 {
-	/* Check if we need to switch address spaces to a different process */
-	process_t *process = thread_current()->process;
+	/* Check if we need to switch address spaces to that of a different process */
+	process_t *process = process_current();
 	if (!process || thread->process != process)
 	{
 		/* This thread is a userspace process, so switch to its address space */
@@ -182,5 +182,5 @@ tid_t tid_current()
 /* Initialize multithreading */
 void threading_init(loader_block_t *loader_block)
 {
-	current_tid = (tid_t) loader_block->num_cpus;
+	current_tid = (atomic_t) loader_block->num_cpus;
 }
