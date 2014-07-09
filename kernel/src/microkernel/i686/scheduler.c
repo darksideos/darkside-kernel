@@ -6,14 +6,6 @@
 #include <microkernel/i686/isr.h>
 #include <microkernel/i686/scheduler.h>
 
-/* Enqueue a thread onto a scheduling queue */
-static void scheduler_enqueue(thread_t *thread)
-{
-	/* TODO: Choose the best CPU */
-	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	queue_enqueue(&cpu->runqueue, thread);
-}
-
 /* Dequeue a thread from the current CPU's scheduling queue */
 static thread_t *scheduler_dequeue()
 {
@@ -22,6 +14,14 @@ static thread_t *scheduler_dequeue()
 
 	/* TODO: Take policy and priority into account */
 	return (thread_t*) queue_dequeue(&cpu->runqueue);
+}
+
+/* Enqueue a thread onto a scheduling queue */
+void scheduler_enqueue(thread_t *thread)
+{
+	/* TODO: Choose the best CPU */
+	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+	queue_enqueue(&cpu->runqueue, thread);
 }
 
 /* Run the scheduler */
