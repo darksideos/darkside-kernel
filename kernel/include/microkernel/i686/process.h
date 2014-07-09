@@ -31,6 +31,9 @@ typedef struct process
 
 	/* Ideal NUMA domain */
 	int ideal_numa_domain;
+
+	/* CPU affinity bitmap */
+	uint8_t *cpu_affinity;
 } process_t;
 
 #endif
