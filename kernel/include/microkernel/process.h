@@ -7,7 +7,7 @@
 #endif
 
 /* Initialize a process */
-void process_init(process_t *process, int policy, int priority, int ideal_numa_domain, uint8_t *cpu_affinity);
+void process_init(process_t *process, int policy, int priority);
 
 /* Get the current process and process ID */
 process_t *process_current();
