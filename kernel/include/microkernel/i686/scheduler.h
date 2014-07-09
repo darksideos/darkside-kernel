@@ -2,6 +2,7 @@
 #define __SCHEDULER_H
 
 #include <init/loader.h>
+#include <microkernel/thread.h>
 #include <microkernel/i686/isr.h>
 
 /* Thread scheduling policies */
