@@ -1,6 +1,7 @@
 #ifndef __I686_CPU_H
 #define __I686_CPU_H
 
+#include <queue.h>
 #include <microkernel/lock.h>
 #include <microkernel/thread.h>
 #include <microkernel/i686/gdt.h>
@@ -55,6 +56,7 @@ typedef struct cpu
 	thread_t *current_thread;
 
 	/* Scheduling queues */
+	queue_t runqueue;
 
 	/* Timer queue */
 
@@ -69,7 +71,7 @@ typedef struct cpu
 
 	/* Bootup and double-fault stack */
 	uint8_t boot_stack[8192];
-	uint8_t double_fault_stack[3764];
+	uint8_t double_fault_stack[3756];
 } __attribute__((packed)) cpu_t;
 
 #endif

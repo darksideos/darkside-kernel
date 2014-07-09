@@ -4,7 +4,7 @@
 #include <list.h>
 
 /* Queue structure */
-#define queue_t list_t;
+#define queue_t list_t
 
 /* Queue methods */
 #define queue_create() list_create()
