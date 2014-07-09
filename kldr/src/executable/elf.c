@@ -389,7 +389,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 				
 				uint32_t *ptr = section_addrs[rel_shdr.info] + rel.offset;
 				
-				/* S represents the symbols value and P represents the "place" of the relocation */
+				/* S represents the symbol's value */
 				uint32_t S;
 				
 				/* If the section index is UNDEF (0), then we need to resolve this symbol against the kernel */
@@ -407,6 +407,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 				/* The addend of the relocation, which for Rel entries is stored in the memory to be modified */
 				uint32_t A = *ptr;
 				
+				/* The "place" of the relocation */
 				uint32_t P = (uint32_t) ptr;
 				
 				if (ELF32_R_TYPE(rel.info) == ELF_R_386_32)
