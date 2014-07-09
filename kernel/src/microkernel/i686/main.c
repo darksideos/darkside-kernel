@@ -179,9 +179,3 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 	/* Should never reach here */
 	while(1);
 }
-
-void puts_test(const char *str)
-{
-	printf("%08X\n", str);
-	printf(str);
-}
