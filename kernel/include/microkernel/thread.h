@@ -9,7 +9,7 @@
 #endif
 
 /* Initialize a thread */
-void thread_init(thread_t *thread, struct process *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size, int ideal_numa_domain, uint8_t *cpu_affinity);
+void thread_init(thread_t *thread, struct process *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size);
 
 /* Run a thread */
 void thread_run(thread_t *thread);
