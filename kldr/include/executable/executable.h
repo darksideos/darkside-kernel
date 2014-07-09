@@ -11,7 +11,7 @@ typedef struct executable_ops
 	struct executable* (*load_executable)(char *filename);
 
 	/* Load an object file */
-	struct executable* (*load_object)(char *filename, vaddr_t address);
+	struct executable* (*load_object)(char *filename, vaddr_t address, struct executable *kernel);
 } executable_ops_t;
 
 /* Executable structure */
@@ -37,7 +37,7 @@ int executable_format_unregister(char *format_name);
 executable_t *executable_load_executable(char *filename);
 
 /* Load an object file */
-executable_t *executable_load_object(char *filename, vaddr_t address);
+executable_t *executable_load_object(char *filename, vaddr_t address, executable_t *kernel);
 
 #endif
 

@@ -49,7 +49,7 @@ void ba_main(loader_block_t *loader_block)
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
 	
-	executable_t *test_module = elf_executable_load_object("/boot/testmod.elf", 0x40000000);
+	executable_t *test_module = elf_executable_load_object("/boot/testmod.elf", 0x40000000, kernel);
 	list_insert_tail(&modules, test_module);
 
 	/* Load bootvid into virtual memory */
