@@ -25,7 +25,7 @@ thread_yield:
 	
 	; Call the scheduler
 	mov eax, esp
-	push esp
+	push eax
 	call scheduler_run
 
 ; Switch the CPU's register context
