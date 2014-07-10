@@ -28,12 +28,13 @@ extern uint32_t kinit_stack, kinit_func;
 /* TESTS */
 static void test1()
 {
-	while(1)
+	for (int x = 0; x < 100000000000; x++)
 	{
-		printf("Thread 1\n");
-		for (int i = 0; i < 8000000; i++) {}
+		printf("%d\n", x);
+		for (int i = 0; i < 800; i++) {}
 		thread_yield();
 	}
+	while(1);
 }
 
 static void test2()
