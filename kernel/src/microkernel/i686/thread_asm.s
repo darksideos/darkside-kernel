@@ -9,7 +9,7 @@ save_and_switch:
 	mov edx, .return
 	
 	; If this is the first time switching threads, don't save context
-	cmp eax, 0
+	test eax, eax
 	je .restore
 	
 	; Save the needed registers
