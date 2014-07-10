@@ -117,13 +117,9 @@ void thread_run(thread_t *thread)
 {
 	/* Check if we need to switch address spaces to that of a different process */
 	process_t *process = process_current();
-	if (!process || thread->process != process)
+	if (thread->process && thread->process != process)
 	{
-		/* This thread is a userspace process, so switch to its address space */
-		if (thread->process)
-		{
-			vmm_switch_address_space(thread->process->addrspace.address_space);
-		}
+		vmm_switch_address_space(thread->process->addrspace.address_space);
 	}
 
 	/* Get the per-CPU data area of the current CPU */
