@@ -5,7 +5,7 @@ global thread_yield
 extern scheduler_run
 thread_yield:
 	; Place return address in EAX
-	mov eax, [esp]
+	mov eax, .return
 	
 	; Save EFLAGS, CS, and EIP
 	pushf
@@ -27,6 +27,8 @@ thread_yield:
 	mov eax, esp
 	push eax
 	call scheduler_run
+.return:
+	ret
 
 ; Switch the CPU's register context
 global switch_context
