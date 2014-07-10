@@ -19,10 +19,12 @@ save_and_switch:
 	push edi
 	push ebp
 	
-	; Change the old thread's context and switch to the new thread's kernel stack
+	; Change the old thread's context
 	mov [eax], esp
-	mov esp, ecx
 .restore:
+	; Switch to the new thread's kernel stack
+	mov esp, ecx
+
 	; Restore the needed registers
 	pop ebp
 	pop edi
