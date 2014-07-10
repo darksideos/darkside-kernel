@@ -130,7 +130,11 @@ void thread_run(thread_t *thread)
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
 	/* Save a pointer to the old thread's context */
-	void **old_context_ptr = &cpu->current_thread->context;
+	void **old_context_ptr = NULL;
+	if (cpu->current_thread)
+	{
+		void **old_context_ptr = &cpu->current_thread->context;
+	}
 
 	/* Set the CPU's current thread to our new thread */
 	cpu->current_thread = thread;

@@ -8,6 +8,10 @@ save_and_switch:
 	mov ecx, [esp + 8]
 	mov edx, .return
 	
+	; If this is the first time switching threads, don't save context
+	cmp eax, 0
+	je .restore
+	
 	; Save the needed registers
 	push edx
 	push ebx
@@ -18,7 +22,7 @@ save_and_switch:
 	; Change the old thread's context and switch to the new thread's kernel stack
 	mov [eax], esp
 	mov esp, ecx
-
+.restore:
 	; Restore the needed registers
 	pop ebp
 	pop edi

@@ -26,11 +26,11 @@ extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
 
 /* TESTS */
-static void test(uint32_t n)
+static void test(void *n)
 {
 	while(1)
 	{
-		printf("Thread %d\n", n);
+		printf("Thread %d\n", (uint32_t)n);
 		thread_yield();
 	}
 }
@@ -66,13 +66,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Use the physical memory map to create the PFN database */
 		pfn_database_init(&loader_block);
-		
-		/* TODO: we might need to copy this */
-		iterator_t tail = list_tail(loader_block.modules);
-		executable_t *executable = (executable_t*) tail.now(&tail);
-		
-		int (*mmm)() = executable->entry_point;
-		printf("Value: %d\n", mmm());
 
 		/* Start up each secondary CPU */
 		if (loader_block.num_cpus > 1)
