@@ -3,7 +3,6 @@
 
 #include <init/loader.h>
 #include <microkernel/thread.h>
-#include <microkernel/i686/isr.h>
 
 /* Thread scheduling policies */
 #define POLICY_REALTIME		0
@@ -15,7 +14,7 @@
 void scheduler_enqueue(thread_t *thread);
 
 /* Run the scheduler */
-void scheduler_run(struct regs *context);
+void scheduler_run();
 
 /* Initialize the scheduler */
 void scheduler_init(loader_block_t *loader_block);

@@ -1,48 +1,43 @@
 [BITS 32]
 
-; Yield execution to another thread
-global thread_yield
-extern scheduler_run
-thread_yield:
-	; Place return address in EAX
-	mov eax, .return
+; Save the register context of one thread and switch to that of another
+global save_and_switch
+save_and_switch:
+	; EAX=Pointer to old thread's context, ECX=New thread's context, EDX=Return address
+	mov eax, [esp + 4]
+	mov ecx, [esp + 8]
+	mov edx, .return
 	
-	; Save EFLAGS, CS, and EIP
-	pushf
-	push cs
-	push eax
+	; Save the needed registers
+	push edx
+	push ebx
+	push esi
+	push edi
+	push ebp
 	
-	; Push a dummy error code and interrupt number
-	push byte 0
-	push byte 0
-	
-	; Save all registers
-	pusha
-	push ds
-	push es
-	push fs
-	push gs
-	
-	; Call the scheduler
-	mov eax, esp
-	push eax
-	call scheduler_run
+	; Change the old thread's context and switch to the new thread's kernel stack
+	mov [eax], esp
+	mov esp, ecx
+
+	; Restore the needed registers
+	pop ebp
+	pop edi
+	pop esi
+	pop ebx
 .return:
 	ret
-
-; Switch the CPU's register context
-global switch_context
-switch_context:
-	; Set the kernel stack to the register context
-	mov eax, [esp + 4]
-	mov esp, eax
 	
-	; Restore all registers
+; Enter userspace
+global thread_enter_cpl3
+thread_enter_cpl3:
+	; Restore all needed registers
 	pop gs
 	pop fs
 	pop es
 	pop ds
-	popa
+	pop edx
+	pop ecx
+	pop eax
 	
 	; Return from the interrupt
 	add esp, 8
