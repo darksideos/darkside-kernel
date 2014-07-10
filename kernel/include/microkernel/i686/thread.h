@@ -1,8 +1,6 @@
 #ifndef __I686_THREAD
 #define __I686_THREAD
 
-#include <microkernel/i686/isr.h>
-
 /* Thread ID type */
 typedef unsigned tid_t;
 
@@ -23,7 +21,7 @@ typedef struct thread
 	tid_t tid;
 
 	/* Register context */
-	struct regs *context;
+	void *context;
 
 	/* Kernel stack */
 	vaddr_t kernel_stack;

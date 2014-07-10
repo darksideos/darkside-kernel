@@ -3,7 +3,6 @@
 #include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/thread.h>
-#include <microkernel/i686/isr.h>
 #include <microkernel/i686/scheduler.h>
 
 /* Dequeue a thread from the current CPU's scheduling queue */
@@ -25,7 +24,7 @@ void scheduler_enqueue(thread_t *thread)
 }
 
 /* Run the scheduler */
-void scheduler_run(struct regs *context)
+void scheduler_run()
 {
 	/* Disable interrupts */
 	__asm__ volatile("cli");
@@ -36,9 +35,6 @@ void scheduler_run(struct regs *context)
 	/* If a thread was previously running */
 	if (old_thread)
 	{
-		/* Save its register context */
-		old_thread->context = context;
-
 		/* Queue it to run again if it was previously running */
 		if (old_thread->state == THREAD_RUNNING)
 		{

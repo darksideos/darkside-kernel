@@ -7,8 +7,10 @@ lapic_irq_spurious:
 	push byte 0
 	push byte 255
 
-	; Save all registers
-	pusha
+	; Save all needed registers
+	push eax
+	push ecx
+	push edx
 	push ds
 	push es
 	push fs
@@ -29,12 +31,14 @@ lapic_irq_spurious:
 	call eax
 	pop eax
 	
-	; Restore all registers
+	; Restore all needed registers
 	pop gs
 	pop fs
 	pop es
 	pop ds
-	popa
+	pop edx
+	pop ecx
+	pop eax
 	
 	; Return from the interrupt
 	add esp, 8
