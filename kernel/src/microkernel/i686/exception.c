@@ -85,6 +85,16 @@ void stack_trace(struct regs *regs, int max_frames)
 	}
 }
 
+/* GPF handler */
+static void gpf_handler(struct regs *regs)
+{
+	regdump(regs);
+	//stack_trace(regs, 10);
+	
+	while(1);
+	//vmm_fault_handler(faulting_address);
+}
+
 /* Page fault handler */
 static void page_fault_handler(struct regs *regs)
 {
@@ -155,5 +165,6 @@ void exceptions_install()
     idt_set_gate(31, (uint32_t) exception31, IDT_GATE_INT, true);
 
 	/* Install the C handlers */
+	exception_register_handler(13, &gpf_handler);
 	exception_register_handler(14, &page_fault_handler);
 }

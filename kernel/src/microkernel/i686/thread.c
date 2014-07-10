@@ -12,7 +12,7 @@
 #include <mm/addrspace.h>
 
 /* Kernel stack size */
-#define KERNEL_STACK_SIZE 0x2000
+#define KERNEL_STACK_SIZE 0xF000
 
 /* Switch the CPU's register context */
 void switch_context(struct regs *regs);
@@ -22,6 +22,7 @@ static atomic_t current_tid;
 
 /* Initialize a thread register context */
 static void context_init(struct regs *context, void (*fn)(void *arg), vaddr_t user_stack)
+
 {
 	/* Interrupts are enabled */
 	context->eflags = 0x202;
@@ -70,7 +71,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 	thread->tid = (tid_t) atomic_xadd(&current_tid, 1);
 	
 	/* Allocate the thread's kernel stack */
-	thread->kernel_stack = (vaddr_t) addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
+	thread->kernel_stack = (vaddr_t) addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL) + KERNEL_STACK_SIZE;
 	
 	/* Point the thread's register context to the end of the kernel stack */
 	thread->context = (struct regs*) (thread->kernel_stack - sizeof(struct regs));
@@ -79,7 +80,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 	if (parent_process)
 	{
 		/* Allocate a user stack for the thread */
-		vaddr_t user_stack = (vaddr_t) addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_USER);
+		vaddr_t user_stack = (vaddr_t) addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_USER) + stack_size;
 
 		/* Initialize the register context for a user thread */
 		context_init(thread->context, fn, user_stack);

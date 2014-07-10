@@ -80,6 +80,8 @@ void list_insert_tail(list_t *list, void *item)
 /* Remove an object from from the head of a linked list */
 void *list_remove_head(list_t *list)
 {
+	if (!list->head) return NULL;
+	
 	if (list->head->next)
 	{
 		list->head->next->prev = NULL;
@@ -101,6 +103,8 @@ void *list_remove_head(list_t *list)
 /* Remove an object from from the tail of a linked list */
 void *list_remove_tail(list_t *list)
 {
+	if (!list->tail) return NULL;
+	
 	if (list->tail->prev)
 	{
 		list->head->prev->next = NULL;
