@@ -59,37 +59,13 @@ void exception_handler(struct regs *regs)
 void regdump(struct regs *regs)
 {
 	printf("EIP=0x%08X\n", regs->eip);
-	printf("EAX=0x%08X    EBX=0x%08X    ECX=0x%08X    EDX=0x%08X\n", regs->eax, regs->ebx, regs->ecx, regs->edx);
-	printf("ESI=0x%08X    EDI=0x%08X    ESP=0x%08X    EBP=0x%08X\n", regs->esi, regs->edi, regs->esp, regs->ebp);
-}
-
-/* Do a stack trace */
-void stack_trace(struct regs *regs, int max_frames)
-{
-	printf("Stack trace:\n");
-	
-	uint32_t *ebp = regs->ebp;
-	uint32_t eip;
-	for (int frame = 0; frame < max_frames; frame++)
-	{
-		eip = ebp[1];
-		
-		/* We're done */
-		if (eip == 0)
-		{
-			return;
-		}
-		
-		ebp = (uint32_t*) ebp[0];
-		printf("    %08X\n", eip);
-	}
+	printf("EAX=0x%08X    ECX=0x%08X    EDX=0x%08X\n", regs->eax, regs->ecx, regs->edx);
 }
 
 /* GPF handler */
 static void gpf_handler(struct regs *regs)
 {
 	regdump(regs);
-	//stack_trace(regs, 10);
 	
 	while(1);
 	//vmm_fault_handler(faulting_address);
@@ -100,10 +76,9 @@ static void page_fault_handler(struct regs *regs)
 {
 	vaddr_t faulting_address;
 	__asm__ volatile("mov %%cr2, %0" : "=r" (faulting_address));
+
 	printf("Page fault at 0x%08X, error code 0x%x\n", faulting_address, regs->err_code);
-	
 	regdump(regs);
-	//stack_trace(regs, 10);
 	
 	while(1);
 	//vmm_fault_handler(faulting_address);
