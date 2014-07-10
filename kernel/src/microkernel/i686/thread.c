@@ -12,7 +12,7 @@
 #include <mm/addrspace.h>
 
 /* Kernel stack size */
-#define KERNEL_STACK_SIZE 0xF000
+#define KERNEL_STACK_SIZE 0x1000
 
 /* Switch the CPU's register context */
 void switch_context(struct regs *regs);
@@ -102,6 +102,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 /* Run a thread on the current CPU */
 void thread_run(thread_t *thread)
 {
+	//printf("Value: %08X\n", thread);
 	/* Check if we need to switch address spaces to that of a different process */
 	process_t *process = process_current();
 	if (!process || thread->process != process)
