@@ -9,7 +9,7 @@
 #define APICID		0x08
 #define APICVER		0x0C
 #define TSKPRI		0x20
-#define EOI			0x2C
+#define EOI		0x2C
 #define SPURIOUS	0x3C
 #define ICR_LOW		0xC0
 #define ICR_HIGH	0xC4
@@ -18,7 +18,6 @@
 #define LVT_LINT0	0xD4
 #define LVT_LINT1	0xD8
 #define LVT_ERR		0xDC
-
 #define TMR_INITCNT	0x70
 #define TMR_CURRCNT	0x72
 #define TMR_DIV		0xF8
@@ -26,7 +25,7 @@
 static uint32_t volatile *lapic = NULL;
 
 /* Handler for the LAPIC timer */
-void lapic_timer_handler(struct regs *regs)
+void lapic_timer_handler(interrupt_t *interrupt)
 {
 	/* Do nothing for now */
 }
