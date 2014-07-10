@@ -53,8 +53,10 @@ EXCEPTION_NOERRCODE 31
 
 ; Common stub for all exceptions
 exception_common_stub:
-	; Save all registers
-	pusha
+	; Save all needed registers
+	push eax
+	push ecx
+	push edx
 	push ds
 	push es
 	push fs
@@ -75,12 +77,14 @@ exception_common_stub:
 	call eax
 	pop eax
 	
-	; Restore all registers
+	; Restore all needed registers
 	pop gs
 	pop fs
 	pop es
 	pop ds
-	popa
+	pop edx
+	pop ecx
+	pop eax
 	
 	; Return from the interrupt
 	add esp, 8
