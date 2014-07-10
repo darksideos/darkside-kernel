@@ -42,7 +42,7 @@ static void test2()
 	while(1)
 	{
 		printf("Thread 2\n");
-		for (int i = 0; i < 8000000; i++) {}
+		//for (int i = 0; i < 2000000000; i++) {}
 		thread_yield();
 	}
 }
