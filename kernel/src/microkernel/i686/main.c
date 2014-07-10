@@ -26,26 +26,16 @@ extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
 
 /* TESTS */
-static void test1()
-{
-	for (int x = 0; x < 100000000000; x++)
-	{
-		printf("%d\n", x);
-		for (int i = 0; i < 800; i++) {}
-		thread_yield();
-	}
-	while(1);
-}
-
-static void test2()
-{
-	while(1)
-	{
-		printf("Thread 2\n");
-		//for (int i = 0; i < 2000000000; i++) {}
-		thread_yield();
-	}
-}
+static void test1() { for (int x = 1; x < 100000000000; x++) { printf("%d 1\n", x); thread_yield(); } while(1); }
+static void test2() { for (int x = 1; x < 100000000000; x++) { printf("%d 2\n", x); thread_yield(); } while(1); }
+static void test3() { for (int x = 1; x < 100000000000; x++) { printf("%d 3\n", x); thread_yield(); } while(1); }
+static void test4() { for (int x = 1; x < 100000000000; x++) { printf("%d 4\n", x); thread_yield(); } while(1); }
+static void test5() { for (int x = 1; x < 100000000000; x++) { printf("%d 5\n", x); thread_yield(); } while(1); }
+static void test6() { for (int x = 1; x < 100000000000; x++) { printf("%d 6\n", x); thread_yield(); } while(1); }
+static void test7() { for (int x = 1; x < 100000000000; x++) { printf("%d 7\n", x); thread_yield(); } while(1); }
+static void test8() { for (int x = 1; x < 100000000000; x++) { printf("%d 8\n", x); thread_yield(); } while(1); }
+static void test9() { for (int x = 1; x < 100000000000; x++) { printf("%d 9\n", x); thread_yield(); } while(1); }
+static void test10() { for (int x = 1; x < 100000000000; x++) { printf("%d 10\n", x); thread_yield(); } while(1); }
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
@@ -165,9 +155,17 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		scheduler_init(&loader_block);
 
 		/* Thread test */
-		thread_t thread1, thread2;
+		thread_t thread1, thread2, thread3, thread4, thread5, thread6, thread7, thread8, thread9, thread10;
 		thread_init(&thread1, NULL, &test1, NULL, 0);
-		//thread_init(&thread2, NULL, &test2, NULL, 0);
+		thread_init(&thread2, NULL, &test2, NULL, 0);
+		thread_init(&thread3, NULL, &test3, NULL, 0);
+		thread_init(&thread4, NULL, &test4, NULL, 0);
+		thread_init(&thread5, NULL, &test5, NULL, 0);
+		thread_init(&thread6, NULL, &test6, NULL, 0);
+		thread_init(&thread7, NULL, &test7, NULL, 0);
+		thread_init(&thread8, NULL, &test8, NULL, 0);
+		thread_init(&thread9, NULL, &test9, NULL, 0);
+		thread_init(&thread10, NULL, &test10, NULL, 0);
 		scheduler_run(NULL);
 
 		/* Start the executive services */
