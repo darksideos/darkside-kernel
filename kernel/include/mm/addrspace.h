@@ -9,6 +9,9 @@
 #define ADDRSPACE_CURRENT	(addrspace_t*) 1
 #define ADDRSPACE_SYSTEM	(addrspace_t*) 2
 
+/* Virtual address allocation flags */
+#define GUARD_BOTTOM		0x800
+
 /* Address space structure */
 typedef struct addrspace
 {

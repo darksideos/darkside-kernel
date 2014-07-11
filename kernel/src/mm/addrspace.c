@@ -97,6 +97,13 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		size_committed = size_reserved;
 	}
 
+	/* Add a guard page if requested */
+	if (flags & GUARD_BOTTOM)
+	{
+		size_reserved += PAGE_SIZE;
+		size_committed += PAGE_SIZE;
+	}
+
 	/* Search the address space for a free region of suitable size */
 	spinlock_recursive_acquire(&addrspace->lock, TIMEOUT_NEVER);
 	vad_t *vad = &addrspace->free;
@@ -109,9 +116,19 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 			continue;
 		}
 
-		/* Commit all the needed pages */
+		/* Store the starting address of the allocation */
 		vaddr_t address = vad->start;
-		for (vaddr_t i = address; i < address + size_committed; i += PAGE_SIZE)
+
+		/* Create the guard page if requested */
+		vaddr_t i = address;
+		if (flags & GUARD_BOTTOM)
+		{
+			vmm_map_page(addrspace->address_space, i, 0, PAGE_INVALID);
+			i += PAGE_SIZE;
+		}
+
+		/* Commit all the needed pages */
+		for (; i < address + size_committed; i += PAGE_SIZE)
 		{
 			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
 			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
