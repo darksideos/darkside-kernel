@@ -26,11 +26,13 @@ void scheduler_enqueue(thread_t *thread)
 /* Run the scheduler */
 void scheduler_run()
 {
+run:
 	/* Disable interrupts */
 	__asm__ volatile("cli");
 
 	/* Get the thread that was interrupted */
 	thread_t *old_thread = thread_current();
+	printf("Old thread 0x%08X\n");
 
 	/* If a thread was previously running */
 	if (old_thread)
@@ -39,12 +41,17 @@ void scheduler_run()
 		if (old_thread->state == THREAD_RUNNING)
 		{
 			scheduler_enqueue(old_thread);
+			printf("Enqueued old thread\n");
 		}
 	}
 
 	/* Pick a new thread and switch to it */
 	thread_t *new_thread = scheduler_dequeue();
-	thread_run(new_thread);
+	printf("New thread 0x%08X\n", new_thread);
+	//thread_run(new_thread);
+	cpu_data_area(CPU_CURRENT)->current_thread = new_thread;
+	new_thread->state = THREAD_RUNNING;
+	goto run;
 }
 
 /* Initialize the scheduler */
