@@ -115,7 +115,7 @@ void thread_yield()
 /* Run a thread on the current CPU */
 void thread_run(thread_t *thread)
 {
-	//printf("0x%08X\n", thread);
+	printf("0x%08X\n", thread);
 	//__asm__ volatile("mov %0, %%eax" :: "r"(thread));
 	//while(1);
 
@@ -133,7 +133,7 @@ void thread_run(thread_t *thread)
 	void **old_context_ptr = NULL;
 	if (cpu->current_thread)
 	{
-		void **old_context_ptr = &cpu->current_thread->context;
+		old_context_ptr = &cpu->current_thread->context;
 	}
 
 	/* Set the CPU's current thread to our new thread */
