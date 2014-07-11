@@ -115,10 +115,6 @@ void thread_yield()
 /* Run a thread on the current CPU */
 void thread_run(thread_t *thread)
 {
-	printf("0x%08X\n", thread);
-	//__asm__ volatile("mov %0, %%eax" :: "r"(thread));
-	//while(1);
-
 	/* Check if we need to switch address spaces to that of a different process */
 	process_t *process = process_current();
 	if (thread->process && thread->process != process)
