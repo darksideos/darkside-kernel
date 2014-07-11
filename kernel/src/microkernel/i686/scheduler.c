@@ -56,6 +56,9 @@ void scheduler_enqueue(thread_t *thread)
 		/* Make a self-loop */
 		thread->next = thread;
 		thread->prev = thread;
+		
+		/* Set the runqueue */
+		cpu->runqueue = thread;
 	}
 }
 
