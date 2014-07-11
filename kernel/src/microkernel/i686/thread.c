@@ -75,7 +75,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 	thread->tid = (tid_t) atomic_xadd(&current_tid, 1);
 	
 	/* Allocate the thread's kernel stack */
-	thread->kernel_stack = (vaddr_t) addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL) + KERNEL_STACK_SIZE;
+	thread->kernel_stack = (vaddr_t) addrspace_alloc(ADDRSPACE_SYSTEM, KERNEL_STACK_SIZE, KERNEL_STACK_SIZE, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL | GUARD_BOTTOM) + KERNEL_STACK_SIZE;
 	
 	/* User thread */
 	if (parent_process)
@@ -84,7 +84,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 		thread->context = (void*) (thread->kernel_stack - (sizeof(struct context) + sizeof(struct regs) - 8));
 
 		/* Allocate a user stack for the thread */
-		vaddr_t user_stack = (vaddr_t) addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_USER) + stack_size;
+		vaddr_t user_stack = (vaddr_t) addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_USER | GUARD_BOTTOM) + stack_size;
 
 		/* Initialize the register context for a user thread */
 		context_init((struct context*) thread->context, fn, args, user_stack);
