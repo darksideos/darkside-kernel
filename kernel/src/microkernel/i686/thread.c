@@ -12,7 +12,7 @@
 #include <mm/addrspace.h>
 
 /* Kernel stack size */
-#define KERNEL_STACK_SIZE 0x1000
+#define KERNEL_STACK_SIZE 0x2000
 
 /* Register context */
 struct context
