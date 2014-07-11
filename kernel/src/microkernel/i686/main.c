@@ -17,8 +17,6 @@
 #include <microkernel/thread.h>
 #include <microkernel/i686/scheduler.h>
 
-#include <executable/executable.h>
-
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
