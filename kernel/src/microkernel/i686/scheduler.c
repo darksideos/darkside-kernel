@@ -9,9 +9,25 @@ static thread_t *scheduler_dequeue()
 {
 	/* Get the per-CPU data area of the current CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+	thread_t *thread = cpu->runqueue;
 
-	/* TODO: Take policy and priority into account */
-	return cpu->runqueue;
+	thread_t *new_head = cpu->runqueue->next;
+	thread_t *tail = cpu->runqueue->prev;
+	
+	/* Check if there's only one thread in the queue */
+	if (thread != new_head)
+	{
+		new_head->prev = tail;
+		tail->next = new_head;
+	}
+	else
+	{
+		new_head = NULL;
+	}
+	
+	cpu->runqueue = new_head;	
+	
+	return thread;
 }
 
 /* Enqueue a thread onto a scheduling queue */
@@ -21,7 +37,6 @@ void scheduler_enqueue(thread_t *thread)
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 	
 	thread_t *head = cpu->runqueue;
-	cpu->runqueue = thread;
 	
 	/* Check if there was already a thread in the queue */
 	if (head)
@@ -42,8 +57,6 @@ void scheduler_enqueue(thread_t *thread)
 		thread->next = thread;
 		thread->prev = thread;
 	}
-	
-	cpu->runqueue = thread;
 }
 
 /* Run the scheduler */
