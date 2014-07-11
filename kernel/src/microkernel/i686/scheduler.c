@@ -1,5 +1,4 @@
 #include <types.h>
-#include <queue.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/thread.h>
@@ -12,7 +11,7 @@ static thread_t *scheduler_dequeue()
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
 	/* TODO: Take policy and priority into account */
-	return (thread_t*) queue_dequeue(&cpu->runqueue);
+	return cpu->runqueue;
 }
 
 /* Enqueue a thread onto a scheduling queue */
@@ -20,7 +19,7 @@ void scheduler_enqueue(thread_t *thread)
 {
 	/* TODO: Choose the best CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	queue_enqueue(&cpu->runqueue, thread);
+	cpu->runqueue = thread;
 }
 
 /* Run the scheduler */
@@ -60,7 +59,7 @@ void scheduler_init(loader_block_t *loader_block)
 		if (cpu->flags)
 		{
 			/* TODO: Create queues for each policy and priority */
-			cpu->runqueue = queue_create();
+			cpu->runqueue = NULL;
 		}
 	}
 }
