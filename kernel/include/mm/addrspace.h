@@ -10,7 +10,7 @@
 #define ADDRSPACE_SYSTEM	(addrspace_t*) 2
 
 /* Virtual address allocation flags */
-#define GUARD_BOTTOM		0x800
+#define GUARD_BOTTOM		0x1000
 
 /* Address space structure */
 typedef struct addrspace
