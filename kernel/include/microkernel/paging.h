@@ -16,11 +16,11 @@
 #define PAGE_WRITE				0x02
 #define PAGE_EXECUTE			0x04
 #define PAGE_WRITECOPY			0x08
-#define PAGE_INVALID			0x00
-#define PAGE_NOCACHE			0x10
-#define PAGE_WRITECOMBINE		0x20
-#define PAGE_USER				0x40
-#define PAGE_GLOBAL				0x80
+#define PAGE_INVALID			0x10
+#define PAGE_NOCACHE			0x20
+#define PAGE_WRITECOMBINE		0x40
+#define PAGE_USER				0x80
+#define PAGE_GLOBAL				0x100
 
 /* Hyperspace indices */
 #define NUM_HYPERSPACE_PAGES	3
