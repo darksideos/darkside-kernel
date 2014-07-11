@@ -32,6 +32,4 @@ void heap_init()
 {
 	heap_root = (heap_header_t*) addrspace_alloc(ADDRSPACE_SYSTEM, HEAP_SIZE, HEAP_SIZE, PAGE_READ | PAGE_WRITE);
 	vmm_map_page(-1, ((vaddr_t)heap_root) + HEAP_SIZE - 0x1000, 0, PAGE_INVALID);
-	printf("0x%08X\n", heap_root);
-	//while(1);
 }
