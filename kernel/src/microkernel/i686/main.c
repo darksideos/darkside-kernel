@@ -28,9 +28,11 @@ extern uint32_t kinit_stack, kinit_func;
 /* TESTS */
 static void test(void *n)
 {
+	int index = 0;
 	while(1)
 	{
-		printf("Thread %d\n", (uint32_t) n);
+		printf("Thread %d @ %d\n", (uint32_t) n, index);
+		index++;
 		thread_yield();
 	}
 }
