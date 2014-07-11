@@ -5,8 +5,6 @@
 #include <microkernel/thread.h>
 #include <microkernel/i686/scheduler.h>
 
-static int count;
-
 /* Dequeue a thread from the current CPU's scheduling queue */
 static thread_t *scheduler_dequeue()
 {
@@ -28,14 +26,11 @@ void scheduler_enqueue(thread_t *thread)
 /* Run the scheduler */
 void scheduler_run()
 {
-run:
 	/* Disable interrupts */
 	__asm__ volatile("cli");
 
 	/* Get the thread that was interrupted */
 	thread_t *old_thread = thread_current();
-	printf("%d: Old thread 0x%08X\n", count, old_thread);
-	count++;
 
 	/* If a thread was previously running */
 	if (old_thread)
@@ -44,17 +39,12 @@ run:
 		if (old_thread->state == THREAD_RUNNING)
 		{
 			scheduler_enqueue(old_thread);
-			printf("Enqueued old thread\n");
 		}
 	}
 
 	/* Pick a new thread and switch to it */
 	thread_t *new_thread = scheduler_dequeue();
-	printf("New thread 0x%08X\n\n", new_thread);
-	//thread_run(new_thread);
-	cpu_data_area(CPU_CURRENT)->current_thread = new_thread;
-	new_thread->state = THREAD_RUNNING;
-	goto run;
+	thread_run(new_thread);
 }
 
 /* Initialize the scheduler */
