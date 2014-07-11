@@ -22,7 +22,7 @@ struct context
 };
 
 /* Save the register context of one thread and switch to that of another */
-void save_and_switch(void **old_context_ptr, void *new_context);
+void save_and_switch(void **old_context_ptr, void **new_context_ptr);
 
 /* Enter userspace */
 void thread_enter_cpl3();
@@ -143,7 +143,7 @@ void thread_run(thread_t *thread)
 	wrmsr(IA32_MSR_SYSENTER_ESP, thread->kernel_stack, 0);
 
 	/* Switch to the new thread's register context */
-	save_and_switch(old_context_ptr, thread->context);
+	save_and_switch(old_context_ptr, &thread->context);
 }
 
 /* Get the current thread */

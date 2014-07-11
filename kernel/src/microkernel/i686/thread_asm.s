@@ -3,7 +3,7 @@
 ; Save the register context of one thread and switch to that of another
 global save_and_switch
 save_and_switch:
-	; EAX=Pointer to old thread's context, ECX=New thread's context, EDX=Return address
+	; EAX=Pointer to old thread's context, ECX=Pointer to new thread's context, EDX=Return address
 	mov eax, [esp + 4]
 	mov ecx, [esp + 8]
 	mov edx, .return
@@ -23,7 +23,7 @@ save_and_switch:
 	mov [eax], esp
 .restore:
 	; Switch to the new thread's kernel stack
-	mov esp, ecx
+	mov esp, [ecx]
 
 	; Restore the needed registers
 	pop ebp
