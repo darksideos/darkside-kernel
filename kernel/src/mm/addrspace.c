@@ -97,13 +97,6 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		size_committed = size_reserved;
 	}
 
-	/* Add a guard page if requested */
-	if (flags & GUARD_BOTTOM)
-	{
-		size_reserved += PAGE_SIZE;
-		size_committed += PAGE_SIZE;
-	}
-
 	/* Search the address space for a free region of suitable size */
 	spinlock_recursive_acquire(&addrspace->lock, TIMEOUT_NEVER);
 	vad_t *vad = &addrspace->free;
