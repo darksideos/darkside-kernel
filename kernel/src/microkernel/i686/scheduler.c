@@ -19,6 +19,30 @@ void scheduler_enqueue(thread_t *thread)
 {
 	/* TODO: Choose the best CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+	
+	thread_t *head = cpu->runqueue;
+	cpu->runqueue = thread;
+	
+	/* Check if there was already a thread in the queue */
+	if (head)
+	{
+		/* Set the tail to the head's previous */
+		thread_t *tail = head->prev;
+		
+		/* Sandwich thread between head and tail */
+		tail->next = thread;
+		head->prev = thread;
+		
+		thread->next = head;
+		thread->prev = tail;
+	}
+	else
+	{
+		/* Make a self-loop */
+		thread->next = thread;
+		thread->prev = thread;
+	}
+	
 	cpu->runqueue = thread;
 }
 
