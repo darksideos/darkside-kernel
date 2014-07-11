@@ -18,7 +18,7 @@
 struct context
 {
 	uint32_t ebp, edi, esi, ebx;
-	uint32_t eip, arg;
+	uint32_t eip, retaddr, arg;
 };
 
 /* Save the register context of one thread and switch to that of another */
@@ -43,7 +43,7 @@ static void context_init(struct context *context, void (*fn)(void *arg), void *a
 		context->eip = (uint32_t) &thread_enter_cpl3;
 
 		/* Create an interrupt context for entering userspace */
-		struct regs *int_context = (struct regs*) &context->arg;
+		struct regs *int_context = (struct regs*) &context->retaddr;
 		int_context->ds = int_context->es = int_context->fs = int_context->gs = KERNEL_DS;
 		int_context->eax = int_context->ecx = int_context->edx = 0;
 		int_context->ss = USER_DS | 3;
@@ -81,7 +81,7 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 	if (parent_process)
 	{
 		/* Point the thread's register context to the end of the kernel stack */
-		thread->context = (void*) (thread->kernel_stack - (sizeof(struct context) + sizeof(struct regs) - 4));
+		thread->context = (void*) (thread->kernel_stack - (sizeof(struct context) + sizeof(struct regs) - 8));
 
 		/* Allocate a user stack for the thread */
 		vaddr_t user_stack = (vaddr_t) addrspace_alloc(&parent_process->addrspace, stack_size, stack_size, PAGE_READ | PAGE_WRITE | PAGE_USER) + stack_size;
