@@ -10,7 +10,7 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 	/* Take the thread at the head of the queue */
 	thread_t *head = cpu->runqueue;
 	
-	/* Check if there was already a thread in the queue */
+	/* Already at least one thread in the queue */
 	if (head)
 	{
 		/* Set the tail to the head's previous */
@@ -23,6 +23,7 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 		thread->next = head;
 		thread->prev = tail;
 	}
+	/* No threads in the queue yet */
 	else
 	{
 		/* Make a self-loop */
@@ -40,15 +41,23 @@ static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 	/* Take the thread at the head of the queue */
 	thread_t *thread = cpu->runqueue;
 
+	/* If there is nothing on the queue, return NULL */
+	if (!thread)
+	{
+		return (thread_t*) NULL;
+	}
+
+	/* Get the new head and the tail of the queue */
 	thread_t *new_head = cpu->runqueue->next;
 	thread_t *tail = cpu->runqueue->prev;
 	
-	/* Check if there's only one thread in the queue */
+	/* Multiple threads in the queue */
 	if (thread != new_head)
 	{
 		new_head->prev = tail;
 		tail->next = new_head;
 	}
+	/* Only one thread in the queue */
 	else
 	{
 		new_head = NULL;
