@@ -39,7 +39,7 @@ static void lapic_timer_handler(interrupt_t *interrupt)
 static void lapic_timer_init()
 {
 	interrupt_t *lapic_timer_interrupt = interrupt_create();
-	lapic_timer_interrupt->controller = controller;
+	//lapic_timer_interrupt->controller = controller;
 	lapic_timer_interrupt->vector = 0xFE;
 	lapic_timer_interrupt->gsi = 0;
 	interrupt_register_handler(lapic_timer_interrupt, &lapic_timer_handler);
@@ -81,7 +81,4 @@ void lapic_hal_init(loader_block_t *loader_block)
 {
 	/* Find the LAPIC's address in memory */
 	lapic = (uint32_t volatile*) loader_block->lapic;
-	
-	/* Initialize the LAPIC timer */
-	lapic_timer_init();
 }
