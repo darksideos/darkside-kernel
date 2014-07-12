@@ -4,38 +4,10 @@
 #include <microkernel/thread.h>
 #include <microkernel/i686/scheduler.h>
 
-/* Dequeue a thread from the current CPU's scheduling queue */
-static thread_t *scheduler_dequeue()
+/* Enqueue a thread on one of a CPU's scheduling queues */
+static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 {
-	/* Get the per-CPU data area of the current CPU */
-	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	thread_t *thread = cpu->runqueue;
-
-	thread_t *new_head = cpu->runqueue->next;
-	thread_t *tail = cpu->runqueue->prev;
-	
-	/* Check if there's only one thread in the queue */
-	if (thread != new_head)
-	{
-		new_head->prev = tail;
-		tail->next = new_head;
-	}
-	else
-	{
-		new_head = NULL;
-	}
-	
-	cpu->runqueue = new_head;	
-	
-	return thread;
-}
-
-/* Enqueue a thread onto a scheduling queue */
-void scheduler_enqueue(thread_t *thread)
-{
-	/* TODO: Choose the best CPU */
-	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	
+	/* Take the thread at the head of the queue */
 	thread_t *head = cpu->runqueue;
 	
 	/* Check if there was already a thread in the queue */
@@ -60,6 +32,52 @@ void scheduler_enqueue(thread_t *thread)
 		/* Set the runqueue */
 		cpu->runqueue = thread;
 	}
+}
+
+/* Dequeue a thread from one of a CPU's scheduling queues */
+static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
+{
+	/* Take the thread at the head of the queue */
+	thread_t *thread = cpu->runqueue;
+
+	thread_t *new_head = cpu->runqueue->next;
+	thread_t *tail = cpu->runqueue->prev;
+	
+	/* Check if there's only one thread in the queue */
+	if (thread != new_head)
+	{
+		new_head->prev = tail;
+		tail->next = new_head;
+	}
+	else
+	{
+		new_head = NULL;
+	}
+	
+	/* Adjust the queue */
+	cpu->runqueue = new_head;	
+	
+	return thread;
+}
+
+/* Enqueue a thread onto a scheduling queue */
+void scheduler_enqueue(thread_t *thread)
+{
+	/* TODO: Choose the best CPU */
+	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+
+	/* Enqueue the thread on one of the CPU's queues */
+	enqueue_thread(cpu, thread);
+}
+
+/* Dequeue a thread from the current CPU's scheduling queue */
+static thread_t *scheduler_dequeue()
+{
+	/* Get the per-CPU data area of the current CPU */
+	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+
+	/* TODO: Take policy and priority into account */
+	return dequeue_thread(cpu, 0, 0);
 }
 
 /* Run the scheduler */
