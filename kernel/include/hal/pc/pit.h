@@ -3,10 +3,7 @@
 
 #include <types.h>
 
-/* Start counting down at a specified frequency */
-void pit_ch2_wait_init(uint32_t hz);
-
-/* Wait for the count to be zero */
-void pit_ch2_wait();
+/* Wait for a certain amount of time using the PIT */
+void pit_wait(int channel, uint32_t ms);
 
 #endif
