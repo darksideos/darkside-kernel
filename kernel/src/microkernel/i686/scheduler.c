@@ -170,8 +170,15 @@ static thread_t *scheduler_dequeue()
 	/* Get the per-CPU data area of the current CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
-	/* TODO: Take policy and priority into account */
-	return dequeue_thread(cpu, 0, 0);
+	/* Try to find the highest priority real-time thread */
+	for (int priority = MAX_PRIORITY; priority >= MIN_PRIORITY; priority--)
+	{
+		thread_t *thread = dequeue_thread(cpu, POLICY_REALTIME, priority);
+		if (thread)
+		{
+			return thread;
+		}
+	}
 }
 
 /* Run the scheduler */
