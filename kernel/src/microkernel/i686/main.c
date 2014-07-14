@@ -1,27 +1,31 @@
 #include <types.h>
 #include <string.h>
 #include <bootvid.h>
+#include <hal/hal.h>
 #include <init/loader.h>
+#include <microkernel/atomic.h>
 #include <microkernel/cpu.h>
+#include <microkernel/paging.h>
+#include <microkernel/interrupt.h>
+#include <microkernel/thread.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/exception.h>
-#include <mm/pfn.h>
 #include <microkernel/i686/lapic.h>
+#include <microkernel/i686/scheduler.h>
+#include <mm/pfn.h>
 #include <mm/freelist.h>
-#include <microkernel/paging.h>
 #include <mm/addrspace.h>
 #include <mm/heap.h>
-#include <microkernel/interrupt.h>
-#include <hal/hal.h>
-#include <microkernel/thread.h>
-#include <microkernel/i686/scheduler.h>
 
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
 extern uint64_t pdir;
 extern uint32_t kinit_stack, kinit_func;
+
+/* Number of APs that need to initialize the scheduler */
+static atomic_t num_scheduler_inits_left;
 
 /* TESTS */
 static void test(void *n)
@@ -106,6 +110,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 				/* Send a STARTUP IPI and wait for the AP to start */
 				lapic_send_ipi(cpu->lapic_id, 0x7, IPI_DELIVER_SIPI, false);
 				while (!(cpu->flags & CPU_MM_INIT));
+				num_scheduler_inits_left++;
 			}
 		}
 
@@ -143,7 +148,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize multithreading and the scheduler */
 		threading_init(&loader_block);
-		scheduler_init(&loader_block);
+		scheduler_init(&loader_block, bsp);
+
+		/* Wait for them to initialize their scheduling queues and signal completion to them */
+		while(num_scheduler_inits_left);
+		cpu->flags |= CPU_SCHEDULER_INIT;
 
 		/* Thread test */
 		//thread_t thread1, thread2, thread3;
@@ -184,7 +193,16 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Detect the relevant CPU topology information for itself */
 
-		/* Wait for the BSP to initialize the scheduler */
+		/* Initialize the scheduler */
+		scheduler_init(NULL, bsp);
+
+		/* Signal completion and wait for the BSP to initialize the scheduler */
+		while(1)
+		{
+			atomic_t i = num_scheduler_inits_left;
+			if (atomic_cmpxchg(&num_scheduler_inits_left, i, i - 1) == i) break;
+		}
+		while (!(bsp_cpu->flags & CPU_SCHEDULER_INIT));
 
 		/* Go to the scheduler ready function and wait for threads */
 	}
