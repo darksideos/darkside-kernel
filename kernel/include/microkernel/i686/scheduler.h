@@ -21,6 +21,6 @@ void scheduler_enqueue(thread_t *thread);
 void scheduler_run();
 
 /* Initialize the scheduler */
-void scheduler_init(loader_block_t *loader_block);
+void scheduler_init(loader_block_t *loader_block, bool bsp);
 
 #endif
