@@ -5,6 +5,19 @@
 #include <microkernel/thread.h>
 #include <microkernel/i686/scheduler.h>
 
+/* Scheduling weights */
+#define PREVIOUS_CPU_WEIGHT				20
+#define L1_SHARED_PREVIOUS_CPU_WEIGHT	10
+#define L2_SHARED_PREVIOUS_CPU_WEIGHT	5
+#define HOT_TEMPERATURE_WEIGHT			25
+#define SLEEPING_WEIGHT					50
+
+/* Total amount of load across all CPUs */
+static uint32_t total_cpu_load;
+
+/* Number of CPUs */
+static int num_cpus;
+
 /* Enqueue a thread on one of a CPU's scheduling queues */
 static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 {
@@ -88,11 +101,66 @@ static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 /* Enqueue a thread onto a scheduling queue */
 void scheduler_enqueue(thread_t *thread)
 {
-	/* TODO: Choose the best CPU */
-	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+	/* Best CPU and best score so far */
+	int best_cpu = -1;
+	int best_score = -1;
+
+	/* For every detected CPU */
+	for (int i = 0; i < num_cpus; i++)
+	{
+		/* Skip the CPU if it's not in the thread's CPU affinity */
+		size_t byte = i / 8;
+		uint8_t bit = i % 8;
+		if (!(thread->cpu_affinity[byte] & (1 << bit)))
+		{
+			continue;
+		}
+
+		/* Get the per-CPU data area of the CPU */
+		cpu_t *cpu = cpu_data_area(i);
+
+		/* Skip the CPU if it wasn't started */
+		if (!cpu->flags)
+		{
+			continue;
+		}
+
+		/* Start with a score of 100 */
+		int score = 100;
+
+		/* Take CPU load into account */
+		int average_cpu_load = total_cpu_load / num_cpus;
+		score += (average_cpu_load - cpu->load);
+
+		/* TODO: Take recent running time and shared caches into account */
+		if (thread->last_cpu == i)
+		{
+			score += PREVIOUS_CPU_WEIGHT;
+		}
+
+		/* TODO: Take hot temperatures into account */
+
+		/* TODO: Take sleep states into account */
+
+		/* If we got a better score, replace the previous best CPU */
+		if (score > best_score)
+		{
+			best_score = score;
+			best_cpu = i;
+		}
+	}
+
+	/* If no best CPU was found, panic */
+	if (best_cpu == -1)
+	{
+		panic("No best CPU found\n");
+	}
 
 	/* Enqueue the thread on one of the CPU's queues */
+	cpu_t *cpu = cpu_data_area(best_cpu);
 	enqueue_thread(cpu, thread);
+	cpu->load++;
+	total_cpu_load++;
 }
 
 /* Dequeue a thread from the current CPU's scheduling queue */
@@ -132,8 +200,12 @@ void scheduler_run()
 /* Initialize the scheduler */
 void scheduler_init(loader_block_t *loader_block)
 {
+	/* Set the total amount of load and number of CPUs */
+	total_cpu_load = 0;
+	num_cpus = loader_block->num_cpus;
+
 	/* Create each CPU's scheduling queues */
-	for (int i = 0; i < loader_block->num_cpus; i++)
+	for (int i = 0; i < num_cpus; i++)
 	{
 		/* Get the CPU's per-CPU data area */
 		cpu_t *cpu = cpu_data_area(i);
@@ -150,6 +222,9 @@ void scheduler_init(loader_block_t *loader_block)
 					spinlock_init(&cpu->runqueue_locks[policy][priority]);
 				}
 			}
+
+			/* Set its load to 0 */
+			cpu->load = 0;
 		}
 	}
 }
