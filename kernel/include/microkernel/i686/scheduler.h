@@ -9,6 +9,10 @@
 #define POLICY_HIGH			1
 #define POLICY_LOW			2
 #define POLICY_BACKGROUND	3
+#define NUM_POLICIES		4
+
+/* Thread priorities */
+#define NUM_PRIORITIES		32
 
 /* Enqueue a thread onto a scheduling queue */
 void scheduler_enqueue(thread_t *thread);
