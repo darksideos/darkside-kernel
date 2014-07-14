@@ -26,14 +26,14 @@ typedef struct process
 	atomic_t tlb_flush_remaining;
 	spinlock_t tlb_flush_lock;
 
-	/* Scheduling policy and priority */
-	int policy, priority;
-
 	/* Ideal NUMA domain */
 	int ideal_numa_domain;
 
 	/* CPU affinity bitmap */
 	uint8_t *cpu_affinity;
+
+	/* Scheduling policy and priority */
+	int policy, priority;
 } process_t;
 
 #endif

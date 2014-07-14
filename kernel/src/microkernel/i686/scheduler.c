@@ -160,6 +160,7 @@ void scheduler_enqueue(thread_t *thread)
 	cpu_t *cpu = cpu_data_area(best_cpu);
 	enqueue_thread(cpu, thread);
 	cpu->load++;
+	cpu->numa_domain->load++;
 	total_cpu_load++;
 }
 
@@ -223,8 +224,9 @@ void scheduler_init(loader_block_t *loader_block)
 				}
 			}
 
-			/* Set its load to 0 */
+			/* Set its load and its NUMA domain's load to 0 */
 			cpu->load = 0;
+			cpu->numa_domain->load = 0;
 		}
 	}
 }

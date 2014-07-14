@@ -7,7 +7,7 @@
 static atomic_t current_pid = 1;
 
 /* Initialize a process */
-void process_init(process_t *process, int policy, int priority)
+void process_init(process_t *process, int numa_domain, int policy, int priority)
 {
 	/* Choose a process ID for the process */
 	process->pid = (pid_t) atomic_xadd(&current_pid, 1);
