@@ -12,6 +12,8 @@
 #define NUM_POLICIES		4
 
 /* Thread priorities */
+#define MAX_PRIORITY		31
+#define MIN_PRIORITY		0
 #define NUM_PRIORITIES		32
 
 /* Enqueue a thread onto a scheduling queue */
