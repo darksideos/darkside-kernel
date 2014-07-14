@@ -179,6 +179,56 @@ static thread_t *scheduler_dequeue()
 			return thread;
 		}
 	}
+
+	/* Find the first high-priority normal queue included in this round */
+	bool found_priority = false;
+	for (int priority = cpu->current_priority[POLICY_HIGH-1]; priority >= MIN_PRIORITY; priority--)
+	{
+		/* Priority is allowed in round and priority has a thread */
+		if ((cpu->round % (32 - priority)) && cpu->runqueues[POLICY_HIGH-1][priority])
+		{
+			found_priority = true;
+			cpu->current_priority[POLICY_HIGH-1] = priority;
+		}
+	}
+
+	/* If we found a priority with threads, get a thread from there */
+	if (found_priority)
+	{
+		/* Get the thread off the head of the queue */
+		int current_priority = cpu->current_priority[POLICY_HIGH-1];
+		thread_t *thread = dequeue_thread(cpu, POLICY_HIGH, current_priority);
+
+		/* If we're done with the queue */
+		if (!cpu->runqueues[POLICY_HIGH][current_priority])
+		{
+			/* Start taking threads off the expired list and putting them back on the queue */
+			while (cpu->expired[POLICY_HIGH-1])
+			{
+				enqueue_thread(cpu, cpu->expired[POLICY_HIGH-1]);
+				cpu->expired[POLICY_HIGH-1] = cpu->expired[POLICY_HIGH-1]->next;
+			}
+
+			/* Go to the next priority */
+			cpu->current_priority[POLICY_HIGH-1]--;
+		}
+
+		/* Return the thread pointer */
+		return thread;
+	}
+	/* Otherwise, prepare for the next round */
+	else
+	{
+		/* Go to the next round, resetting at the limit */
+		cpu->round++;
+		if (cpu->round > 144403552893600)
+		{
+			cpu->round = 1;
+		}
+
+		/* Reset the priority to the highest value */
+		cpu->current_priority[POLICY_HIGH-1] = MAX_PRIORITY;
+	}
 }
 
 /* Run the scheduler */
@@ -227,6 +277,14 @@ void scheduler_init(loader_block_t *loader_block, bool bsp)
 			cpu->runqueues[policy][priority] = NULL;
 			spinlock_init(&cpu->runqueue_locks[policy][priority]);
 		}
+	}
+
+	/* Initialize the variable-frequency and variable-timeslice data */
+	cpu->round = 1;
+	for (int policy = 0; policy < NUM_POLICIES - 1; policy++)
+	{
+		cpu->current_priority[policy] = MAX_PRIORITY;
+		cpu->expired[policy] = NULL;
 	}
 
 	/* Set its load and its NUMA domain's load to 0 */
