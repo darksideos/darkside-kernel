@@ -180,54 +180,62 @@ static thread_t *scheduler_dequeue()
 		}
 	}
 
-	/* Find the first high-priority normal queue included in this round */
-	bool found_priority = false;
-	for (int priority = cpu->current_priority[POLICY_HIGH-1]; priority >= MIN_PRIORITY; priority--)
+	/* Try the other policies */
+	for (int policy = POLICY_HIGH; policy < NUM_POLICIES; policy++)
 	{
-		/* Priority is allowed in round and priority has a thread */
-		if ((cpu->round % (32 - priority)) && cpu->runqueues[POLICY_HIGH-1][priority])
+		/* Find the first priority queue included in this round */
+		bool found_priority = false;
+		for (int priority = cpu->current_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
 		{
-			found_priority = true;
-			cpu->current_priority[POLICY_HIGH-1] = priority;
-		}
-	}
-
-	/* If we found a priority with threads, get a thread from there */
-	if (found_priority)
-	{
-		/* Get the thread off the head of the queue */
-		int current_priority = cpu->current_priority[POLICY_HIGH-1];
-		thread_t *thread = dequeue_thread(cpu, POLICY_HIGH, current_priority);
-
-		/* If we're done with the queue */
-		if (!cpu->runqueues[POLICY_HIGH][current_priority])
-		{
-			/* Start taking threads off the expired list and putting them back on the queue */
-			while (cpu->expired[POLICY_HIGH-1])
+			/* Priority is allowed in round and priority has a thread */
+			if ((cpu->round[policy-1] % (32 - priority)) && cpu->runqueues[policy-1][priority])
 			{
-				enqueue_thread(cpu, cpu->expired[POLICY_HIGH-1]);
-				cpu->expired[POLICY_HIGH-1] = cpu->expired[POLICY_HIGH-1]->next;
+				found_priority = true;
+				cpu->current_priority[policy-1] = priority;
+				break;
+			}
+		}
+
+		/* If we found a priority with threads, get a thread from there */
+		if (found_priority)
+		{
+			/* Get the thread off the head of the queue */
+			int current_priority = cpu->current_priority[policy-1];
+			thread_t *thread = dequeue_thread(cpu, policy, current_priority);
+
+			/* If we're done with the queue */
+			if (!cpu->runqueues[policy][current_priority])
+			{
+				/* Start taking threads off the expired list and putting them back on the queue */
+				while (cpu->expired[policy-1])
+				{
+					enqueue_thread(cpu, cpu->expired[policy-1]);
+					cpu->expired[policy-1] = cpu->expired[policy-1]->next;
+				}
+
+				/* Go to the next priority */
+				cpu->current_priority[policy-1]--;
 			}
 
-			/* Go to the next priority */
-			cpu->current_priority[POLICY_HIGH-1]--;
+			/* Return the thread pointer */
+			return thread;
 		}
-
-		/* Return the thread pointer */
-		return thread;
-	}
-	/* Otherwise, prepare for the next round */
-	else
-	{
-		/* Go to the next round, resetting at the limit */
-		cpu->round++;
-		if (cpu->round > 144403552893600)
+		/* Otherwise, prepare for the next round */
+		else
 		{
-			cpu->round = 1;
-		}
+			/* Go to the next round, resetting at the limit */
+			if (policy == POLICY_HIGH)
+			{
+				cpu->round[POLICY_HIGH-1]++;
+				if (cpu->round[POLICY_HIGH-1] > 144403552893600)
+				{
+					cpu->round[POLICY_HIGH-1] = 1;
+				}
+			}
 
-		/* Reset the priority to the highest value */
-		cpu->current_priority[POLICY_HIGH-1] = MAX_PRIORITY;
+			/* Reset the priority to the highest value and go to the next policy */
+			cpu->current_priority[policy-1] = MAX_PRIORITY;
+		}
 	}
 }
 
@@ -280,7 +288,8 @@ void scheduler_init(loader_block_t *loader_block, bool bsp)
 	}
 
 	/* Initialize the variable-frequency and variable-timeslice data */
-	cpu->round = 1;
+	cpu->round[0] = 1;
+	cpu->round[1] = cpu->round[2] = 144403552893600;
 	for (int policy = 0; policy < NUM_POLICIES - 1; policy++)
 	{
 		cpu->current_priority[policy] = MAX_PRIORITY;

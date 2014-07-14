@@ -63,7 +63,7 @@ typedef struct cpu
 	spinlock_t runqueue_locks[NUM_POLICIES][NUM_PRIORITIES];
 
 	/* Variable-frequency and variable-timeslice information */
-	uint64_t round;
+	uint64_t round[3];
 	int current_priority[NUM_POLICIES-1];
 	thread_t *expired[NUM_POLICIES-1];
 
@@ -81,7 +81,7 @@ typedef struct cpu
 
 	/* Bootup and double-fault stack */
 	uint8_t boot_stack[8192];
-	uint8_t double_fault_stack[1680];
+	uint8_t double_fault_stack[1664];
 } __attribute__((packed)) cpu_t;
 
 #endif
