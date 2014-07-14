@@ -1,4 +1,5 @@
 #include <types.h>
+#include <string.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/thread.h>
@@ -7,8 +8,15 @@
 /* Enqueue a thread on one of a CPU's scheduling queues */
 static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 {
+	/* Get the policy and priority of the thread */
+	int policy = thread->policy;
+	int priority = thread->priority;
+
+	/* Acquire the lock on the scheduling queue */
+	spinlock_acquire(&cpu->runqueue_locks[policy][priority], TIMEOUT_NEVER);
+
 	/* Take the thread at the head of the queue */
-	thread_t *head = cpu->runqueue;
+	thread_t *head = cpu->runqueues[policy][priority];
 	
 	/* Already at least one thread in the queue */
 	if (head)
@@ -31,15 +39,21 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 		thread->prev = thread;
 		
 		/* Set the runqueue */
-		cpu->runqueue = thread;
+		cpu->runqueues[policy][priority] = thread;
 	}
+
+	/* Release the lock on the scheduling queue */
+	spinlock_release(&cpu->runqueue_locks[policy][priority]);
 }
 
 /* Dequeue a thread from one of a CPU's scheduling queues */
 static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 {
+	/* Acquire the lock on the scheduling queue */
+	spinlock_acquire(&cpu->runqueue_locks[policy][priority], TIMEOUT_NEVER);
+
 	/* Take the thread at the head of the queue */
-	thread_t *thread = cpu->runqueue;
+	thread_t *thread = cpu->runqueues[policy][priority];
 
 	/* If there is nothing on the queue, return NULL */
 	if (!thread)
@@ -48,8 +62,8 @@ static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 	}
 
 	/* Get the new head and the tail of the queue */
-	thread_t *new_head = cpu->runqueue->next;
-	thread_t *tail = cpu->runqueue->prev;
+	thread_t *new_head = cpu->runqueues[policy][priority]->next;
+	thread_t *tail = cpu->runqueues[policy][priority]->prev;
 	
 	/* Multiple threads in the queue */
 	if (thread != new_head)
@@ -64,8 +78,10 @@ static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 	}
 	
 	/* Adjust the queue */
-	cpu->runqueue = new_head;	
-	
+	cpu->runqueues[policy][priority] = new_head;
+
+	/* Release the lock on the scheduling queue and return the thread */
+	spinlock_release(&cpu->runqueue_locks[policy][priority]);	
 	return thread;
 }
 
@@ -125,8 +141,15 @@ void scheduler_init(loader_block_t *loader_block)
 		/* If the CPU was started */
 		if (cpu->flags)
 		{
-			/* TODO: Create queues for each policy and priority */
-			cpu->runqueue = NULL;
+			/* Initialize the scheduling queues and their spinlocks */
+			for (int policy = 0; policy < NUM_POLICIES; policy++)
+			{
+				for (int priority = 0; priority < NUM_PRIORITIES; priority++)
+				{
+					cpu->runqueues[policy][priority] = NULL;
+					spinlock_init(&cpu->runqueue_locks[policy][priority]);
+				}
+			}
 		}
 	}
 }

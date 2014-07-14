@@ -5,6 +5,7 @@
 #include <microkernel/thread.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
+#include <microkernel/i686/scheduler.h>
 #include <mm/page.h>
 #include <mm/freelist.h>
 
@@ -55,8 +56,8 @@ typedef struct cpu
 	thread_t *current_thread;
 
 	/* Scheduling queues */
-	thread_t *runqueues[4][32];
-	spinlock_t runqueue_locks[4][32];
+	thread_t *runqueues[NUM_POLICIES][NUM_PRIORITIES];
+	spinlock_t runqueue_locks[NUM_POLICIES][NUM_PRIORITIES];
 
 	/* GDT for the CPU */
 	struct gdt_entry gdt[7];
