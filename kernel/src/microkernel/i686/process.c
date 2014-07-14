@@ -14,6 +14,21 @@ void process_init(process_t *process, int numa_domain, int policy, int priority)
 	
 	/* Initialize the process's address space */
 	addrspace_init(&process->addrspace, vmm_create_address_space(), USER_ADDRSPACE_START, KERNEL_ADDRSPACE_START);
+
+	/* No NUMA domain specified, so pick the least loaded one */
+	if (numa_domain == -1)
+	{
+		numa_domain = least_loaded_numa_domain();
+	}
+
+	/* Set the process's ideal NUMA domain */
+	process->ideal_numa_domain = numa_domain;
+
+	/* Generate the CPU affinity bitmap */
+
+	/* Set the thread's scheduling policy and priority */
+	process->policy = policy;
+	process->priority = priority;
 }
 
 /* Get the current process */
