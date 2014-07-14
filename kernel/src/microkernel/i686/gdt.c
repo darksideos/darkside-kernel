@@ -58,11 +58,11 @@ void gdt_init()
 	base = (uint32_t) &cpu->double_fault_tss;
 	gdt_set_gate(gdt, 6, base, sizeof(struct tss_entry) - 1, 0xE9, 0x00);
 	memset(&cpu->double_fault_tss, 0, sizeof(struct tss_entry));
-	cpu->normal_tss.ss0 = KERNEL_DS;
-	cpu->normal_tss.esp0 = (uint32_t) &cpu->double_fault_stack[3771];
-	cpu->normal_tss.cs = KERNEL_CS;
-	cpu->normal_tss.ds = cpu->normal_tss.es = cpu->normal_tss.fs = cpu->normal_tss.gs = KERNEL_DS;
-	cpu->normal_tss.iomap_base = sizeof(struct tss_entry);
+	cpu->double_fault_tss.ss0 = KERNEL_DS;
+	cpu->double_fault_tss.esp0 = (uint32_t) &cpu->double_fault_stack[1716];
+	cpu->double_fault_tss.cs = KERNEL_CS;
+	cpu->double_fault_tss.ds = cpu->double_fault_tss.es = cpu->double_fault_tss.fs = cpu->double_fault_tss.gs = KERNEL_DS;
+	cpu->double_fault_tss.iomap_base = sizeof(struct tss_entry);
 
 	/* Load our new GDT and reload the segment registers */
 	gdt_reload((uint32_t)&cpu->gdtr);

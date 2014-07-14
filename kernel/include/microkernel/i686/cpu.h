@@ -55,7 +55,8 @@ typedef struct cpu
 	thread_t *current_thread;
 
 	/* Scheduling queues */
-	thread_t *runqueue;
+	thread_t *runqueues[4][32];
+	spinlock_t runqueue_locks[4][32];
 
 	/* GDT for the CPU */
 	struct gdt_entry gdt[7];
@@ -68,7 +69,7 @@ typedef struct cpu
 
 	/* Bootup and double-fault stack */
 	uint8_t boot_stack[8192];
-	uint8_t double_fault_stack[3760];
+	uint8_t double_fault_stack[1716];
 } __attribute__((packed)) cpu_t;
 
 #endif
