@@ -5,6 +5,8 @@
 /* Per-CPU and per-NUMA domain data area */
 static cpu_t *per_cpu_area;
 static numa_domain_t *per_numa_domain_area;
+
+/* Number of CPUs and NUMA domains */
 static int num_cpus, num_numa_domains;
 
 /* BSP CPU number */
