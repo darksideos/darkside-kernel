@@ -199,34 +199,30 @@ void scheduler_run()
 }
 
 /* Initialize the scheduler */
-void scheduler_init(loader_block_t *loader_block)
+void scheduler_init(loader_block_t *loader_block, bool bsp)
 {
-	/* Set the total amount of load and number of CPUs */
-	total_cpu_load = 0;
-	num_cpus = loader_block->num_cpus;
-
-	/* Create each CPU's scheduling queues */
-	for (int i = 0; i < num_cpus; i++)
+	/* Running on the BSP */
+	if (bsp)
 	{
-		/* Get the CPU's per-CPU data area */
-		cpu_t *cpu = cpu_data_area(i);
+		/* Set the total amount of load and number of CPUs */
+		total_cpu_load = 0;
+		num_cpus = loader_block->num_cpus;
+	}
 
-		/* If the CPU was started */
-		if (cpu->flags)
+	/* Get the per-CPU data area for the current CPU */
+	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+
+	/* Initialize the scheduling queues and their spinlocks */
+	for (int policy = 0; policy < NUM_POLICIES; policy++)
+	{
+		for (int priority = 0; priority < NUM_PRIORITIES; priority++)
 		{
-			/* Initialize the scheduling queues and their spinlocks */
-			for (int policy = 0; policy < NUM_POLICIES; policy++)
-			{
-				for (int priority = 0; priority < NUM_PRIORITIES; priority++)
-				{
-					cpu->runqueues[policy][priority] = NULL;
-					spinlock_init(&cpu->runqueue_locks[policy][priority]);
-				}
-			}
-
-			/* Set its load and its NUMA domain's load to 0 */
-			cpu->load = 0;
-			cpu->numa_domain->load = 0;
+			cpu->runqueues[policy][priority] = NULL;
+			spinlock_init(&cpu->runqueue_locks[policy][priority]);
 		}
 	}
+
+	/* Set its load and its NUMA domain's load to 0 */
+	cpu->load = 0;
+	cpu->numa_domain->load = 0;
 }
