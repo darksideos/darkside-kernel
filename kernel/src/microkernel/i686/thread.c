@@ -27,6 +27,9 @@ void save_and_switch(void **old_context_ptr, void **new_context_ptr);
 /* Enter userspace */
 void thread_enter_cpl3();
 
+/* Number of CPUs and NUMA domains */
+static int num_cpus, num_numa_domains;
+
 /* Current thread ID to assign */
 static atomic_t current_tid;
 
@@ -65,8 +68,15 @@ static void context_init(struct context *context, void (*fn)(void *arg), void *a
 	}
 }
 
+/* Find the least loaded NUMA domain */
+int least_loaded_numa_domain()
+{
+	/* TODO: Actually implement this */
+	return 0;
+}
+
 /* Initialize a thread */
-void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, uint32_t stack_size)
+void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, int numa_domain, int policy, int priority, uint32_t stack_size)
 {
 	/* Set the thread's parent process */
 	thread->process = parent_process;
@@ -101,6 +111,31 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 
 	/* Set the thread's state to ready-to-run */
 	thread->state = THREAD_READY;
+
+	/* If no NUMA domain is specified and there is a parent, inherit from the parent */
+	if (numa_domain == -1 && parent_process)
+	{
+		thread->ideal_numa_domain = parent_process->ideal_numa_domain;
+		thread->cpu_affinity = parent_process->cpu_affinity;
+	}
+	/* Otherwise, create a new CPU affinity bitmap */
+	else
+	{
+		/* No NUMA domain specified, so pick the least loaded one */
+		if (numa_domain == -1)
+		{
+			numa_domain = least_loaded_numa_domain();
+		}
+		
+		/* Set the thread's ideal NUMA domain */
+		thread->ideal_numa_domain = numa_domain;
+
+		/* Generate the CPU affinity bitmap */
+	}
+
+	/* Set the thread's scheduling policy and priority */
+	thread->policy = policy;
+	thread->priority = priority;
 
 	/* Enqueue the thread on a scheduling queue */
 	scheduler_enqueue(thread);
@@ -207,6 +242,10 @@ tid_t tid_current()
 /* Initialize multithreading */
 void threading_init(loader_block_t *loader_block)
 {
+	/* Set the number of CPUs and NUMA domains */
+	num_cpus = loader_block->num_cpus;
+	num_numa_domains = loader_block->num_numa_domains;
+
 	/* Keep track of thread IDs to assign to threads */
 	current_tid = (atomic_t) loader_block->num_cpus;
 }

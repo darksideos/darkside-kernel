@@ -26,6 +26,9 @@ typedef struct numa_domain
 
 	/* Number of cache colors in use */
 	int num_cache_colors;
+
+	/* Total amount of load across all CPUs */
+	uint32_t load;
 } numa_domain_t;
 
 /* CPU flags */

@@ -32,9 +32,6 @@ typedef struct thread
 	/* Time left to wait */
 	uint64_t wait_time_left;
 
-	/* Scheduling policy and priority */
-	int policy, priority;
-
 	/* Ideal NUMA domain */
 	int ideal_numa_domain;
 
@@ -44,11 +41,17 @@ typedef struct thread
 	/* Last CPU that the thread ran on */
 	int last_cpu;
 
+	/* Scheduling policy and priority */
+	int policy, priority;
+
 	/* Quantum, in microseconds */
 	uint32_t quantum;
 
 	/* Previous and next threads in the queue */
 	struct thread *prev, *next;
 } thread_t;
+
+/* Find the least loaded NUMA domain */
+int least_loaded_numa_domain();
 
 #endif
