@@ -109,12 +109,12 @@ void scheduler_enqueue(thread_t *thread)
 	for (int i = 0; i < num_cpus; i++)
 	{
 		/* Skip the CPU if it's not in the thread's CPU affinity */
-		size_t byte = i / 8;
-		uint8_t bit = i % 8;
-		if (!(thread->cpu_affinity[byte] & (1 << bit)))
-		{
-			continue;
-		}
+		//size_t byte = i / 8;
+		//uint8_t bit = i % 8;
+		//if (!(thread->cpu_affinity[byte] & (1 << bit)))
+		//{
+			//continue;
+		//}
 
 		/* Get the per-CPU data area of the CPU */
 		cpu_t *cpu = cpu_data_area(i);
@@ -277,6 +277,7 @@ void scheduler_run()
 			/* If it's a real-time thread, put it back on the queue */
 			if (old_thread->policy == POLICY_REALTIME)
 			{
+				printf("Adding real-time thread back on queue\n");
 				scheduler_enqueue(old_thread);
 			}
 			/* Otherwise, add it to the expired list */
