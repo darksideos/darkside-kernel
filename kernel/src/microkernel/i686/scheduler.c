@@ -231,14 +231,14 @@ find_priority: ;
 				/* If there are threads on the expired list */
 				if (cpu->expired[policy-1])
 				{
-					printf("There is stuff on the expired list\n");
-					while(1);
+					//printf("There is stuff on the expired list\n");
 
 					/* Start taking threads off the expired list and putting them back on the queue */
 					while (cpu->expired[policy-1])
 					{
+						thread_t *next = cpu->expired[policy-1]->next;
 						enqueue_thread(cpu, cpu->expired[policy-1]);
-						cpu->expired[policy-1] = cpu->expired[policy-1]->next;
+						cpu->expired[policy-1] = next;
 					}
 					cpu->expired[policy-1] = NULL;
 
@@ -278,7 +278,7 @@ void scheduler_run()
 			/* Otherwise, add it to the expired list */
 			else
 			{
-				printf("Adding thread of priority %d to expired list\n", old_thread->priority);
+				//printf("Adding thread of priority %d to expired list\n", old_thread->priority);
 				cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 				old_thread->next = cpu->expired[old_thread->policy-1];
 				cpu->expired[old_thread->policy-1] = old_thread;
