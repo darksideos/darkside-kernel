@@ -1,0 +1,57 @@
+Example
+-------------------------------------------------------
+-User makes call to fopen("~/Documents/notes.txt", "r")
+	-C library converts fopen() call into file_open(&handle, "~/Documents/notes.txt", FILE_READ)
+	-file_open() puts arguments in registers (EAX = Syscall number, EBX = Handle pointer, ECX = Filename pointer, EDX = FILE_READ) and invokes kernel
+		-Kernel's syscall dispatcher uses the category (1) to find the syscall table, which is for file objects
+		-Syscall dispatcher finds out if the syscall number needs to be checked against a handle (it does not, so access granted)
+		-Syscall dispatcher calls the VFS's file_open() function
+		-file_open() makes a call to object_open() to open the requested inode
+		-object_open() checks to make sure both arguments are valid (filename and desired access rights)
+		-object_open() converts the path into an absolute, object namespace path
+			-"~" character is found
+				-Object namespace looks up the caller's home directory
+			-"/" character is found
+				-object_namespace() knows this is a VFS path
+			-Allocates a stack buffer to hold the filename, within a certain maximum size
+			-Copies "\VFS" to the beginning
+			-Copies the user's home directory path after it
+			-Copies the rest of the path (after "~") to the end of the buffer
+			-Converts each "/" character into a "\" character
+			-Final path name: "\VFS\home\George\Documents\notes.txt"
+		-object_open() traverses the object namespace, looking for the object
+			-Searches for "VFS" under namespace root, finds it and checks permissions
+			-Searches for "home" under \VFS, finds it in the filesystem's directory cache and checks permissions
+			-Searches for "George" under \VFS\home, finds it in the filesystem's directory cache  and checks permissions
+			-Searches for "Documents" under \VFS\home\George, finds it in the filesystem's directory cache  and checks permissions
+			-Searches for "notes.txt" under \VFS\home\George\Documents, not found in the filesystem's directory cache
+				-Builds an IRP with a finddir() request and sends it to the filesystem driver, blocking for completion
+				-Filesystem driver receives the request and reads in all directory entries for \VFS\home\George\Documents
+				-Filesystem driver searches the read directory entries for "notes.txt" and finds it
+				-Filesystem driver creates a new inode to represent "notes.txt" and returns to the caller
+				-Receives the inode from the filesystem driver and adds it to the directory cache, then returns to object_open()
+		-object_open() checks the permissions of notes.txt
+			-User "George" is allowed to access it for reading, so permission check succeeded
+			-Current process does not have sandboxing enabled, so sandbox check succeeded
+		-object_open() returns the inode to file_open()
+		-file_open() creates a file object and stores the following information
+			-Inode object
+			-Current file position
+		-file_open() creates a new handle to point to the file object, with FILE_READ as an allowed access right
+		-file_open() adds the handle into the process's handle table and returns the handle to the caller
+	-file_open() returns to fopen(), which does whatever it wants
+-User makes call to fread(buffer, 512, 1, fp)
+	-C library converts fread() call into file_read(handle, buffer, -1, 512)
+	-file_read() puts arguments in registers (EAX = Syscall number, EBX = Handle, ECX = Buffer, EDX = Offset, ESI = 512) and invokes kernel
+		-Kernel's syscall dispatcher uses the category (1) to find the syscall table, which is for file objects
+		-Syscall dispatcher finds out if the syscall number needs to be checked against a handle, which it does
+		-Object manager gets the handle and checks allowed access rights (FILE_READ) against desired access (FILE_READ), which succeeds
+		-Syscall dispatcher translates handle into an object pointer and calls the VFS's file_read() function
+		-file_read() calls inode_read(file->inode, buffer, file->current_pos, 512)
+		-inode_read() attempts to copy the data from the cache into the buffer
+			-Data is not currently in the cache, which causes a page fault
+				-Page fault handler looks at the kernel's VAD tree and determines that the fault occured on a mapped file
+				-Page fault handler finds the mapped inode and dispatches an I/O request to its filesystem driver
+				-Filesystem driver receives the request and reads in the data, then returns to the caller
+			-Page fault completes, and the access is retried, succeeding this time
+		-inode_read() returns to file_read(), which returns to the caller

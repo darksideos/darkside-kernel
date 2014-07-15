@@ -1,0 +1,125 @@
+Object model ideas
+-----------------------------------------------------------------
+-Based on three major concepts: objects, interfaces, and servers
+	-Objects: Represent all services and resources in the system
+	-Interfaces: Groups of methods that can be called, which objects implement
+	-Servers: Executable code modules that implement objects
+-Made up of the following components
+	-Component model
+	-Kernel object manager
+-Component model defines how objects and interfaces are used by application code
+-Component model consists of a runtime library and language bindings
+	-Runtime library: Implements features required to use objects
+		-Recgonizing servers
+		-Instantiating objects
+		-Managing commuunications between client and server
+	-Language bindings: Map the component model between languages
+		-Use runtime library in other languages
+		-Translate data types between native (raw C) and language-specific
+		-Wrapper classes in each language
+-Three different types of servers
+	-In-process servers: Shared libraries
+	-User-process servers: Local and remote userspace processes
+	-Kernel-mode servers: Kernel-mode components
+-In-process servers
+	-Shared libraries that applications dynamically link with at runtime
+	-Can be shared between multiple processes
+	-Applications can link with them at compile time or at runtime
+-User-process servers (new idea, not true)
+	-Userspace process
+	-Clients communicate with the server through a messaging service implemented by the kernel
+	-Messaging service allows for client and server to be on different machines across the network (en el futuro)
+	-Clients believe that objects reside in their own address space, but are actually using a proxy object
+		-Proxy objects contain a set of stub methods that call the kernel to do RPC
+		-Component model contains a default implementation of proxy objects, but servers can define their own
+	-How a function call to a user-process server object works
+		1. Application calls a method on the proxy object
+		2. Proxy object's stub method initiates a syscall into the kernel object manager
+		3. Object manager resolves the handle into a remote object
+		4. Object manager builds a message and sends it to the server before returning to the client
+		5. Server receives the message and unpacks its contents
+		6. For each method call request in the message, it calls the requested method using the information in the message
+			-Interface pointer
+			-Interface and method ID
+			-Parameter data in raw form
+		7. Upon the completion of each method, the server sends a reply back to the client
+		8. Client receives the reply and returns the result to the client
+	-Example: Creating a window
+		1. Text editor allocates memory for a Window interface and calls ctor() on it
+		2. ctor() initiates a syscall into the function object_create()
+		3. object_create() looks up the requested interface ID and finds that it refers to the window manager
+		4. object_create() builds a message containing the following before returning to the text editor
+			-NULL interface pointer
+			-IID_Window for interface ID and WINDOW_CREATE for method ID
+			-Parameters sent by the text editor
+		5. Window manager receives the message and unpacks its contents
+		6. Window manager calls "Window *window = new Window(...);" where ... is the parameters
+		7. Window manager adds the window to its segment of the object namespace
+
+GUI Ideas
+-----------------------------------------------------------------
+-Layered architecture
+	-Graphics drivers, which provide low-level access to graphics hardware
+	-Retained mode, which defines a high-level, vector-based API for 2D and 3D graphics
+	-Window manager and console manager, which provide higher-level abstractions on top of graphics
+	-Libraries, which provide userspace access to graphics functionality
+		-OpenGL and OpenVG APIs
+		-Retained mode API
+		-DarkSide Widget Toolkit
+		-GTK
+		-Qt
+-Graphics drivers implement framebuffer, OpenGL, and OpenVG interfaces
+	-Framebuffer interface provides services to map their framebuffer into userspace, where a software-renderer handles the drawing
+	-OpenGL and OpenVG interfaces allow for drawing to be implemented by the graphics hardware
+-Graphics drivers consist of kernel-mode and userspace portions
+	-Kernel-mode portion: interrupt handling, framebuffer refreshing, and sending commands to graphics drivers
+	-User-mode portion: Software-renderer and OpenGL and OpenVG interfaces
+-Retained mode consists of several components
+	-Graphics server, which multiplexes access to the screen
+	-Image and video codecs, which add support for different image and video file formats under a standard interface
+-Graphics server receives lists of commands from other threads, which contain retained mode primitives to be drawn
+	-Maintains a high-level description of what to be drawn, called the render tree
+	-Compares the list of commands to its own render tree and only redraws components that changed
+	-Does the drawing by dispatching OpenGL and OpenVG commands to graphics drivers
+-Object model for retained mode
+	-Retained mode represents the entire virtual screen as a 3D scene, with a hierarchial tree of elements
+	-Based on two important interfaces: Volume and Canvas
+		-Volumes represent an area of 3D space, which can contain primitives or other volumes
+		-Canvases represent any drawable 2D surface, including primitives, printers, memory buffers, and image files
+	-Primitives are basic graphical elements like polygons, ellipses, textures, and text
+		-Classes for each specific primitive
+		-Each primitive can implement the Volume and Canvas interfaces
+-Window manager is responsible for creating and managing windows
+	-Receives RPC messages from other threads and handles them
+		-Create window
+		-Destroy window
+		-Register a message queue for input events
+		-Get the window's canvas
+	-Integrates windows into the graphics architecture by associating each window with a memory buffer canvas (backed by an OpenGL framebuffer)
+	-Applications can request access to the window's canvas and draw on it using graphics APIs
+	-Receives input events from device drivers and delivers them to the intended process's input event queue as messages
+		-Uses input providers to actually receive this input
+		-Each message queue used to receive input can only be accessed by kernel-mode code and the window manager
+	-Windows are inaccessible to all processes except the one that creates it (part of no shared namespace)
+-Console manager is responsible for creating and managing consoles
+	-Nearly the same function as the window manager, but for consoles
+	-Consoles require a canvas to be associated with
+		-Meaning they can run standalone or inside a window
+		-This allows for the same console infrastructure to be used in windowed and terminal environments
+	-Has similar input providers to the window manager
+
+Userspace Initialization
+-----------------------------------------------------------------
+1. Kernel starts session manager process
+2. Session manager creates services session
+	a. Session manager starts service manager process
+	b. Service manager enumerates each registered service and starts it under the specified user
+3. Session manager creates first interactive user session
+	a. Session manager starts login service process
+	b. Login service enumerates each credential provider and displays the default one
+	c. Credential provider receives and verifies user credentials
+	d. Login service asks the executive to create a security token for that user
+	e. Login service creates the user's first process under that security token
+		i. Either the window manager or console manager is started, depending on the user's preferences
+		ii. Then the default shell is started
+		iii. Also, if the user desires it, they can run an application in full screen with no windowing
