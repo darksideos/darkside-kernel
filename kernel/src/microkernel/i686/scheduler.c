@@ -186,18 +186,21 @@ static thread_t *scheduler_dequeue()
 	{
 		/* Find the first priority queue included in this round */
 find_priority: ;
-		int priority = 0;
+		int current_priority = MIN_PRIORITY;
 		bool found_priority = false;
-		for (priority = cpu->max_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
+		for (int priority = cpu->max_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
 		{
 			/* Priority is allowed in round */
 			if ((cpu->round[policy-1] % (32 - priority)) == 0)
 			{
 				if (priority == 0)
 				{
-					printf("Round %d\n", (uint32_t) cpu->round[policy-1]);
-					while(1);
+					printf("Round %d, runqueue 0x%08X\n", (uint32_t) cpu->round[policy-1], cpu->runqueues[policy][priority]);
+					//while(1);
 				}
+
+				/* Set the current priority */
+				current_priority = priority;
 
 				/* There are threads in the priority */
  				if (cpu->runqueues[policy][priority])
@@ -212,7 +215,7 @@ find_priority: ;
 		if (found_priority)
 		{
 			/* Get the thread off the head of the queue and return it */
-			thread_t *thread = dequeue_thread(cpu, policy, priority);
+			thread_t *thread = dequeue_thread(cpu, policy, current_priority);
 			return thread;
 		}
 		/* Otherwise, prepare for the next round */
@@ -229,7 +232,7 @@ find_priority: ;
 			}
 
 			/* At the end of the entire queue and no threads found */
-			if (priority == MIN_PRIORITY)
+			if (current_priority == MIN_PRIORITY)
 			{
 				/* If there are threads on the expired list */
 				if (cpu->expired[policy-1])
