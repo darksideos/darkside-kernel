@@ -27,7 +27,7 @@
 	-Find highest priority realtime thread
 		-No realtime threads
 	-Try high-priority normal policy
-		-Loop 32 times*
+		-Loop 32 times**
 		-No threads found in any priorities
 		-There is a thread on the expired list, so take it off and retry
 		-Keep looping until round 25*
@@ -40,7 +40,7 @@
 	-Find highest priority realtime thread
 		-No realtime threads
 	-Try high-priority normal policy
-		-Loop 32 times*
+		-Loop 32 times**
 		-No threads found in any priorities
 		-No threads on the expired list, so try the next policy
 	-Try low-priority normal policy
@@ -55,7 +55,7 @@
 	-Find highest priority realtime thread
 		-No realtime threads
 	-Try high-priority normal policy
-		-Loop 32 times*
+		-Loop 32 times**
 		-No threads found in any priorities
 		-No threads on the expired list, so try the next policy
 	-Try low-priority normal policy
@@ -70,12 +70,15 @@
 	-Find highest priority realtime thread
 		-No realtime threads
 	-Try high-priority normal policy
-		-Loop 32 times*
+		-Loop 32 times**
 		-No threads found in any priorities
 		-No threads on the expired list, so try the next policy
 	-Try low-priority normal policy
-		-Loop 32 times*
+		-Loop 32 times**
 		-There are two threads on the expired list, so take them off and retry
 		-Keep looping until round 16*
 		-Thread D found
 	-Run thread D
+
+*Can be optimized by telling the scheduler the highest priority used in the policy
+**Can be optimized by telling the scheduler that a policy has no threads
