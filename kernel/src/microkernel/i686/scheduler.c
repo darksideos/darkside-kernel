@@ -188,9 +188,9 @@ static thread_t *scheduler_dequeue()
 find_priority: ;
 		bool found_priority = false;
 		for (int priority = cpu->current_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
-		{
+		{ 
 			/* Priority is allowed in round and priority has a thread */
-			if (((cpu->round[policy-1] % (32 - priority)) == 0) && cpu->runqueues[policy-1][priority])
+			if (((cpu->round[policy-1] % (32 - priority)) == 0) && cpu->runqueues[policy][priority])
 			{
 				found_priority = true;
 				cpu->current_priority[policy-1] = priority;
