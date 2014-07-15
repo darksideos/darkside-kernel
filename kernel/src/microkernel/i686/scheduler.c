@@ -71,6 +71,7 @@ static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 	/* If there is nothing on the queue, return NULL */
 	if (!thread)
 	{
+		spinlock_release(&cpu->runqueue_locks[policy][priority]);
 		return (thread_t*) NULL;
 	}
 
@@ -277,7 +278,6 @@ void scheduler_run()
 			/* If it's a real-time thread, put it back on the queue */
 			if (old_thread->policy == POLICY_REALTIME)
 			{
-				printf("Adding real-time thread back on queue\n");
 				scheduler_enqueue(old_thread);
 			}
 			/* Otherwise, add it to the expired list */
