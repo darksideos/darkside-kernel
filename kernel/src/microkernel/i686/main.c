@@ -153,10 +153,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
 		/* Thread test */
-		thread_t thread1, thread2, thread3;
-		thread_init(&thread1, NULL, &test, (void*) "Real-time", 0, POLICY_REALTIME, 28, 0);
-		thread_init(&thread2, NULL, &test, (void*) "High", 0, POLICY_HIGH, 7, 0);
-		thread_init(&thread3, NULL, &test, (void*) "Low", 0, POLICY_LOW, 16, 0);
+		thread_t thread1, thread2;
+		thread_init(&thread1, NULL, &test, (void*) "High as 7", 0, POLICY_HIGH, 7, 0);
+		thread_init(&thread2, NULL, &test, (void*) "High as 16", 0, POLICY_HIGH, 16, 0);
 		scheduler_run();
 
 		/* Start the executive services */
