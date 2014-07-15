@@ -254,7 +254,18 @@ void scheduler_run()
 		/* Queue it to run again if it was previously running */
 		if (old_thread->state == THREAD_RUNNING)
 		{
-			scheduler_enqueue(old_thread);
+			/* If it's a real-time thread, put it back on the queue */
+			if (old_thread->policy == POLICY_REALTIME)
+			{
+				scheduler_enqueue(old_thread);
+			}
+			/* Otherwise, add it to the expired list */
+			else
+			{
+				cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+				old_thread->next = cpu->expired[old_thread->policy-1];
+				cpu->expired[old_thread->policy-1] = old_thread;
+			}
 		}
 	}
 
