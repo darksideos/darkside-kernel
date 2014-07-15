@@ -63,8 +63,8 @@ typedef struct cpu
 	spinlock_t runqueue_locks[NUM_POLICIES][NUM_PRIORITIES];
 
 	/* Variable-frequency and variable-timeslice information */
-	uint64_t round[3];
-	int current_priority[NUM_POLICIES-1];
+	uint64_t round[NUM_POLICIES-1];
+	int max_priority[NUM_POLICIES-1];
 	thread_t *expired[NUM_POLICIES-1];
 
 	/* Total CPU load */
