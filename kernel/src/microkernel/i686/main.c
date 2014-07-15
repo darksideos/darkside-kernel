@@ -28,13 +28,11 @@ extern uint32_t kinit_stack, kinit_func;
 static atomic_t num_scheduler_inits_left;
 
 /* TESTS */
-static void test(void *n)
+static void test(void *p)
 {
-	int index = 0;
 	while(1)
 	{
-		printf("Thread %d @ %d\n", (uint32_t) n, index);
-		index++;
+		printf("%s priority thread\n", (char*) p);
 		thread_yield();
 	}
 }
@@ -155,11 +153,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
 		/* Thread test */
-		//thread_t thread1, thread2, thread3;
-		//thread_init(&thread1, NULL, &test, (void*) 1, 0);
-		//thread_init(&thread2, NULL, &test, (void*) 2, 0);
-		//thread_init(&thread3, NULL, &test, (void*) 3, 0);
-		//scheduler_run();
+		thread_t thread1, thread2, thread3;
+		thread_init(&thread1, NULL, &test, (void*) "Real-time", 0, POLICY_REALTIME, 28, 0);
+		thread_init(&thread2, NULL, &test, (void*) "High", 0, POLICY_HIGH, 7, 0);
+		thread_init(&thread3, NULL, &test, (void*) "Low", 0, POLICY_LOW, 16, 0);
+		scheduler_run();
 
 		/* Start the executive services */
 	}
