@@ -193,12 +193,6 @@ find_priority: ;
 			/* Priority is allowed in round */
 			if ((cpu->round[policy-1] % (32 - priority)) == 0)
 			{
-				if (priority == 0)
-				{
-					printf("Round %d, runqueue 0x%08X\n", (uint32_t) cpu->round[policy-1], cpu->runqueues[policy][priority]);
-					//while(1);
-				}
-
 				/* Set the current priority */
 				current_priority = priority;
 
@@ -239,6 +233,7 @@ find_priority: ;
 				{
 					printf("There is stuff on the expired list\n");
 					while(1);
+
 					/* Start taking threads off the expired list and putting them back on the queue */
 					while (cpu->expired[policy-1])
 					{
