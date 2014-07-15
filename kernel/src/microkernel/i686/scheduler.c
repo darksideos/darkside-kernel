@@ -190,7 +190,7 @@ find_priority: ;
 		for (int priority = cpu->current_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
 		{
 			/* Priority is allowed in round and priority has a thread */
-			if ((cpu->round[policy-1] % (32 - priority)) && cpu->runqueues[policy-1][priority])
+			if (((cpu->round[policy-1] % (32 - priority)) == 0) && cpu->runqueues[policy-1][priority])
 			{
 				found_priority = true;
 				cpu->current_priority[policy-1] = priority;
