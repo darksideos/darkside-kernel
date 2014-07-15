@@ -1,0 +1,81 @@
+-Thread creation
+	-Thread A: Realtime policy, priority 28
+	-Thread B: High-priority normal policy, priority 7
+	-Thread C: Background policy, priority 0
+	-Thread D: Low-priority normal policy, priority 16
+	-Thread E: Low-priority normal policy, priority 10
+-First call to scheduler_run()
+	-No previous thread
+	-Find highest priority realtime thread
+		-Thread A found
+	-Run thread A
+-Thread A does some work before blocking on a message queue
+-Second call to scheduler_run()
+	-Thread A is previous thread
+	-Thread A is going to sleep, so don't put it back on the queue
+	-Find highest priority realtime thread
+		-No realtime threads
+	-Try high-priority normal policy
+		-Keep looping until round 25*
+		-Thread B found
+	-Run thread B
+-Thread B does some work before its timeslice expires
+-Third call to scheduler_run()
+	-Thread B is previous thread
+	-Thread B was running, so queue it to run again
+		-Thread B is high-priority normal, so put it on the expired list
+	-Find highest priority realtime thread
+		-No realtime threads
+	-Try high-priority normal policy
+		-Loop 32 times*
+		-No threads found in any priorities
+		-There is a thread on the expired list, so take it off and retry
+		-Keep looping until round 25*
+		-Thread B found
+	-Run thread B
+-Thread B decides to sleep for 1s
+-Fourth call to scheduler_run()
+	-Thread B is previous thread
+	-Thread B is going to sleep, so don't put it back in the queue
+	-Find highest priority realtime thread
+		-No realtime threads
+	-Try high-priority normal policy
+		-Loop 32 times*
+		-No threads found in any priorities
+		-No threads on the expired list, so try the next policy
+	-Try low-priority normal policy
+		-Keep looping until round 16*
+		-Thread D found
+	-Run thread D
+-Thread D does some work before its timeslice expires
+-Fifth call to scheduler_run()
+	-Thread D is previous thread
+	-Thread D was running, so queue it to run again
+		-Thread D is low-priority normal, so put it on the expired list
+	-Find highest priority realtime thread
+		-No realtime threads
+	-Try high-priority normal policy
+		-Loop 32 times*
+		-No threads found in any priorities
+		-No threads on the expired list, so try the next policy
+	-Try low-priority normal policy
+		-Keep looping until round 22*
+		-Thread E found
+	-Run thread E
+-Thread E does some work before its timeslice expires
+-Sixth call to scheduler_run()
+	-Thread E is previous thread
+	-Thread E was running, so queue it to run again
+		-Thread E is low-priority normal, so put it on the expired list
+	-Find highest priority realtime thread
+		-No realtime threads
+	-Try high-priority normal policy
+		-Loop 32 times*
+		-No threads found in any priorities
+		-No threads on the expired list, so try the next policy
+	-Try low-priority normal policy
+		-Loop 32 times*
+		-There are two threads on the expired list, so take them off and retry
+		-Keep looping until round 16*
+		-Thread D found
+	-Run thread D
