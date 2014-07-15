@@ -33,6 +33,7 @@ static void test(void *p)
 	while(1)
 	{
 		printf("%s priority thread\n", (char*) p);
+		for (int i = 0; i < 16000000; i++) { }
 		thread_yield();
 	}
 }
