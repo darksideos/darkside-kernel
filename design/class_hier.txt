@@ -1,0 +1,118 @@
+============================================ Hierarchy ============================================
+Object
+	Inode
+		File
+			Ext2File
+			FatFile
+			NtfsFile
+			HfsFile
+			Iso9660File
+			UdfFile
+		Directory
+			Ext2Directory
+			FatDirectory
+			NtfsDirectory
+			HfsDirectory
+			Iso9660Directory
+			UdfDirectory
+		Symlink
+			Ext2Symlink
+			FatSymlink
+			NtfsSymlink
+			HfsSymlink
+			Iso9660Symlink
+			UdfSymlink
+	Process
+	Thread
+	Event
+	Semaphore
+	Mutex
+	RWLock
+	Section
+	Device
+		TextDisplay
+		GraphicsDisplay
+		StorageDevice
+		NetworkDevice
+		InputDevice
+		Bus
+		Controller
+	Module
+		Driver
+			StorageDriver
+			NetworkDriver
+			BusDriver
+		Filesystem
+			Ext2Filesystem
+			FatFilesystem
+			NtfsFilesystem
+			HfsFilesystem
+			Iso9660Filesystem
+			UdfFilesystem
+		ExecutableFormat
+			ElfExecutableFormat
+			FlatBinaryExecutableFormat
+			PeExecutableFormat
+			MachOExecutableFormat
+		Subsystem
+			NativeSubsystem
+			PosixSubsystem
+			WindowsSubsystem
+	Window
+
+============================================ Namespace ============================================
+/
+	/Device
+	/Module
+		/Driver
+		/Filesystem
+		/ExecutableFormat
+		/Subsystem
+	/Mutex
+	/Process
+		0
+		1
+		2
+	/RWLock
+	/Section
+	/Semaphore
+	/Thread
+		0
+		1
+		2
+	/VFS
+		/apps
+		/bin
+		/boot
+		/config
+		/dev
+		/hdd
+		/home
+		/lib
+		/media
+		/mnt
+		/root
+		/sbin
+		/tmp
+		/usr
+	/Window
+
+Objects managed by the object manager can be given a name to identify it.
+The object manager maintains an internal object namespace that organizes named objects in a hierarchy.
+This allows for all named objects to be tracked and opened in a uniform matter.
+Even the VFS is simply a part of this namespace.
+
+In order to provide this hierarchial namespace, the object manager implements an object type of its own, called Directory.
+Directory objects contain a dictionary of directory entries, which maps names to objects.
+Using this method, the same object can be referred to multiple times in the object namespace.
+A directory entry pointing to an object is known as a link. Each object also maintains a link count, so it knows how many directory entries point to it.
+
+The VFS is integrated into the object namespace through a directory type defined by the VFS. This directory type inherits from both Directory and Inode.
+Through this method, a VFS directory can be treated as both a directory in the object namespace and a filesystem directory.
+The entry to the VFS namespace is the /VFS directory, which represents the root of the filesystem namespace.
+
+The object namespace can be used in userspace through DarkSide Object Model. Each object in the namespace is also a DSOM object.
+There are 3 syscalls used for managing the object namespace: object_create(), object_open(), and object_close().
+object_create() and object_open() create and open an object in the namespace, respectively, returning a handle to the object.
+object_close() closes an open handle.
+Through DSOM, open handles can be used to call other object functions. Several interfaces are defined for each object type.

@@ -184,6 +184,7 @@ static thread_t *scheduler_dequeue()
 	for (int policy = POLICY_HIGH; policy < NUM_POLICIES; policy++)
 	{
 		/* Find the first priority queue included in this round */
+find_priority: ;
 		bool found_priority = false;
 		for (int priority = cpu->current_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
 		{
@@ -233,8 +234,16 @@ static thread_t *scheduler_dequeue()
 				}
 			}
 
-			/* Reset the priority to the highest value and go to the next policy */
-			cpu->current_priority[policy-1] = MAX_PRIORITY;
+			/* If we're at the lowest priority, reset the priority to the highest value and go to the next policy */
+			if (cpu->current_priority[policy-1] == MIN_PRIORITY)
+			{
+				cpu->current_priority[policy-1] = MAX_PRIORITY;
+			}
+			/* Otherwise, repeat this entire loop */
+			else
+			{
+				goto find_priority;
+			}
 		}
 	}
 }

@@ -1,0 +1,17 @@
+Loader block firmware information
+------------------------------------------------------------------
+-ACPI root tables
+	-RSDP physical address
+	-RSDT and XSDT physical address
+-MP information table physical address
+-Whether dual-8259 PICs are present
+-Local APIC virtual address
+-Map of ACPI NUMA domains->per-NUMA domain data areas
+
+bigbang firmware initialization
+------------------------------------------------------------------
+-Try to initialize ACPI
+-If initializing ACPI fails
+	-Try to initialize the MP information table
+	-If getting the MP information table fails
+		-
