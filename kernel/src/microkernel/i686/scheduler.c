@@ -207,13 +207,6 @@ find_priority: ;
 			/* If we're done with the queue */
 			if (!cpu->runqueues[policy][current_priority])
 			{
-				/* Start taking threads off the expired list and putting them back on the queue */
-				while (cpu->expired[policy-1])
-				{
-					enqueue_thread(cpu, cpu->expired[policy-1]);
-					cpu->expired[policy-1] = cpu->expired[policy-1]->next;
-				}
-
 				/* Go to the next priority */
 				cpu->current_priority[policy-1]--;
 			}
@@ -234,10 +227,28 @@ find_priority: ;
 				}
 			}
 
-			/* If we're at the lowest priority, reset the priority to the highest value and go to the next policy */
+			/* At the end of the entire queue and no threads found */
 			if (cpu->current_priority[policy-1] == MIN_PRIORITY)
 			{
-				cpu->current_priority[policy-1] = MAX_PRIORITY;
+				/* If there are threads on the expired list */
+				if (cpu->expired[policy-1])
+				{
+					/* Start taking threads off the expired list and putting them back on the queue */
+					while (cpu->expired[policy-1])
+					{
+						enqueue_thread(cpu, cpu->expired[policy-1]);
+						cpu->expired[policy-1] = cpu->expired[policy-1]->next;
+					}
+					cpu->expired[policy-1] = NULL;
+
+					/* Repeat this entire loop */
+					goto find_priority;
+				}
+				/* Otherwise, reset the priority and go to the next policy */
+				else
+				{
+					cpu->current_priority[policy-1] = MAX_PRIORITY;
+				}
 			}
 			/* Otherwise, repeat this entire loop */
 			else
