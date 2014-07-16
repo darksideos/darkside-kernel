@@ -60,13 +60,14 @@ static void lapic_timer_init()
 	lapic[TMR_INITCNT] = 0xFFFFFFFF;
 	
 	/* Wait on PIT channel 2 for 10 ms (100 Hz) */
-	pit_wait(2, 10);
+	pit_wait(2, 1);
 	
 	/* Stop the Local APIC timer */
 	lapic[LVT_TIMER] = APIC_DISABLE;
 	
 	/* Read the Local APIC counter */
 	uint32_t ticks = 0xFFFFFFFF - lapic[TMR_CURRCNT] + 1;
+	printf("Ticks: 0x%08X\n", ticks);
 	
 	/* Calculate the CPU's bus frequency, which is 16x the number of ticks that occurred in a 100 Hz burst */
 	uint32_t cpubusfreq = ticks * 16 * 100;
