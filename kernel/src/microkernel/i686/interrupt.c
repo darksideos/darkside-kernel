@@ -105,7 +105,10 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 	}
 
 	/* Register the interrupt with the interrupt controller */
-	(*interrupt->controller)->irq_register(interrupt->controller, interrupt);
+	if (interrupt->controller)
+	{
+		(*interrupt->controller)->irq_register(interrupt->controller, interrupt);
+	}
 }
 
 /* Initialize the interrupt manager */
