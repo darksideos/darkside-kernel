@@ -24,6 +24,8 @@ void interrupt_handler(struct regs *regs)
 {
 	/* Translate the IDT vector into an interrupt object */
 	interrupt_t *interrupt = interrupts[regs->int_no - 32];
+	printf("Vector 0x%x fired\n", regs->int_no);
+	printf("Interrupt object: 0x%08X\n", interrupt);
 
 	/* If an unregistered interrupt triggers, panic */
 	if (!interrupt)
@@ -95,7 +97,7 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 	{
 		/* Allocate an ASM interrupt stub and copy in the template */
 		uint8_t *asm_interrupt_stub = slab_cache_alloc(asm_interrupt_stub_cache);
-		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x30);
+		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x31);
 
 		/* Modify the stub to contain the proper IDT vector number */
 		asm_interrupt_stub[3] = interrupt->vector;
@@ -121,5 +123,5 @@ void interrupts_init()
 
 	/* Create the interrupt object and ASM interrupt code slab caches */
 	interrupt_cache = slab_cache_create(sizeof(interrupt_t), PAGE_READ | PAGE_WRITE);
-	asm_interrupt_stub_cache = slab_cache_create(0x30, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
+	asm_interrupt_stub_cache = slab_cache_create(0x31, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
 }
