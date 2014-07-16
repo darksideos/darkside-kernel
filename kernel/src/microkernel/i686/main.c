@@ -141,7 +141,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_INTERRUPT_INIT;
 
 		/* Initialize the HAL */
-		hal_init(bsp);
+		hal_init(&loader_block, bsp);
+		
+		while(1);
 
 		/* Detect the relevant CPU topology information for itself */
 
@@ -187,7 +189,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while (!(bsp_cpu->flags & CPU_INTERRUPT_INIT));
 
 		/* Initialize the HAL */
-		hal_init(bsp);
+		//hal_init(loader_block, bsp);
+		
+		while(1);
 
 		/* Detect the relevant CPU topology information for itself */
 

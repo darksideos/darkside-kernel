@@ -18,8 +18,8 @@
 #define LVT_LINT0		0xD4
 #define LVT_LINT1		0xD8
 #define LVT_ERR			0xDC
-#define TMR_INITCNT		0x70
-#define TMR_CURRCNT		0x72
+#define TMR_INITCNT		0xE0
+#define TMR_CURRCNT		0xE4
 #define TMR_DIV			0xF8
 
 /* APIC constants */
@@ -33,28 +33,30 @@ static uint32_t volatile *lapic = NULL;
 static void lapic_timer_handler(interrupt_t *interrupt)
 {
 	/* Do nothing for now */
+	printf("LAPIC\n");
+	while(1);
 }
 
 /* Initialize the LAPIC timer */
 static void lapic_timer_init()
 {
 	interrupt_t *lapic_timer_interrupt = interrupt_create();
-	//lapic_timer_interrupt->controller = controller;
+	lapic_timer_interrupt->controller = NULL;
 	lapic_timer_interrupt->vector = 0xFE;
 	lapic_timer_interrupt->gsi = 0;
 	interrupt_register_handler(lapic_timer_interrupt, &lapic_timer_handler);
 	
-	/* Map the timer interrupt to #32 */
-	lapic[LVT_TIMER] = 32;
+	/* Map the timer interrupt to the vector */
+	lapic[LVT_TIMER] = 0xFE;
 	
 	/* Set the divide register to 16, meaning that it will tick down at 1/16th of the CPU bus frequency */
 	lapic[TMR_DIV] = TMR_DIV16;
 	
-	/* Wait on PIT channel 2 for 10 ms (100 Hz) */
-	pit_wait(2, 10);
-	
 	/* Reset the LAPIC timer at 0xFFFFFFFF and it will begin counting */
 	lapic[TMR_INITCNT] = 0xFFFFFFFF;
+	
+	/* Wait on PIT channel 2 for 10 ms (100 Hz) */
+	pit_wait(2, 10);
 	
 	/* Stop the LAPIC timer */
 	lapic[LVT_TIMER] = APIC_DISABLE;
@@ -70,7 +72,7 @@ static void lapic_timer_init()
 	lapic[TMR_INITCNT] = ticks;
 	
 	/* Re-enable the LAPIC timer in periodic mode */
-	lapic[LVT_TIMER] = 32 | TMR_PERIODIC;
+	lapic[LVT_TIMER] = 0xFE | TMR_PERIODIC;
 	
 	/* Apparently some buggy hardware requires you to reset the divide register */
 	lapic[TMR_DIV] = TMR_DIV16;
@@ -81,4 +83,6 @@ void lapic_hal_init(loader_block_t *loader_block)
 {
 	/* Find the LAPIC's address in memory */
 	lapic = (uint32_t volatile*) loader_block->lapic;
+	
+	lapic_timer_init();
 }
