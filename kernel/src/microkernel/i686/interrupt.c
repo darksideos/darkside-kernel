@@ -23,14 +23,13 @@ static slab_cache_t *asm_interrupt_stub_cache;
 void interrupt_handler(struct regs *regs)
 {
 	/* Translate the IDT vector into an interrupt object */
-	interrupt_t *interrupt = interrupts[regs->int_no - 32];
-	printf("Vector 0x%x fired\n", regs->int_no);
-	printf("Interrupt object: 0x%08X\n", interrupt);
+	uint8_t vector = (uint8_t) regs->int_no;
+	interrupt_t *interrupt = interrupts[vector - 32];
 
 	/* If an unregistered interrupt triggers, panic */
 	if (!interrupt)
 	{
-		panic("Unhandled interrupt 0x%08X\n", regs->int_no);
+		panic("Unhandled interrupt 0x%08X\n", vector);
 	}
 
 	/* Call each handler in the chain to try and resolve the IRQ */
@@ -47,7 +46,7 @@ void interrupt_handler(struct regs *regs)
 	/* If the interrupt still failed to resolve, panic */
 	if (!irq_resolved)
 	{
-		panic("Failed to resolve interrupt 0x%08X\n", regs->int_no);
+		panic("Failed to resolve interrupt 0x%08X\n", vector);
 	}
 }
 
@@ -97,10 +96,10 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 	{
 		/* Allocate an ASM interrupt stub and copy in the template */
 		uint8_t *asm_interrupt_stub = slab_cache_alloc(asm_interrupt_stub_cache);
-		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x32);
+		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x31);
 
 		/* Modify the stub to contain the proper IDT vector number */
-		asm_interrupt_stub[4] = interrupt->vector;
+		asm_interrupt_stub[3] = interrupt->vector;
 
 		/* Install an IDT entry for the interrupt */
 		idt_set_gate(interrupt->vector, (uint32_t) asm_interrupt_stub, IDT_GATE_INT, true);
@@ -123,5 +122,5 @@ void interrupts_init()
 
 	/* Create the interrupt object and ASM interrupt code slab caches */
 	interrupt_cache = slab_cache_create(sizeof(interrupt_t), PAGE_READ | PAGE_WRITE);
-	asm_interrupt_stub_cache = slab_cache_create(0x32, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
+	asm_interrupt_stub_cache = slab_cache_create(0x31, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
 }
