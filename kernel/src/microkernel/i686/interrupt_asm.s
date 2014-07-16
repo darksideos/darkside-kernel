@@ -5,7 +5,7 @@ global interrupt_common_stub
 interrupt_common_stub:
 	; Push the dummy error code and vector number
 	push byte 0
-	push byte 0
+	push word 0x00FF
 	
 	; Save all needed registers
 	push eax
