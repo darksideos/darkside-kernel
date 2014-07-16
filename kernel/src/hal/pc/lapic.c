@@ -9,7 +9,7 @@
 #define APICID			0x08
 #define APICVER			0x0C
 #define TSKPRI			0x20
-#define EOI				0x2C
+#define EOI			0x2C
 #define SPURIOUS		0x3C
 #define ICR_LOW			0xC0
 #define ICR_HIGH		0xC4
@@ -30,11 +30,14 @@
 static uint32_t volatile *lapic = NULL;
 
 /* Handler for the LAPIC timer */
-static void lapic_timer_handler(interrupt_t *interrupt)
+static bool lapic_timer_handler(interrupt_t *interrupt)
 {
 	/* Do nothing for now */
 	printf("LAPIC\n");
-	while(1);
+	
+	/* Send an EOI to the Local APIC and resolve the interrupt */
+	lapic[EOI] = 0;
+	return true;
 }
 
 /* Initialize the Local APIC timer */
