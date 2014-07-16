@@ -19,6 +19,9 @@
 #define LVT_LINT1	0xD8
 #define LVT_ERR		0xDC
 
+/* APIC constants */
+#define APIC_DISABLE	0x10000
+
 /* ASM IRQ handlers */
 void lapic_irq_spurious();
 void lapic_irq_timer();
@@ -101,6 +104,16 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 		/* Add the spurious interrupt vector to the IDT */
 		idt_set_gate(255, (uint32_t) lapic_irq_spurious, IDT_GATE_INT, true);
 	}
+	
+	/* Set up the LVT */
+	lapic[LVT_LINT0] = APIC_DISABLE;
+	lapic[LVT_LINT1] = APIC_DISABLE;
+	lapic[LVT_TIMER] = APIC_DISABLE;
+	lapic[LVT_PERF] = APIC_DISABLE;
+	lapic[LVT_ERR] = APIC_DISABLE;
+	
+	/* Allow all interrupts */
+	lapic[TSKPRI] = 0;
 
 	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
 	uint32_t eax, edx;
