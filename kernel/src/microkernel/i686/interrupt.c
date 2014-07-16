@@ -97,10 +97,10 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 	{
 		/* Allocate an ASM interrupt stub and copy in the template */
 		uint8_t *asm_interrupt_stub = slab_cache_alloc(asm_interrupt_stub_cache);
-		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x31);
+		memcpy(asm_interrupt_stub, interrupt_common_stub, 0x32);
 
 		/* Modify the stub to contain the proper IDT vector number */
-		asm_interrupt_stub[3] = interrupt->vector;
+		asm_interrupt_stub[4] = interrupt->vector;
 
 		/* Install an IDT entry for the interrupt */
 		idt_set_gate(interrupt->vector, (uint32_t) asm_interrupt_stub, IDT_GATE_INT, true);
@@ -123,5 +123,5 @@ void interrupts_init()
 
 	/* Create the interrupt object and ASM interrupt code slab caches */
 	interrupt_cache = slab_cache_create(sizeof(interrupt_t), PAGE_READ | PAGE_WRITE);
-	asm_interrupt_stub_cache = slab_cache_create(0x31, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
+	asm_interrupt_stub_cache = slab_cache_create(0x32, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
 }
