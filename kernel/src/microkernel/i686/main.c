@@ -142,6 +142,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the HAL */
 		hal_init(&loader_block, bsp);
+		__asm__ volatile("sti");
 		
 		while(1);
 

@@ -37,9 +37,10 @@ static void lapic_timer_handler(interrupt_t *interrupt)
 	while(1);
 }
 
-/* Initialize the LAPIC timer */
+/* Initialize the Local APIC timer */
 static void lapic_timer_init()
 {
+	/* Create and register an interrupt object for the Local APIC timer */
 	interrupt_t *lapic_timer_interrupt = interrupt_create();
 	lapic_timer_interrupt->controller = NULL;
 	lapic_timer_interrupt->vector = 0xFE;
@@ -52,16 +53,16 @@ static void lapic_timer_init()
 	/* Set the divide register to 16, meaning that it will tick down at 1/16th of the CPU bus frequency */
 	lapic[TMR_DIV] = TMR_DIV16;
 	
-	/* Reset the LAPIC timer at 0xFFFFFFFF and it will begin counting */
+	/* Reset the Local APIC timer at 0xFFFFFFFF and it will begin counting */
 	lapic[TMR_INITCNT] = 0xFFFFFFFF;
 	
 	/* Wait on PIT channel 2 for 10 ms (100 Hz) */
 	pit_wait(2, 10);
 	
-	/* Stop the LAPIC timer */
+	/* Stop the Local APIC timer */
 	lapic[LVT_TIMER] = APIC_DISABLE;
 	
-	/* Read the LAPIC counter */
+	/* Read the Local APIC counter */
 	uint32_t ticks = 0xFFFFFFFF - lapic[TMR_CURRCNT] + 1;
 	
 	/* Calculate the CPU's bus frequency, which is 16x the number of ticks that occurred in a 100 Hz burst */
@@ -71,7 +72,7 @@ static void lapic_timer_init()
 	ticks = cpubusfreq / 16;
 	lapic[TMR_INITCNT] = ticks;
 	
-	/* Re-enable the LAPIC timer in periodic mode */
+	/* Re-enable the Local APIC timer in periodic mode */
 	lapic[LVT_TIMER] = 0xFE | TMR_PERIODIC;
 	
 	/* Apparently some buggy hardware requires you to reset the divide register */
@@ -81,7 +82,7 @@ static void lapic_timer_init()
 /* Initialize the HAL component of the LAPIC */
 void lapic_hal_init(loader_block_t *loader_block)
 {
-	/* Find the LAPIC's address in memory */
+	/* Find the Local APIC's address in memory */
 	lapic = (uint32_t volatile*) loader_block->lapic;
 	
 	lapic_timer_init();
