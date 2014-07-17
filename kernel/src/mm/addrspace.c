@@ -98,7 +98,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 	}
 
 	/* Search the address space for a free region of suitable size */
-	spinlock_recursive_acquire(&addrspace->lock, TIMEOUT_NEVER);
+	spinlock_recursive_acquire(&addrspace->lock);
 	vad_t *vad = &addrspace->free;
 	while (vad)
 	{

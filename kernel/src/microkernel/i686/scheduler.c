@@ -26,7 +26,7 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 	int priority = thread->priority;
 
 	/* Acquire the lock on the scheduling queue */
-	spinlock_acquire(&cpu->runqueue_locks[policy][priority], TIMEOUT_NEVER);
+	spinlock_acquire(&cpu->runqueue_locks[policy][priority]);
 
 	/* Take the thread at the head of the queue */
 	thread_t *head = cpu->runqueues[policy][priority];
@@ -63,7 +63,7 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 {
 	/* Acquire the lock on the scheduling queue */
-	spinlock_acquire(&cpu->runqueue_locks[policy][priority], TIMEOUT_NEVER);
+	spinlock_acquire(&cpu->runqueue_locks[policy][priority]);
 
 	/* Take the thread at the head of the queue */
 	thread_t *thread = cpu->runqueues[policy][priority];
