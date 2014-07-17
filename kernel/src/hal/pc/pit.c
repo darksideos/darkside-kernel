@@ -32,16 +32,16 @@ void pit_ch2_delay(uint32_t ms, void (*start_cb)())
 	io_write_8(PIT_CONTROL_PORT, PIT_CH2 | PIT_ACCESS_LOHI | PIT_MODE_RATEGEN);
 	
 	/* The number of PIT ticks to wait */
-	uint32_t ticks = PIT_FREQUENCY * ms / 1000;
-	
-	/* We're in LOHI mode, so we send the low bits first */
-	io_write_8(PIT_CH2_PORT, (ticks & 0xFF00) >> 8);
-	
+	uint32_t ticks = (PIT_FREQUENCY * ms) / 1000;
+
+	/* First send the low 8 bits */
+	io_write_8(PIT_CH2_PORT, ticks & 0xFF);
+
 	/* Short delay */
 	io_read_8(0x60);
-	
-	/* Now send the high bits */
-	io_write_8(PIT_CH2_PORT, ticks & 0xFF);
+
+	/* Then send the high 8 bits */
+	io_write_8(PIT_CH2_PORT, (ticks & 0xFF00) >> 8);
 	
 	/* Reset the counter by setting the gate low and then high */
 	uint32_t tmp = io_read_8(PIT_CH2_GATE_PORT) & 0xFE;
