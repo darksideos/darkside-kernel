@@ -188,20 +188,16 @@ static thread_t *scheduler_dequeue()
 find_priority: ;
 		int current_priority = MIN_PRIORITY;
 		bool found_priority = false;
-		for (int priority = cpu->max_priority[policy-1]; priority >= MIN_PRIORITY; priority--)
+		for (int priority = MAX_PRIORITY; priority >= cpu->round[policy-1]; priority--)
 		{
-			/* Priority is allowed in round */
-			if ((cpu->round[policy-1] % (32 - priority)) == 0)
-			{
-				/* Set the current priority */
-				current_priority = priority;
+			/* Set the current priority */
+			current_priority = priority;
 
-				/* There are threads in the priority */
- 				if (cpu->runqueues[policy][priority])
-				{
-					found_priority = true;
-					break;
-				}
+			/* There are threads in the priority */
+ 			if (cpu->runqueues[policy][priority])
+			{
+				found_priority = true;
+				break;
 			}
 		}
 
@@ -218,10 +214,10 @@ find_priority: ;
 			/* Go to the next round, resetting at the limit */
 			if (policy == POLICY_HIGH)
 			{
-				cpu->round[POLICY_HIGH-1]++;
-				if (cpu->round[POLICY_HIGH-1] > 144403552893600)
+				cpu->round[POLICY_HIGH-1]--;
+				if (cpu->round[POLICY_HIGH-1] < MIN_PRIORITY)
 				{
-					cpu->round[POLICY_HIGH-1] = 1;
+					cpu->round[POLICY_HIGH-1] = MAX_PRIORITY;
 				}
 			}
 
@@ -231,8 +227,6 @@ find_priority: ;
 				/* If there are threads on the expired list */
 				if (cpu->expired[policy-1])
 				{
-					//printf("There is stuff on the expired list\n");
-
 					/* Start taking threads off the expired list and putting them back on the queue */
 					while (cpu->expired[policy-1])
 					{
@@ -240,7 +234,6 @@ find_priority: ;
 						enqueue_thread(cpu, cpu->expired[policy-1]);
 						cpu->expired[policy-1] = next;
 					}
-					cpu->expired[policy-1] = NULL;
 
 					/* Repeat this entire loop */
 					goto find_priority;
@@ -316,11 +309,10 @@ void scheduler_init(loader_block_t *loader_block, bool bsp)
 	}
 
 	/* Initialize the variable-frequency and variable-timeslice data */
-	cpu->round[0] = 1;
-	cpu->round[1] = cpu->round[2] = 144403552893600;
+	cpu->round[0] = MAX_PRIORITY;
+	cpu->round[1] = cpu->round[2] = MIN_PRIORITY;
 	for (int policy = 0; policy < NUM_POLICIES - 1; policy++)
 	{
-		cpu->max_priority[policy] = MAX_PRIORITY;
 		cpu->expired[policy] = NULL;
 	}
 
