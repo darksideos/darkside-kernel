@@ -206,6 +206,7 @@ find_priority: ;
 		{
 			/* Get the thread off the head of the queue and return it */
 			thread_t *thread = dequeue_thread(cpu, policy, current_priority);
+			printf("thread: 0x%08X\n", thread);
 			return thread;
 		}
 		/* Otherwise, prepare for the next round */
@@ -237,6 +238,9 @@ find_priority: ;
 			}
 		}
 	}
+
+	/* No thread found */
+	return NULL;
 }
 
 /* Run the scheduler */
