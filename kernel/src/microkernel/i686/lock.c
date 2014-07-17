@@ -15,51 +15,24 @@ void spinlock_init(spinlock_t *lock)
 }
 
 /* Acquire a spinlock */
-uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout)
+uint32_t spinlock_acquire(spinlock_t *lock)
 {
+	/* Save the interrupt state */
 	uint32_t interrupts;
 	__asm__ volatile("pushf; pop %0" : "=r" (interrupts));
 	interrupts &= 0x200;
 
+	/* Disable interrupts while we acquire the lock */
 	__asm__ volatile("cli");
-	
-	/* Try to acquire the spinlock once */
-	if (timeout == TIMEOUT_ONCE)
-	{
-		uint32_t result = spinlock_try_acquire(lock);
-		
-		if (result)
-		{
-			lock->interrupts = interrupts;
-		}
-		else
-		{
-			if (lock->interrupts)
-			{
-				__asm__ volatile("sti");
-			}
-		}
-		
-		return result;
-	}
-	/* Wait until it's available */
-	else if (timeout == TIMEOUT_NEVER)
-	{
-		/* Get the ticket for entering and wait until it's called */
-		atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
-		while(atomic_read(&lock->dequeue_ticket) != my_ticket);
 
-		/* Save the interrupt state */
-		lock->interrupts = interrupts;
+	/* Get the ticket for entering and wait until it's called */
+	atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
+	while(atomic_read(&lock->dequeue_ticket) != my_ticket);
+
+	/* Save the interrupt state (TODO: Just return this to the caller) */
+	lock->interrupts = interrupts;
 		
-		return 0;
-	}
-	/* Wait for a specified number of milliseconds */
-	else
-	{
-		/* NOT SUPPORTED */
-		return 1;
-	}
+	return 0;
 }
 
 /* Release a spinlock */
@@ -85,55 +58,41 @@ void spinlock_recursive_init(spinlock_recursive_t *lock)
 }
 
 /* Acquire a spinlock */
-uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout)
+uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock)
 {
+	/* Save the interrupt state */
 	uint32_t interrupts;
 	__asm__ volatile("pushf; pop %0" : "=r" (interrupts));
 	interrupts &= 0x200;
 
+	/* Disable interrupts while we acquire the lock */
 	__asm__ volatile("cli");
 	
-	/* Try to acquire the spinlock once */
-	if (timeout == TIMEOUT_ONCE)
+	/* If we own the lock, acquire it */
+	if (lock->owner == tid_current())
 	{
-		/* NOT SUPPORTED */
-		return 1;
+		/* Increment the recursion count */
+		atomic_inc(&lock->num_recursion);
+
+		return 0;
 	}
-	/* Wait until it's available */
-	else if (timeout == TIMEOUT_NEVER)
-	{
-		/* If we own the lock, acquire it */
-		if (lock->owner == tid_current())
-		{
-			/* Increment the recursion count */
-			atomic_inc(&lock->num_recursion);
-
-			return 0;
-		}
-		/* Otherwise, we can't get the lock yet, so acquire it with a ticket */
-		else
-		{
-			/* Get the ticket for entering and wait until it's called */
-			atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
-			while(atomic_read(&lock->dequeue_ticket) != my_ticket);
-
-			/* Increment the recursion count */
-			atomic_inc(&lock->num_recursion);
-
-			/* Set our current TID */
-			lock->owner = tid_current();
-
-			/* Save the interrupt state */
-			lock->interrupts = interrupts;
-		
-			return 0;
-		}
-	}
-	/* Wait for a specified number of milliseconds */
+	/* Otherwise, we can't get the lock yet, so acquire it with a ticket */
 	else
 	{
-		/* NOT SUPPORTED */
-		return 1;
+		/* Get the ticket for entering and wait until it's called */
+		atomic_t my_ticket = atomic_xadd(&lock->queue_ticket, 1);
+		while(atomic_read(&lock->dequeue_ticket) != my_ticket);
+
+		/* Increment the recursion count */
+		atomic_inc(&lock->num_recursion);
+
+		/* Set our current TID */
+		lock->owner = tid_current();
+
+		/* Save the interrupt state (TODO: Just return this to the caller) */
+		lock->interrupts = interrupts;
+		
+		return 0;
 	}
 }
 

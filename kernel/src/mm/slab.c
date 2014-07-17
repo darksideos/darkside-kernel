@@ -74,7 +74,7 @@ allocation: ;
 	while (slab_cache)
 	{
 		/* Acquire the lock on the slab cache */
-		spinlock_recursive_acquire(&slab_cache->lock, TIMEOUT_NEVER);
+		spinlock_recursive_acquire(&slab_cache->lock);
 
 		/* If the number of free objects is 0, go to the next cache */
 		if (slab_cache->num_free_objs == 0)
@@ -115,7 +115,7 @@ allocation: ;
 	}
 
 	/* Acquire the lock on the previous (last valid) slab cache */
-	spinlock_recursive_acquire(&prev_slab_cache->lock, TIMEOUT_NEVER);
+	spinlock_recursive_acquire(&prev_slab_cache->lock);
 
 	/* Allocate a new slab and initialize it */
 	slab_cache = slab_cache_create(prev_slab_cache->object_size, prev_slab_cache->flags);
@@ -140,7 +140,7 @@ void slab_cache_free(slab_cache_t *slab_cache, void *ptr)
 		}
 
 		/* Acquire the lock on the slab cache */
-		spinlock_recursive_acquire(&slab_cache->lock, TIMEOUT_NEVER);
+		spinlock_recursive_acquire(&slab_cache->lock);
 
 		/* Clear the object's location in the bitmap and increment the number of free objects */
 		size_t object_num = (size_t) (ptr - ((void*) slab_cache) - slab_cache->object_data_start) / slab_cache->object_size;

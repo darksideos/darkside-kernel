@@ -67,7 +67,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 	if (flags & PAGE_DMA)
 	{
 		/* Lock the entire DMA bitmap while we search */
-		spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+		spinlock_acquire(&dma_bitmap_lock);
 
 		/* First, search each whole byte */
 		for (size_t i = 0; i < dma_bitmap_nbytes; i++)
@@ -137,7 +137,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 	if (flags & PAGE_ZERO)
 	{
 		/* First, try the zero list */
-		spinlock_acquire(&numa_area->zero_list_locks[color], TIMEOUT_NEVER);
+		spinlock_acquire(&numa_area->zero_list_locks[color]);
 		if (numa_area->zero_lists[color])
 		{
 			page_t *page = numa_area->zero_lists[color];
@@ -154,7 +154,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		spinlock_release(&numa_area->zero_list_locks[color]);
 
 		/* Next, try the free list and zero the page */
-		spinlock_acquire(&numa_area->free_list_locks[color], TIMEOUT_NEVER);
+		spinlock_acquire(&numa_area->free_list_locks[color]);
 		if (numa_area->free_lists[color])
 		{
 			page_t *page = numa_area->free_lists[color];
@@ -189,7 +189,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 	else
 	{
 		/* First, try the free list */
-		spinlock_acquire(&numa_area->free_list_locks[color], TIMEOUT_NEVER);
+		spinlock_acquire(&numa_area->free_list_locks[color]);
 		if (numa_area->free_lists[color])
 		{
 			page_t *page = numa_area->free_lists[color];
@@ -206,7 +206,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 		spinlock_release(&numa_area->free_list_locks[color]);
 
 		/* Next, try the zero list */
-		spinlock_acquire(&numa_area->zero_list_locks[color], TIMEOUT_NEVER);
+		spinlock_acquire(&numa_area->zero_list_locks[color]);
 		if (numa_area->zero_lists[color])
 		{
 			page_t *page = numa_area->zero_lists[color];
@@ -239,7 +239,7 @@ paddr_t pmm_alloc_pages(int num_pages, int flags, int numa_domain, int color)
 	if (flags & PAGE_DMA)
 	{
 		/* Lock the entire DMA bitmap while we search */
-		spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+		spinlock_acquire(&dma_bitmap_lock);
 
 		/* Starting point and number of free pages we've found so far */
 		size_t byte_start = 0;
@@ -362,7 +362,7 @@ void pmm_free_page(paddr_t address)
 		if (address < 0x1000000)
 		{
 			/* Lock the entire DMA bitmap while we free */
-			spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+			spinlock_acquire(&dma_bitmap_lock);
 
 			/* Calculate the corresponding byte and bit */
 			size_t byte_start = (address / PAGE_SIZE) / 8;
@@ -384,7 +384,7 @@ void pmm_free_page(paddr_t address)
 			int color = page->color;
 
 			/* Return the page to the free list */
-			spinlock_acquire(&numa_domain->free_list_locks[color], TIMEOUT_NEVER);
+			spinlock_acquire(&numa_domain->free_list_locks[color]);
 			numa_domain->free_lists[color]->prev = page;
 			page->next = numa_domain->free_lists[color];
 			numa_domain->free_lists[color] = page;
@@ -422,7 +422,7 @@ void pmm_free_pages(paddr_t address, int num_pages)
 				page->flags |= PAGE_FLAG_FREE;
 
 				/* Lock the entire DMA bitmap while we free */
-				spinlock_acquire(&dma_bitmap_lock, TIMEOUT_NEVER);
+				spinlock_acquire(&dma_bitmap_lock);
 
 				/* Verify the bit is actually set, and if so, clear it */
 				if (dma_bitmap[byte_start] & (1 << bit_start))
