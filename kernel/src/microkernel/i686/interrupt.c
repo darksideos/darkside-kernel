@@ -71,7 +71,7 @@ void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t hand
 	/* Insert the interrupt object into the registered interrupt list */
 	int offset = interrupt->vector - 32;
 	bool chained = false;
-	spinlock_acquire(&interrupts_lock, TIMEOUT_NEVER);
+	spinlock_acquire(&interrupts_lock);
 	if (interrupts[offset])
 	{
 		/* Iterate through the linked list of interrupt objects */

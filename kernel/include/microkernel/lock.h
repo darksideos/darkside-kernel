@@ -2,7 +2,6 @@
 #define __LOCK_H
 
 #include <types.h>
-#include <microkernel/synch.h>
 #include <microkernel/thread.h>
 
 /* Spinlock structure */
@@ -25,12 +24,12 @@ typedef struct spinlock_recursive
 
 /* Spinlock methods */
 void spinlock_init(spinlock_t *lock);
-uint32_t spinlock_acquire(spinlock_t *lock, uint16_t timeout);
+uint32_t spinlock_acquire(spinlock_t *lock);
 void spinlock_release(spinlock_t *lock);
 
 /* Recursive spinlock methods */
 void spinlock_recursive_init(spinlock_recursive_t *lock);
-uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock, uint16_t timeout);
+uint32_t spinlock_recursive_acquire(spinlock_recursive_t *lock);
 void spinlock_recursive_release(spinlock_recursive_t *lock);
 
 #endif
