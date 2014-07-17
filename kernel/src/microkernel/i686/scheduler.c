@@ -236,6 +236,12 @@ find_priority: ;
 				/* Repeat this entire loop */
 				goto find_priority;
 			}
+
+			/* If there are more priorites to check */
+			if (current_priority != MIN_PRIORITY)
+			{
+				goto find_priority;
+			}
 		}
 	}
 
