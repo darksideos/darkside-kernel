@@ -1,24 +1,29 @@
 #include <types.h>
-#include <hal/pc/pit.h>
 #include <microkernel/ports.h>
 
-#define PIT_CONTROL_PORT			0x43
-#define PIT_CH2_PORT				0x42
-#define PIT_CH2_GATE_PORT			0x61
+/* PIT I/O ports */
+#define PIT_CONTROL_PORT	0x43
+#define PIT_CH2_PORT		0x42
+#define PIT_CH2_GATE_PORT	0x61
 
-#define PIT_CH0						0x00
-#define PIT_CH1						0x40
-#define PIT_CH2						0x80
+/* PIT channel selectors */
+#define PIT_CH0				0x00
+#define PIT_CH1				0x40
+#define PIT_CH2				0x80
 
-#define PIT_ACCESS_LO				0x10
-#define PIT_ACCESS_HI				0x20
-#define PIT_ACCESS_LOHI				0x30
+/* PIT bit selectors */
+#define PIT_ACCESS_LO		0x10
+#define PIT_ACCESS_HI		0x20
+#define PIT_ACCESS_LOHI		0x30
 
-#define PIT_MODE_RATEGEN			0x02
+/* PIT modes */
+#define PIT_MODE_RATEGEN	0x02
 
-#define PIT_FREQUENCY				1193180
+/* PIT frequency */
+#define PIT_FREQUENCY		1193180
 
-void pit_wait(int channel, uint32_t ms)
+/* Delay for a certain amount of milliseconds on channel 2 */
+void pit_ch2_delay(uint32_t ms, void (*start_cb)())
 {
 	/* Set the first bit of the PIT Channel 2 gate register, enabling the 1.19MHz signal to reach it */
 	io_write_8(PIT_CH2_GATE_PORT, (io_read_8(PIT_CH2_GATE_PORT) & 0xFD) | 1);
@@ -42,6 +47,9 @@ void pit_wait(int channel, uint32_t ms)
 	uint32_t tmp = io_read_8(PIT_CH2_GATE_PORT) & 0xFE;
 	io_write_8(PIT_CH2_GATE_PORT, (uint8_t) tmp);
 	io_write_8(PIT_CH2_GATE_PORT, (uint8_t) tmp | 1);
+
+	/* Call the callback for the beginning of the wait */
+	start_cb();
 	
 	/* Wait until bit 5 is set of the gate register, meaning that it's done counting */
 	while (!(io_read_8(PIT_CH2_GATE_PORT) & 0x20));
