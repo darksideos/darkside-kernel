@@ -141,10 +141,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_INTERRUPT_INIT;
 
 		/* Initialize the HAL */
-		hal_init(&loader_block, bsp);
-		__asm__ volatile("sti");
-		
-		while(1);
+		//hal_init(&loader_block, bsp);
+		//__asm__ volatile("sti");
 
 		/* Detect the relevant CPU topology information for itself */
 
