@@ -1,6 +1,5 @@
 #include <types.h>
 #include <hal/pc/lapic.h>
-#include <hal/pc/pit.h>
 #include <init/loader.h>
 #include <microkernel/interrupt.h>
 #include <microkernel/i686/isr.h>
@@ -9,7 +8,7 @@
 #define APICID			0x08
 #define APICVER			0x0C
 #define TSKPRI			0x20
-#define EOI			0x2C
+#define EOI				0x2C
 #define SPURIOUS		0x3C
 #define ICR_LOW			0xC0
 #define ICR_HIGH		0xC4
@@ -27,17 +26,28 @@
 #define TMR_PERIODIC	0x20000
 #define TMR_DIV16		0x03
 
+/* Delay for a certain amount of milliseconds on channel 2 */
+void pit_ch2_delay(uint32_t ms, void (*start_cb)());
+
+/* Local APIC MMIO address */
 static uint32_t volatile *lapic = NULL;
 
 /* Handler for the LAPIC timer */
 static bool lapic_timer_handler(interrupt_t *interrupt)
 {
-	/* Do nothing for now */
+	/* Print our special message */
 	printf("LAPIC\n");
 	
 	/* Send an EOI to the Local APIC and resolve the interrupt */
 	lapic[EOI] = 0;
 	return true;
+}
+
+/* Reset the Local APIC timer's count */
+static void lapic_timer_reset()
+{
+	/* Reset the Local APIC timer at 0xFFFFFFFF and it will begin counting */
+	lapic[TMR_INITCNT] = 0xFFFFFFFF;
 }
 
 /* Initialize the Local APIC timer */
@@ -56,11 +66,8 @@ static void lapic_timer_init()
 	/* Set the divide register to 16, meaning that it will tick down at 1/16th of the CPU bus frequency */
 	lapic[TMR_DIV] = TMR_DIV16;
 	
-	/* Reset the Local APIC timer at 0xFFFFFFFF and it will begin counting */
-	lapic[TMR_INITCNT] = 0xFFFFFFFF;
-	
-	/* Wait on PIT channel 2 for 10 ms (100 Hz) */
-	pit_wait(2, 1);
+	/* Delay on PIT channel 2 for 10 ms (100 Hz) */
+	pit_ch2_delay(10, &lapic_timer_reset);
 	
 	/* Stop the Local APIC timer */
 	lapic[LVT_TIMER] = APIC_DISABLE;
@@ -68,6 +75,7 @@ static void lapic_timer_init()
 	/* Read the Local APIC counter */
 	uint32_t ticks = 0xFFFFFFFF - lapic[TMR_CURRCNT] + 1;
 	printf("Ticks: 0x%08X\n", ticks);
+	while(1);
 	
 	/* Calculate the CPU's bus frequency, which is 16x the number of ticks that occurred in a 100 Hz burst */
 	uint32_t cpubusfreq = ticks * 16 * 100;
