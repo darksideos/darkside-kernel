@@ -75,7 +75,6 @@ static void lapic_timer_init()
 	/* Read the Local APIC counter */
 	uint32_t ticks = 0xFFFFFFFF - lapic[TMR_CURRCNT] + 1;
 	printf("Ticks: 0x%08X\n", ticks);
-	while(1);
 	
 	/* Calculate the CPU's bus frequency, which is 16x the number of ticks that occurred in a 100 Hz burst */
 	uint32_t cpubusfreq = ticks * 16 * 100;
