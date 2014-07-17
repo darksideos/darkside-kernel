@@ -221,27 +221,18 @@ find_priority: ;
 				}
 			}
 
-			/* At the end of the entire queue and no threads found */
-			if (current_priority == MIN_PRIORITY)
+			/* If there are threads on the expired list */
+			if (cpu->expired[policy-1])
 			{
-				/* If there are threads on the expired list */
-				if (cpu->expired[policy-1])
+				/* Start taking threads off the expired list and putting them back on the queue */
+				while (cpu->expired[policy-1])
 				{
-					/* Start taking threads off the expired list and putting them back on the queue */
-					while (cpu->expired[policy-1])
-					{
-						thread_t *next = cpu->expired[policy-1]->next;
-						enqueue_thread(cpu, cpu->expired[policy-1]);
-						cpu->expired[policy-1] = next;
-					}
-
-					/* Repeat this entire loop */
-					goto find_priority;
+					thread_t *next = cpu->expired[policy-1]->next;
+					enqueue_thread(cpu, cpu->expired[policy-1]);
+					cpu->expired[policy-1] = next;
 				}
-			}
-			/* Otherwise, repeat this entire loop */
-			else
-			{
+
+				/* Repeat this entire loop */
 				goto find_priority;
 			}
 		}
