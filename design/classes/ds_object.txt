@@ -13,21 +13,28 @@ public:
 	virtual Object *query_interface(int iid) = 0;
 private:
 	/* Reference count */
-	int refcount;
+	atomic_t refcount;
 };
 
 /* Increment an Object's reference count */
 void Object::ref()
 {
-	atomic_inc(this->refcount);
+	atomic_inc(&this->refcount);
 }
 
 /* Decrement an Object's reference count */
 void Object::unref()
 {
-	atomic_dec(this->refcount);
+	/* Try to decrement the reference count atomically */
+	atomic_t i = this->refcount;
+	while(1)
+	{
+		if (atomic_cmpxchg(&this->refcount, i, i - 1) == i) break;
+		i = this->refcount;
+	}
 
-	if (this->refcount == 0)
+	/* Delete object if we hit 0 */
+	if (i == 1)
 	{
 		delete this;
 	}
