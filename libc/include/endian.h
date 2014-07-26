@@ -10,8 +10,24 @@
 #define le32_to_cpu(n)	n
 #define le64_to_cpu(n)	n
 
-#define cpu_to_be16(n)	(((n & 0xFF) << 8) | (n >> 8))
-#define cpu_to_be32(n)	(((n & 0xFF) << 24) | ((n & 0xFF00) << 8) | ((n & 0xFF0000) >> 8) | (n >> 24))
+inline uint16_t cpu_to_be16(uint16_t n)
+{
+	return ((n & 0xFF) << 8) | (n >> 8);
+}
+
+inline uint32_t cpu_to_be32(uint32_t n)
+{
+	return cpu_to_be16(n & 0xFFFF) | (cpu_to_be16(n & 0xFFFF0000) << 16);
+}
+
+inline uint32_t cpu_to_be64(uint64_t n)
+{
+	return cpu_to_be32(n & 0xFFFFFFFF) | (cpu_to_be32(n & 0xFFFFFFFF00000000) << 32);
+}
+
+#define be16_to_cpu		cpu_to_be16
+#define be32_to_cpu		cpu_to_be32
+#define be64_to_cpu		cpu_to_be64
 #endif
 
 #endif
