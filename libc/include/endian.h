@@ -17,12 +17,12 @@ inline uint16_t cpu_to_be16(uint16_t n)
 
 inline uint32_t cpu_to_be32(uint32_t n)
 {
-	return cpu_to_be16(n & 0xFFFF) | (cpu_to_be16(n & 0xFFFF0000) << 16);
+	return (cpu_to_be16(n & 0xFFFF) << 16) | (cpu_to_be16((n & 0xFFFF0000) >> 16));
 }
 
 inline uint32_t cpu_to_be64(uint64_t n)
 {
-	return cpu_to_be32(n & 0xFFFFFFFF) | (cpu_to_be32(n & 0xFFFFFFFF00000000) << 32);
+	return (cpu_to_be32(n & 0xFFFFFFFF) << 32) | (cpu_to_be32((n & 0xFFFFFFFF00000000) >> 32));
 }
 
 #define be16_to_cpu		cpu_to_be16
