@@ -1,8 +1,8 @@
 #ifndef __ENDIAN_H
 #define __ENDIAN_H
 
-/* i386 */
-#if defined(__i386__)
+/* Little-endian CPUs */
+#if defined(__i386__) | defined(__x86_64__)
 #define cpu_to_le16(n)	n
 #define cpu_to_le32(n)	n
 #define cpu_to_le64(n)	n
