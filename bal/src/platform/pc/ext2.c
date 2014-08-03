@@ -1,16 +1,32 @@
+/*
+ * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 Noah Singer <singerng@gmail.com>
+ * ext2.c - EXT2 filesystem driver
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public Licens
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 #include <types.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 #include <list.h>
 #include <dict.h>
 #include <storage/device.h>
 #include <storage/blockdev.h>
 #include <fs/fs.h>
 #include <fs/ext2.h>
-
-
-#include <stdio.h>
 
 /* EXT2 inode operations */
 static inode_ops_t ext2_inode_ops;

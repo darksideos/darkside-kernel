@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * disk.c - Disk I/O for BIOS-based PCs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public Licens
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 #include <types.h>
 #include <stdlib.h>
 #include <list.h>
 #include <storage/blockdev.h>
-
-#include <stdio.h>
 
 /* BIOS disk functions */
 uint32_t bios_disk_read(void *buffer, uint32_t start, uint32_t numsectors);
