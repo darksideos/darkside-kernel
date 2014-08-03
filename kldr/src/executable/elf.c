@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
  * Copyright (C) 2014 Noah Singer <singerng@gmail.com>
- * cpu.c - ELF executable loading
+ * elf.c - ELF executable loading
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
