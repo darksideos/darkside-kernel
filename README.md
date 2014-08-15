@@ -4,7 +4,12 @@ This repository contains the bootloader, kernel, and modules of DarkSide OS. Dar
 
 Building
 --------
-In order to build the i386 version of the DarkSide Kernel, use 'make i386' for the core components and 'make i386-libs' for the libraries.
+There is a Makefile at the root of the repository used for building all components. Here are the Makefile targets for each platform:
+* x86 PCs (by default, FIRMWARE=bios and FS=ext2) -> i686-pc
+* x86-64 PCs (by default, FIRMWARE=bios and FS=ext2) -> amd64-pc
+* Raspberry Pi's (by default, FS=ext2) -> raspi
+* Wii U's -> wiiu
+The FIRMWARE variable can be passed to override a target's default firmware, and the FS variable can be passed to override a target's default filesystem.
 
 Contributing
 ------------
