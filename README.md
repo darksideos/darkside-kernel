@@ -9,6 +9,7 @@ There is a Makefile at the root of the repository used for building all componen
 * x86-64 PCs (by default, FIRMWARE=bios and FS=ext2) -> amd64-pc
 * Raspberry Pi's (by default, FS=ext2) -> raspi
 * Wii U's -> wiiu
+
 The FIRMWARE variable can be passed to override a target's default firmware, and the FS variable can be passed to override a target's default filesystem.
 
 Contributing
