@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
  * pfn.c - Page Frame Number (PFN) database space reservation
  *
  * This program is free software; you can redistribute it and/or modify
