@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
  * graphics.c - Graphics mode initialization for BIOS-based PCs
  *
  * This program is free software; you can redistribute it and/or modify
