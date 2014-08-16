@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
- * Copyright (C) 1991, 1992 Linus Torvalds
- * Copyright (C) 1991, 1992 Lars Wirzenius
+ * Copyright (C) 1991-1992, 2014 DarkSide Project
+ * Authored by Linus Torvalds and Lars Wirzenius
+ * Authored by George Klees <gksharkboy@gmail.com>
  * stdio.c - Standard C I/O functions
  *
  * This program is free software; you can redistribute it and/or modify

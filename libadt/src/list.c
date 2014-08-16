@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
- * Copyright (C) 2014 Noah Singer <singerng@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
+ * Authored by Noah Singer <singerng@gmail.com>
  * list.c - Linked list abstract data type
  *
  * This program is free software; you can redistribute it and/or modify

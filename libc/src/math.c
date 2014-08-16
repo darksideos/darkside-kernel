@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
- * Copyright (C) 2014 Noah Kim <superkim101@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
+ * Authored by Noah Kim <superkim101@gmail.com>
  * math.c - Standard C math functions
  *
  * This program is free software; you can redistribute it and/or modify
