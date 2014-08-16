@@ -12,13 +12,10 @@ I686BIOS-INCLUDES	:= -I./include/platform/pc -I./include/platform/bios
 SRCDIR				:= src
 BUILDDIR			:= build
 
-X86SRCDIR			:= $(SRCDIR)/arch/x86
 I686SRCDIR			:= $(SRCDIR)/arch/i686
 PCSRCDIR			:= $(SRCDIR)/platform/pc
 BIOSSRCDIR			:= $(SRCDIR)/platform/bios
 
-X86CFILES			:= $(shell find $(X86SRCDIR) -type f -name "*.c")
-X86SFILES			:= $(shell find $(X86SRCDIR) -type f -name "*.s")
 I686CFILES			:= $(shell find $(I686SRCDIR) -type f -name "*.c")
 I686SFILES			:= $(shell find $(I686SRCDIR) -type f -name "*.s")
 PCCFILES			:= $(shell find $(PCSRCDIR) -type f -name "*.c")
@@ -26,7 +23,7 @@ PCSFILES			:= $(shell find $(PCSRCDIR) -type f -name "*.s")
 BIOSCFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.c")
 BIOSSFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.s")
 
-I686BIOS-OBJFILES	:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(X86CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(X86SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(I686CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(I686SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(BIOSCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(BIOSSFILES))
+I686BIOS-OBJFILES	:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(I686CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(I686SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(BIOSCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(BIOSSFILES))
 
 i686-bios: $(I686BIOS-OBJFILES)
 		rm -f $(BUILDDIR)/bal.o
