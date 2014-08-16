@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
- * Copyright (C) 1998 Wes Peters <wes@softweyr.com>
+ * Copyright (C) 1998, 2014 DarkSide Project
+ * Authored by Wes Peters <wes@softweyr.com>
+ * Authored by George Klees <gksharkboy@gmail.com>
  * string.c - Standard C memory and string functions
  *
  * This program is free software; you can redistribute it and/or modify
