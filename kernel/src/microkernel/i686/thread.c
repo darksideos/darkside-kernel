@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
  * thread.c - Thread management for the x86 architecture
  *
  * This program is free software; you can redistribute it and/or modify

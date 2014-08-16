@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
  * pic.c - 8259 PIC management for PCs
  *
  * This program is free software; you can redistribute it and/or modify

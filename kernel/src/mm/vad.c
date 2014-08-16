@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by Noah Singer <singerng@gmail.com>
+ * Authored by George Klees <gksharkboy@gmail.com>
  * vad.c - Virtual Address Descriptor (VAD) management
  *
  * This program is free software; you can redistribute it and/or modify

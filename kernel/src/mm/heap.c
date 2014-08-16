@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
  * heap.c - Kernel heap management
  *
  * This program is free software; you can redistribute it and/or modify
