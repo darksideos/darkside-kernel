@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by Noah Singer <singerng@gmail.com>
  * lapic.c - Local Vector Table and LAPIC timer management for PCs
  *
  * This program is free software; you can redistribute it and/or modify
