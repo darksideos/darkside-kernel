@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 Noah Singer <singerng@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by Noah Singer <singerng@gmail.com>
  * tree.c - Tree abstract data type
  *
  * This program is free software; you can redistribute it and/or modify
