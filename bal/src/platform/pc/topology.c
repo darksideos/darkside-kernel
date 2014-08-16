@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
- * Copyright (C) 2014 Noah Singer <singerng@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
+ * Authored by Noah Singer <singerng@gmail.com>
  * topology.c - CPU topology detection for PCs
  *
  * This program is free software; you can redistribute it and/or modify

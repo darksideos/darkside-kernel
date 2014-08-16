@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 George Klees <gksharkboy@gmail.com>
+ * Copyright (C) 2014 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
  * acpi.c - ACPI initialization and table finding for BIOS-based PCs
  *
  * This program is free software; you can redistribute it and/or modify
