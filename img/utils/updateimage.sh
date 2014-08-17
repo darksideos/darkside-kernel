@@ -7,7 +7,7 @@ if [ "$(uname -s)" == "Darwin" ]
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
-		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
+		sudo cp kldr/build/bootapp32.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-i686.elf /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
@@ -20,12 +20,12 @@ if [ "$(uname -s)" == "Linux" ]
 #		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
 #		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
-		sudo cp kldr/build/stage3.bin /mnt/hdd/boot
+		sudo cp kldr/build/bootapp32.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-i686.elf /mnt/hdd/boot
 		sudo cp modules/test/testmod.elf /mnt/hdd/boot
 		sudo umount img/images/ext2.img
 		sudo rm -rf /mnt/hdd
-		sudo cp kldr/build/stage3.bin /media/george/DarkSide/boot
+		sudo cp kldr/build/bootapp32.bin /media/george/DarkSide/boot
 		sudo cp kernel/build/kernel-i686.elf /media/george/DarkSide/boot
 		sudo cp modules/test/testmod.elf /media/george/DarkSide/boot
 fi
