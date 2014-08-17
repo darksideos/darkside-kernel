@@ -14,7 +14,11 @@
 ; You should have received a copy of the GNU General Public Licens
 ; along with this program; if not, write to the Free Software
 ; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+%ifdef ARCH_I686
 %include "src/arch/i686/rmode.inc"
+%elifdef ARCH_AMD64
+%include "src/arch/amd64/rmode.inc"
+%endif
 %include "src/platform/bios/bios.inc"
 
 [BITS 32]
