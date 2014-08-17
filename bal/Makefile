@@ -12,7 +12,8 @@ LDFLAGS				:= -r
 SRCDIR				:= src
 BUILDDIR			:= build
 
-# Include directories and object files to build
+# Macro definitions, include directories, and object files to build
+MACROS				:=
 INCLUDES			:= 
 OBJFILES			:=
 
@@ -29,6 +30,7 @@ PCSFILES			:= $(shell find $(PCSRCDIR) -type f -name "*.s")
 BIOSCFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.c")
 BIOSSFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.s")
 
+MACROS				:= -DARCH_I686
 INCLUDES			:= -I./include/platform/pc -I./include/platform/bios
 OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(I686CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(I686SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(BIOSCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(BIOSSFILES))
 endif
@@ -40,7 +42,7 @@ i686-bios: $(OBJFILES)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.s
-		$(ASM) $(ASMFLAGS) $< -o $@
+		$(ASM) $(ASMFLAGS) $(MACROS) $< -o $@
 clean:
 		rm $(I686BIOS-OBJFILES)
 		rm $(BUILDDIR)/bal.o
