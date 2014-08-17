@@ -507,9 +507,5 @@ error:
 
 error_stage3	db "Unable to load stage3..."
 
-; Fill the remaining 1022 bytes with zeroes
-times 1022 - ($ - $$) db 0
-
-; VBR signature
-dw 0xaa55
-	
+; Fill the remaining bytes with zeroes
+times 1024 - ($ - $$) db 0
