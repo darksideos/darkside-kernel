@@ -207,8 +207,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the HAL */
 		//hal_init(loader_block, bsp);
-		
-		while(1);
 
 		/* Detect the relevant CPU topology information for itself */
 
