@@ -489,7 +489,7 @@ ext2_finddir:
 	jmp error
 	
 boot			db "boot",0
-stage3			db "stage3.bin",0
+stage3			db "bootapp32.bin",0
 
 ; Error function
 error:
