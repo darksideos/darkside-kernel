@@ -18,7 +18,6 @@
  */
 #include <types.h>
 #include <string.h>
-#include <ports.h>
 
 /* These define our VGA framebuffer, our background and foreground colors (attributes), and X and Y cursor coordinates */
 static uint16_t *textmemptr;
@@ -44,6 +43,12 @@ static void scroll()
         memsetw(textmemptr + (25 - temp) * 80, blank, 80);
         csr_y = 25 - 1;
     }
+}
+
+/* Write a byte to an I/O port */
+static void io_write_8(uint32_t port, uint8_t data)
+{
+	__asm__ volatile ("outb %1, %0" : : "dN" ((uint16_t)port), "a" (data));
 }
 
 /* Updates the hardware cursor: the little blinking line on the screen under the last character pressed! */

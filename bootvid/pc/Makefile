@@ -1,6 +1,6 @@
 CC				:= $(CCBASE)-gcc
 AR				:= $(CCBASE)-ar
-CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../../libc/include
+CFLAGS			:= -std=c99 -O -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I../../libc/include
 ARFLAGS			:= rs
 
 SRCDIR			:= src

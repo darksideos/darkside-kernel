@@ -28,7 +28,10 @@
 #include <firmware/srat.h>
 
 /* Write a byte to an I/O port */
-void outportb(uint16_t port, uint8_t data);
+static void io_write_8(uint32_t port, uint8_t data)
+{
+	__asm__ volatile ("outb %1, %0" : : "dN" ((uint16_t)port), "a" (data));
+}
 
 /* Allocate the per-CPU and NUMA domain data structures */
 void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area)
@@ -72,8 +75,8 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 	{
 		loader_block->pic_present = true;
 
-		outportb(0xA1, 0xFF);
-		outportb(0x21, 0xFF);
+		io_write_8(0xA1, 0xFF);
+		io_write_8(0x21, 0xFF);
 	}
 	else
 	{
