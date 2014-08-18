@@ -10,9 +10,12 @@ i686-pc: i686-libs
 		$(eval FIRMWARE ?= bios)
 		$(eval FS ?= ext2)
 		
+		# NOTE: This needs to check if PAE is defined
+		$(eval BITS ?= 32)
+		
 		cd biosldr; make $(FS)
 		cd bal; make i686-$(FIRMWARE) CCBASE="$(CCBASE)"
-		cd kldr; make $(FIRMWARE) CCBASE="$(CCBASE)"
+		cd kldr; make $(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
 		cd kernel; make i686 CCBASE="$(CCBASE)"
 		cd modules/test; make all CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
