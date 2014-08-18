@@ -26,6 +26,17 @@ i686-pc: i686-libs
 		cd modules/test; make all CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
 amd64-pc: amd64-libs
+		$(eval CCBASE ?= i686-elf)
+		$(eval FIRMWARE ?= bios)
+		$(eval FS ?= ext2)
+		$(eval BITS ?= 64)
+
+		cd biosldr; make $(FS)
+		#cd bal; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
+		#cd kldr; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
+		#cd kernel; make amd64 CCBASE="$(CCBASE)"
+		#cd modules/test; make all CCBASE="$(CCBASE)"
+		#img/utils/updateimage.sh
 
 clean:
 		$(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a" | xargs rm)
