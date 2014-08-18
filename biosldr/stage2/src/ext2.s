@@ -63,12 +63,34 @@ read_superblock:
 	; Calculate and store the inode size
 	mov edx, [SUPERBLOCK(major_version)]
 	cmp edx, 1
-	jge read_stage3
+	jge detect_version
 	mov [EXT_SUPERBLOCK(inode_size)], word 128
-	jge read_stage3
+	jge detect_version
 .fail:
 	mov ax, error_stage3
 	jmp error
+
+; Detect the version of stage3
+detect_version:
+	; Detect long mode
+	mov eax, 0x80000001
+	cpuid
+	bt edx, 29
+	jnc .no_longmode
+
+	; Modify the path
+	mov [stage3 + 7], byte '6'
+	mov [stage3 + 8], byte '4'
+	jmp read_stage3
+.no_longmode:
+	; Detect PAE
+	mov eax, 1
+	cpuid
+	bt edx, 6
+	jnc read_stage3
+
+	; Modify the path
+	mov [stage3 + 8], byte '6'
 
 ; Read stage3
 read_stage3:
@@ -496,11 +518,11 @@ error:
 	mov bp, ax					; message
 	mov al, 0x01				; write mode
 	mov ah, 0x13				; interrupt #
-	mov bh, 0x00				; page #
+	xor bh, bh				; page #
 	mov bl, 0x04				; color (red)
 	mov cx, 24					; string length
-	mov dh, 0x00				; row
-	mov dl, 0x00				; column
+	xor dh, dh				; row
+	xor dl, dl				; column
 	int 0x10
 	
 	jmp $						; Hang forever
@@ -508,4 +530,4 @@ error:
 error_stage3	db "Unable to load stage3..."
 
 ; Fill the remaining bytes with zeroes
-times 1024 - ($ - $$) db 0
+;times 1024 - ($ - $$) db 0
