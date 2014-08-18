@@ -172,6 +172,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
+		/* Print */
+		printf("Done with microkernel\n");
+		while(1);
+
 		/* Thread test */
 		thread_t thread1, thread2;
 		thread_init(&thread1, NULL, &test, (void*) "High as 7", 0, POLICY_HIGH, 7, 0);
