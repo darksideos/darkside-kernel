@@ -1,6 +1,6 @@
 ; Copyright (C) 2014 DarkSide Project
 ; Authored by George Klees <gksharkboy@gmail.com>
-; loader.inc - Initial ASM bootstrap for BIOS-based PCs
+; loader.inc - Initial ASM bootstrap for the i686 architecture
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License version 3 as
@@ -14,21 +14,6 @@
 ; You should have received a copy of the GNU General Public Licens
 ; along with this program; if not, write to the Free Software
 ; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-; Code location constants
-%define ORG_LOC			0x8000									; stage3's position in memory (where stage2 loads it)
-%define E820_LOC		0x0800									; Location of the E820 map
-
-; Local data structure
-struc data
-	.e820_map			resd 1
-	.e820_entries		resd 1
-	.drive				resw 1
-	._pad				resw 1
-	.part_start			resd 1
-endstruc
-%define DATA_LOC		0x0660									; Location of the local data structure in memory
-%define DATA(x)			DATA_LOC + data. %+ x					; Macro for accessing the local data structure
 
 ; GDT entry structure
 struc gdt_entry
@@ -49,3 +34,77 @@ struc gdt_ptr
 endstruc
 %define GDTR_LOC		0x0628
 %define GDTR(x)			GDTR_LOC + gdt_ptr. %+ x
+
+%macro real_to_pm 0
+enter_pm:
+	; Set up the null GDT descriptor
+	mov eax, 0
+	mov [GDT(eax, limit_low)], word 0
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0
+	mov [GDT(eax, granularity)], byte 0
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 32-bit code GDT descriptor
+	mov eax, 0x08
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x9A
+	mov [GDT(eax, granularity)], byte 0xCF
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 32-bit data GDT descriptor
+	mov eax, 0x10
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x92
+	mov [GDT(eax, granularity)], byte 0xCF
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 16-bit code GDT descriptor
+	mov eax, 0x18
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x9A
+	mov [GDT(eax, granularity)], byte 0x0F
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 16-bit data GDT descriptor
+	mov eax, 0x20
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x92
+	mov [GDT(eax, granularity)], byte 0x0F
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Load the GDT pointer
+	mov [GDTR(limit)], word 0x27
+	mov [GDTR(base)], dword GDT_LOC
+	lgdt [GDTR_LOC]
+	
+	; Switch to protected mode
+	cli
+	mov eax, cr0
+	or al, 1
+	mov cr0, eax
+	
+	; Jump to our 32-bit protected mode entry point
+	jmp 0x08:pm_entry
+
+[BITS 32]
+; Protected mode entry
+pm_entry:
+	; Reload the segment registers
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+%endmacro
+

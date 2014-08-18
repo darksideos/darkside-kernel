@@ -14,7 +14,9 @@
 ; You should have received a copy of the GNU General Public Licens
 ; along with this program; if not, write to the Free Software
 ; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+%include "src/platform/bios/loader.inc"
 %include "src/arch/i686/loader.inc"
+%include "src/arch/amd64/loader.inc"
 
 [BITS 16]
 section .text
@@ -83,7 +85,7 @@ do_e820:
 a20_enabled:
 	call a20_check
 	cmp eax, 1
-	je near real_to_pm
+	je near enter_pm
 
 ; Try to use the BIOS to enable A20
 a20_bios:
@@ -97,7 +99,7 @@ a20_bios:
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
-	je near real_to_pm
+	je near enter_pm
 
 ; Try to use the keyboard controller to enable A20
 a20_kbc:
@@ -131,7 +133,7 @@ a20_kbc:
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
-	je real_to_pm
+	je enter_pm
 	jmp a20_fast
 .wait_read:
 	in al, 0x64
@@ -156,7 +158,7 @@ a20_fast:
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
-	je real_to_pm
+	je enter_pm
 
 ; If we got here, A20 can't be enabled, so hang
 mov ax, error_a20
@@ -186,67 +188,6 @@ a20_check:
 	mov eax, 1
 	ret
 
-; Switch from real mode to protected mode
-real_to_pm:
-	; Set up the null GDT descriptor
-	mov eax, 0
-	mov [GDT(eax, limit_low)], word 0
-	mov [GDT(eax, base_low)], word 0
-	mov [GDT(eax, base_middle)], byte 0
-	mov [GDT(eax, access)], byte 0
-	mov [GDT(eax, granularity)], byte 0
-	mov [GDT(eax, base_high)], byte 0
-	
-	; Set up the 32-bit code GDT descriptor
-	mov eax, 0x08
-	mov [GDT(eax, limit_low)], word 0xFFFF
-	mov [GDT(eax, base_low)], word 0
-	mov [GDT(eax, base_middle)], byte 0
-	mov [GDT(eax, access)], byte 0x9A
-	mov [GDT(eax, granularity)], byte 0xCF
-	mov [GDT(eax, base_high)], byte 0
-	
-	; Set up the 32-bit data GDT descriptor
-	mov eax, 0x10
-	mov [GDT(eax, limit_low)], word 0xFFFF
-	mov [GDT(eax, base_low)], word 0
-	mov [GDT(eax, base_middle)], byte 0
-	mov [GDT(eax, access)], byte 0x92
-	mov [GDT(eax, granularity)], byte 0xCF
-	mov [GDT(eax, base_high)], byte 0
-	
-	; Set up the 16-bit code GDT descriptor
-	mov eax, 0x18
-	mov [GDT(eax, limit_low)], word 0xFFFF
-	mov [GDT(eax, base_low)], word 0
-	mov [GDT(eax, base_middle)], byte 0
-	mov [GDT(eax, access)], byte 0x9A
-	mov [GDT(eax, granularity)], byte 0x0F
-	mov [GDT(eax, base_high)], byte 0
-	
-	; Set up the 16-bit data GDT descriptor
-	mov eax, 0x20
-	mov [GDT(eax, limit_low)], word 0xFFFF
-	mov [GDT(eax, base_low)], word 0
-	mov [GDT(eax, base_middle)], byte 0
-	mov [GDT(eax, access)], byte 0x92
-	mov [GDT(eax, granularity)], byte 0x0F
-	mov [GDT(eax, base_high)], byte 0
-	
-	; Load the GDT pointer
-	mov [GDTR(limit)], word 0x27
-	mov [GDTR(base)], dword GDT_LOC
-	lgdt [GDTR_LOC]
-	
-	; Switch to protected mode
-	cli
-	mov eax, cr0
-	or al, 1
-	mov cr0, eax
-	
-	; Jump to our 32-bit protected mode entry point
-	jmp 0x08:pm_entry
-
 ; Error function
 error:
 	mov bp, ax					; message
@@ -261,22 +202,14 @@ error:
 	
 	jmp $						; Hang forever
 
-[BITS 32]
-; Protected mode entry
-pm_entry:
-	; Reload the segment registers
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
+; Switch from real mode to protected mode
+real_to_pm
 	
-	; Jump to our C code
-	extern bal_main
-	mov eax, DATA_LOC
-	push eax
-	call bal_main
+; Jump to our C code
+extern bal_main
+mov eax, DATA_LOC
+push eax
+call bal_main
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
