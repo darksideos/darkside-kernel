@@ -63,9 +63,9 @@ read_superblock:
 	; Calculate and store the inode size
 	mov edx, [SUPERBLOCK(major_version)]
 	cmp edx, 1
-	jge read_stage3
+	jge detect_version
 	mov [EXT_SUPERBLOCK(inode_size)], word 128
-	jge read_stage3
+	jge detect_version
 .fail:
 	mov ax, error_stage3
 	jmp error
@@ -79,8 +79,8 @@ detect_version:
 	jnc .no_longmode
 
 	; Modify the path
-	mov [stage3 + 7], byte '3'
-	mov [stage3 + 8], byte '2'
+	mov [stage3 + 7], byte '6'
+	mov [stage3 + 8], byte '4'
 	jmp read_stage3
 .no_longmode:
 	; Detect PAE
