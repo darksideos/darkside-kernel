@@ -79,8 +79,8 @@ detect_version:
 	jnc .no_longmode
 
 	; Modify the path
-	mov [stage3 + 7], byte '6'
-	mov [stage3 + 8], byte '4'
+	mov [stage3 + 7], byte '3'
+	mov [stage3 + 8], byte '2'
 	jmp read_stage3
 .no_longmode:
 	; Detect PAE
