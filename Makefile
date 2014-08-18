@@ -4,6 +4,12 @@ i686-libs:
 		cd libc; make i686 CCBASE="$(CCBASE)"
 		cd libadt; make i686 CCBASE="$(CCBASE)"
 		cd bootvid/pc; make i686 CCBASE="$(CCBASE)"
+amd64-libs:
+		$(eval CCBASE ?= x86_64-elf)
+		
+		cd libc; make amd64 CCBASE="$(CCBASE)"
+		cd libadt; make amd64 CCBASE="$(CCBASE)"
+		cd bootvid/pc; make amd64 CCBASE="$(CCBASE)"
 		
 i686-pc: i686-libs
 		$(eval CCBASE ?= i686-elf)
@@ -19,6 +25,7 @@ i686-pc: i686-libs
 		cd kernel; make i686 CCBASE="$(CCBASE)"
 		cd modules/test; make all CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
+amd64-pc: amd64-libs
 
 clean:
 		$(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a" | xargs rm)

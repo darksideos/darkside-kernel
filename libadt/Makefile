@@ -8,8 +8,15 @@ BUILDDIR		:= build
 CFILES			:= $(shell find $(SRCDIR) -type f -name "*.c")
 OBJFILES		:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(CFILES))
 
+# AMD64 target
+ifeq ($(MAKECMDGOALS),amd64)
+CFLAGS			:= -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow $(CFLAGS)
+endif
+
 i686: $(OBJFILES)
-		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-i686.a `find $(BUILDDIR) -type f -name *.o`
+		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-i686.a $(OBJFILES)
+amd64: $(OBJFILES)
+		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-amd64.a $(OBJFILES)
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS)
