@@ -19,8 +19,6 @@
 #ifndef __HAL_PORTS_H
 #define __HAL_PORTS_H
 
-#include <types.h>
-
 /* Read a byte from an I/O port */
 uint8_t io_read_8(uint32_t port);
 
