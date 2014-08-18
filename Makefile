@@ -15,7 +15,7 @@ i686-pc: i686-libs
 		
 		cd biosldr; make $(FS)
 		cd bal; make i686-$(FIRMWARE) CCBASE="$(CCBASE)"
-		cd kldr; make $(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
+		cd kldr; make i686-$(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
 		cd kernel; make i686 CCBASE="$(CCBASE)"
 		cd modules/test; make all CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
