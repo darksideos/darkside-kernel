@@ -46,7 +46,7 @@ read_superblock:
 	; Read the superblock into memory
 	mov eax, SUPERBLOCK_LOC
 	mov ebx, 2
-	mov ecx, 2
+	mov ecx, ebx
 	call partition_read
 	
 	; Check the signature
@@ -162,8 +162,7 @@ read_block:
 ; Read a block group descriptor (EAX = Block Group)
 read_bgdesc:
 	; Calculate the block and offset, storing them in EAX and EDX
-	mov ebx, 32										; EBX = sizeof(bgdesc_t)
-	mul ebx											; EAX = block_group * sizeof(bgdesc_t)
+	shl ebx, 5										; EAX = block_group * sizeof(bgdesc_t)
 	xor edx, edx
 	mov ebx, [SUPERBLOCK(block_size)]				; EBX = (superblock->block_size)
 	div ebx											; EAX = (block_group * sizeof(bgdesc_t)) / (superblock->block_size)
