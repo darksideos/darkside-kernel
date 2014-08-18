@@ -63,9 +63,9 @@ read_superblock:
 	; Calculate and store the inode size
 	mov edx, [SUPERBLOCK(major_version)]
 	cmp edx, 1
-	jge detect_version
+	jge read_stage3
 	mov [EXT_SUPERBLOCK(inode_size)], word 128
-	jge detect_version
+	jge read_stage3
 .fail:
 	mov ax, error_stage3
 	jmp error
@@ -94,6 +94,9 @@ detect_version:
 
 ; Read stage3
 read_stage3:
+	; Clear the carry flag
+	clc
+
 	; Find the inode for /boot
 	mov eax, 2
 	mov ebx, boot
@@ -162,7 +165,7 @@ read_block:
 ; Read a block group descriptor (EAX = Block Group)
 read_bgdesc:
 	; Calculate the block and offset, storing them in EAX and EDX
-	shl ebx, 5										; EAX = block_group * sizeof(bgdesc_t)
+	shl eax, 5										; EAX = block_group * sizeof(bgdesc_t)
 	xor edx, edx
 	mov ebx, [SUPERBLOCK(block_size)]				; EBX = (superblock->block_size)
 	div ebx											; EAX = (block_group * sizeof(bgdesc_t)) / (superblock->block_size)
