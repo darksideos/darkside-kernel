@@ -5,7 +5,7 @@ LD					:= $(CCBASE)-ld
 OBJDUMP				:= $(CCBASE)-objdump
 OBJCOPY				:= $(CCBASE)-objcopy
 CFLAGS				:= -std=c99 -O2 -W -Wall -Wextra -Wshadow -Wcast-align -Wwrite-strings -Wredundant-decls -Winline -Wno-endif-labels -Wfloat-equal -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-format-attribute -Wmissing-include-dirs -Wredundant-decls -Wshadow -Wswitch -Wsystem-headers -Wno-pragmas -Wdisabled-optimization -fno-asynchronous-unwind-tables -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -I../libc/include -I../libadt/include -I../bootvid/include
-ASMFLAGS			:= -f elf
+ASMFLAGS			:=
 LDFLAGS				:= -r
 
 # Source and build directories
@@ -25,6 +25,8 @@ BIOSSRCDIR			:= $(SRCDIR)/platform/bios
 
 # i686 BIOS-based PC
 ifeq ($(MAKECMDGOALS),i686-bios)
+ASMFLAGS			:= -f elf
+
 I686CFILES			:= $(shell find $(I686SRCDIR) -type f -name "*.c")
 I686SFILES			:= $(shell find $(I686SRCDIR) -type f -name "*.s")
 PCCFILES			:= $(shell find $(PCSRCDIR) -type f -name "*.c")
@@ -38,6 +40,7 @@ OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(I686CFILES)) $(patsubst
 #
 else ifeq ($(MAKECMDGOALS),amd64-bios)
 CFLAGS				:= -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow $(CFLAGS)
+ASMFLAGS			:= -f elf64
 
 AMD64CFILES			:= $(shell find $(AMD64SRCDIR) -type f -name "*.c")
 AMD64SFILES			:= $(shell find $(AMD64SRCDIR) -type f -name "*.s")

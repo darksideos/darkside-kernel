@@ -32,8 +32,8 @@ amd64-pc: amd64-libs
 		$(eval BITS ?= 64)
 
 		cd biosldr; make $(FS)
-		#cd bal; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
-		#cd kldr; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
+		cd bal; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
+		cd kldr; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
 		#cd kernel; make amd64 CCBASE="$(CCBASE)"
 		#cd modules/test; make all CCBASE="$(CCBASE)"
 		#img/utils/updateimage.sh
