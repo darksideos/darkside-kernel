@@ -204,6 +204,11 @@ error:
 
 ; Switch from real mode to protected mode
 real_to_pm
+
+; If this is the AMD64 binary, switch to long mode
+%ifdef ARCH_AMD64
+protected_to_lm
+%endif
 	
 ; Jump to our C code
 extern bal_main
