@@ -36,6 +36,7 @@ endstruc
 %define GDTR64(x)		GDTR64_LOC + gdt64_ptr. %+ x
 
 %macro protected_to_lm 0
+extern end
 enter_lm:
 	; Check if the end of the KLDR is already aligned
 	mov edi, end
