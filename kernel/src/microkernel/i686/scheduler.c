@@ -30,6 +30,19 @@
 #define HOT_TEMPERATURE_WEIGHT			25
 #define SLEEPING_WEIGHT					50
 
+/* Bitmap of rounds that priorities run in */
+static uint32_t priority_rounds[32] =
+{
+	0x00000001, 0x00000003, 0x00000007, 0x0000000F,
+	0x0000001F, 0x0000003F, 0x0000007F, 0x000000FF,
+	0x000001FF, 0x000003FF, 0x000007FF, 0x00000FFF,
+	0x00001FFF, 0x00003FFF, 0x00007FFF, 0x0000FFFF,
+	0x0001FFFF, 0x0003FFFF, 0x0007FFFF, 0x000FFFFF,
+	0x001FFFFF, 0x003FFFFF, 0x007FFFFF, 0x00FFFFFF,
+	0x01FFFFFF, 0x03FFFFFF, 0x07FFFFFF, 0x0FFFFFFF,
+	0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF
+};
+
 /* Total amount of load across all CPUs */
 static uint32_t total_cpu_load;
 
@@ -206,14 +219,18 @@ static thread_t *scheduler_dequeue()
 find_priority: ;
 		int current_priority = MIN_PRIORITY;
 		bool found_priority = false;
-		for (int priority = MAX_PRIORITY; priority >= cpu->round[policy-1]; priority--)
+		for (int priority = MAX_PRIORITY; priority >= MIN_PRIORITY; priority--)
 		{
-			/* Set the current priority */
-			current_priority = priority;
+			/* If the priority doesn't run in the current round, skip it */
+			if (policy == POLICY_HIGH && !(priority_rounds[priority] & (1 << priority)))
+			{
+				continue;
+			}
 
 			/* There are threads in the priority */
  			if (cpu->runqueues[policy][priority])
 			{
+				current_priority = priority;
 				found_priority = true;
 				break;
 			}
@@ -230,13 +247,10 @@ find_priority: ;
 		else
 		{
 			/* Go to the next round, resetting at the limit */
-			if (policy == POLICY_HIGH)
+			cpu->round[policy-1]--;
+			if (cpu->round[policy-1] < MIN_PRIORITY)
 			{
-				cpu->round[POLICY_HIGH-1]--;
-				if (cpu->round[POLICY_HIGH-1] < MIN_PRIORITY)
-				{
-					cpu->round[POLICY_HIGH-1] = MAX_PRIORITY;
-				}
+				cpu->round[policy-1] = MAX_PRIORITY;
 			}
 
 			/* If there are threads on the expired list */
@@ -316,22 +330,22 @@ void scheduler_init(loader_block_t *loader_block, bool bsp)
 	/* Get the per-CPU data area for the current CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
-	/* Initialize the scheduling queues and their spinlocks */
+	/* Set up the scheduler's information for the current CPU */
 	for (int policy = 0; policy < NUM_POLICIES; policy++)
 	{
+		/* Initialize the scheduling queues and their spinlocks */
 		for (int priority = 0; priority < NUM_PRIORITIES; priority++)
 		{
 			cpu->runqueues[policy][priority] = NULL;
 			spinlock_init(&cpu->runqueue_locks[policy][priority]);
 		}
-	}
 
-	/* Initialize the variable-frequency and variable-timeslice data */
-	cpu->round[0] = MAX_PRIORITY;
-	cpu->round[1] = cpu->round[2] = MIN_PRIORITY;
-	for (int policy = 0; policy < NUM_POLICIES - 1; policy++)
-	{
-		cpu->expired[policy] = NULL;
+		/* Initialize the variable-frequency and variable-timeslice data */
+		for (int policy = POLICY_HIGH; policy < NUM_POLICIES; policy++)
+		{
+			cpu->round[policy-1] = MAX_PRIORITY;
+			cpu->expired[policy-1] = NULL;
+		}
 	}
 
 	/* Set its load and its NUMA domain's load to 0 */
