@@ -499,6 +499,7 @@ ext2_finddir:
 	jmp .compare_loop
 .exit_comparison:
 	pop ecx
+	add ecx, ebp
 	pop eax
 	pop ebp
 	jmp .loop
