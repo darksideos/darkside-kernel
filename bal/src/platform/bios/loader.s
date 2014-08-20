@@ -216,7 +216,6 @@ mov eax, DATA_LOC
 push eax
 %elifdef ARCH_AMD64
 mov rdi, DATA_LOC
-jmp $
 %endif
 ;call bal_main
 	
