@@ -341,11 +341,8 @@ void scheduler_init(loader_block_t *loader_block, bool bsp)
 		}
 
 		/* Initialize the variable-frequency and variable-timeslice data */
-		for (int policy = POLICY_HIGH; policy < NUM_POLICIES; policy++)
-		{
-			cpu->round[policy-1] = MAX_PRIORITY;
-			cpu->expired[policy-1] = NULL;
-		}
+		cpu->round[policy-1] = MAX_PRIORITY;
+		cpu->expired[policy-1] = NULL;
 	}
 
 	/* Set its load and its NUMA domain's load to 0 */

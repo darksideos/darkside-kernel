@@ -210,14 +210,14 @@ real_to_lm
 %endif
 
 ; Jump to our C code, passing the local data area
-;extern bal_main
+extern bal_main
 %ifdef ARCH_I686
 mov eax, DATA_LOC
 push eax
 %elifdef ARCH_AMD64
 mov rdi, DATA_LOC
 %endif
-;call bal_main
+call bal_main
 	
 section .rodata
 error_e820		db "Unable to get E820 map..."
