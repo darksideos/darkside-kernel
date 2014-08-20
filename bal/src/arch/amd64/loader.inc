@@ -15,8 +15,8 @@
 ; along with this program; if not, write to the Free Software
 ; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-; 64-bit GDT entry structure
-struc gdt64_entry
+; GDT entry structure
+struc gdt_entry
 	.limit_low			resw 1
 	.base_low			resw 1
 	.base_middle		resb 1
@@ -24,18 +24,18 @@ struc gdt64_entry
 	.granularity		resb 1
 	.base_high			resb 1
 endstruc
-%define GDT64_LOC		0x0630
-%define GDT64(n, x)		GDT64_LOC + n + gdt64_entry. %+ x
+%define GDT_LOC			0x0600
+%define GDT(n, x)		GDT_LOC + n + gdt_entry. %+ x
 
-; 64-bit GDT pointer structure
-struc gdt64_ptr
+; GDT pointer structure
+struc gdt_ptr
 	.limit				resw 1
 	.base				resd 1
 endstruc
-%define GDTR64_LOC		0x0648
-%define GDTR64(x)		GDTR64_LOC + gdt64_ptr. %+ x
+%define GDTR_LOC		0x0628
+%define GDTR(x)			GDTR_LOC + gdt_ptr. %+ x
 
-%macro protected_to_lm 0
+%macro real_to_lm 0
 extern end
 enter_lm:
 	; Check if the end of the KLDR is already aligned
@@ -106,40 +106,58 @@ enter_lm:
 
 	; Enable paging
 	mov eax, cr0
-	or eax, 0x80000000
+	or eax, 0x80000001
 	mov cr0, eax
 .setup_gdt:
 	; Set up the null GDT descriptor
 	mov eax, 0
-	mov [GDT64(eax, limit_low)], word 0
-	mov [GDT64(eax, base_low)], word 0
-	mov [GDT64(eax, base_middle)], byte 0
-	mov [GDT64(eax, access)], byte 0
-	mov [GDT64(eax, granularity)], byte 0
-	mov [GDT64(eax, base_high)], byte 0
+	mov [GDT(eax, limit_low)], word 0
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0
+	mov [GDT(eax, granularity)], byte 0
+	mov [GDT(eax, base_high)], byte 0
 	
 	; Set up the 64-bit code GDT descriptor
 	mov eax, 0x08
-	mov [GDT64(eax, limit_low)], word 0
-	mov [GDT64(eax, base_low)], word 0
-	mov [GDT64(eax, base_middle)], byte 0
-	mov [GDT64(eax, access)], byte 0x98
-	mov [GDT64(eax, granularity)], byte 0x20
-	mov [GDT64(eax, base_high)], byte 0
+	mov [GDT(eax, limit_low)], word 0
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x98
+	mov [GDT(eax, granularity)], byte 0x20
+	mov [GDT(eax, base_high)], byte 0
 	
 	; Set up the 64-bit data GDT descriptor
 	mov eax, 0x10
-	mov [GDT64(eax, limit_low)], word 0
-	mov [GDT64(eax, base_low)], word 0
-	mov [GDT64(eax, base_middle)], byte 0
-	mov [GDT64(eax, access)], byte 0x90
-	mov [GDT64(eax, granularity)], byte 0
-	mov [GDT64(eax, base_high)], byte 0
+	mov [GDT(eax, limit_low)], word 0
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x90
+	mov [GDT(eax, granularity)], byte 0
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 16-bit code GDT descriptor
+	mov eax, 0x18
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x9A
+	mov [GDT(eax, granularity)], byte 0x0F
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 16-bit data GDT descriptor
+	mov eax, 0x20
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x92
+	mov [GDT(eax, granularity)], byte 0x0F
+	mov [GDT(eax, base_high)], byte 0
 
 	; Load the GDT pointer
-	mov [GDTR64(limit)], word 0x17
-	mov [GDTR64(base)], dword GDT64_LOC
-	lgdt [GDTR64_LOC]
+	mov [GDTR(limit)], word 0x27
+	mov [GDTR(base)], dword GDT_LOC
+	lgdt [GDTR_LOC]
 
 	; Jump to our 64-bit long mode entry point
 	jmp 0x08:lm_entry
