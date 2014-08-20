@@ -55,9 +55,9 @@ enter_lm:
 	; Clear out the PML4, PDPT, PD, and PT
 	push edi
 	xor eax, eax
-	mov ecx, 0x4000
+	mov ecx, 0x1000
 	cld
-	rep stosb
+	rep stosd
 	pop edi
 
 	; Point the first PML4 entry at the PDPT
