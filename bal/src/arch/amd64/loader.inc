@@ -77,7 +77,7 @@ enter_lm:
 
 	; Put the PT in DI and start building it
 	push edi
-	lea edi, [eax + 0x3000]
+	lea edi, [edi + 0x3000]
 	mov eax, 0x03
 .build_pt:
 	; Loop until the first 1MiB is identity mapped
