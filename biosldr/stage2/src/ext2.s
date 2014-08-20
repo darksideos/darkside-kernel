@@ -498,8 +498,12 @@ ext2_finddir:
 	inc edx
 	jmp .compare_loop
 .exit_comparison:
+	; Restore and increment the directory entry offset
 	pop ecx
+	mov ebp, [DIRENT(ecx, size)]
 	add ecx, ebp
+
+	; Restore the filename and length of the directory before reentering the loop
 	pop eax
 	pop ebp
 	jmp .loop
