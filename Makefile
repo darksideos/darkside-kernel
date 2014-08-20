@@ -36,7 +36,7 @@ amd64-pc: amd64-libs
 		cd kldr; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
 		#cd kernel; make amd64 CCBASE="$(CCBASE)"
 		#cd modules/test; make all CCBASE="$(CCBASE)"
-		#img/utils/updateimage.sh
+		img/utils/updateimage.sh
 
 clean:
 		$(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a" | xargs rm)
