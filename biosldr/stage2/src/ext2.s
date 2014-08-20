@@ -102,7 +102,7 @@ read_stage3:
 	mov ebx, boot
 	call ext2_finddir
 	
-	; Find the inode for /boot/stage3.bin
+	; Find the inode for /boot/bootapp[32|36|64].bin
 	mov ebx, stage3
 	call ext2_finddir
 	
