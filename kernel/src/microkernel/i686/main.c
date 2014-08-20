@@ -173,13 +173,15 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
 		/* Print */
-		printf("Done with microkernel\n");
-		while(1);
+		//printf("Done with microkernel\n");
+		//while(1);
 
 		/* Thread test */
-		thread_t thread1, thread2;
-		thread_init(&thread1, NULL, &test, (void*) "High as 7", 0, POLICY_HIGH, 7, 0);
-		thread_init(&thread2, NULL, &test, (void*) "High as 16", 0, POLICY_HIGH, 16, 0);
+		thread_t thread1, thread2, thread3, thread4;
+		thread_init(&thread1, NULL, &test, (void*) "High as 3", 0, POLICY_HIGH, 3, 0);
+		thread_init(&thread2, NULL, &test, (void*) "High as 7", 0, POLICY_HIGH, 7, 0);
+		thread_init(&thread3, NULL, &test, (void*) "High as 15", 0, POLICY_HIGH, 15, 0);
+		thread_init(&thread4, NULL, &test, (void*) "High as 31", 0, POLICY_HIGH, 31, 0);
 		scheduler_run();
 
 		/* Start the executive services */
