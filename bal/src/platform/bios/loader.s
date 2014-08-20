@@ -202,12 +202,11 @@ error:
 	
 	jmp $						; Hang forever
 
-; Switch from real mode to protected mode
+; Switch from real mode to either protected mode or long mode
+%ifdef ARCH_I686
 real_to_pm
-
-; If this is the AMD64 binary, switch to long mode
-%ifdef ARCH_AMD64
-protected_to_lm
+%elifdef ARCH_AMD64
+real_to_lm
 %endif
 
 ; Jump to our C code, passing the local data area
