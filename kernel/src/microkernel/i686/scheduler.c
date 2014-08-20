@@ -222,7 +222,7 @@ find_priority: ;
 		for (int priority = MAX_PRIORITY; priority >= MIN_PRIORITY; priority--)
 		{
 			/* If the priority doesn't run in the current round, skip it */
-			if (policy == POLICY_HIGH && !(priority_rounds[priority] & (1 << priority)))
+			if (policy == POLICY_HIGH && !(priority_rounds[priority] & (1 << cpu->round[policy-1])))
 			{
 				continue;
 			}
