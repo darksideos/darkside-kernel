@@ -15,29 +15,9 @@
 ; along with this program; if not, write to the Free Software
 ; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-; GDT entry structure
-struc gdt_entry
-	.limit_low			resw 1
-	.base_low			resw 1
-	.base_middle		resb 1
-	.access				resb 1
-	.granularity		resb 1
-	.base_high			resb 1
-endstruc
-%define GDT_LOC			0x0600
-%define GDT(n, x)		GDT_LOC + n + gdt_entry. %+ x
-
-; GDT pointer structure
-struc gdt_ptr
-	.limit				resw 1
-	.base				resd 1
-endstruc
-%define GDTR_LOC		0x0628
-%define GDTR(x)			GDTR_LOC + gdt_ptr. %+ x
-
 %macro real_to_lm 0
 extern end
-enter_lm:
+enter_pm:
 	; Check if the end of the KLDR is already aligned
 	mov edi, end
 	and edi, 0xFFF
@@ -171,7 +151,6 @@ lm_entry:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov ss, ax
 	
 	jmp $
 %endmacro
