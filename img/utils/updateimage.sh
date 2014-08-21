@@ -4,11 +4,10 @@ if [ "$(uname -s)" == "Darwin" ]
 	then
 		sudo fuse-ext2 -o rw,force img/images/ext2.img /mnt/hdd
 		read -p "Waiting... "
-#		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
-#		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/bootapp*.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-*.elf /mnt/hdd/boot
+		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
