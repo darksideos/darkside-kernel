@@ -118,7 +118,7 @@ typedef struct keyboard_ops
 
 static void put_char(framebuffer_t *fb, char c, int x, int y, uint32_t color)
 {
-	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * ((fb->width * 4) + fb->pitch) + x * 4);
+	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * fb->pitch) + x;
 	
 	for(int py = 0; py < CHR_HEIGHT; py++)
 	{
@@ -130,7 +130,7 @@ static void put_char(framebuffer_t *fb, char c, int x, int y, uint32_t color)
 			}
 		}
 		
-		line = (uint32_t*) (((uint8_t*) line) + (fb->width * 4) + fb->pitch);
+		line = (uint32_t*) (((uint8_t*) line) + fb->pitch);
 	}
 }
 
@@ -160,11 +160,19 @@ void demo(loader_block_t *loader_block, int (*ps2kbd_init)(keyboard_ops_t *ops))
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
 		vmm_map_page(-1, 0x10000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+		memset(base + i, 0xFF, 1024);
 	}
 
 	fb->buffer = (void*) 0x10000000;
+
+	uint32_t *test = fb->buffer;
+	test[100] = 0xFFFFFFFF;
+	test[101] = 0xFFFFFFFF;
+	test[102] = 0xFFFFFFFF;
+	test[103] = 0xFFFFFFFF;
 	
-	put_string(fb, "Hello", 100, 100, 0x00FF0000);
+	put_char(fb, 'h', 100, 100, 0xFFFFFFFF);
+	put_string(fb, "Hello", 100, 100, 0xFFFFFFFF);
 
 	while(1);
 }
