@@ -22,12 +22,12 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/bootapp*.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-*.elf /mnt/hdd/boot
-		sudo cp modules/test/testmod.elf /mnt/hdd/boot
+		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /mnt/hdd/boot
 		sudo umount img/images/ext2.img
 		sudo rm -rf /mnt/hdd
 		sudo cp kldr/build/bootapp*.bin /media/george/DarkSide/boot
 		sudo cp kernel/build/kernel-*.elf /media/george/DarkSide/boot
-		sudo cp modules/test/testmod.elf /media/george/DarkSide/boot
+		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /media/george/DarkSide/boot
 fi
 
 if [[ "$(uname -s)" == CYGWIN* ]]

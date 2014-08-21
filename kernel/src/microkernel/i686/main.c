@@ -36,6 +36,9 @@
 #include <mm/addrspace.h>
 #include <mm/heap.h>
 
+#include <list.h>
+#include <executable/executable.h>
+
 /* AP trampoline symbols */
 extern void ap_trampoline();
 extern void ap_trampoline_end();
@@ -172,9 +175,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
-		/* Print */
-		//printf("Done with microkernel\n");
-		//while(1);
+		/* Initialize the PS/2 keyboard driver */
+		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(&loader_block.modules);
+		int (*ps2kbd_init)() = ps2kbd_driver->entry_point;
+		printf("Module returned %d\n", ps2kbd_init());
+		while(1);
 
 		/* Thread test */
 		thread_t thread1, thread2, thread3, thread4;
