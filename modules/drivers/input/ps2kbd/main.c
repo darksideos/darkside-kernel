@@ -1,5 +1,5 @@
 #include <types.h>
-#include <stdio.h>
+#include <microkernel/ports.h>
 
 /* Keyboard functions */
 typedef struct keyboard_ops
@@ -96,18 +96,18 @@ static volatile unsigned caps_lock = 0;
 static void set_leds(uint8_t state)
 {
 	/* Wait until we can send data */
-	while(inportb(0x64) & 0x2);
+	while(io_read_8(0x64) & 0x2);
 
 	/* Set the LED */
-	outportb(0x60, 0xED);
-	outportb(0x60, state);
+	io_write_8(0x60, 0xED);
+	io_write_8(0x60, state);
 }
 
 /* Get a character from the PS/2 keyboard */
 static char keyboard_getch()
 {
 	/* Wait for there to be data */
-	while(inportb(0x64) & 0x1);
+	while(io_read_8(0x64) & 0x1);
 
 	/* Read the scancode */
 	uint8_t scancode = io_read_8(0x60);
@@ -170,6 +170,8 @@ static char keyboard_getch()
 			}
 		}
 	}
+
+	return 0;
 }
 
 /* Get a string from the PS/2 keyboard */
