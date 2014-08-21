@@ -145,15 +145,13 @@ static void put_string(framebuffer_t *fb, char *str, int x, int y, uint32_t colo
 }
 
 /* Demo stuff */
-void demo(loader_block_t *loader_block, int (*ps2kbd_init)(keyboard_ops_t *ops))
+void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 {
 	/* Initialize the PS/2 keyboard driver */
 	keyboard_ops_t ps2kbd_ops;
 	ps2kbd_init(&ps2kbd_ops);
 
 	/* Map the graphics framebuffer */
-	framebuffer_t *fb = loader_block->fb;
-
 	paddr_t base = fb->buffer_phys;
 	vaddr_t length = (fb->width * fb->height * (fb->bpp / 4)) + ((fb->height - 1) * fb->pitch);
 
