@@ -48,16 +48,12 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
-/* TESTS */
-static void test(void *p)
+/* Keyboard functions */
+typedef struct keyboard_ops
 {
-	while(1)
-	{
-		printf("%s priority thread\n", (char*) p);
-		for (int i = 0; i < 16000000; i++) { }
-		thread_yield();
-	}
-}
+	char (*getch)();
+	void (*gets)(char *buf);
+} keyboard_ops_t;
 
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
@@ -140,7 +136,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Get the entry point of the PS/2 keyboard driver */
 		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		int (*ps2kbd_init)() = ps2kbd_driver->entry_point;
+		int (*ps2kbd_init)(keyboard_ops_t *ops) = ps2kbd_driver->entry_point;
 
 		/* Initialize paging, mapping our kernel and modules */
 		printf("Initializing paging\n");
@@ -166,8 +162,14 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_INTERRUPT_INIT;
 
 		/* Initialize the PS/2 keyboard driver */
-		printf("Module returned %d\n", ps2kbd_init());
-		while(1);
+		keyboard_ops_t ps2kbd_ops;
+		ps2kbd_init(&ps2kbd_ops);
+
+		/* Print characters */
+		while(1)
+		{
+			bootvid_putch(ps2kbd_ops.getch());
+		}
 
 		/* Initialize the HAL */
 		//hal_init(&loader_block, bsp);
@@ -182,14 +184,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Wait for them to initialize their scheduling queues and signal completion to them */
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
-
-		/* Thread test */
-		thread_t thread1, thread2, thread3, thread4;
-		thread_init(&thread1, NULL, &test, (void*) "High as 3", 0, POLICY_HIGH, 3, 0);
-		thread_init(&thread2, NULL, &test, (void*) "High as 7", 0, POLICY_HIGH, 7, 0);
-		thread_init(&thread3, NULL, &test, (void*) "High as 15", 0, POLICY_HIGH, 15, 0);
-		thread_init(&thread4, NULL, &test, (void*) "High as 31", 0, POLICY_HIGH, 31, 0);
-		scheduler_run();
 
 		/* Start the executive services */
 	}
