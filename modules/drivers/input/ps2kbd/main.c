@@ -107,7 +107,7 @@ static void set_leds(uint8_t state)
 static char keyboard_getch()
 {
 	/* Wait for there to be data */
-	while(io_read_8(0x64) & 0x1);
+	while(!(io_read_8(0x64) & 0x1));
 
 	/* Read the scancode */
 	uint8_t scancode = io_read_8(0x60);
