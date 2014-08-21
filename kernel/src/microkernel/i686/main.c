@@ -48,13 +48,6 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
-/* Keyboard functions */
-typedef struct keyboard_ops
-{
-	char (*getch)();
-	void (*gets)(char *buf);
-} keyboard_ops_t;
-
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -134,9 +127,8 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initializing free lists\n");
 		freelist_init(&loader_block, bsp);
 
-		/* Get the entry point of the PS/2 keyboard driver */
+		/* Get the PS/2 keyboard driver */
 		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		int (*ps2kbd_init)(keyboard_ops_t *ops) = ps2kbd_driver->entry_point;
 
 		/* Initialize paging, mapping our kernel and modules */
 		printf("Initializing paging\n");
@@ -161,16 +153,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		interrupts_init();
 		cpu->flags |= CPU_INTERRUPT_INIT;
 
-		/* Initialize the PS/2 keyboard driver */
-		keyboard_ops_t ps2kbd_ops;
-		ps2kbd_init(&ps2kbd_ops);
-
-		/* Print characters */
-		while(1)
-		{
-			bootvid_putch(ps2kbd_ops.getch());
-		}
-
 		/* Initialize the HAL */
 		//hal_init(&loader_block, bsp);
 		//__asm__ volatile("sti");
@@ -184,6 +166,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Wait for them to initialize their scheduling queues and signal completion to them */
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
+
+		demo(loader_block, ps2kbd_driver->entry_point);
+		while(1);
 
 		/* Start the executive services */
 	}
