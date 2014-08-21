@@ -70,6 +70,8 @@ static void move_csr()
 /* Puts a single character on the screen */
 void bootvid_putch(char c)
 {
+	io_write_8(0xE9, c);
+	
     uint16_t *where;
     unsigned att = attrib << 8;
 
