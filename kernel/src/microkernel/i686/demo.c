@@ -1,6 +1,7 @@
 #include <types.h>
 #include <init/loader.h>
 #include <init/graphics.h>
+#include <microkernel/paging.h>
 
 #define CHR_WIDTH 5
 #define CHR_HEIGHT 9
@@ -158,8 +159,10 @@ void demo(loader_block_t *loader_block, int (*ps2kbd_init)(keyboard_ops_t *ops))
 
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
-		map_page(0x10000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+		vmm_map_page(-1, 0x10000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
 	}
+
+	fb->buffer = (void*) 0x10000000;
 	
 	put_string(fb, "Hello", 100, 100, 0x00FF0000);
 
