@@ -130,6 +130,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Get the PS/2 keyboard driver */
 		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
 
+		/* Copy the framebuffer structure */
+		framebuffer_t fb;
+		memcpy(&fb, loader_block.fb, sizeof(framebuffer_t));
+
 		/* Initialize paging, mapping our kernel and modules */
 		printf("Initializing paging\n");
 		paging_init(&loader_block, bsp);
@@ -167,7 +171,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
-		demo(loader_block, ps2kbd_driver->entry_point);
+		demo(&fb, ps2kbd_driver->entry_point);
 		while(1);
 
 		/* Start the executive services */
