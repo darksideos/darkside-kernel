@@ -138,6 +138,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initializing free lists\n");
 		freelist_init(&loader_block, bsp);
 
+		/* Get the entry point of the PS/2 keyboard driver */
+		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
+		int (*ps2kbd_init)() = ps2kbd_driver->entry_point;
+
 		/* Initialize paging, mapping our kernel and modules */
 		printf("Initializing paging\n");
 		paging_init(&loader_block, bsp);
@@ -161,6 +165,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		interrupts_init();
 		cpu->flags |= CPU_INTERRUPT_INIT;
 
+		/* Initialize the PS/2 keyboard driver */
+		printf("Module returned %d\n", ps2kbd_init());
+		while(1);
+
 		/* Initialize the HAL */
 		//hal_init(&loader_block, bsp);
 		//__asm__ volatile("sti");
@@ -174,12 +182,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Wait for them to initialize their scheduling queues and signal completion to them */
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
-
-		/* Initialize the PS/2 keyboard driver */
-		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(&loader_block.modules);
-		int (*ps2kbd_init)() = ps2kbd_driver->entry_point;
-		printf("Module returned %d\n", ps2kbd_init());
-		while(1);
 
 		/* Thread test */
 		thread_t thread1, thread2, thread3, thread4;
