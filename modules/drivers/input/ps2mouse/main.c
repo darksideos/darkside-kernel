@@ -4,7 +4,7 @@
 /* Mouse functions */
 typedef struct mouse_ops
 {
-	void (*get_status)(uint8_t *btns, uint16_t *x, uint16_t *y);
+	void (*get_status)(uint8_t *btns, int16_t *x, int16_t *y);
 } mouse_ops_t;
 
 /* Wait for the mouse to be ready for reading or writing */
@@ -37,7 +37,7 @@ static void mouse_write(uint8_t data)
 }
 
 /* Get the mouse's status */
-void mouse_get_status(uint8_t *btns, uint16_t *x, uint16_t *y)
+void mouse_get_status(uint8_t *btns, int16_t *x, int16_t *y)
 {
 	/* Read a packet */
 	uint8_t packet[3];
@@ -50,11 +50,11 @@ void mouse_get_status(uint8_t *btns, uint16_t *x, uint16_t *y)
 	*btns = packet[0];
 
 	/* Set the X-value */
-	*x = (uint16_t)packet[1];
+	*x = (int16_t)packet[1];
 	*x -= ((packet[0] << 4) & 0x100);
 
 	/* Set the Y-value */
-	*y = (uint16_t)packet[2];
+	*y = (int16_t)packet[2];
 	*y -= ((packet[0] << 3) & 0x100);
 }
 
