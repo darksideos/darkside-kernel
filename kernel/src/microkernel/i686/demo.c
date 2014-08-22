@@ -266,7 +266,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 				
 				while (1)
 				{
-					pit_ch2_delay(100, &dummy);
+					pit_ch2_delay(500, &dummy);
 					
 					put_frect(fb, 100 + 30 * sel_circ - 8, 92, 16, 16, 0x00000000);
 					put_fcirc(fb, 100 + 30 * sel_circ, 100, 5, 0xFFFF00FF);
