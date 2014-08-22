@@ -301,8 +301,8 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 					ps2mouse_ops.get_status(&btns, &delta_x, &delta_y);
 
 					/* Change coordinates */
-					mouse_x += delta_x;
-					mouse_y -= delta_y;
+					mouse_x += (delta_x * 4);
+					mouse_y -= (delta_y * 4);
 
 					/* Prevent overflows */
 					if (mouse_x <= 16)
