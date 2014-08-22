@@ -116,15 +116,15 @@ typedef struct keyboard_ops
 	void (*gets)(char *buf);
 } keyboard_ops_t;
 
-static void put_char(framebuffer_t *fb, char c, int x, int y, uint32_t color)
+static void put_char(framebuffer_t *fb, char c, int x, int y, uint32_t color, int scaling)
 {
 	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * fb->pitch) + x;
 	
-	for(int py = 0; py < CHR_HEIGHT; py++)
+	for(int py = 0; py < CHR_HEIGHT * scaling; py++)
 	{
-		for(int px = 0; px < CHR_WIDTH; px++)
+		for(int px = 0; px < CHR_WIDTH * scaling; px++)
 		{
-			if(teletext[c - 32][py] & (1 << (CHR_WIDTH - 1 - px)))
+			if(teletext[c - 32][py / scaling] & (1 << (CHR_WIDTH - 1 - px / scaling)))
 			{
 				line[px] = color;
 			}
@@ -138,8 +138,8 @@ static void put_string(framebuffer_t *fb, char *str, int x, int y, uint32_t colo
 {
 	while (*str)
 	{
-		put_char(fb, *str, x, y, color);
-		x += CHR_WIDTH + 2;
+		put_char(fb, *str, x, y, color, 2);
+		x += CHR_WIDTH * 2 + 2;
 		str++;
 	}
 }
@@ -162,8 +162,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 
 	fb->buffer = (void*) 0x10000000;
 	
-	//put_char(fb, 'h', 100, 100, 0xFFFFFFFF);
-	put_string(fb, "Hello", 100, 100, 0xFFFFFFFF);
+	put_string(fb, "Hello, Darkside.", 100, 100, 0xFFFFFFFF);
 
 	while(1);
 }
