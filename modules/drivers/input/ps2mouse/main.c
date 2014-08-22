@@ -44,6 +44,7 @@ void mouse_get_status(uint8_t *btns, int16_t *x, int16_t *y)
 	for (int i = 0; i < 3; i++)
 	{
 		packet[i] = mouse_read();
+		printf("%x\n", packet[i]);
 	}
 
 	/* Set the buttons data */
@@ -64,6 +65,14 @@ int module_init(mouse_ops_t *ops)
 	/* Enable the auxiliary mouse */
 	mouse_wait(1);
 	io_write_8(0x64, 0xA8);
+	mouse_wait(1);
+	io_write_8(0x64, 0x20);
+	mouse_wait(0);
+	uint8_t status = io_read_8(0x60) | 2;
+	mouse_wait(1);
+	io_write_8(0x64, 0x60);
+	mouse_wait(1);
+	io_write_8(0x60, status);
 
 	/* Use default settings */
 	mouse_write(0xF6);
