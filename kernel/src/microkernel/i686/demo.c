@@ -123,6 +123,12 @@ typedef struct keyboard_ops
 	void (*gets)(char *buf);
 } keyboard_ops_t;
 
+/* Mouse functions */
+typedef struct mouse_ops
+{
+	void (*get_status)(uint8_t *btns, uint16_t *x, uint16_t *y);
+} mouse_ops_t;
+
 static void dummy()
 {
 }
@@ -201,11 +207,13 @@ static void clr_fb(framebuffer_t *fb)
 }
 
 /* Demo stuff */
-void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
+void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2mouse_init)(mouse_ops_t *ops))
 {
-	/* Initialize the PS/2 keyboard driver */
+	/* Initialize the PS/2 keyboard and mouse drivers */
 	keyboard_ops_t ps2kbd_ops;
 	ps2kbd_init(&ps2kbd_ops);
+	mouse_ops_t ps2mouse_ops;
+	ps2mouse_init(&ps2mouse_ops);
 
 	/* Map the graphics framebuffer */
 	paddr_t base = fb->buffer_phys;
@@ -266,7 +274,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 				
 				while (1)
 				{
-					pit_ch2_delay(500, &dummy);
+					pit_ch2_delay(100, &dummy);
 					
 					put_frect(fb, 100 + 30 * sel_circ - 8, 92, 16, 16, 0x00000000);
 					put_fcirc(fb, 100 + 30 * sel_circ, 100, 5, 0xFFFF00FF);
