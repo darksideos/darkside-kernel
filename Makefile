@@ -24,6 +24,7 @@ i686-pc: i686-libs
 		cd kldr; make i686-$(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
 		cd kernel; make i686 CCBASE="$(CCBASE)"
 		cd modules/drivers/input/ps2kbd; make all CCBASE="$(CCBASE)"
+		cd modules/drivers/input/ps2mouse; make all CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
 amd64-pc: amd64-libs
 		$(eval CCBASE ?= i686-elf)

@@ -68,7 +68,9 @@ void ba_main(loader_block_t *loader_block)
 	
 	/* Load the PS/2 keyboard and mouse drivers */
 	executable_t *ps2kbd_driver = elf_executable_load_object("/boot/ps2kbd.elf", 0x40000000, kernel);
+	executable_t *ps2mouse_driver = elf_executable_load_object("/boot/ps2mouse.elf", 0x50000000, kernel);
 	list_insert_tail(&modules, ps2kbd_driver);
+	list_insert_tail(&modules, ps2mouse_driver);
 
 	/* Load bootvid into virtual memory */
 

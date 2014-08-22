@@ -5,7 +5,7 @@
 typedef struct mouse_ops
 {
 	void (*get_status)(uint8_t *btns, uint16_t *x, uint16_t *y);
-} keyboard_ops_t;
+} mouse_ops_t;
 
 /* Wait for the mouse to be ready for reading or writing */
 static void mouse_wait(char type)
