@@ -3,8 +3,15 @@
 #include <init/graphics.h>
 #include <microkernel/paging.h>
 
-#define CHR_WIDTH 5
-#define CHR_HEIGHT 9
+#define CHR_WIDTH		5
+#define CHR_HEIGHT		9
+#define SPACING			3
+
+#define TOP_PADDING		3
+#define BOT_PADDING		2
+#define INDENT			50
+
+#define OPTIONS			5
 
 /*
  * Original character definitions from SAA5050 datasheet, each character is a 5x9 bit matrix.
@@ -120,11 +127,11 @@ static void put_char(framebuffer_t *fb, char c, int x, int y, uint32_t color, in
 {
 	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * fb->pitch) + x;
 	
-	for(int py = 0; py < CHR_HEIGHT * scaling; py++)
+	for (int py = 0; py < CHR_HEIGHT * scaling; py++)
 	{
-		for(int px = 0; px < CHR_WIDTH * scaling; px++)
+		for (int px = 0; px < CHR_WIDTH * scaling; px++)
 		{
-			if(teletext[c - 32][py / scaling] & (1 << (CHR_WIDTH - 1 - px / scaling)))
+			if (teletext[c - 32][py / scaling] & (1 << (CHR_WIDTH - 1 - px / scaling)))
 			{
 				line[px] = color;
 			}
@@ -139,9 +146,30 @@ static void put_string(framebuffer_t *fb, char *str, int x, int y, uint32_t colo
 	while (*str)
 	{
 		put_char(fb, *str, x, y, color, 2);
-		x += CHR_WIDTH * 2 + 2;
+		x += CHR_WIDTH * 2 + SPACING;
 		str++;
 	}
+}
+
+static void put_frect(framebuffer_t *fb, int x, int y, int width, int height, uint32_t color)
+{
+	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * fb->pitch) + x;
+	
+	for (int py = 0; py < height; py++)
+	{
+		for (int px = 0; px < width; px++)
+		{
+			line[px] = color;
+		}
+		
+		line = (uint32_t*) (((uint8_t*) line) + fb->pitch);
+	}
+}
+
+static void put_row(framebuffer_t *fb, char *str, int x, int y, int width, bool inverted)
+{
+	put_frect(fb, x, y, width, CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING, (inverted == true) ? 0xFFFFFFFF : 0x00000000);
+	put_string(fb, str, x + TOP_PADDING, y + TOP_PADDING, (inverted == true) ? 0x00000000 : 0xFFFFFFFF);
 }
 
 /* Demo stuff */
@@ -162,7 +190,35 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 
 	fb->buffer = (void*) 0x10000000;
 	
-	put_string(fb, "Hello, Darkside.", 100, 100, 0xFFFFFFFF);
-
-	while(1);
+	char* options[] = {"Hello, Darkside.", "Animated graphics demo", "Mouse demo", "Idk what goes here", "GEOOOOOORGE"};
+	int sel_index = 0;
+	
+	for (int index = 0; index < OPTIONS; index++)
+	{
+		put_row(fb, options[index], INDENT, INDENT + CHR_HEIGHT * 2 * index + TOP_PADDING * index + BOT_PADDING * index, fb->width - INDENT * 2, index == sel_index);
+	}
+	
+	while(1)
+	{
+		uint8_t key = ps2kbd_ops.getch();
+		
+		if (key == 1)
+		{
+			if (sel_index > 0)
+			{
+				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, false);
+				sel_index--;
+				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, true);
+			}
+		}
+		else if (key == 2)
+		{
+			if (sel_index < OPTIONS)
+			{
+				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, false);
+				sel_index++;
+				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, true);
+			}
+		}
+	}
 }
