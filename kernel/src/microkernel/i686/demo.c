@@ -302,7 +302,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 
 					/* Change coordinates */
 					mouse_x += delta_x;
-					mouse_y += delta_y;
+					mouse_y -= delta_y;
 
 					/* Prevent overflows */
 					if (mouse_x <= 16)
