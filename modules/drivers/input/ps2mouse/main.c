@@ -7,6 +7,9 @@ typedef struct mouse_ops
 	void (*get_status)(uint8_t *btns, int16_t *x, int16_t *y);
 } mouse_ops_t;
 
+/* First get_status() */
+bool first_get_status = true;
+
 /* Wait for the mouse to be ready for reading or writing */
 static void mouse_wait(char type)
 {
@@ -39,6 +42,13 @@ static void mouse_write(uint8_t data)
 /* Get the mouse's status */
 void mouse_get_status(uint8_t *btns, int16_t *x, int16_t *y)
 {
+	/* WEIRD BUGFIX */
+	if (first_get_status)
+	{
+		mouse_read();
+		first_get_status = false;
+	}
+
 	/* Read a packet */
 	uint8_t packet[3];
 	for (int i = 0; i < 3; i++)
@@ -46,6 +56,7 @@ void mouse_get_status(uint8_t *btns, int16_t *x, int16_t *y)
 		packet[i] = mouse_read();
 		printf("%x\n", packet[i]);
 	}
+	printf("\n");
 
 	/* Set the buttons data */
 	*btns = packet[0];
@@ -65,14 +76,14 @@ int module_init(mouse_ops_t *ops)
 	/* Enable the auxiliary mouse */
 	mouse_wait(1);
 	io_write_8(0x64, 0xA8);
-	mouse_wait(1);
+	/*mouse_wait(1);
 	io_write_8(0x64, 0x20);
 	mouse_wait(0);
-	uint8_t status = io_read_8(0x60) | 2;
+	uint8_t status = io_read_8(0x60) | 0x20;
 	mouse_wait(1);
 	io_write_8(0x64, 0x60);
 	mouse_wait(1);
-	io_write_8(0x60, status);
+	io_write_8(0x60, status);*/
 
 	/* Use default settings */
 	mouse_write(0xF6);
