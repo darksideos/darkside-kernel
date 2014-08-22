@@ -54,9 +54,7 @@ void mouse_get_status(uint8_t *btns, int16_t *x, int16_t *y)
 	for (int i = 0; i < 3; i++)
 	{
 		packet[i] = mouse_read();
-		printf("%x\n", packet[i]);
 	}
-	printf("\n");
 
 	/* Set the buttons data */
 	*btns = packet[0];
