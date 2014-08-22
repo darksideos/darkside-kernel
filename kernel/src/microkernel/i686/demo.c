@@ -285,6 +285,10 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 			}
 			else if (sel_index == 2)
 			{
+				/* Draw an exit button */
+				put_frect(fb, 100, 100, 100, 50, 0x00FFF5EE);
+				put_string(fb, "Back", 110, 110, 0);
+
 				/* Mouse status */
 				uint8_t btns = 0;
 				int16_t mouse_x = fb->width / 2;
