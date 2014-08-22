@@ -22,6 +22,7 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo cp kldr/build/bootapp*.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-*.elf /mnt/hdd/boot
 		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /mnt/hdd/boot
+		sudo cp "graphics/boot screen.bmp" /mnt/hdd/boot
 		sudo umount img/images/ext2.img
 		sudo rm -rf /mnt/hdd
 		sudo cp kldr/build/bootapp*.bin /media/george/DarkSide/boot
