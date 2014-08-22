@@ -145,35 +145,25 @@ static void put_string(framebuffer_t *fb, char *str, int x, int y, uint32_t colo
 }
 
 /* Demo stuff */
-void demo(loader_block_t *loader_block, int (*ps2kbd_init)(keyboard_ops_t *ops))
+void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 {
 	/* Initialize the PS/2 keyboard driver */
 	keyboard_ops_t ps2kbd_ops;
 	ps2kbd_init(&ps2kbd_ops);
 
 	/* Map the graphics framebuffer */
-	framebuffer_t *fb = loader_block->fb;
-
 	paddr_t base = fb->buffer_phys;
-	vaddr_t length = fb->pitch * fb->height;
+	vaddr_t length = (fb->width * fb->height * (fb->bpp / 8)) + ((fb->height - 1) * fb->pitch);
 
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
 		vmm_map_page(-1, 0x10000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
-		memset(base + i, 0xFF, 1024);
 	}
 
-	printf("Value: %d, %d, %d, %d\n", base, fb->pitch, fb->height, fb->width);
 	fb->buffer = (void*) 0x10000000;
-
-	uint32_t *test = fb->buffer;
-	test[100] = 0xFFFFFFFF;
-	test[101] = 0xFFFFFFFF;
-	test[102] = 0xFFFFFFFF;
-	test[103] = 0xFFFFFFFF;
 	
 	//put_char(fb, 'h', 100, 100, 0xFFFFFFFF);
-	//put_string(fb, "Hello", 100, 100, 0xFFFFFFFF);
+	put_string(fb, "Hello", 100, 100, 0xFFFFFFFF);
 
 	while(1);
 }
