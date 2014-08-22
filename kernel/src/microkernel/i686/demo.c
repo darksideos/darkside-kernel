@@ -123,6 +123,10 @@ typedef struct keyboard_ops
 	void (*gets)(char *buf);
 } keyboard_ops_t;
 
+static void dummy()
+{
+}
+
 static void put_char(framebuffer_t *fb, char c, int x, int y, uint32_t color, int scaling)
 {
 	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + y * fb->pitch) + x;
@@ -166,10 +170,34 @@ static void put_frect(framebuffer_t *fb, int x, int y, int width, int height, ui
 	}
 }
 
+static void put_fcirc(framebuffer_t *fb, int cx, int cy, int radius, uint32_t color)
+{
+	uint32_t *line = (uint32_t*) (((uint8_t*) fb->buffer) + (cy - radius) * fb->pitch) + cx - radius;
+	int rad_const = radius * radius;
+	
+	for (int py = -radius; py <= radius; py++)
+	{
+		for (int px = -radius; px <= radius; px++)
+		{
+			if (px * px + py * py <= rad_const)
+			{
+				line[px + radius] = color;
+			}
+		}
+		
+		line = (uint32_t*) (((uint8_t*) line) + fb->pitch);
+	}
+}
+
 static void put_row(framebuffer_t *fb, char *str, int x, int y, int width, bool inverted)
 {
 	put_frect(fb, x, y, width, CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING, (inverted == true) ? 0xFFFFFFFF : 0x00000000);
 	put_string(fb, str, x + TOP_PADDING, y + TOP_PADDING, (inverted == true) ? 0x00000000 : 0xFFFFFFFF);
+}
+
+static void clr_fb(framebuffer_t *fb)
+{
+	memset(fb->buffer, 0x00, fb->pitch * fb->height);
 }
 
 /* Demo stuff */
@@ -181,7 +209,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 
 	/* Map the graphics framebuffer */
 	paddr_t base = fb->buffer_phys;
-	vaddr_t length = (fb->width * fb->height * (fb->bpp / 8)) + ((fb->height - 1) * fb->pitch);
+	vaddr_t length = fb->pitch * fb->height;
 
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
@@ -194,6 +222,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 	int sel_index = 0;
 	
 	menu:
+	clr_fb(fb);
 	for (int index = 0; index < OPTIONS; index++)
 	{
 		put_row(fb, options[index], INDENT, INDENT + CHR_HEIGHT * 2 * index + TOP_PADDING * index + BOT_PADDING * index, fb->width - INDENT * 2, index == sel_index);
@@ -221,15 +250,37 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 				put_row(fb, options[sel_index], INDENT, INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * sel_index, fb->width - INDENT * 2, true);
 			}
 		}
-		else if (key == 4)
+		else if (key == '\n')
 		{
-			memset(fb->buffer, 0x00, (INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * OPTIONS) * fb->pitch);
+			clr_fb(fb);
+			
+			if (sel_index == 1)
+			{
+				int sel_circ = 0;
+				for (int i = 0; i < 5; i++)
+				{
+					put_fcirc(fb, 100 + 30 * i, 100, 5, 0xFFFF00FF);
+				}
+				
+				put_fcirc(fb, 100, 100, 8, 0xFF777777);
+				
+				while (1)
+				{
+					pit_ch2_delay(100, &dummy);
+					
+					put_frect(fb, 100 + 30 * sel_circ - 8, 92, 16, 16, 0x00000000);
+					put_fcirc(fb, 100 + 30 * sel_circ, 100, 5, 0xFFFF00FF);
+					
+					sel_circ = (sel_circ + 1) % 5;
+					put_fcirc(fb, 100 + 30 * sel_circ, 100, 8, 0xFF777777);
+				}
+			}
 			
 			while (1)
 			{
 				uint8_t new_key = ps2kbd_ops.getch();
 				
-				if (new_key == 3)
+				if (new_key == '\b')
 				{
 					goto menu;
 				}
