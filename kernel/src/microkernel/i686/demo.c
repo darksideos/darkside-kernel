@@ -291,7 +291,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 				int16_t mouse_y = fb->height / 2;
 
 				/* Draw an initial circle */
-				put_fcirc(fb, mouse_x, mouse_y, 8, 0xFF777777);
+				put_fcirc(fb, mouse_x, mouse_y, 8, 0x00FF0000);
 
 				/* Poll for input */
 				while(1)
@@ -323,7 +323,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 					}
 
 					/* Redraw circle */
-					put_fcirc(fb, mouse_x, mouse_y, 8, 0xFF777777);
+					put_fcirc(fb, mouse_x, mouse_y, 8, 0x00FF0000);
 				}
 			}
 			
