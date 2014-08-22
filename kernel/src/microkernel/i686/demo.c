@@ -213,7 +213,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 		}
 		else if (key == 2)
 		{
-			if (sel_index < OPTIONS)
+			if (sel_index < OPTIONS - 1)
 			{
 				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, false);
 				sel_index++;
