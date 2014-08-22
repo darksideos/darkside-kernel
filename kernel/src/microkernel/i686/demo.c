@@ -286,7 +286,7 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 			else if (sel_index == 2)
 			{
 				/* Draw an exit button */
-				put_frect(fb, 100, 100, 100, 50, 0x00FFF5EE);
+				put_frect(fb, 100, 100, 70, 35, 0x00FF6600);
 				put_string(fb, "Back", 110, 110, 0);
 
 				/* Mouse status */
@@ -328,6 +328,15 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 
 					/* Redraw circle */
 					put_fcirc(fb, mouse_x, mouse_y, 8, 0x00FF0000);
+
+					/* If mouse pressed */
+					if (btns & 1)
+					{
+						if (mouse_x >= 100 && mouse_x < 170 && mouse_y >= 100 && mouse_y < 135)
+						{
+							goto menu;
+						}
+					}
 				}
 			}
 			
