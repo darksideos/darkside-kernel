@@ -193,12 +193,13 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 	char* options[] = {"Hello, Darkside.", "Animated graphics demo", "Mouse demo", "Idk what goes here", "GEOOOOOORGE"};
 	int sel_index = 0;
 	
+	menu:
 	for (int index = 0; index < OPTIONS; index++)
 	{
 		put_row(fb, options[index], INDENT, INDENT + CHR_HEIGHT * 2 * index + TOP_PADDING * index + BOT_PADDING * index, fb->width - INDENT * 2, index == sel_index);
 	}
 	
-	while(1)
+	while (1)
 	{
 		uint8_t key = ps2kbd_ops.getch();
 		
@@ -206,18 +207,32 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops))
 		{
 			if (sel_index > 0)
 			{
-				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, false);
+				put_row(fb, options[sel_index], INDENT, INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * sel_index, fb->width - INDENT * 2, false);
 				sel_index--;
-				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, true);
+				put_row(fb, options[sel_index], INDENT, INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * sel_index, fb->width - INDENT * 2, true);
 			}
 		}
 		else if (key == 2)
 		{
 			if (sel_index < OPTIONS - 1)
 			{
-				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, false);
+				put_row(fb, options[sel_index], INDENT, INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * sel_index, fb->width - INDENT * 2, false);
 				sel_index++;
-				put_row(fb, options[sel_index], INDENT, INDENT + CHR_HEIGHT * 2 * sel_index + TOP_PADDING * sel_index + BOT_PADDING * sel_index, fb->width - INDENT * 2, true);
+				put_row(fb, options[sel_index], INDENT, INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * sel_index, fb->width - INDENT * 2, true);
+			}
+		}
+		else if (key == 4)
+		{
+			memset(fb->buffer, 0x00, (INDENT + (CHR_HEIGHT * 2 + TOP_PADDING + BOT_PADDING) * OPTIONS) * fb->pitch);
+			
+			while (1)
+			{
+				uint8_t new_key = ps2kbd_ops.getch();
+				
+				if (new_key == 3)
+				{
+					goto menu;
+				}
 			}
 		}
 	}
