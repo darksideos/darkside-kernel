@@ -1,5 +1,6 @@
 ata0-master: type=disk, path="../images/os.img", cylinders=75, heads=16, spt=63
 boot: disk
+mouse: enabled=1
 display_library: sdl
 port_e9_hack: enabled=1
 magic_break: enabled=1

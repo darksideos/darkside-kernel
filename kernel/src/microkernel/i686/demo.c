@@ -126,7 +126,7 @@ typedef struct keyboard_ops
 /* Mouse functions */
 typedef struct mouse_ops
 {
-	void (*get_status)(uint8_t *btns, uint16_t *x, uint16_t *y);
+	void (*get_status)(uint8_t *btns, int16_t *x, int16_t *y);
 } mouse_ops_t;
 
 static void dummy()
@@ -281,6 +281,49 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 					
 					sel_circ = (sel_circ + 1) % 5;
 					put_fcirc(fb, 100 + 30 * sel_circ, 100, 8, 0xFF777777);
+				}
+			}
+			else if (sel_index == 2)
+			{
+				/* Mouse status */
+				uint8_t btns = 0;
+				int16_t mouse_x = fb->width / 2;
+				int16_t mouse_y = fb->height / 2;
+
+				/* Draw an initial circle */
+				put_fcirc(fb, mouse_x, mouse_y, 8, 0xFF777777);
+
+				/* Poll for input */
+				while(1)
+				{
+					/* Get status */
+					int16_t delta_x, delta_y;
+					ps2mouse_ops.get_status(&btns, &delta_x, &delta_y);
+
+					/* Change coordinates */
+					mouse_x += delta_x;
+					mouse_y += delta_y;
+
+					/* Prevent overflows */
+					if (mouse_x < 8)
+					{
+						mouse_x = 8;
+					}
+					if (mouse_x > fb->width)
+					{
+						mouse_x = fb->width - 8;
+					}
+					if (mouse_y < 8)
+					{
+						mouse_y = 8;
+					}
+					if (mouse_y > fb->height)
+					{
+						mouse_y = fb->height - 8;
+					}
+
+					/* Redraw circle */
+					put_fcirc(fb, mouse_x, mouse_y, 8, 0xFF777777);
 				}
 			}
 			
