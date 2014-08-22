@@ -305,21 +305,21 @@ void demo(framebuffer_t *fb, int (*ps2kbd_init)(keyboard_ops_t *ops), int (*ps2m
 					mouse_y += delta_y;
 
 					/* Prevent overflows */
-					if (mouse_x < 8)
+					if (mouse_x <= 16)
 					{
-						mouse_x = 8;
+						mouse_x = 16;
 					}
-					if (mouse_x > fb->width)
+					if (mouse_x >= fb->width)
 					{
-						mouse_x = fb->width - 8;
+						mouse_x = fb->width - 16;
 					}
-					if (mouse_y < 8)
+					if (mouse_y <= 16)
 					{
-						mouse_y = 8;
+						mouse_y = 16;
 					}
-					if (mouse_y > fb->height)
+					if (mouse_y >= fb->height)
 					{
-						mouse_y = fb->height - 8;
+						mouse_y = fb->height - 16;
 					}
 
 					/* Redraw circle */
