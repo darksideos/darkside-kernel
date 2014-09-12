@@ -25,9 +25,22 @@
 extern uint64_t end;
 uint64_t *pml4, *pdpt_lower, *pd_lower, *pt_lower;
 
+/* Flush the entire TLB */
+static void flush_tlb()
+{
+	__asm__ volatile("mov %0, %%cr3" :: "r"(pml4));
+}
+
 /* Get a page */
 static uint64_t *get_page(vaddr_t virtual_address, bool make)
 {
+	/* Find out which page the virtual address is in */
+	uint32_t page = virtual_address >> 12;
+
+	/* Now use that page index to find out the indices of the page table, page directory, and page directory pointer table */
+	uint32_t table_index = page >> 9;
+	uint32_t directory_index = page >> 9;
+	uint32_t pdpt_index = page >> 9;
 }
 
 /* Get the physical address mapping of a virtual page */
