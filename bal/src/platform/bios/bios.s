@@ -21,7 +21,6 @@
 %endif
 %include "src/platform/bios/bios.inc"
 
-[BITS 32]
 section .text
 
 ; Read a sector from the disk using the BIOS

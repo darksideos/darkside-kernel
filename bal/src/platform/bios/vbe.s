@@ -20,7 +20,6 @@
 %include "src/arch/amd64/rmode.inc"
 %endif
 
-[BITS 32]
 section .text
 
 ; Initialize VBE
