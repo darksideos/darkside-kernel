@@ -37,7 +37,7 @@ BIOSSFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.s")
 MACROS				:= -DARCH_I686
 INCLUDES			:= -I./include/platform/pc -I./include/platform/bios
 OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(I686CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(I686SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(BIOSCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(BIOSSFILES))
-#
+# AMD64 BIOS-based PC
 else ifeq ($(MAKECMDGOALS),amd64-bios)
 CFLAGS				:= -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow $(CFLAGS)
 ASMFLAGS			:= -f elf64
