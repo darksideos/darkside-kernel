@@ -51,7 +51,7 @@ typedef struct loader_block
 	list_t *modules;
 
 /* PC extension */
-#if defined(__i386__)
+#if defined(__i386__) | defined(__x86_64__)
 	/* ACPI root tables */
 	uint32_t rsdp;
 	uint32_t rsdt;

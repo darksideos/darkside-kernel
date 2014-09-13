@@ -56,8 +56,8 @@ endif
 
 i686-bios: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/bios/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-i686 -lc-i686 -ladt-i686 -lbootvid-i686
-amd64-bios: build/platform/bios/loader.o
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/bios/loader.o -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-amd64 -lc-amd64 -ladt-amd64 -lbootvid-amd64
+amd64-bios: $(OBJFILES)
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/bios/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-amd64 -lc-amd64 -ladt-amd64 -lbootvid-amd64
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)
