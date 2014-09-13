@@ -28,9 +28,11 @@
 	push r15
 	
 	; Save the arguments on the stack
-	;push edi
-	;push esi
-	;push edx
+	sub rsp, 16
+	mov dword [rsp], ecx
+	mov dword [rsp + 4], edx
+	mov dword [rsp + 8], esi
+	mov dword [rsp + 12], edi
 	
 	; Jump into compatibility mode
 	push 0x28
@@ -86,6 +88,7 @@
 	sti
 	
 	; Put the function arguments into the needed registers
+	pop edx
 	pop ecx
 	pop ebx
 	pop eax
@@ -110,7 +113,8 @@
 	mov gs, ax
 	
 	; Restore return value
-	;pop eax
+	mov eax, dword [rsp]
+	add rsp, 4
 	
 	; Return from the function
 	pop r15
