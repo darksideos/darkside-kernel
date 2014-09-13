@@ -185,6 +185,5 @@ lm_entry:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	
-	jmp $
+
 %endmacro
