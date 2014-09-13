@@ -28,9 +28,26 @@ enter_pm:
 	mov edi, end
 	and edi, 0xFFFFF000
 	add edi, 0x1000
-	jmp .setup_paging
+	jmp .align_buffer
 .end_aligned:
 	mov edi, end
+.align_buffer:
+	; Get the segments that the PML4 and PT end up in
+	mov eax, edi
+	and eax, 0xFFFF0000
+	shr eax, 4
+	mov ebx, edi
+	add ebx, 0x3000
+	and ebx, 0xFFFF0000
+	shr ebx, 4
+
+	; Check if everything already fits within a segment
+	cmp eax, ebx
+	je .setup_paging
+
+	; If it doesn't, align it to a segment
+	mov es, bx
+	xor edi, edi
 .setup_paging:
 	; Clear out the PML4, PDPT, PD, and PT
 	push edi
@@ -41,27 +58,27 @@ enter_pm:
 	pop edi
 
 	; Point the first PML4 entry at the PDPT
-	lea eax, [edi + 0x1000]
+	lea eax, [es:edi + 0x1000]
 	or eax, 0x03
-	mov [edi], eax
+	mov [es:edi], eax
 
 	; Point the first PDPT entry at the PD
-	lea eax, [edi + 0x2000]
+	lea eax, [es:edi + 0x2000]
 	or eax, 0x03
-	mov [edi + 0x1000], eax
+	mov [es:edi + 0x1000], eax
 
 	; Point the first PD entry at the PT
-	lea eax, [edi + 0x3000]
+	lea eax, [es:edi + 0x3000]
 	or eax, 0x03
-	mov [edi + 0x2000], eax
+	mov [es:edi + 0x2000], eax
 
 	; Put the PT in DI and start building it
 	push edi
-	lea edi, [edi + 0x3000]
+	lea edi, [es:edi + 0x3000]
 	mov eax, 0x03
 .build_pt:
 	; Loop until the first 1MiB is identity mapped
-	mov [edi], eax
+	mov [es:edi], eax
 	add eax, 0x1000
 	add edi, 8
 	cmp eax, 0x100000
