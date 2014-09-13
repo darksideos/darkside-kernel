@@ -4,6 +4,9 @@
 /* i386 */
 #if defined(__i386__)
 #include <arch/i686/vmm.h>
+/* AMD64 */
+#elif defined(__x86_64__)
+#include <arch/amd64/vmm.h>
 #endif
 
 /* Page protections */
