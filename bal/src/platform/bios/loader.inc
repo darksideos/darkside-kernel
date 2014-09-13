@@ -22,9 +22,12 @@
 ; Local data structure
 struc data
 	.e820_map			resd 1
+%ifdef ARCH_AMD64
+	._pad1				resd 1
+%endif
 	.e820_entries		resd 1
 	.drive				resw 1
-	._pad				resw 1
+	._pad2				resw 1
 	.part_start			resd 1
 endstruc
 %define DATA_LOC		0x0660									; Location of the local data structure in memory

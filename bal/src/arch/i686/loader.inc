@@ -32,7 +32,7 @@ struc gdt_ptr
 	.limit				resw 1
 	.base				resd 1
 endstruc
-%define GDTR_LOC		0x0628
+%define GDTR_LOC		0x0638
 %define GDTR(x)			GDTR_LOC + gdt_ptr. %+ x
 
 %macro real_to_pm 0
