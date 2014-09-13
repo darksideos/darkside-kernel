@@ -41,7 +41,6 @@ void storage_init(uint32_t drive_number, uint32_t partition_start);
 /* Boot Abstraction Layer main function */
 void bal_main(data_t *_data)
 {
-	while(1);
 	/* Initialize the boot video driver */
 	bootvid_init(COLOR_WHITE, COLOR_BLACK);
 
