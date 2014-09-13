@@ -39,7 +39,7 @@
 	xor rcx, rcx
 	mov ecx, .compat_entry
 	push rcx
-	retf
+	o64 retf
 [BITS 32]
 .compat_entry:
 	; Reload the segment registers
