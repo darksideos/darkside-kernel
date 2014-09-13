@@ -57,6 +57,7 @@ bios_disk_write:
 ; Initialize the disk for BIOS calls
 global bios_disk_init
 bios_disk_init:
+%ifdef ARCH_I686
 	; Set up the stack frame
 	push ebp
 	mov ebp, esp
@@ -81,6 +82,35 @@ bios_disk_init:
 	pop ebx
 	pop ebp
 	ret
+%elifdef ARCH_AMD64
+	; Set up the stack frame
+	push rbp
+	mov rbp, rsp
+	
+	; Save registers
+	push rbx
+	push r12
+	push r13
+	push r14
+	push r15
+	
+	; Store the drive number
+	mov [drive_num], di
+	
+	; Set up the DAP
+	mov [DAP(size)], byte 0x10
+	mov [DAP(reserved)], byte 0x00
+	mov [DAP(lba_start_h)], dword 0x0
+	
+	; Return from the function
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop rbx
+	pop rbp
+	ret
+%endif
 	
 section .data
 
