@@ -28,7 +28,7 @@ start:
 	mov esp, ORG_LOC
 .setup_data:
 	mov [DATA(drive)], dl
-	mov [DATA(_pad2)], 0
+	mov dword [DATA(_pad2)], 0
 	mov [DATA(part_start)], eax
 	
 ; Get the BIOS memory map
@@ -38,7 +38,7 @@ do_e820:
 	mov di, E820_LOC				; Address of E820 map
 	mov [DATA(e820_map)], edi		; goes into the data structure
 %ifdef ARCH_AMD64
-	mov [DATA(_pad1)], 0
+	mov dword [DATA(_pad1)], 0
 %endif
 	
 	xor ebx, ebx					; Clear EBX
