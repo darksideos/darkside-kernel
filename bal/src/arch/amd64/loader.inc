@@ -42,10 +42,13 @@ enter_pm:
 	shr ebx, 4
 
 	; Check if everything already fits within a segment
+	mov esi, edi
 	cmp eax, ebx
 	je .setup_paging
 
-	; If it doesn't, align it to a segment
+	; If it doesn't, save the PML4 address and align it to a segment
+	mov esi, ebx
+	shl esi, 4
 	mov es, bx
 	xor edi, edi
 .setup_paging:
@@ -58,22 +61,21 @@ enter_pm:
 	pop edi
 
 	; Point the first PML4 entry at the PDPT
-	lea eax, [es:edi + 0x1000]
+	lea eax, [esi + 0x1000]
 	or eax, 0x03
 	mov [es:edi], eax
 
 	; Point the first PDPT entry at the PD
-	lea eax, [es:edi + 0x2000]
+	lea eax, [esi + 0x2000]
 	or eax, 0x03
 	mov [es:edi + 0x1000], eax
 
 	; Point the first PD entry at the PT
-	lea eax, [es:edi + 0x3000]
+	lea eax, [esi + 0x3000]
 	or eax, 0x03
 	mov [es:edi + 0x2000], eax
 
 	; Put the PT in DI and start building it
-	push edi
 	lea edi, [es:edi + 0x3000]
 	mov eax, 0x03
 .build_pt:
@@ -84,16 +86,13 @@ enter_pm:
 	cmp eax, 0x100000
 	jb .build_pt
 .into_compat_mode:
-	; Restore the PML4
-	pop edi
-
 	; Enable PAE and global pages
 	mov eax, cr4
 	or eax, 0xA0
 	mov cr4, eax
 
 	; Switch to the PML4
-	mov cr3, edi
+	mov cr3, esi
 
 	; Set the LME bit in the EFER MSR
 	mov ecx, 0xC0000080
