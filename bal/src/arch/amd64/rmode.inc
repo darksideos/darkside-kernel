@@ -28,9 +28,9 @@
 	push r15
 	
 	; Save the arguments on the stack
-	push edi
-	push esi
-	push edx
+	;push edi
+	;push esi
+	;push edx
 	
 	; Jump into compatibility mode
 	push 0x28
@@ -38,6 +38,7 @@
 	mov ecx, .compat_entry
 	push rcx
 	retf
+[BITS 32]
 .compat_entry:
 	; Reload the segment registers
 	mov ax, 0x30
@@ -109,7 +110,7 @@
 	mov gs, ax
 	
 	; Restore return value
-	pop eax
+	;pop eax
 	
 	; Return from the function
 	pop r15
