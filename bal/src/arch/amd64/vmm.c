@@ -58,11 +58,46 @@ directory_exists:
 			/* If the page table exists */
 			if (directory[table_index % 512])
 			{
-table_exists:
-				return &table[page % 1024];
+				return &table[page % 512];
+			}
+			/* If it doesn't exist, but we can create it, create the page table and return the page */
+			else if (make)
+			{
+				/* Create a new page table */
+				directory[table_index] = pmm_alloc_page() | 0x03;
+				flush_tlb();
+				memset(table, 0, 0x1000);
+
+				/* Return the page */
+				return &table[page % 512];
 			}
 		}
+		/* If it doesn't exist, but we can create it, create the page directory and continue */
+		else if (make)
+		{
+			/* Create a new page directory */
+			pdpt[directory_index] = pmm_alloc_page() | 0x03;
+			flush_tlb();
+			memset(directory, 0, 0x1000);
+
+			/* Continue traversing the paging structures */
+			goto directory_exists;
+		}
 	}
+	/* If it doesn't exist, but we can create it, create the PDPT and continue */
+	else if (make)
+	{
+		/* Create a new PDPT */
+		pml4[pdpt_index] = pmm_alloc_page() | 0x03;
+		flush_tlb();
+		memset(pdpt, 0, 0x1000);
+
+		/* Continue traversing the paging structures */
+		goto pdpt_exists;
+	}
+
+	/* Otherwise, return NULL */
+	return NULL;
 }
 
 /* Get the physical address mapping of a virtual page */
@@ -128,4 +163,5 @@ void vmm_init()
 
 	/* Set up the recursive PML4 mapping */
 	pml4[511] = (uint64_t) pml4 | 0x03;
+	flush_tlb();
 }
