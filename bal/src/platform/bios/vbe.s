@@ -30,8 +30,8 @@ vbe_init:
 	pm2rm
 	
 	; Get the controller info
+	mov di, ax
 	mov ax, 0x4F00
-	mov di, [ebp + 8]
 	int 0x10
 	
 	; Save return value
@@ -48,9 +48,9 @@ vbe_get_mode:
 	pm2rm
 	
 	; Get the mode info
+	mov di, ax
 	mov ax, 0x4F01
-	mov cx, [ebp + 12]
-	mov di, [ebp + 8]
+	mov cx, bx
 	int 0x10
 	
 	; Save return value
@@ -67,8 +67,8 @@ vbe_set_mode:
 	pm2rm
 	
 	; Set the mode
+	mov bx, ax
 	mov ax, 0x4F02
-	mov bx, [ebp + 8]
 	int 0x10
 	
 	; Save return value
