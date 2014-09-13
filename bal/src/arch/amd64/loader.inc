@@ -84,7 +84,7 @@ enter_pm:
 	or eax, 0x100
 	wrmsr
 
-	; Enable paging
+	; Enable protected mode and paging
 	mov eax, cr0
 	or eax, 0x80000001
 	mov cr0, eax
@@ -133,9 +133,27 @@ enter_pm:
 	mov [GDT(eax, access)], byte 0x92
 	mov [GDT(eax, granularity)], byte 0x0F
 	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 32-bit code GDT descriptor
+	mov eax, 0x28
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x9A
+	mov [GDT(eax, granularity)], byte 0xCF
+	mov [GDT(eax, base_high)], byte 0
+	
+	; Set up the 32-bit data GDT descriptor
+	mov eax, 0x30
+	mov [GDT(eax, limit_low)], word 0xFFFF
+	mov [GDT(eax, base_low)], word 0
+	mov [GDT(eax, base_middle)], byte 0
+	mov [GDT(eax, access)], byte 0x92
+	mov [GDT(eax, granularity)], byte 0xCF
+	mov [GDT(eax, base_high)], byte 0
 
 	; Load the GDT pointer
-	mov [GDTR(limit)], word 0x27
+	mov [GDTR(limit)], word 0x37
 	mov [GDTR(base)], dword GDT_LOC
 	lgdt [GDTR_LOC]
 
