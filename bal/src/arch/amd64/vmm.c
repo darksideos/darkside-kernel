@@ -39,8 +39,30 @@ static uint64_t *get_page(vaddr_t virtual_address, bool make)
 
 	/* Now use that page index to find out the indices of the page table, page directory, and page directory pointer table */
 	uint32_t table_index = page >> 9;
-	uint32_t directory_index = page >> 9;
-	uint32_t pdpt_index = page >> 9;
+	uint32_t directory_index = table_index >> 9;
+	uint32_t pdpt_index = directory_index >> 9;
+
+	/* Get the address of the recursive paging structures */
+	uint64_t *pdpt = (uint64_t*) (0xFFFFFFFFFFE00000 + (0x1000 * (pdpt_index % 512)));
+	uint64_t *directory = (uint64_t*) (0xFFFFFFFFC0000000 + (0x1000 * (directory_index % 512)));
+	uint64_t *table = (uint64_t*) (0xFFFFFF8000000000 + (0x1000 * (table_index % 512)));
+
+	/* If the PDPT already exists */
+	if (pml4[pdpt_index % 512])
+	{
+pdpt_exists:
+		/* If the page directory already exists */
+		if (pdpt[directory_index % 512])
+		{
+directory_exists:
+			/* If the page table exists */
+			if (directory[table_index % 512])
+			{
+table_exists:
+				return &table[page % 1024];
+			}
+		}
+	}
 }
 
 /* Get the physical address mapping of a virtual page */
@@ -103,4 +125,7 @@ void vmm_init()
 	pdpt_lower = pml4 + 0x200;
 	pd_lower = pdpt_lower + 0x200;
 	pt_lower = pd_lower + 0x200;
+
+	/* Set up the recursive PML4 mapping */
+	pml4[511] = (uint64_t) pml4 | 0x03;
 }
