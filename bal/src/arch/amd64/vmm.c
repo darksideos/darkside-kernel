@@ -156,7 +156,7 @@ void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 void vmm_init()
 {
 	/* Calculate the addresses of the paging structures */
-	pml4 = (uint64_t*) PAGE_ALIGN_UP((vaddr_t)&end);
+	__asm__ volatile("mov %%cr3, %0" : "=r"(pml4));
 	pdpt_lower = pml4 + 0x200;
 	pd_lower = pdpt_lower + 0x200;
 	pt_lower = pd_lower + 0x200;
