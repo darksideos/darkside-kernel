@@ -31,9 +31,6 @@ bios_disk_read:
 	pm2rm
 	
 	; Set up the DAP
-	mov eax, dword [ebp + 8]
-	mov ebx, dword [ebp + 12]
-	mov ecx, dword [ebp + 16]
 	mov [DAP(buffer)], eax
 	mov [DAP(lba_start_l)], ebx
 	mov [DAP(lba_length)], cx
