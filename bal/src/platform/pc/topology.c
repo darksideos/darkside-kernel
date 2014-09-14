@@ -34,9 +34,10 @@ static void io_write_8(uint32_t port, uint8_t data)
 }
 
 /* Allocate the per-CPU and NUMA domain data structures */
-void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area)
+void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 {
 	/* Set the start of the per-CPU data area */
+	vaddr_t cpu_data_area = loader_block->system_free_start;
 	loader_block->cpu_data_area = cpu_data_area;
 
 	/* Get the MADT */
@@ -59,7 +60,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 		cpu[14] = 0;
 
 		/* Advance 3 pages */
-		cpu_data_area += 0x3000;
+		loader_block->system_free_start += 0x3000;
 
 		/* One CPU, 8259 PIC exists, Local APIC does not */
 		loader_block->num_cpus = 1;
@@ -70,7 +71,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 		goto srat_detect;
 	}
 
-	/* Is there are 8259 PIC? */
+	/* If there's an 8259 PIC, disable it */
 	if (madt->pic_present)
 	{
 		loader_block->pic_present = true;
@@ -111,6 +112,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
+			loader_block->system_free_start += 0x3000;
 
 			/* One more CPU */
 			loader_block->num_cpus++;
@@ -122,13 +124,13 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block, vaddr_t cpu_data_area
 	}
 
 	/* Map the Local APIC into memory */
-	map_page(cpu_data_area, madt->lapic_address, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
-	loader_block->lapic = cpu_data_area;
-	cpu_data_area += 0x1000;
+	loader_block->lapic = loader_block->system_free_start;
+	map_page(loader_block->lapic, madt->lapic_address, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+	loader_block->system_free_start += 0x1000;
 
 srat_detect: ;
 	/* Calculate the start of the per-NUMA domain data area */
-	vaddr_t numa_domain_data_area = cpu_data_area;
+	vaddr_t numa_domain_data_area = loader_block->system_free_start;
 	loader_block->numa_domain_data_area = numa_domain_data_area;
 
 	/* Get the SRAT */
@@ -151,6 +153,9 @@ srat_detect: ;
 			cpu[2] = (uint32_t) numa_domain_data_area;
 			cpu += 0xC00;
 		}
+
+		/* Advance 4 pages */
+		loader_block->system_free_start += 0x4000;
 
 		/* One NUMA domain */
 		loader_block->num_numa_domains = 1;
@@ -192,6 +197,7 @@ srat_detect: ;
 
 				/* Advance 4 pages */
 				numa_domain_data_area += 0x4000;
+				loader_block->system_free_start += 0x4000;
 
 				/* One more NUMA domain */
 				loader_block->num_numa_domains++;
