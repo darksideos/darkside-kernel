@@ -94,10 +94,10 @@ enter_pm:
 	; Switch to the PML4
 	mov cr3, esi
 
-	; Set the LME bit in the EFER MSR
+	; Set the LME and NXE bits in the EFER MSR
 	mov ecx, 0xC0000080
 	rdmsr
-	or eax, 0x100
+	or eax, 0x900
 	wrmsr
 
 	; Enable protected mode and paging
