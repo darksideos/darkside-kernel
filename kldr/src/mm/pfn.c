@@ -51,7 +51,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 	}
 
 	/* Allocate space for the PFN database */
-	vaddr_t pfn_database = loader_block->numa_domain_data_area + (loader_block->num_numa_domains * 0x4000);
+	vaddr_t pfn_database = loader_block->system_free_start;
 	loader_block->pfn_database = pfn_database;
 
 	iter = list_head(&phys_mem_map_copy);
@@ -145,4 +145,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 	/* Set the physical memory size and end of the PFN database */
 	loader_block->phys_mem_size = (paddr_t) entry->base + entry->length;
 	loader_block->pfn_database_end = pfn_database;
+
+	/* Mark the start of available memory in the system address space */
+	loader_block->system_free_start = PAGE_ALIGN_UP(pfn_database);
 }
