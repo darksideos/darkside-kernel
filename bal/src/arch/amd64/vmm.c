@@ -64,7 +64,7 @@ directory_exists:
 			else if (make)
 			{
 				/* Create a new page table */
-				directory[table_index] = pmm_alloc_page() | 0x03;
+				directory[table_index % 512] = pmm_alloc_page() | 0x03;
 				flush_tlb();
 				memset(table, 0, 0x1000);
 
@@ -76,7 +76,7 @@ directory_exists:
 		else if (make)
 		{
 			/* Create a new page directory */
-			pdpt[directory_index] = pmm_alloc_page() | 0x03;
+			pdpt[directory_index % 512] = pmm_alloc_page() | 0x03;
 			flush_tlb();
 			memset(directory, 0, 0x1000);
 
@@ -88,7 +88,7 @@ directory_exists:
 	else if (make)
 	{
 		/* Create a new PDPT */
-		pml4[pdpt_index] = pmm_alloc_page() | 0x03;
+		pml4[pdpt_index % 512] = pmm_alloc_page() | 0x03;
 		flush_tlb();
 		memset(pdpt, 0, 0x1000);
 
