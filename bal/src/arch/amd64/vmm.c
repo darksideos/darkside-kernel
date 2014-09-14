@@ -114,7 +114,7 @@ paddr_t get_mapping(vaddr_t virtual_address)
 	/* The page has the present bit set */
 	else if (*page & 1)
 	{
-		return *page & 0xFFFFFFFFF000 | 0xFFFF000000000000;
+		return *page & 0xFFFFFFFFF000;
 	}
 	/* Otherwise, the page has the present bit clear */
 	else
