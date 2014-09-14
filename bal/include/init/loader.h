@@ -39,7 +39,7 @@ typedef struct loader_block
 	vaddr_t cpu_data_area, numa_domain_data_area;
 	int num_cpus, num_numa_domains;
 
-	/* Free start of the system address space */
+	/* Start of available memory in the system address space */
 	vaddr_t system_free_start;
 
 	/* Graphics framebuffer */
