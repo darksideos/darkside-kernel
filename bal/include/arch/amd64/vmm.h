@@ -20,4 +20,7 @@ inline vaddr_t PAGE_ALIGN_UP(vaddr_t address)
 	return address;
 }
 
+/* System address space grows down */
+#define SYSTEM_ADDRSPACE_DIRECTION	-1
+
 #endif
