@@ -27,6 +27,27 @@
 #include <firmware/madt.h>
 #include <firmware/srat.h>
 
+/* Per-CPU data area structure */
+typedef struct cpu
+{
+	/* General CPU information */
+	int number;
+	uint32_t lapic_id;
+	vaddr_t numa_domain;
+	volatile uint32_t flags;
+
+	/* Topology information */
+	int chip, core, logical_cpu;
+
+	/* CPUID information */
+	char vendor_string[12];
+	uint32_t features[2];
+	uint32_t ext_features[2];
+
+	/* Current thread */
+	vaddr_t current_thread;
+} cpu_t;
+
 /* Write a byte to an I/O port */
 static void io_write_8(uint32_t port, uint8_t data)
 {
@@ -53,11 +74,11 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		}
 
 		/* Fill in the CPU number, Local APIC ID, flags, and current thread */
-		uint32_t *cpu = (uint32_t*) cpu_data_area;
-		cpu[0] = 0;
-		cpu[1] = 0;
-		cpu[3] = 1;
-		cpu[14] = 0;
+		cpu_t *cpu = (cpu_t*) cpu_data_area;
+		cpu->number = 0;
+		cpu->lapic_id = 0;
+		cpu->flags = 1;
+		cpu->current_thread = 0;
 
 		/* Advance 3 pages */
 		loader_block->system_free_start += 0x3000;
@@ -104,11 +125,11 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 			}
 
 			/* Fill in the CPU number, Local APIC ID, flags, and current thread */
-			uint32_t *cpu = (uint32_t*) cpu_data_area;
-			cpu[0] = loader_block->num_cpus;
-			cpu[1] = (uint32_t) lapic_entry->lapic_id;
-			cpu[3] = lapic_entry->lapic_flags;
-			cpu[14] = 0;
+			cpu_t *cpu = (cpu_t*) cpu_data_area;
+			cpu->number = loader_block->num_cpus;
+			cpu->lapic_id = (uint32_t) lapic_entry->lapic_id;
+			cpu->flags = lapic_entry->lapic_flags;
+			cpu->current_thread = 0;
 
 			/* Advance 3 pages */
 			cpu_data_area += 0x3000;
@@ -147,11 +168,11 @@ srat_detect: ;
 		}
 
 		/* Make every CPU point to it */
-		uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
+		cpu_t *cpu = (cpu_t*) loader_block->cpu_data_area;
 		while ((vaddr_t)cpu < loader_block->lapic)
 		{
-			cpu[2] = (uint32_t) numa_domain_data_area;
-			cpu += 0xC00;
+			cpu->numa_domain = numa_domain_data_area;
+			cpu = (cpu_t*) (((vaddr_t)cpu) + 0x3000);
 		}
 
 		/* Advance 4 pages */
@@ -204,16 +225,16 @@ srat_detect: ;
 			}
 
 			/* Find the CPU with the Local APIC ID and set its NUMA domain */
-			uint32_t *cpu = (uint32_t*) loader_block->cpu_data_area;
-			while ((cpu[0] != (uint32_t) lapic_entry->lapic_id) && ((vaddr_t)cpu < loader_block->lapic))
+			cpu_t *cpu = (cpu_t*) loader_block->cpu_data_area;
+			while ((cpu->lapic_id != (uint32_t) lapic_entry->lapic_id) && ((vaddr_t)cpu < loader_block->lapic))
 			{
-				cpu += 0xC00;
+				cpu = (cpu_t*) (((vaddr_t)cpu) + 0x3000);
 			}
 
 			/* If we found the CPU */
 			if ((vaddr_t)cpu < loader_block->lapic)
 			{
-				cpu[2] = (uint32_t) current_numa_data_area;
+				cpu->numa_domain = (uint32_t) current_numa_data_area;
 			}
 		}
 		
