@@ -1,6 +1,8 @@
 #ifndef __PMM_H
 #define __PMM_H
 
+#include <list.h>
+
 /* Memory map entry flags */
 #define MEM_FLAG_USABLE		0x01
 #define MEM_FLAG_FREE		0x02
@@ -16,6 +18,7 @@
 /* Memory map entry structure */
 typedef struct mem_map_entry
 {
+	list_entry_t list_entry;
 	uint64_t base;
 	uint64_t length;
 	int flags;
