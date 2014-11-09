@@ -23,6 +23,8 @@ void list_insert_head(list_t *list, void *item);
 void list_insert_tail(list_t *list, void *item);
 void *list_remove_head(list_t *list);
 void *list_remove_tail(list_t *list);
+
+/* Create iterators for linked lists */
 iterator_t list_head(list_t *list);
 iterator_t list_tail(list_t *list);
 
