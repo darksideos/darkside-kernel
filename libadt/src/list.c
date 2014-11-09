@@ -18,16 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
-#include <stdlib.h>
 #include <iterator.h>
 #include <list.h>
-
-/* Linked list entry structure */
-typedef struct list_entry
-{
-	void *value;
-	struct list_entry *prev, *next;
-} list_entry_t;
 
 /* Create a linked list */
 list_t list_create()
@@ -40,28 +32,13 @@ list_t list_create()
 	return list;
 }
 
-/* Destroy a linked list */
-void list_destroy(list_t *list)
-{
-	list_entry_t *curr = list->head;
-	list_entry_t *new = NULL;
-
-	while (curr)
-	{
-		new = curr->next;
-		free(curr);
-		curr = new;
-	}
-}
-
 /* Insert an object at the head of a linked list */
 void list_insert_head(list_t *list, void *item)
 {
-	list_entry_t *head = (list_entry_t*) malloc(sizeof(list_entry_t));
+	list_entry_t *head = (list_entry_t*) item;
 
 	head->prev = NULL;
 	head->next = list->head;
-	head->value = item;
 
 	list->head = head;
 
@@ -78,11 +55,10 @@ void list_insert_head(list_t *list, void *item)
 /* Insert an object at the tail of a linked list */
 void list_insert_tail(list_t *list, void *item)
 {
-	list_entry_t *tail = (list_entry_t*) malloc(sizeof(list_entry_t));
+	list_entry_t *tail = (list_entry_t*) item;
 
 	tail->prev = list->tail;
 	tail->next = NULL;
-	tail->value = item;
 
 	list->tail = tail;
 
@@ -111,12 +87,9 @@ void *list_remove_head(list_t *list)
 	}
 	
 	list_entry_t *head = list->head;
-
-	void *value = list->head->value;
 	list->head = list->head->next;
-	free(head);
 
-	return value;
+	return (void*) head;
 }
 
 /* Remove an object from from the tail of a linked list */
@@ -134,27 +107,16 @@ void *list_remove_tail(list_t *list)
 	}
 
 	list_entry_t *tail = list->tail;
-
-	void *value = list->tail->value;
 	list->tail = list->tail->prev;
-	free(tail);
 
-	return value;
+	return (void*) tail;
 }
 
 /* Get the current value */
 static void *list_entry_now(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-
-	if (entry)
-	{
-		return entry->value;
-	}
-	else
-	{
-		return NULL;
-	}
+	return (void*) entry;
 }
 
 /* Get the previous element of a node */
@@ -165,14 +127,7 @@ static void *list_entry_prev(iterator_t *iter)
 	entry = entry->prev;
 	iter->node = (void*) entry;
 	
-	if (entry)
-	{
-		return entry->value;
-	}
-	else
-	{
-		return NULL;
-	}
+	return (void*) entry;
 }
 
 /* Get the next element of a node */
@@ -183,14 +138,7 @@ static void *list_entry_next(iterator_t *iter)
 	entry = entry->next;
 	iter->node = (void*) entry;
 	
-	if (entry)
-	{
-		return entry->value;
-	}
-	else
-	{
-		return NULL;
-	}
+	return (void*) entry;
 }
 
 /* Insert at a node */
@@ -205,15 +153,13 @@ static void list_entry_insert(iterator_t *iter, void *item)
 	}
 	else
 	{
-		list_entry_t *node = (list_entry_t*) malloc(sizeof(list_entry_t));
+		list_entry_t *node = (list_entry_t*) item;
 
 		node->next = entry->next;
 		node->next->prev = node;
 		
 		node->prev = entry;
 		entry->next = node;
-		
-		node->value = item;
 	}
 }
 
