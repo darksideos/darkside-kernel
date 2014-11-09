@@ -16,20 +16,21 @@ if [ "$(uname -s)" == "Linux" ]
 	then
 		sudo mkdir -p /mnt/hdd
 		sudo mount -t ext2 -o loop img/images/ext2.img /mnt/hdd
-#		sudo cp ../../build-i386/kernel-i386.elf /mnt/hdd/boot
-#		sudo cp ../../build-i386/symtab /mnt/hdd/boot
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/bootapp*.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-*.elf /mnt/hdd/boot
 		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /mnt/hdd/boot
 		sudo cp modules/drivers/input/ps2mouse/ps2mouse.elf /mnt/hdd/boot
 		sudo cp "graphics/boot screen.bmp" /mnt/hdd/boot
-		sudo umount img/images/ext2.img
+		sudo umount /mnt/hdd
 		sudo rm -rf /mnt/hdd
-		sudo cp kldr/build/bootapp*.bin /media/george/DarkSide/boot
-		sudo cp kernel/build/kernel-*.elf /media/george/DarkSide/boot
-		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /media/george/DarkSide/boot
-		sudo cp modules/drivers/input/ps2mouse/ps2mouse.elf /media/george/DarkSide/boot
+		if [ "$(whoami)" == "george" ]
+			then
+				sudo cp kldr/build/bootapp*.bin /media/george/DarkSide/boot
+				sudo cp kernel/build/kernel-*.elf /media/george/DarkSide/boot
+				sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /media/george/DarkSide/boot
+				sudo cp modules/drivers/input/ps2mouse/ps2mouse.elf /media/george/DarkSide/boot
+		fi
 fi
 
 if [[ "$(uname -s)" == CYGWIN* ]]
