@@ -3,10 +3,14 @@
 
 #include <iterator.h>
 
-/* Linked list structure */
-struct list_entry;
-typedef struct list_entry list_entry_t;
+/* Linked list entry structure */
+typedef struct list_entry
+{
+	struct list_entry *prev;
+	struct list_entry *next;
+} list_entry_t;
 
+/* Linked list structure */
 typedef struct list
 {
 	list_entry_t *head;
@@ -15,7 +19,6 @@ typedef struct list
 
 /* Linked list methods */
 list_t list_create();
-void list_destroy(list_t *list);
 void list_insert_head(list_t *list, void *item);
 void list_insert_tail(list_t *list, void *item);
 void *list_remove_head(list_t *list);
