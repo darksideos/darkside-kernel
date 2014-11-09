@@ -19,6 +19,7 @@
 #ifndef __EXECUTABLE_H
 #define __EXECUTABLE_H
 
+#include <list.h>
 #include <dict.h>
 
 /* Executable format operations */
@@ -35,6 +36,9 @@ typedef struct executable_ops
 /* Executable structure */
 typedef struct executable
 {
+	/* Linked list entry */
+	list_entry_t list_entry;
+
 	/* Start and end in memory */
 	vaddr_t start, end;
 	
