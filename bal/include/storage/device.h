@@ -17,6 +17,9 @@ typedef struct device_ops
 /* Device structure */
 typedef struct device
 {
+	/* Linked list entry structure */
+	list_entry_t list_entry;
+
 	/* Device operations */
 	device_ops_t *ops;
 
