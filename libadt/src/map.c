@@ -26,6 +26,7 @@
 /* Bucket structure */
 typedef struct bucket
 {
+	list_entry_t list_entry;
 	uint64_t key;
 	void *value;
 } bucket_t;
