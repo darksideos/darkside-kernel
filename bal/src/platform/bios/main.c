@@ -51,16 +51,25 @@ void bal_main(data_t *_data)
 	data_t *data = (data_t*) malloc(sizeof(data_t));
 	memcpy(data, _data, sizeof(data_t));
 
+	printf("About to do stuff\n");
+
 	/* Initialize the physical and virtual memory managers */
 	list_t *phys_mem_map = pmm_init(data->e820_entries, data->num_e820_entries);
+	printf("PMM initialized\n");
 	vmm_init();
+
+	printf("VMM initialized\n");
 
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
 
+	printf("Storage done\n");
+
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();
 	ext2_init();
+
+	printf("FS stuff done\n");
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));

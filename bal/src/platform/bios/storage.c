@@ -121,6 +121,8 @@ device_t *storage_get_boot_device()
 /* Initialize the storage tree */
 void storage_init(uint32_t drive_number, uint32_t partition_start)
 {
+	printf("storage_init()\n");
+
 	/* Create the root of the storage tree */
 	root = (device_t*) malloc(sizeof(device_t));
 	root->ops = NULL;
