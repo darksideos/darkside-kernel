@@ -19,6 +19,7 @@ typedef struct list
 
 /* Linked list methods */
 list_t list_create();
+void list_destroy(list_t *list);
 void list_insert_head(list_t *list, void *item);
 void list_insert_tail(list_t *list, void *item);
 void *list_remove_head(list_t *list);

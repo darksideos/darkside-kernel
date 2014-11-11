@@ -32,6 +32,11 @@ list_t list_create()
 	return list;
 }
 
+/* Destroy a linked list (useless) */
+void list_destroy(list_t *list)
+{
+}
+
 /* Insert an object at the head of a linked list */
 void list_insert_head(list_t *list, void *item)
 {
