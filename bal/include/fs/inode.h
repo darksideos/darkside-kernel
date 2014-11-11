@@ -1,6 +1,7 @@
 #ifndef __INODE_H
 #define __INODE_H
 
+#include <list.h>
 #include <dict.h>
 
 /* Inode operations structure */
@@ -36,6 +37,9 @@ typedef struct inode_ops
 /* Inode structure */
 typedef struct inode
 {
+	/* Linked list entry structure */
+	list_entry_t list_entry;
+
 	/* Inode operations */
 	inode_ops_t *ops;
 
