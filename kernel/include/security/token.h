@@ -2,7 +2,6 @@
 #define __TOKEN_H
 
 #include <array.h>
-#include <list.h>
 #include <security/uid.h>
 
 /* Token structure */
@@ -17,8 +16,8 @@ typedef struct token
 	/* Other groups */
 	array_t other_groups;
 
-	/* Privileges list */
-	list_t privileges;
+	/* Privilege list (bitmap eventually?) */
+	array_t privileges;
 } token_t;
 
 #endif
