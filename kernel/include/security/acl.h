@@ -36,6 +36,9 @@ typedef struct ace
 /* ACL structure */
 typedef struct acl
 {
+	/* ACL entries */
+	size_t num_entries;
+	ace_t entries[];
 } acl_t;
 
 #endif
