@@ -1,4 +1,5 @@
 #include <types.h>
+#include <list.h>
 #include <security/uid.h>
 #include <security/token.h>
 #include <security/acl.h>
@@ -10,5 +11,8 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 	/* No access granted initially */
 	bool access_granted = false;
 
-	/* 
+	/* Current level of access granted */
+	uint64_t granted_access = 0;
+
+	/* First check the denied ACL */
 }
