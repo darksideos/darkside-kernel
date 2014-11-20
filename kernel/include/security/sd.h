@@ -11,8 +11,9 @@ typedef struct security_descriptor
 	uid_t owning_user;
 	uid_t owning_group;
 
-	/* Object ACL */
-	acl_t *object_acl;
+	/* Object ACLs (denied and allowed) */
+	acl_t *denied_object_acl;
+	acl_t *allowed_object_acl;
 
 	/* Audit ACL */
 	acl_t *audit_acl;
