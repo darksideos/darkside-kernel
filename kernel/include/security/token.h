@@ -1,7 +1,6 @@
 #ifndef __TOKEN_H
 #define __TOKEN_H
 
-#include <types.h>
 #include <array.h>
 #include <security/uid.h>
 
