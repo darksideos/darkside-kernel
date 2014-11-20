@@ -16,8 +16,7 @@
 /* ACL entry structure */
 typedef struct ace
 {
-	/* ACE header */
-	size_t size;
+	/* ACE type */
 	int type;
 
 	/* Inheritance and audit flags */
@@ -32,7 +31,7 @@ typedef struct ace
 	};
 
 	/* Access mask */
-	uint8_t access_mask[];
+	uint64_t access_mask;
 } ace_t;
 
 /* ACL structure */
