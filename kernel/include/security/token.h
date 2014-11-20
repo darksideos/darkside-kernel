@@ -17,7 +17,12 @@ typedef struct token
 	array_t other_groups;
 
 	/* Privilege bitmap */
-	uint8_t *privileges;
+	size_t num_privileges;
+	uint8_t privileges[2];
 } token_t;
+
+/* Get and set a privilege in a token */
+bool token_get_privilege(int privilege);
+void token_set_privilege(int privilege, bool allowed);
 
 #endif
