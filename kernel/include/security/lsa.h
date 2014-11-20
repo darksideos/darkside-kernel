@@ -9,4 +9,7 @@
 token_t *lsa_request_app_token(uint8_t *executable_hash, uid_t user);
 bool lsa_sandbox_violation(void *object, access_mask_t desired_access);
 
+/* Initialize LSA communication */
+void lsa_init();
+
 #endif
