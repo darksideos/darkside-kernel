@@ -1,21 +1,23 @@
 #ifndef __ACL_H
 #define __ACL_H
 
+#include <list.h>
 #include <security/uid.h>
 
 /* ACL entry types */
-#define ACE_ALLOWED		0
-#define ACE_DENIED		1
-#define ACE_AUDIT		2
-#define ACE_GROUP		0x80000000
+#define ACE_USER		0
+#define ACE_GROUP		1
 
 /* ACL entry audit flags */
-#define AUDIT_SUCCESS	0
-#define AUDIT_FAILURE	1
+#define AUDIT_SUCCESS	1
+#define AUDIT_FAILURE	2
 
 /* ACL entry structure */
 typedef struct ace
 {
+	/* Linked list entry structure */
+	list_entry_t list_entry;
+
 	/* ACE type */
 	int type;
 
@@ -39,7 +41,7 @@ typedef struct acl
 {
 	/* ACL entries */
 	size_t num_entries;
-	ace_t entries[];
+	list_t entries;
 } acl_t;
 
 #endif
