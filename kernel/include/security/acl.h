@@ -1,6 +1,8 @@
 #ifndef __ACL_H
 #define __ACL_H
 
+#include <security/uid.h>
+
 /* ACL entry types */
 #define ACE_ALLOWED		0
 #define ACE_DENIED		1
