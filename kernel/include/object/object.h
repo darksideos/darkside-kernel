@@ -7,6 +7,13 @@
 struct object;
 typedef struct object_ops
 {
+	/* Opening a handle to the object */
+
+	/* Closing a handle to the object */
+
+	/* Duplicating a handle to the object */
+
+	/* Deleting the object */
 } object_ops_t;
 
 /* Object header structure */
