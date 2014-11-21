@@ -55,14 +55,30 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 	}
 
 	/* Go through all the allowed permissions and record the ones we get */
+	iter = list_head(&sd->allowed_object_acl->entries);
 
-	/* If we got all needed permissions, return true */
-	if ((granted_access & desired_access) == desired_access)
+	ace_t *entry = (ace_t*) iter.now(&iter);
+	while (entry)
 	{
-		return true;
+		/* Skip the ACE if it doesn't mention our user or group */
+		if (!ace_matches_token(entry, token))
+		{
+			entry = (ace_t*) iter.next(&iter);
+		}
+
+		/* Record the rights it gives us */
+		granted_access |= entry->access_mask;
+
+		/* If we got all needed permissions, return true */
+		if ((granted_access & desired_access) == desired_access)
+		{
+			return true;
+		}
+
+		/* Go to the next ACE */
+		entry = (ace_t*) iter.next(&iter);
 	}
-	else
-	{
-		return false;
-	}
+
+	/* If we didn't get access by now, we lack some permission */
+	return false;
 }
