@@ -16,6 +16,7 @@ if [ "$(uname -s)" == "Linux" ]
 	then
 		sudo mkdir -p /mnt/hdd
 		sudo mount -t ext2 -o loop img/images/ext2.img /mnt/hdd
+		sleep 1
 		sudo rm -f /mnt/hdd/boot/stage3.bin
 		sudo cp kldr/build/bootapp*.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-*.elf /mnt/hdd/boot
