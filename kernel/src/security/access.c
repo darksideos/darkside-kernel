@@ -6,6 +6,7 @@
 #include <security/token.h>
 #include <security/acl.h>
 #include <security/sd.h>
+#include <security/access.h>
 
 /* See if an ACE refers to a token */
 static bool ace_matches_token(ace_t *entry, token_t *token)
