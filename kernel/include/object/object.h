@@ -28,7 +28,7 @@ void object_ref(object_t *object);
 void object_unref(object_t *object);
 
 /* Get and set the security descriptor of an object */
-security_descriptor_t *object_get_security();
-void object_set_security(security_descriptor_t *descriptor);
+security_descriptor_t *object_get_security(object_t *object);
+void object_set_security(object_t *object, security_descriptor_t *descriptor);
 
 #endif
