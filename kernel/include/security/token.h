@@ -1,7 +1,7 @@
 #ifndef __TOKEN_H
 #define __TOKEN_H
 
-#include <array.h>
+#include <map.h>
 #include <security/uid.h>
 
 /* Token structure */
@@ -14,7 +14,7 @@ typedef struct token
 	gid_t primary_group;
 
 	/* Other groups */
-	array_t other_groups;
+	map_t other_groups;
 
 	/* Privilege bitmap */
 	size_t num_privileges;
