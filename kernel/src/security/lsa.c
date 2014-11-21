@@ -17,6 +17,12 @@ bool lsa_sandbox_violation(void *object, access_mask_t desired_access)
 	return false;
 }
 
+/* Audit an object access */
+void lsa_audit_object_access(void *object, bool success)
+{
+	/* TODO: Implement this */
+}
+
 /* Initialize LSA communication */
 void lsa_init()
 {

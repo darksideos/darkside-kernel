@@ -9,7 +9,7 @@ typedef struct security_descriptor
 {
 	/* Owning user and group */
 	uid_t owning_user;
-	uid_t owning_group;
+	gid_t owning_group;
 
 	/* Object ACLs (denied and allowed) */
 	acl_t *denied_object_acl;
