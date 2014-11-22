@@ -21,6 +21,7 @@
 #include <microkernel/cpu.h>
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
+#include <microkernel/process.h>
 #include <mm/freelist.h>
 #include <mm/vad.h>
 #include <mm/addrspace.h>
@@ -38,6 +39,7 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	/* Current address space */
 	if (addrspace == ADDRSPACE_CURRENT)
 	{
+		/* SHOULD NEVER REACH HERE! */
 	}
 	/* System address space */
 	else if (addrspace == ADDRSPACE_SYSTEM)
@@ -98,6 +100,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 	/* Current address space */
 	if (addrspace == ADDRSPACE_CURRENT)
 	{
+		addrspace = &(process_current()->addrspace);
 	}
 	/* System address space */
 	else if (addrspace == ADDRSPACE_SYSTEM)
@@ -203,6 +206,31 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 /* Free regions of a virtual address space */
 void addrspace_free(addrspace_t *addrspace, void *ptr, size_t size)
 {
+}
+
+/* Query the protection of a virtual address */
+int addrspace_query(addrspace_t *addrspace, void *ptr)
+{
+	/* Current address space */
+	if (addrspace == ADDRSPACE_CURRENT)
+	{
+		addrspace = &(process_current()->addrspace);
+	}
+	/* System address space */
+	else if (addrspace == ADDRSPACE_SYSTEM)
+	{
+		addrspace = &system_addrspace;
+	}
+
+	/* Look up the VAD for the address */
+	vad_t *vad = vad_tree_lookup(addrspace->used_root, (vaddr_t) ptr);
+	if (!vad)
+	{
+		return PAGE_INVALID;
+	}
+
+	/* Return the protection flags */
+	return vad->flags;
 }
 
 /* Set the protection of a virtual address range */
