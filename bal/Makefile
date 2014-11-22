@@ -20,9 +20,9 @@ OBJFILES			:=
 # Source subdirectories
 I686SRCDIR			:= $(SRCDIR)/arch/i686
 AMD64SRCDIR			:= $(SRCDIR)/arch/amd64
-ARMSRCDIR				:= $(SRCDIR)/arch/arm
+ARMSRCDIR			:= $(SRCDIR)/arch/arm
 
-PCSRCDIR				:= $(SRCDIR)/platform/pc
+PCSRCDIR			:= $(SRCDIR)/platform/pc
 BIOSSRCDIR			:= $(SRCDIR)/platform/bios
 RASPISRCDIR			:= $(SRCDIR)/platform/raspi
 
@@ -58,16 +58,15 @@ OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(AMD64CFILES)) $(patsubs
 # Raspberry Pi
 else ifeq ($(MAKECMDGOALS),raspi)
 # The Raspberry Pi doesn't use nasm
-ASM						:= $(CCBASE)-as
-CFLAGS				:= $(CFLAGS)
+ASM					:= $(CCBASE)-as
 ASMFLAGS			:=
 
-ARMCFILES		:= $(shell find $(ARMSRCIDR) -type f -name "*.c")
-ARMSFILES		:= $(shell find $(ARMSRCDIR) -type f -name "*.s")
+ARMCFILES			:= $(shell find $(ARMSRCIDR) -type f -name "*.c")
+ARMSFILES			:= $(shell find $(ARMSRCDIR) -type f -name "*.s")
 
 
-RASPICFILES		:= $(shell find $(RASPISRCDIR) -type f -name "*.c")
-RASPISFILES		:= $(shell find $(RASPISRCDIR) -type f -name "*.s")
+RASPICFILES			:= $(shell find $(RASPISRCDIR) -type f -name "*.c")
+RASPISFILES			:= $(shell find $(RASPISRCDIR) -type f -name "*.s")
 
 MACROS				:=
 INCLUDES			:= -I./include/platform/raspi
@@ -78,10 +77,10 @@ i686-bios: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/bios/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-i686 -lc-i686 -ladt-i686 -lbootvid-i686
 amd64-bios: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/bios/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-amd64 -lc-amd64 -ladt-amd64 -lbootvid-amd64
-
 raspi: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/raspi/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
 		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/kernel.img
+
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.s
