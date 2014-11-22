@@ -59,13 +59,7 @@ void object_unref(void *object)
 {
 	/* Get the object header and retrieve the old reference count */
 	object_t *header = get_object_header(object);
-
-	/* Make sure it didn't already hit 0, which indicates deletion */
 	atomic_t old_value = atomic_read(&header->refcount);
-	if (old_value == 0)
-	{
-		return;
-	}
 
 	/* Try to decrement the reference count */
 	while(1)
@@ -82,12 +76,6 @@ void object_unref(void *object)
 				header->ops->delete(object);
 			}
 
-			return;
-		}
-
-		/* If it got changed to 0 behind our back, the object has already been deleted */
-		if (prev_value == 0)
-		{
 			return;
 		}
 
