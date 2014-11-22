@@ -47,4 +47,4 @@ raspi:
 		cd bal; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
 
 clean:
-		rm -f -- $(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a")
+		rm -f -- $(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a") bal/build/kernel.img
