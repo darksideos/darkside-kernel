@@ -40,7 +40,7 @@ typedef struct object
 void *object_query_interface(void *object, int iid);
 
 /* Reference and dereference an object */
-void object_ref(void *object);
+bool object_ref(void *object);
 void object_unref(void *object);
 
 /* Get and set the security descriptor of an object */
