@@ -59,7 +59,7 @@ OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(AMD64CFILES)) $(patsubs
 else ifeq ($(MAKECMDGOALS),raspi)
 # The Raspberry Pi doesn't use nasm
 ASM						:= $(CCBASE)-as
-CFLAGS				:= -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s
+CFLAGS				:= $(CFLAGS)
 ASMFLAGS			:=
 
 ARMCFILES		:= $(shell find $(ARMSRCIDR) -type f -name "*.c")
@@ -81,7 +81,7 @@ amd64-bios: $(OBJFILES)
 
 raspi: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/raspi/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
-
+		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/kernel.img
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.s
