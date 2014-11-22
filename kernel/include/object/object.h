@@ -15,6 +15,7 @@ typedef struct object_ops
 	/* Duplicating a handle to the object */
 
 	/* Deleting the object */
+	void (*delete)(void *object);
 
 	/* Wait on the object */
 } object_ops_t;
