@@ -38,7 +38,6 @@ amd64-pc: amd64-libs
 		#cd kernel; make amd64 CCBASE="$(CCBASE)"
 		#cd modules/test; make all CCBASE="$(CCBASE)"
 		img/utils/updateimage.sh
-
 raspi:
 		$(eval CCBASE ?= arm-none-eabi)
 		$(eval FS ?= ext2)

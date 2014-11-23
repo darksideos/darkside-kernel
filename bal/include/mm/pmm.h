@@ -31,4 +31,7 @@ paddr_t pmm_alloc_page();
 /* Claim a physical page */
 void pmm_claim_page(paddr_t address);
 
+/* Initialize the physical memory manager */
+void pmm_init(list_t *mem_map);
+
 #endif
