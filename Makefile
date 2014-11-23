@@ -43,6 +43,7 @@ raspi:
 		$(eval FS ?= ext2)
 		$(eval CFLAGS ?= -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s)
 
+		cd bootvid/raspi; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
 		cd bal; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
 
 clean:

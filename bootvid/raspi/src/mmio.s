@@ -1,6 +1,6 @@
 @ Copyright (C) 2014 DarkSide Project
 @ Authored by Theo Tosini <theo.tosini@gmail.com>
-@ loader.s - Raspberry Pi startup file - for starting from the default bootloader
+@ mmio.s - Read and write directly to registers on ARM
 @
 @ This program is free software; you can redistribute it and/or modify
 @ it under the terms of the GNU General Public License version 3 as
@@ -15,15 +15,12 @@
 @ along with this program; if not, write to the Free Software
 @ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-@ Global start function
-.global _start
-_start:
-	@ The stack pointer has to be moved to function on the raspi
-	mov sp, #0x8000
+.global mmio_write32
+mmio_write32:
+	str r1, [r0]
+	bx lr
 
-	@ Call our C main function (atags are preserved)
-	bl bal_main
-
-@ If the main function does not stop, hang
-hang:
-	b hang
+.global mmio_read32
+mmio_read32:
+	ldr r0, [r0]
+	bx lr
