@@ -46,8 +46,6 @@ void ba_main(loader_block_t *loader_block)
 	framebuffer_t *fb = graphics_init(0, 0, 0);
 	loader_block->fb = fb;
 
-	printf("VBE initialized\n");
-
 	/*paddr_t base = fb->buffer_phys;
 	vaddr_t length = (fb->width * fb->height * fb->bpp) + ((fb->height - 1) * fb->pitch);
 
@@ -67,16 +65,12 @@ void ba_main(loader_block_t *loader_block)
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
-
-	printf("Loaded kernel\n");
 	
 	/* Load the PS/2 keyboard and mouse drivers */
 	executable_t *ps2kbd_driver = elf_executable_load_object("/boot/ps2kbd.elf", 0x40000000, kernel);
 	executable_t *ps2mouse_driver = elf_executable_load_object("/boot/ps2mouse.elf", 0x50000000, kernel);
 	list_insert_tail(&modules, ps2kbd_driver);
 	list_insert_tail(&modules, ps2mouse_driver);
-
-	printf("Loaded modules\n");
 
 	/* Read and parse the module registry */
 
