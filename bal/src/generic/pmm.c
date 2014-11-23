@@ -134,7 +134,8 @@ void pmm_claim_page(paddr_t address)
 }
 
 /* Initialize the physical memory manager */
-void pmm_init(list_t *mem_map)
+list_t *pmm_init(list_t mem_map)
 {
 	phys_mem_map = mem_map;
+	return &phys_mem_map;
 }
