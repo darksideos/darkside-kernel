@@ -24,6 +24,7 @@
 #include <init/data.h>
 #include <init/loader.h>
 #include <mm/watermark.h>
+#include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <fs/fs.h>
 #include <fs/ext2.h>
@@ -31,9 +32,6 @@
 
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
-
-/* Initialize the physical memory manager */
-list_t *pmm_init(e820_entry_t *e820_entries, uint32_t num_e820_entries);
 
 /* Initialize the storage tree */
 void storage_init(uint32_t drive_number, uint32_t partition_start);
@@ -52,8 +50,7 @@ void bal_main(data_t *_data)
 	memcpy(data, _data, sizeof(data_t));
 
 	/* Initialize the physical and virtual memory managers */
-	list_t *phys_mem_map = e820_map_sanitize(data->e820_entries, data->num_e820_entries);
-	pmm_init(phys_mem_map);
+	list_t *phys_mem_map = pmm_init(e820_map_sanitize(data->e820_entries, data->num_e820_entries));
 	vmm_init();
 
 	/* Initialize the storage tree */
