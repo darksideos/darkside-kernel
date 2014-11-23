@@ -19,7 +19,7 @@
 #include <types.h>
 
 /* Current position of the allocator */
-static uint32_t position;
+static vaddr_t position;
 
 /* Allocate memory from the watermark allocator */
 void *malloc(size_t size)
@@ -35,7 +35,7 @@ void free(void *ptr)
 }
 
 /* Initialize the watermark allocator */
-void watermark_init()
+void watermark_init(vaddr_t start)
 {
-	position = 0x700;
+	position = start;
 }
