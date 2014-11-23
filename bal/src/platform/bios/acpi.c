@@ -141,22 +141,20 @@ struct acpi_table_header *acpi_find_table(uint32_t signature)
 /* Initialize the ACPI firmware interface */
 int acpi_init(loader_block_t *loader_block)
 {
-	/* RSDP pointer and extended RSDP pointer */
+	/* RSDP pointer */
 	struct rsdp *rsdp = NULL;
-	struct rsdp_ext *rsdp_ext = NULL;
 
 	/* First, search the EBDA for the RSDP */
 	for (vaddr_t i = 0x9FC00; i < 0xA0000; i += 0x10)
 	{
 		/* Candidate pointers */
 		struct rsdp *candidate = (struct rsdp*) i;
-		struct rsdp_ext *candidate_ext = (struct rsdp_ext*) i;
 
 		/* If the signature matches */
 		if (candidate->signature == RSDP_SIGNATURE)
 		{
 			/* Make sure the checksum is valid */
-			if (!do_checksum(candidate, sizeof(struct rsdp)))
+			if (!do_checksum(candidate, 20))
 			{
 				continue;
 			}
@@ -165,9 +163,8 @@ int acpi_init(loader_block_t *loader_block)
 			rsdp = candidate;
 
 			/* If the extended RSDP is supported, use it */
-			if (candidate->revision >= 2 && do_checksum(candidate_ext, sizeof(struct rsdp_ext)))
+			if (candidate->revision >= 2 && do_checksum(candidate, sizeof(struct rsdp)))
 			{
-				rsdp_ext = candidate_ext;
 				using_xsdt = true;
 			}
 
@@ -181,13 +178,12 @@ int acpi_init(loader_block_t *loader_block)
 	{
 		/* Candidate pointers */
 		struct rsdp *candidate = (struct rsdp*) i;
-		struct rsdp_ext *candidate_ext = (struct rsdp_ext*) i;
 
 		/* If the signature matches */
 		if (candidate->signature == RSDP_SIGNATURE)
 		{
 			/* Make sure the checksum is valid */
-			if (!do_checksum(candidate, sizeof(struct rsdp)))
+			if (!do_checksum(candidate, 20))
 			{
 				continue;
 			}
@@ -196,9 +192,8 @@ int acpi_init(loader_block_t *loader_block)
 			rsdp = candidate;
 
 			/* If the extended RSDP is supported, use it */
-			if (candidate->revision >= 2 && do_checksum(candidate_ext, sizeof(struct rsdp_ext)))
+			if (candidate->revision >= 2 && do_checksum(candidate, sizeof(struct rsdp)))
 			{
-				rsdp_ext = candidate_ext;
 				using_xsdt = true;
 			}
 
@@ -218,7 +213,7 @@ rsdp_found:
 	if (using_xsdt)
 	{
 		/* Map the XSDT */
-		xsdt = (struct xsdt*) map_acpi_table(rsdp_ext->xsdt_address);
+		xsdt = (struct xsdt*) map_acpi_table(rsdp->xsdt_address);
 
 		/* Verify its signature and checksum */
 		if ((xsdt->header.signature != XSDT_SIGNATURE) || !do_checksum(xsdt, xsdt->header.length))
@@ -228,7 +223,7 @@ rsdp_found:
 		}
 
 		/* Record its address in the loader block */
-		loader_block->xsdt = rsdp_ext->xsdt_address;
+		loader_block->xsdt = rsdp->xsdt_address;
 		loader_block->rsdt = 0;
 	}
 	else
