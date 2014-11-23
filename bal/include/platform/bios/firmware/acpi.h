@@ -11,20 +11,17 @@
 /* Root system description pointer structure */
 struct rsdp
 {
+	/* Common RSDP */
 	uint64_t signature;	
 	uint8_t checksum;
 	char oemid[6];
 	uint8_t revision;
 	uint32_t rsdt_address;
-} __attribute__ ((packed));
 
-/* Extended root system description pointer */
-struct rsdp_ext
-{
-	struct rsdp rsdp;
+	/* RSDP extension */
 	uint32_t length;
 	uint64_t xsdt_address;
-	uint8_t checksum;
+	uint8_t checksum2;
 	uint8_t reserved[3];
 } __attribute__ ((packed));
 
