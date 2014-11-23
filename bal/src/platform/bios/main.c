@@ -56,13 +56,11 @@ void bal_main(data_t *_data)
 	/* Initialize the storage tree */
 	storage_init(data->drive_number, data->partition_start);
 
-	printf("Storage done\n");
-
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();
 	ext2_init();
 
-	printf("FS stuff done\n");
+	printf("EXT2 done\n");
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
