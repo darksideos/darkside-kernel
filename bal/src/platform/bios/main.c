@@ -43,7 +43,7 @@ void bal_main(data_t *_data)
 	bootvid_init(COLOR_WHITE, COLOR_BLACK);
 
 	/* Set up the watermark allocator */
-	watermark_init();
+	watermark_init(0x700);
 
 	/* Copy the local data structure onto the heap */
 	data_t *data = (data_t*) malloc(sizeof(data_t));
