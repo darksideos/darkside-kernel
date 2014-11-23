@@ -34,7 +34,7 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 	uint64_t granted_access = 0;
 
 	/* First make sure none of our desired permissions are denied */
-	iterator_t iter = list_head(&sd->denied_object_acl->entries);
+	iterator_t iter = list_head(&descriptor->denied_object_acl->entries);
 
 	ace_t *entry = (ace_t*) iter.now(&iter);
 	while (entry)
@@ -56,9 +56,9 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 	}
 
 	/* Go through all the allowed permissions and record the ones we get */
-	iter = list_head(&sd->allowed_object_acl->entries);
+	iter = list_head(&descriptor->allowed_object_acl->entries);
 
-	ace_t *entry = (ace_t*) iter.now(&iter);
+	entry = (ace_t*) iter.now(&iter);
 	while (entry)
 	{
 		/* Skip the ACE if it doesn't mention our user or group */
