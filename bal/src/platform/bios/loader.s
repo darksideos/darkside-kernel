@@ -213,6 +213,15 @@ real_to_pm
 real_to_lm
 %endif
 
+; Clear the BSS before we use it
+extern bss, end
+mov edi, bss
+mov ecx, end
+sub ecx, edi
+xor eax, eax
+cld
+rep stosd
+
 ; Jump to our C code, passing the local data area
 extern bal_main
 %ifdef ARCH_I686
