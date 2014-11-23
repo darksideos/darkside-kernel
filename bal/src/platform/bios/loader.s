@@ -220,7 +220,7 @@ mov ecx, end
 sub ecx, edi
 xor eax, eax
 cld
-rep stosd
+rep stosb
 
 ; Jump to our C code, passing the local data area
 extern bal_main
