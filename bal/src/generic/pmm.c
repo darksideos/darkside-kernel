@@ -134,8 +134,7 @@ void pmm_claim_page(paddr_t address)
 }
 
 /* Initialize the physical memory manager */
-list_t *pmm_init(e820_entry_t *e820_entries, uint32_t num_e820_entries)
+void pmm_init(list_t *mem_map)
 {
-	phys_mem_map = e820_map_sanitize(e820_entries, num_e820_entries);
-	return &phys_mem_map;
+	phys_mem_map = mem_map;
 }
