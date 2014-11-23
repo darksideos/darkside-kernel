@@ -60,6 +60,8 @@ void bal_main(data_t *_data)
 	fs_init();
 	ext2_init();
 
+	printf("EXT2 done\n");
+
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));
 
