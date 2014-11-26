@@ -20,7 +20,7 @@ typedef struct inode
 	/* Creation, access, modification, and change time */
 	uint64_t crtime, atime, mtime, ctime;
 
-	/* Section object for caching */
+	/* Section objects (data and image) */
 
 	/* Extension, specific to the filesystem */
 	void *extension;

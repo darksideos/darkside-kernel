@@ -14,8 +14,19 @@ static object_t *get_object_header(void *ptr)
 /* Query an interface to an object */
 void *object_query_interface(void *object, int iid)
 {
+	/* Get the object header */
 	object_t *header = get_object_header(object);
-	return map_get(&header->interfaces, (uint64_t) iid);
+
+	/* If requested, return the object header */
+	if (iid == IID_OBJECT)
+	{
+		return (void*) header;
+	}
+	/* Otherwise, get the interface normally */
+	else
+	{
+		return map_get(&header->interfaces, (uint64_t) iid);
+	}
 }
 
 /* Reference an object */
