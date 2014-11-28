@@ -122,11 +122,6 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 {
 	ext2_superblock_t *superblock = (ext2_superblock_t*) filesystem->extension;
 
-	if (block == 0)
-	{
-		while(1);
-	}
-
 	/* Reading from a direct block pointer */
 	if (level == 0)
 	{
