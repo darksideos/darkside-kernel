@@ -8,6 +8,8 @@ if [ "$(uname -s)" == "Darwin" ]
 		sudo cp kldr/build/bootapp*.bin /mnt/hdd/boot
 		sudo cp kernel/build/kernel-*.elf /mnt/hdd/boot
 		sudo cp modules/drivers/input/ps2kbd/ps2kbd.elf /mnt/hdd/boot
+		sudo cp modules/drivers/input/ps2mouse/ps2mouse.elf /mnt/hdd/boot
+		sudo cp "graphics/boot screen.bmp" /mnt/hdd/boot
 		read -p "Waiting... "
 		sudo hdiutil eject /mnt/hdd
 fi
