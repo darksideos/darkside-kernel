@@ -140,12 +140,20 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			length = superblock->block_size;
 		}
 
-		/* Read the block into memory */
-		int status = read_block(filesystem, superblock->block_buffer, block);
-		if (status != 0)
+		/* Read the block into memory, if it's real */
+		if (block)
 		{
-			panic("Error reading ext2 block pointer\n");
-			return 0;
+			int status = read_block(filesystem, superblock->block_buffer, block);
+			if (status != 0)
+			{
+				panic("Error reading ext2 block pointer\n");
+				return 0;
+			}
+		}
+		/* Sparse block */
+		else
+		{
+			memset(superblock->block_buffer, 0, superblock->block_size);
 		}
 
 		/* Copy it into our buffer */
@@ -178,12 +186,15 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			length = superblock->block_size * pow(superblock->block_size / 4, level);
 		}
 
-		/* Read the block pointers into memory */
+		/* Read the block pointers into memory if the block is real */
 		uint32_t block_pointers[superblock->block_size / 4];
-		int status = read_block(filesystem, block_pointers, block);
-		if (status != 0)
+		if (block)
 		{
-			return 0;
+			int status = read_block(filesystem, block_pointers, block);
+			if (status != 0)
+			{
+				return 0;
+			}
 		}
 
 		/* Start reading each data block */
@@ -193,7 +204,17 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 
 		while (bytes_left > 0 && blocks_read < (superblock->block_size / 4))
 		{
-			bytes_read = read_block_pointer(filesystem, buffer, block_pointers[blocks_read], bytes_left, offset, level - 1);
+			/* Real block */
+			if (block)
+			{
+				bytes_read = read_block_pointer(filesystem, buffer, block_pointers[blocks_read], bytes_left, offset, level - 1);
+			}
+			/* Sparse block */
+			else
+			{
+				bytes_read = read_block_pointer(filesystem, buffer, 0, bytes_left, offset, level - 1);
+			}
+
 			bytes_left -= bytes_read;
 			buffer += bytes_read;
 			blocks_read++;
