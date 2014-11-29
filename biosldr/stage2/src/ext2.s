@@ -521,4 +521,4 @@ error:
 error_stage3	db "Unable to load stage3..."
 
 ; Fill the remaining bytes with zeroes
-;times 1024 - ($ - $$) db 0
+times 1024 - ($ - $$) db 0
