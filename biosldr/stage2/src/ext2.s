@@ -137,12 +137,9 @@ partition_read:
 	int 0x13
 	
 	; Hang if the disk read failed
-	jc .fail
+	jc error
 .success:
 	ret
-.fail:
-	mov ax, error_stage3
-	jmp error
 	
 ; Read a block (eax = Buffer, ebx = Block)
 read_block:
