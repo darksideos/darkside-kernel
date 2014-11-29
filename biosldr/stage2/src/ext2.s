@@ -392,7 +392,7 @@ ext2_read:
 	pop esi
 	sub esi, eax
 	
-	; If there are more bytes left to read, fail
+	; If there are more bytes left to read, fail (error here-ish)
 	cmp esi, 0
 	jge error
 .success:
