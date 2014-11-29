@@ -41,7 +41,7 @@ amd64-pc: amd64-libs
 raspi:
 		$(eval CCBASE ?= arm-none-eabi)
 		$(eval FS ?= ext2)
-		$(eval CFLAGS ?= -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s)
+		$(eval CFLAGS ?= -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -ffreestanding)
 
 		cd bootvid/raspi; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
 		cd bal; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
