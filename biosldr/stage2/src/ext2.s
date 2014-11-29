@@ -248,7 +248,7 @@ read_block_pointer:
 .indirect:
 	; Make sure we're not way over the max level
 	cmp edx, 3
-	ja near .fail
+	ja error
 	
 	; Read the indirect block pointers
 	push eax										; Save the buffer
@@ -331,9 +331,6 @@ read_block_pointer:
 	sub eax, esi									; EAX = length - bytes_left									
 .end:
 	ret
-.fail:
-	mov ax, error_stage3
-	jmp error
 	
 ; Read data from an inode (EAX = Inode, EBX = Buffer, ECX = Length)
 ext2_read:
