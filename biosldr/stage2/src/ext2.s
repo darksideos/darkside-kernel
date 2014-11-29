@@ -440,7 +440,7 @@ ext2_finddir:
 .loop:
 	; Make sure we haven't exceeded the length
 	cmp ecx, ebp
-	jge .fail
+	jge error
 	
 	; Save regs
 	push ebp
@@ -503,9 +503,6 @@ ext2_finddir:
 	mov eax, [DIRENT(ecx, inode)]
 	pop ebp
 	ret
-.fail:
-	mov ax, error_stage3
-	jmp error
 	
 boot			db "boot",0
 stage3			db "bootapp32.bin",0
