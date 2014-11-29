@@ -43,6 +43,8 @@ BIOSSFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.s")
 MACROS				:= -DARCH_I686
 INCLUDES			:= -I./include/platform/pc -I./include/platform/bios
 OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(GENCFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(I686CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(I686SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(BIOSCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(BIOSSFILES))
+
+
 # AMD64 BIOS-based PC
 else ifeq ($(MAKECMDGOALS),amd64-bios)
 CFLAGS				:= -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow $(CFLAGS)
@@ -59,6 +61,8 @@ BIOSSFILES			:= $(shell find $(BIOSSRCDIR) -type f -name "*.s")
 MACROS				:= -DARCH_AMD64
 INCLUDES			:= -I./include/platform/pc -I./include/platform/bios
 OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(GENCFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(AMD64CFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(AMD64SFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(BIOSCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(BIOSSFILES))
+
+
 # Raspberry Pi
 else ifeq ($(MAKECMDGOALS),raspi)
 # The Raspberry Pi doesn't use nasm
@@ -81,7 +85,7 @@ i686-bios: $(OBJFILES)
 amd64-bios: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/bios/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-amd64 -lc-amd64 -ladt-amd64 -lbootvid-amd64
 raspi: $(OBJFILES)
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/raspi/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../bootvid/build -lbootvid-raspi
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/raspi/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
 		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/kernel.img
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
