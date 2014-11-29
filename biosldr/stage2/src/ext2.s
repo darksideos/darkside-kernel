@@ -52,7 +52,7 @@ read_superblock:
 	; Check the signature
 	mov ax, [SUPERBLOCK(signature)]
 	cmp ax, 0xEF53
-	jne .fail
+	jne error
 .success:
 	; Calculate and store the block size
 	mov ecx, [SUPERBLOCK(block_size)]
@@ -65,10 +65,6 @@ read_superblock:
 	cmp edx, 1
 	jge detect_version
 	mov [EXT_SUPERBLOCK(inode_size)], word 128
-	jge detect_version
-.fail:
-	mov ax, error_stage3
-	jmp error
 
 ; Detect the version of stage3
 detect_version:
@@ -522,7 +518,7 @@ stage3			db "bootapp32.bin",0
 
 ; Error function
 error:
-	mov bp, ax					; message
+	mov bp, error_stage3		; message
 	mov al, 0x01				; write mode
 	mov ah, 0x13				; interrupt #
 	xor bh, bh				; page #
