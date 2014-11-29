@@ -394,11 +394,8 @@ ext2_read:
 	
 	; If there are more bytes left to read, fail
 	cmp esi, 0
-	jge .fail
+	jge error
 .success:
-	ret
-.fail:
-	mov ax, error_stage3
 	ret
 	
 ; Calculate the length of a string (EAX = String)
