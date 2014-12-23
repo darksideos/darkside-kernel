@@ -38,6 +38,7 @@ void *directory_finddir(directory_t *dir, char *name)
 	}
 
 	/* Request it from the backing store */
+	rwlock_write_acquire(&dir->dirents_lock);
 	dirent = (dirent_t*) slab_cache_alloc(dirent_cache);
 	int status = dir->ops->finddir(dir, name, &dirent);
 	if (status != 0)
@@ -46,7 +47,6 @@ void *directory_finddir(directory_t *dir, char *name)
 	}
 
 	/* Add the entry we've read to the cache and return it */
-	rwlock_write_acquire(&dir->dirents_lock);
 	dict_set(&dir->dirents, name, dirent);
 	rwlock_write_release(&dir->dirents_lock);
 	return dirent->object;
