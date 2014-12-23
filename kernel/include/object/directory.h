@@ -1,6 +1,8 @@
 #ifndef __DIRECTORY_H
 #define __DIRECTORY_H
 
+#include <microkernel/rwlock.h>
+
 /* Directory operations */
 struct directory;
 struct dirent;
@@ -35,6 +37,7 @@ typedef struct directory
 
 	/* Dictionary of directory entries */
 	dict_t dirents;
+	rwlock_t dirents_lock;
 } directory_t;
 
 /* Initialize a directory object */
