@@ -21,7 +21,7 @@
 
 #include <microkernel/rwlock.h>
 
-/* Directory operations */
+/* Backing store operations */
 struct directory;
 struct dirent;
 typedef struct directory_ops
