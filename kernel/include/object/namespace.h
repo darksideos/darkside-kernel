@@ -2,7 +2,7 @@
 #define __NAMESPACE_H
 
 /* Look up an object in the object namespace */
-void *namespace_finddir(char *path);
+void *namespace_finddir(char *path, int iid);
 
 /* Name an object in the object namespace */
 int namespace_hardlink(char *path, void *object);
