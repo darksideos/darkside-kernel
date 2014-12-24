@@ -86,3 +86,14 @@ int namespace_hardlink(char *path, void *object)
 	directory_t *parent = (directory_t*) namespace_finddir(path, IID_DIRECTORY);
 	return directory_hardlink(parent, child_name, object);
 }
+
+/* Remove an object from the object namespace */
+int namespace_delete(char *path)
+{
+	/* Split the path into parent and child components */
+	char *child_name = parent_child_split(path);
+
+	/* Get the parent directory and remove the child */
+	directory_t *parent = (directory_t*) namespace_finddir(path, IID_DIRECTORY);
+	return directory_delete(parent, child_name);
+}
