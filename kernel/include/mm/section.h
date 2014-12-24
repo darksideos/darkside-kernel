@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * inode.h - Inode public API
+ * section.h - Section object public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,32 +16,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __INODE_H
-#define __INODE_H
+#ifndef __SECTION_H
+#define __SECTION_H
 
-#include <mm/section.h>
+#include <mm/addrspace.h>
 
-#define INODE_FILE			0
-#define INODE_DIRECTORY		1
-#define INODE_SYMLINK		2
-
-/* Inode structure */
-typedef struct inode
+/* Section object structure */
+typedef struct section
 {
-	/* Filesystem the inode resides on */
-	struct filesystem *filesystem;
+} section_t;
 
-	/* Inode type */
-	int type;
+/* Create a section object */
+section_t *section_create(void *object, int flags, uint64_t size);
 
-	/* Data size */
-	uint64_t size;
+/* Map and unmap views of section objects */
+void *section_map(section_t *section, addrspace_t *addrspace, void *ptr, uint64_t offset, uint64_t length, int flags);
+int section_unmap(section_t *section, addrspace_t *addrspace, void *ptr, uint64_t length);
 
-	/* Creation, access, modification, and change time */
-	uint64_t crtime, atime, mtime, ctime;
-
-	/* Section objects (data and image) */
-	section_t *data_section, *image_section;
-} inode_t;
+/* Flush a view of a section object */
+int section_flush(section_t *section, addrspace_t *addrspace, void *ptr, uint64_t length);
 
 #endif
