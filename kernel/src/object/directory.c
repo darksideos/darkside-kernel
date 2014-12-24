@@ -124,7 +124,7 @@ int directory_rename(directory_t *dir, char *oldname, char *newname)
 	/* Add it under the new name */
 	dict_append(&dir->dirents, newname, dirent);
 
-	/* Write the new entry to the backing store if it exists */
+	/* Write the entry to the backing store if it exists */
 	if (dir->ops)
 	{
 		/* Try to do the write */
@@ -141,6 +141,41 @@ int directory_rename(directory_t *dir, char *oldname, char *newname)
 			free(dirent->name);
 			dirent->name = old_dirent_name;
 
+			rwlock_write_release(&dir->dirents_lock);
+			return -1;
+		}
+	}
+
+	rwlock_write_release(&dir->dirents_lock);
+	return 0;
+}
+
+/* Remove a directory entry */
+int directory_delete(directory_t *dir, char *name)
+{
+	/* Grab the lock for write access */
+	rwlock_write_acquire(&dir->dirents_lock);
+
+	/* Remove the entry from the cache */
+	dirent_t *dirent = (dirent_t*) dict_remove(&dir->dirents, name);
+
+	/* If it doesn't exist, we can't delete it */
+	if (!dirent)
+	{
+		rwlock_write_release(&dir->dirents_lock);
+		return -1;
+	}
+
+	/* Remove the entry from the backing store if one exists */
+	if (dir->ops)
+	{
+		/* Try to do the removal */
+		int status = dir->ops->delete(dir, name);
+
+		/* If the write fails, roll back everything */
+		if (status != 0)
+		{
+			dict_append(&dir->dirents, name, dirent);
 			rwlock_write_release(&dir->dirents_lock);
 			return -1;
 		}
