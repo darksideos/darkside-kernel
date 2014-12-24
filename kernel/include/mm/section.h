@@ -21,9 +21,17 @@
 
 #include <mm/addrspace.h>
 
+/* Backing store operations */
+typedef struct mappable_ops
+{
+} mappable_ops_t;
+
 /* Section object structure */
 typedef struct section
 {
+	/* Backing object */
+	void *object;
+	mappable_ops_t *backing_ops;
 } section_t;
 
 /* Create a section object */
