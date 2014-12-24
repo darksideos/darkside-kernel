@@ -28,6 +28,7 @@
 
 /* Memory manager interfaces */
 #define IID_SECTION		3
+#define IID_MAPPABLE	17
 
 /* Process and thread manager interfaces */
 #define IID_PROCESS		4
