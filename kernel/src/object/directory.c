@@ -43,6 +43,7 @@ void *directory_finddir(directory_t *dir, char *name)
 	int status = dir->ops->finddir(dir, name, &dirent);
 	if (status != 0)
 	{
+		rwlock_write_release(&dir->dirents_lock);
 		return NULL;
 	}
 
@@ -61,6 +62,7 @@ int directory_hardlink(directory_t *dir, char *name, void *object)
 	/* If the entry already exists, fail the request */
 	if (dict_get(&dir->dirents, name))
 	{
+		rwlock_write_release(&dir->dirents_lock);
 		return -1;
 	}
 
@@ -87,9 +89,63 @@ int directory_hardlink(directory_t *dir, char *name, void *object)
 			dict_remove(&dir->dirents, name);
 			free(dirent->name);
 			slab_cache_free(dirent_cache, dirent);
+			rwlock_write_release(&dir->dirents_lock);
 			return -1;
 		}
 	}
 
+	rwlock_write_release(&dir->dirents_lock);
+	return 0;
+}
+
+/* Rename a directory entry */
+int directory_rename(directory_t *dir, char *oldname, char *newname)
+{
+	/* Grab the lock for write access */
+	rwlock_write_acquire(&dir->dirents_lock);
+
+	/* Remove the entry from the cache */
+	dirent_t *dirent = (dirent_t*) dict_remove(&dir->dirents, oldname);
+
+	/* If it doesn't exist, we can't rename it */
+	if (!dirent)
+	{
+		rwlock_write_release(&dir->dirents_lock);
+		return -1;
+	}
+
+	/* Change the internal name */
+	char *old_dirent_name = dirent->name;
+	size_t name_length = strlen(name)
+	dirent->name = (char*) malloc(name_length+1);
+	strncpy(dirent->name, name, name_length);
+	dirent->name[name_length] = 0;
+
+	/* Add it under the new name */
+	dict_append(&dir->dirents, newname, dirent);
+
+	/* Write the new entry to the backing store if it exists */
+	if (dir->ops)
+	{
+		/* Try to do the write */
+		int status = dir->ops->rename(dir, oldname, newname);
+
+		/* If the write fails, roll back everything */
+		if (status != 0)
+		{
+			/* Rename it back to what it was before */
+			dict_remove(&dir->dirents, newname);
+			dict_append(&dir->dirents, oldname, dirent);
+
+			/* Put back the old internal name */
+			free(dirent->name);
+			dirent->name = old_dirent_name;
+
+			rwlock_write_release(&dir->dirents_lock);
+			return -1;
+		}
+	}
+
+	rwlock_write_release(&dir->dirents_lock);
 	return 0;
 }
