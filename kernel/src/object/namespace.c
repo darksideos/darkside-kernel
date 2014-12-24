@@ -87,6 +87,51 @@ int namespace_hardlink(char *path, void *object)
 	return directory_hardlink(parent, child_name, object);
 }
 
+/* Rename an object in the object namespace */
+int namespace_rename(char *oldpath, char *newpath)
+{
+	/* Split both paths into parent and child components */
+	char *old_child_name = parent_child_split(oldpath);
+	char *new_child_name = parent_child_split(newpath);
+
+	/* If both are in the same parent directory, we can optimize somewhat */
+	if ((strlen(old_child_name) == strlen(new_child_name)) && !strcmp(old_child_name, new_child_name))
+	{
+		/* Get the parent directory and rename the child */
+		directory_t *parent = (directory_t*) namespace_finddir(oldpath, IID_DIRECTORY);
+		return directory_rename(parent, old_child_name, new_child_name);
+	}
+	/* Otherwise, delete from original directory and add in new one */
+	else
+	{
+		/* Get both parents */
+		directory_t *old_parent = (directory_t*) namespace_finddir(oldpath, IID_DIRECTORY);
+		directory_t *new_parent = (directory_t*) namespace_finddir(newpath, IID_DIRECTORY);
+
+		/* Get the object from the old directory */
+		void *object = directory_finddir(old_parent, old_child_name);
+		if (!object)
+		{
+			return -1;
+		}
+
+		/* Try to delete the object */
+		if (directory_delete(old_parent, old_child_name) != 0)
+		{
+			return -1;
+		}
+
+		/* Now try to add it to the new directory, and if that fails, roll back */
+		if (directory_hardlink(new_parent, new_child_name, object) != 0)
+		{
+			directory_hardlink(old_parent, old_child_name, object);
+			return -1;
+		}
+
+		return 0;
+	}
+}
+
 /* Remove an object from the object namespace */
 int namespace_delete(char *path)
 {
