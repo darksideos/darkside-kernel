@@ -15,8 +15,9 @@ void *namespace_finddir(char *path, int iid)
 	directory_t *current = root;
 
 	/* Go through each element of the path */
-	char *save, *element;
+	char *save, *element, *next;
 	element = strtok_r(path, "/", &save);
+	next = strtok_r(NULL, "/", &save);
 	while (element)
 	{
 		/* Find the next spot down */
@@ -26,10 +27,8 @@ void *namespace_finddir(char *path, int iid)
 			return NULL;
 		}
 
-		/* If this is what we want, return it */
-		size_t element_len = strlen(element)
-		char *last_elem = path - (element_len + 1);
-		if (!memcmp(last_elem, element, element_len))
+		/* If the entire path has been parsed, return the object */
+		if (!next)
 		{
 			return map_get(&child->interfaces, (uint64_t) iid);
 		}
@@ -42,7 +41,8 @@ void *namespace_finddir(char *path, int iid)
 		}
 
 		/* Get the next path element */
-		element = strtok_r(NULL, "/", &save);
+		element = next;
+		next = strtok_r(NULL, "/", &save);
 	}
 
 	return NULL;
