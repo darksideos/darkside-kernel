@@ -33,7 +33,7 @@ int directory_init(directory_t *dir, directory_ops_t *ops)
 {
 	dir->ops = ops;
 	dir->dirents = dict_create();
-	rwlock_init(&dir->dirents);
+	rwlock_init(&dir->dirents_lock);
 }
 
 /* Look up an object in a directory by name */
@@ -58,7 +58,7 @@ void *directory_finddir(directory_t *dir, char *name)
 	/* Request it from the backing store */
 	rwlock_write_acquire(&dir->dirents_lock);
 	dirent = (dirent_t*) slab_cache_alloc(dirent_cache);
-	int status = dir->ops->finddir(dir, name, &dirent);
+	int status = dir->ops->finddir(dir, name, dirent);
 	if (status != 0)
 	{
 		rwlock_write_release(&dir->dirents_lock);
@@ -85,9 +85,9 @@ int directory_hardlink(directory_t *dir, char *name, void *object)
 	}
 
 	/* Allocate a new directory entry object and fill it out */
-	dirent = (dirent_t*) slab_cache_alloc(dirent_cache);
+	dirent_t *dirent = (dirent_t*) slab_cache_alloc(dirent_cache);
 	dirent->object = object;
-	size_t name_length = strlen(name)
+	size_t name_length = strlen(name);
 	dirent->name = (char*) malloc(name_length+1);
 	strncpy(dirent->name, name, name_length);
 	dirent->name[name_length] = 0;
@@ -134,9 +134,9 @@ int directory_rename(directory_t *dir, char *oldname, char *newname)
 
 	/* Change the internal name */
 	char *old_dirent_name = dirent->name;
-	size_t name_length = strlen(name)
+	size_t name_length = strlen(newname);
 	dirent->name = (char*) malloc(name_length+1);
-	strncpy(dirent->name, name, name_length);
+	strncpy(dirent->name, newname, name_length);
 	dirent->name[name_length] = 0;
 
 	/* Add it under the new name */

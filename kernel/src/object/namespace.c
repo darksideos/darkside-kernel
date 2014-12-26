@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <string.h>
+#include <dict.h>
 #include <object/object.h>
 #include <object/interface.h>
 #include <object/directory.h>
