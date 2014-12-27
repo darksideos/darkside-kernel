@@ -278,10 +278,13 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 	bytes_read = fs_read(elf, section_strtab, shdr.offset, shdr.size);
 	if (bytes_read != shdr.size) return NULL;
 
-	/* ELF object in memory */
+	/* Address to read the ELF section to */
 	vaddr_t end = address;
 	
+	/* String and symbol table section headers */
 	elf_section_header_t strtab_shdr, symtab_shdr;
+	bool read_strtab = false;
+	bool read_symtab = false;
 
 	/* Go through each section header and load it */
 	vaddr_t section_addrs[header.num_section_headers];
@@ -352,15 +355,28 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 		if (!strcmp(&section_strtab[shdr.name], ".strtab"))
 		{
 			strtab_shdr = shdr;
+			read_strtab = true;
 		}
 		else if (!strcmp(&section_strtab[shdr.name], ".symtab"))
 		{
 			symtab_shdr = shdr;
+			read_symtab = true;
 		}
 		
 		offset += sizeof(elf_section_header_t);
 	}
+
+	/* Make sure we actually read the string and symbol tables */
+	if (!read_strtab)
+	{
+		panic("ELF module does not contain string table\n");
+	}
+	else if (!read_symtab)
+	{
+		panic("ELF module does not contain symbol table\n");
+	}
 	
+	/* Now read the relocation section headers (SINGER - THIS IS TERRIBLE) */
 	elf_symbol_t sym;
 	elf_section_header_t rel_shdr, rel_symtab_shdr, rel_strtab_shdr;
 	offset = header.section_header_table_offset;
