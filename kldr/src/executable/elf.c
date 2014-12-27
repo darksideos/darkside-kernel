@@ -221,7 +221,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			
 			/* Iterate through all symbols, finding the GLOBAL ones (ones that need to be exported) */
 			elf_symbol_t sym;
-			for (int symbol = 0; symbol < shdr.size; symbol += sizeof(elf_symbol_t))
+			for (unsigned symbol = 0; symbol < shdr.size; symbol += sizeof(elf_symbol_t))
 			{
 				/* Read the symbol */
 				bytes_read = fs_read(elf, &sym, shdr.offset + symbol, sizeof(elf_symbol_t));
@@ -233,7 +233,7 @@ executable_t *elf_executable_load_executable(char *filename)
 				/* Add it to the kernel's exports if it's an exported function */
 				if (ELF32_SYMBOL_BIND(sym.info) == ELF_SYMBOL_BIND_GLOBAL && ELF32_SYMBOL_TYPE(sym.info) == ELF_SYMBOL_TYPE_FUNC)
 				{
-					dict_append(&executable->exports, &strtab[sym.name], sym.value);
+					dict_append(&executable->exports, &strtab[sym.name], (void*)sym.value);
 				}
 			}
 		}
@@ -326,11 +326,11 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 					/* Read the data from the file */
 					if (size < 0x1000)
 					{
-						bytes_read = fs_read(elf, end + page, shdr.offset + page, size);
+						bytes_read = fs_read(elf, (void*) end + page, shdr.offset + page, size);
 					}
 					else
 					{
-						bytes_read = fs_read(elf, end + page, shdr.offset + page, 0x1000);
+						bytes_read = fs_read(elf, (void*) end + page, shdr.offset + page, 0x1000);
 						size -= 0x1000;
 					}
 				}
@@ -341,7 +341,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 				for (vaddr_t page = 0; page < shdr.size; page += 0x1000)
 				{
 					map_page(end + page, pmm_alloc_page(), page_flags);
-					memset(end + page, 0, 0x1000);
+					memset((void*) end + page, 0, 0x1000);
 				}
 			}
 			
@@ -391,7 +391,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 			
 			/* Read each relocation entry and do it */
 			elf_rel32_t rel;
-			for (int i = 0; i < rel_shdr.size; i += rel_shdr.subentry_size)
+			for (unsigned i = 0; i < rel_shdr.size; i += rel_shdr.subentry_size)
 			{
 				bytes_read = fs_read(elf, &rel, rel_shdr.offset + i, rel_shdr.subentry_size);
 				if (bytes_read != rel_shdr.subentry_size)
@@ -406,7 +406,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 					return NULL;
 				}
 				
-				uint32_t *ptr = section_addrs[rel_shdr.info] + rel.offset;
+				uint32_t *ptr = (uint32_t*) (section_addrs[rel_shdr.info] + rel.offset);
 				
 				/* S represents the symbol's value */
 				uint32_t S;
@@ -415,7 +415,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 				if (sym.section_index == ELF_SN_UNDEF)
 				{
 					/* The value is the virtual address of the kernel symbol */
-					S = dict_get(&(kernel->exports), &rel_strtab[sym.name]);
+					S = (uint32_t) dict_get(&(kernel->exports), &rel_strtab[sym.name]);
 				}
 				else
 				{
@@ -458,7 +458,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 	executable->end = end;
 	
 	/* Check every symbol, looking for 'module_init' */
-	for (int symbol = 0; symbol < symtab_shdr.size; symbol += sizeof(elf_symbol_t))
+	for (unsigned symbol = 0; symbol < symtab_shdr.size; symbol += sizeof(elf_symbol_t))
 	{
 		bytes_read = fs_read(elf, &sym, symtab_shdr.offset + symbol, sizeof(elf_symbol_t));
 		if (bytes_read != sizeof(elf_symbol_t))
