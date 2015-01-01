@@ -54,8 +54,8 @@ static void io_write_8(uint32_t port, uint8_t data)
 	__asm__ volatile ("outb %1, %0" : : "dN" ((uint16_t)port), "a" (data));
 }
 
-/* Allocate the per-CPU and NUMA domain data structures */
-void per_cpu_numa_area_alloc(loader_block_t *loader_block)
+/* Detect the CPUs and NUMA domains in the system */
+void topology_detect(loader_block_t *loader_block)
 {
 	/* Set the start of the per-CPU data area */
 	vaddr_t cpu_data_area = loader_block->system_free_start;
