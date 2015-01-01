@@ -33,7 +33,7 @@ void hyperspace_alloc(loader_block_t *loader_block)
 	/* Allocate the hyperspace region */
 	for (vaddr_t i = hyperspace; i < hyperspace + (NUM_HYPERSPACE_PAGES * 0x1000); i += 0x1000)
 	{
-		map_page(i, 0, PAGE_READ | PAGE_WRITE);
+		vmm_map_page(i, 0, PAGE_READ | PAGE_WRITE);
 	}
 
 	/* Mark the start of available memory in the system address space */

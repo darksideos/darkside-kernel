@@ -124,7 +124,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			for (uint32_t j = 0; j < file_size; j += 0x1000)
 			{
 				/* Allocate pages and map them */
-				map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
+				vmm_map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
 
 				/* Read the data from the file */
 				if (phdr.file_size < 0x1000)
@@ -163,7 +163,7 @@ executable_t *elf_executable_load_executable(char *filename)
 			for (uint32_t j = 0; j < mem_size; j += 0x1000)
 			{
 				/* Allocate pages and map them */
-				map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
+				vmm_map_page(phdr.virtual_address + j, pmm_alloc_page(), page_flags);
 
 				/* Clear the memory */
 				if (phdr.mem_size < 0x1000)
@@ -324,7 +324,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 				for (vaddr_t page = 0; page < size; page += 0x1000)
 				{
 					/* Allocate pages and map them */
-					map_page(end + page, pmm_alloc_page(), page_flags);
+					vmm_map_page(end + page, pmm_alloc_page(), page_flags);
 
 					/* Read the data from the file */
 					if (size < 0x1000)
@@ -343,7 +343,7 @@ executable_t *elf_executable_load_object(char *filename, vaddr_t address, execut
 				/* Allocate a page and zero it */
 				for (vaddr_t page = 0; page < shdr.size; page += 0x1000)
 				{
-					map_page(end + page, pmm_alloc_page(), page_flags);
+					vmm_map_page(end + page, pmm_alloc_page(), page_flags);
 					memset((void*) end + page, 0, 0x1000);
 				}
 			}
