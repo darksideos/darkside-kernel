@@ -55,6 +55,9 @@ int device_enumerate(device_t *device);
 /* Look up the child of a device by number */
 device_t *device_get_child(device_t *device, int child_num);
 
+/* Add a child device to a device */
+void device_add_child(device_t *device, device_t *child);
+
 /* Get an iterator for the device's children */
 iterator_t device_children(device_t *device);
 
