@@ -1,6 +1,7 @@
 #include <types.h>
 #include <list.h>
 #include <dict.h>
+#include <init/loader.h>
 #include <device/device.h>
 #include <device/devtree.h>
 
