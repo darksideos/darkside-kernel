@@ -33,8 +33,8 @@
 /* Boot Application main function */
 void ba_main(loader_block_t *loader_block);
 
-/* Initialize the storage tree */
-void storage_init(uint32_t drive_number, uint32_t partition_start);
+/* Initialize the devuce tree */
+int devtree_init(uint32_t drive_number, uint32_t partition_start);
 
 /* Boot Abstraction Layer main function */
 void bal_main(data_t *_data)
@@ -53,14 +53,12 @@ void bal_main(data_t *_data)
 	list_t *phys_mem_map = pmm_init(e820_map_sanitize(data->e820_entries, data->num_e820_entries));
 	vmm_init();
 
-	/* Initialize the storage tree */
-	storage_init(data->drive_number, data->partition_start);
+	/* Initialize the device tree */
+	devtree_init(data->drive_number, data->partition_start);
 
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();
 	ext2_init();
-
-	printf("EXT2 done\n");
 
 	/* Generate a loader block to pass to the Boot Application */
 	loader_block_t *loader_block = (loader_block_t*) malloc(sizeof(loader_block_t));

@@ -48,10 +48,10 @@ static blockdev_ops_t disk_ops =
 {
 	.device_ops =
 	{
-		.enumerate = &blockdev_enumerate;
-	};
-	.read = &disk_read;
-	.write = &disk_write;
+		.enumerate = &blockdev_enumerate
+	},
+	.read = &disk_read,
+	.write = &disk_write
 };
 
 /* Create a BIOS disk object */
@@ -65,7 +65,7 @@ blockdev_t *disk_create(uint32_t drive_number, uint32_t partition_start)
 	boot_disk.device.type = DEVICE_BLOCKDEV;
 	boot_disk.device.children = list_create();
 	boot_disk.device.num_children = 0;
-	boot_disk.properties = dict_create();
+	boot_disk.device.properties = dict_create();
 	boot_disk.block_size = 512;
 
 	/* Set its properties */

@@ -1,7 +1,7 @@
 #ifndef __FILESYSTEM_H
 #define __FILESYSTEM_H
 
-#include <storage/device.h>
+#include <device/device.h>
 
 /* Filesystem operations structure */
 struct filesystem;
