@@ -36,7 +36,7 @@ array_t array_create(uint32_t itemsz, uint32_t preallocated)
 
 	/* Reserve space for the array and return it */
 	array_reserve(&array, preallocated);
-	
+
 	return array;
 }
 
@@ -59,8 +59,8 @@ void array_destroy(array_t *array)
 /* Append an item to a array */
 uint32_t array_append(array_t *array, void *item)
 {
-	/* Reserve more space */
-	array_reserve(array, array->occupied + 1);
+	/* If the array is at max capacity, double it */
+	if (array->occupied == array->allocated) array_resize(array, array->allocated * 2);
 
 	/* Copy the item into the array */
 	uint8_t *bytes = (uint8_t*) array->data;
@@ -81,6 +81,8 @@ void array_remove(array_t *array, uint32_t index)
 		uint8_t *bytes = (uint8_t*) array->data;
 		memmove(&bytes[index * array->itemsz], &bytes[(index+1) * array->itemsz], (array->allocated - index) * array->itemsz);
 		array->occupied--;
+
+		if (array->occupied > 0 && array->occupied == array->allocated / 4) array_reserve(array, array->allocated / 2);
 	}
 }
 
@@ -118,14 +120,16 @@ static void array_reserve(array_t *array, uint32_t allocate)
 	{
 		return;
 	}
-	
+
 	/* We need more space */
 	void *newdata = malloc(array->itemsz * allocate);
-	
+
 	if (array->data)
 	{
 		memcpy(newdata, array->data, array->itemsz * array->occupied);
 	}
+
+	free(array->data);
 
 	array->data = newdata;
 	array->allocated = allocate;

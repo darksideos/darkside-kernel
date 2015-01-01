@@ -4,8 +4,8 @@
 /* Dynamic array structure */
 typedef struct array
 {
-	void *data;			/* Data in the array */
-	uint32_t itemsz;	/* Size of each item */	
+	void *data;		/* Data in the array */
+	uint32_t itemsz;	/* Size of each item */
 	uint32_t occupied;	/* Number of items */
 	uint32_t allocated;	/* Length of the data */
 } array_t;
