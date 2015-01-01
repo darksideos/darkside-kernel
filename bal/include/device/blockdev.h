@@ -26,6 +26,9 @@ typedef struct blockdev
 
 	/* Sector size */
 	size_t block_size;
+
+	/* Filesystem name */
+	char *fs_name;
 } blockdev_t;
 
 /* Read from a block device */
