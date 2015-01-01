@@ -5,25 +5,18 @@
 #include <device/device.h>
 #include <device/devtree.h>
 
-/* Enumerate the root of the device tree */
-static int root_enumerate(device_t *device)
+/* Initialize the device tree on BIOS systems */
+int devtree_init(uint32_t drive_number, uint32_t partition_start)
 {
-}
-
-/* Device tree root operations */
-static device_ops_t root_ops =
-{
-	.enumerate = &root_enumerate;
-};
-
-/* Initialize the device tree */
-int devtree_init()
-{
-	/* Create the root of the device tree and enumerate it */
+	/* Create the root of the device tree */
 	device_t *root = devtree_root();
-	root->ops = &root_ops;
+	root->ops = NULL;
 	root->type = DEVICE_OTHER;
 	root->children = list_create();
 	root->num_children = 0;
-	return device_enumerate(root);
+
+	/* Add the boot disk to the device tree and enumerate it */
+	blockdev_t *boot_disk = disk_create(drive_number, partition_start);
+	device_add_child(root, (device_t*)boot_disk);
+	return device_enumerate(boot_disk);
 }
