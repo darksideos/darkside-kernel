@@ -24,8 +24,8 @@
 #include <firmware/acpi.h>
 #include <firmware/srat.h>
 
-/* Detect the NUMA domain of each memory area */
-void memory_numa_domains_detect(loader_block_t *loader_block)
+/* Detect the NUMA memory mappings */
+void numa_mappings_detect(loader_block_t *loader_block)
 {
 	/* Get the SRAT */
 	struct srat *srat = (struct srat*) acpi_find_table(SRAT_SIGNATURE);
