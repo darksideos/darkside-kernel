@@ -17,18 +17,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
-#include <storage/blockdev.h>
+#include <device/blockdev.h>
 
 /* Read from a block device */
 uint64_t blockdev_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numblocks)
 {
 	blockdev_ops_t *ops = (blockdev_ops_t*) blockdev->device.ops;
-	return ops->read(blockdev, buffer, start, numblocks);
+	if (ops->read)
+	{
+		return ops->read(blockdev, buffer, start, numblocks);
+	}
+	return 0;
 }
 
 /* Write to a block device */
 uint64_t blockdev_write(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numblocks)
 {
 	blockdev_ops_t *ops = (blockdev_ops_t*) blockdev->device.ops;
-	return ops->write(blockdev, buffer, start, numblocks);
+	if (ops->write)
+	{
+		return ops->write(blockdev, buffer, start, numblocks);
+	}
+	return 0;
 }
