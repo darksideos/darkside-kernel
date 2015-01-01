@@ -47,6 +47,11 @@ int blockdev_enumerate(device_t *device)
 			panic("MBR support not implemented!\n");
 		}
 	}
+	/* No partitioning */
+	else
+	{
+		return 0;
+	}
 }
 
 /* Read from a block device */
