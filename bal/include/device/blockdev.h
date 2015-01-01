@@ -2,7 +2,7 @@
 #define __BLOCKDEV_H
 
 #include <list.h>
-#include <storage/device.h>
+#include <device/device.h>
 
 /* Block device operations */
 struct blockdev;
@@ -25,7 +25,7 @@ typedef struct blockdev
 	device_t device;
 
 	/* Sector size */
-	uint32_t block_size;
+	size_t block_size;
 } blockdev_t;
 
 /* Read from a block device */
