@@ -44,12 +44,14 @@ int blockdev_enumerate(device_t *device)
 		/* Only standard MBR */
 		else
 		{
-			panic("MBR support not implemented!\n");
+			return mbr_partitions_enumerate(blockdev, first_sector);
 		}
 	}
 	/* No partitioning */
 	else
 	{
+		/* Perform filesystem recognition on the device */
+
 		return 0;
 	}
 }
