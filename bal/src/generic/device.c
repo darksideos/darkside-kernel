@@ -51,7 +51,7 @@ device_t *device_get_child(device_t *device, int child_num)
 	}
 
 	/* Find the entry corresponding to the number */
-	iterator_t iter = list_head(&parent->children);
+	iterator_t iter = list_head(&device->children);
 
 	device_t *entry = (device_t*) iter.now(&iter);
 	while (child_num > 0)
@@ -67,6 +67,12 @@ device_t *device_get_child(device_t *device, int child_num)
 		}
 	}
 	return entry;
+}
+
+/* Get an iterator for the device's children */
+iterator_t device_children(device_t *device)
+{
+	return list_head(&device->children);
 }
 
 /* Look up the a property of a device by name */
