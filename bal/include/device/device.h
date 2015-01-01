@@ -13,12 +13,6 @@
 struct device;
 typedef struct device_ops
 {
-	/* Initialize the device */
-	int (*init)(struct device *device);
-
-	/* Shutdown the device */
-	int (*shutdown)(struct device *device);
-
 	/* Enumerate the device's children */
 	int (*enumerate)(struct device *device);
 } device_ops_t;
