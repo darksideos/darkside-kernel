@@ -5,7 +5,7 @@
 #include <device/devtree.h>
 
 /* Enumerate the root of the device tree */
-static int device_enumerate(device_t *device)
+static int root_enumerate(device_t *device)
 {
 }
 
