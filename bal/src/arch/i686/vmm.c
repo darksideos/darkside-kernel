@@ -40,12 +40,11 @@ static uint32_t *get_page(vaddr_t virtual_address, bool make)
 	/* Now use that page index to find out the index of the page table */
 	uint32_t table_index = page >> 10;
 
-	/* Get the address of the recursive page directory and recursive page table */
-	uint32_t *directory = (uint32_t*) 0xFFFFF000;
+	/* Get the address of the recursive page table */
 	uint32_t *table = (uint32_t*) (0xFFC00000 + (0x1000 * table_index));
 
 	/* If the page table already exists, return the page */
-	if (directory[table_index])
+	if (pd[table_index])
 	{
 		return &table[page % 1024];
 	}
@@ -53,7 +52,7 @@ static uint32_t *get_page(vaddr_t virtual_address, bool make)
 	else if (make)
 	{
 		/* Create a new page table */
-		directory[table_index] = pmm_alloc_page() | 0x03;
+		pd[table_index] = pmm_alloc_page() | 0x03;
 		flush_tlb();
 		memset(table, 0, 0x1000);
 
@@ -67,8 +66,8 @@ static uint32_t *get_page(vaddr_t virtual_address, bool make)
 	}
 }
 
-/* Get the physical address mapping of a virtual page */
-paddr_t get_mapping(vaddr_t virtual_address)
+/* Query a virtual address's mapping */
+paddr_t vmm_get_mapping(vaddr_t virtual_address)
 {
 	/* Get a pointer to the page */
 	uint32_t *page = get_page(virtual_address, false);
@@ -91,27 +90,25 @@ paddr_t get_mapping(vaddr_t virtual_address)
 }
 
 /* Map a virtual address to a physical address */
-void map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
+void vmm_map_page(vaddr_t virtual_address, paddr_t physical_address, int flags)
 {
 	/* Calculate the flags */
-	uint32_t x86_flags = 0x01;
+	uint32_t x86_flags = 0x1;
 
 	if (flags & PAGE_WRITE)
 	{
-		x86_flags |= 0x02;
+		x86_flags |= 0x2;
 	}
 	if (flags & PAGE_NOCACHE)
 	{
 		x86_flags |= 0x10;
 	}
 
-	/* Return the page that corresponds to the virtual address, creating it if it doesn't already exist */
+	/* Get the PTE for the page, creating it if it doesn't exist, and fill it in */
 	uint32_t *page = get_page(virtual_address, true);
+	*page = (physical_address & 0xFFFFF000) | x86_flags;
 
-	/* Map the page to the physical address */
-	*page = physical_address | x86_flags;
-
-	/* Invalidate the TLB entry */
+	/* Invalidate the TLB entry for that page */
 	__asm__ volatile ("invlpg (%0)" :: "a" ((uint32_t) virtual_address));
 }
 
