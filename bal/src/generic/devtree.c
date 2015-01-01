@@ -19,7 +19,7 @@ device_t *devtree_boot_device()
 	device_t *current = &root;
 
 	/* Keep looking further in the device tree for a device marked as boot */
-find_boot:
+find_boot: ;
 	/* Go through all of the device's children */
 	iterator_t iter = device_children(current);
 

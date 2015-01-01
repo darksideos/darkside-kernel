@@ -24,8 +24,8 @@
 #include <stdio.h>
 #include <list.h>
 #include <dict.h>
-#include <storage/device.h>
-#include <storage/blockdev.h>
+#include <device/device.h>
+#include <device/blockdev.h>
 #include <fs/fs.h>
 #include <fs/ext2.h>
 

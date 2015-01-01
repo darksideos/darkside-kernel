@@ -25,7 +25,7 @@
 #include <init/loader.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
-#include <storage/storage.h>
+#include <device/devtree.h>
 #include <fs/fs.h>
 #include <executable/executable.h>
 #include <mm/pfn.h>
@@ -34,7 +34,7 @@
 void ba_main(loader_block_t *loader_block)
 {
 	/* Mount the boot device */
-	int status = fs_mount(storage_get_boot_device(), "/", "ext2");
+	int status = fs_mount(devtree_boot_device(), "/", "ext2");
 	if (status != 0)
 	{
 		panic("Failed to mount boot device, error %d\n", status);

@@ -20,8 +20,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <list.h>
-#include <storage/blockdev.h>
-#include <storage/partition.h>
+#include <device/blockdev.h>
+#include <device/partition.h>
 
 /* MBR entry structure */
 typedef struct mbr_entry
@@ -67,10 +67,10 @@ static blockdev_ops_t partition_ops =
 {
 	.device_ops =
 	{
-		.enumerate = NULL;
-	};
-	.read = &partition_read;
-	.write = &partition_write;
+		.enumerate = NULL
+	},
+	.read = &partition_read,
+	.write = &partition_write
 };
 
 /* Enumerate the MBR partitions on a disk */

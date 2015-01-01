@@ -1,7 +1,7 @@
 #ifndef __PARTITION_H
 #define __PARTITION_H
 
-#include <storage/blockdev.h>
+#include <device/blockdev.h>
 
 /* Partition structure */
 typedef struct partition
