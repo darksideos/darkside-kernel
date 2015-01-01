@@ -52,7 +52,7 @@ device_t *device_get_child(device_t *device, int child_num)
 /* Add a child device to a device */
 void device_add_child(device_t *device, device_t *child)
 {
-	list_append_tail(&device->children, child);
+	list_insert_tail(&device->children, child);
 	device->num_children++;
 }
 
