@@ -106,15 +106,15 @@ void pfn_database_alloc(loader_block_t *loader_block)
 			}
 
 			/* If needed, allocate the page before */
-			if (to_next_page && get_mapping(pfn_database - to_next_page) == -1)
+			if (to_next_page && vmm_get_mapping(pfn_database - to_next_page) == -1)
 			{
-				map_page(pfn_database - to_next_page, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				vmm_map_page(pfn_database - to_next_page, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 
 			/* Allocate the space */
 			for (vaddr_t i = pfn_database; i < pfn_database + needed_space; i += 0x1000)
 			{
-				map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				vmm_map_page(i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 
 			/* Clear the rest */

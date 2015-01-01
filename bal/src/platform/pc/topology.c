@@ -70,7 +70,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 		/* Allocate 3 pages and map them */
 		for (int j = 0; j < 0x3000; j += 0x1000)
 		{
-			map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+			vmm_map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 		}
 
 		/* Fill in the CPU number, Local APIC ID, flags, and current thread */
@@ -121,7 +121,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 			/* Allocate 3 pages and map them */
 			for (int j = 0; j < 0x3000; j += 0x1000)
 			{
-				map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+				vmm_map_page(cpu_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			}
 
 			/* Fill in the CPU number, Local APIC ID, flags, and current thread */
@@ -146,7 +146,7 @@ void per_cpu_numa_area_alloc(loader_block_t *loader_block)
 
 	/* Map the Local APIC into memory */
 	loader_block->lapic = loader_block->system_free_start;
-	map_page(loader_block->lapic, madt->lapic_address, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+	vmm_map_page(loader_block->lapic, madt->lapic_address, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
 	loader_block->system_free_start += 0x1000;
 
 srat_detect: ;
@@ -163,7 +163,7 @@ srat_detect: ;
 		/* Allocate 4 pages and map them */
 		for (int j = 0; j < 0x4000; j += 0x1000)
 		{
-			map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+			vmm_map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 			memset((void*)numa_domain_data_area + j, 0, 0x1000);
 		}
 
@@ -210,7 +210,7 @@ srat_detect: ;
 				/* Allocate 4 pages and map them */
 				for (int j = 0; j < 0x4000; j += 0x1000)
 				{
-					map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
+					vmm_map_page(numa_domain_data_area + j, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 					memset((void*)numa_domain_data_area + j, 0, 0x1000);
 				}
 				current_numa_data_area = numa_domain_data_area;
