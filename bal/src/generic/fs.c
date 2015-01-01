@@ -48,8 +48,6 @@ int fs_unregister(char *fs_name)
 /* Mount a filesystem */
 int fs_mount(device_t *device, char *path, char *fs_name)
 {
-	printf("0x%08X\n", device);
-	while(1);
 	/* Open the node to mount */
 	inode_t *node = fs_open(path);
 
