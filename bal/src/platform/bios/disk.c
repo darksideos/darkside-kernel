@@ -33,7 +33,7 @@ static uint64_t disk_read(blockdev_t *blockdev, void *buffer, uint64_t start, ui
 	return (uint64_t) lbaext_read(buffer, (uint32_t) start, (uint32_t) numsectors);
 }
 
-/* Write to a disk block device */
+/* Write data from a buffer to the disk */
 static uint64_t disk_write(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numsectors)
 {
 	lbaext_write(buffer, (uint32_t) start, (uint32_t) numsectors);
