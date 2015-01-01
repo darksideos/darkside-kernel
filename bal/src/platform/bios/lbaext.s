@@ -1,6 +1,6 @@
 ; Copyright (C) 2014 DarkSide Project
 ; Authored by George Klees <gksharkboy@gmail.com>
-; bios.s - Disk I/O for BIOS-based PCs
+; lbaext.s - Disk I/O for BIOS-based PCs
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License version 3 as
@@ -19,13 +19,13 @@
 %elifdef ARCH_AMD64
 %include "src/arch/amd64/rmode.inc"
 %endif
-%include "src/platform/bios/bios.inc"
+%include "src/platform/bios/lbaext.inc"
 
 section .text
 
 ; Read a sector from the disk using the BIOS
-global bios_disk_read
-bios_disk_read:
+global lbaext_read
+lbaext_read:
 	; Switch from protected mode to real mode
 	pm2rm
 	
@@ -48,14 +48,14 @@ bios_disk_read:
 	rm2pm
 	
 ; Write a sector to the disk using the BIOS
-global bios_disk_write
-bios_disk_write:
+global lbaext_write
+lbaext_write:
 	; STUB
 	jmp $
 	
-; Initialize the disk for BIOS calls
-global bios_disk_init
-bios_disk_init:
+; Initialize the BIOS disk I/O driver
+global lbaext_init
+lbaext_init:
 %ifdef ARCH_I686
 	; Set up the stack frame
 	push ebp
