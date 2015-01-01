@@ -17,11 +17,36 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <stdlib.h>
 #include <device/blockdev.h>
 
 /* Enumerate the partitions of a block device */
 int blockdev_enumerate(device_t *device)
 {
+	blockdev_t *blockdev = (blockdev_t*) device;
+
+	/* Allocate a buffer for the first sector and read it */
+	uint8_t *first_sector = (uint8_t*) malloc(blockdev->block_size);
+	blockdev_read(blockdev, first_sector, 0, 1);
+
+	/* MBR is present */
+	if (first_sector[510] == 0x55 && first_sector[511] == 0xaa)
+	{
+		/* Read LBA1 for GPT checking */
+		uint8_t *gpt_sector = (uint8_t*) malloc(blockdev->block_size);
+		blockdev_read(blockdev, gpt_sector, 1, 1);
+
+		/* GPT is present */
+		if (!memcmp(&gpt_sector[0], "EFI PART", 8))
+		{
+			panic("GPT support not implemented!\n");
+		}
+		/* Only standard MBR */
+		else
+		{
+			panic("MBR support not implemented!\n");
+		}
+	}
 }
 
 /* Read from a block device */
