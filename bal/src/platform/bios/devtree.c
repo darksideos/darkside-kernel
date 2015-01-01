@@ -13,8 +13,6 @@ static int root_enumerate(device_t *device)
 /* Device tree root operations */
 static device_ops_t root_ops =
 {
-	.init = NULL;
-	.shutdown = NULL;
 	.enumerate = &root_enumerate;
 };
 
