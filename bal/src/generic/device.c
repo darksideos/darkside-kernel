@@ -16,7 +16,7 @@ int device_enumerate(device_t *device)
 {
 	if (device->ops->enumerate)
 	{
-		return device->enumerate(device);
+		return device->ops->enumerate(device);
 	}
 	return -1;
 }
