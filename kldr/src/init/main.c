@@ -80,11 +80,11 @@ void ba_main(loader_block_t *loader_block)
 	/* Mark the start of available memory in the system address space */
 	loader_block->system_free_start = kernel->end;
 
-	/* Detect the CPUs and NUMA domains on the system */
-	per_cpu_numa_area_alloc(loader_block);
+	/* Detect the CPUs and NUMA domains in the system */
+	topology_detect(loader_block);
 
-	/* Add more information to the physical memory map */
-	memory_numa_domains_detect(loader_block);
+	/* Detect the NUMA memory mappings */
+	numa_mappings_detect(loader_block);
 
 	/* Allocate space for the PFN database */
 	pfn_database_alloc(loader_block);
