@@ -4,6 +4,11 @@
 #include <device/device.h>
 #include <device/devtree.h>
 
+/* Enumerate the root of the device tree */
+static int device_enumerate(device_t *device)
+{
+}
+
 /* Device tree root operations */
 static device_ops_t root_ops =
 {
@@ -13,7 +18,7 @@ static device_ops_t root_ops =
 };
 
 /* Initialize the device tree */
-void devtree_init()
+int devtree_init()
 {
 	/* Create the root of the device tree and enumerate it */
 	device_t *root = devtree_root();
@@ -21,5 +26,5 @@ void devtree_init()
 	root->type = DEVICE_OTHER;
 	root->children = list_create();
 	root->num_children = 0;
-	device_enumerate(root);
+	return device_enumerate(root);
 }
