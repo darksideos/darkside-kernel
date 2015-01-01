@@ -1,6 +1,6 @@
 ; Copyright (C) 2014 DarkSide Project
 ; Authored by George Klees <gksharkboy@gmail.com>
-; bios.inc - Disk I/O for BIOS-based PCs
+; lbaext.inc - Disk I/O for BIOS-based PCs
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License version 3 as
