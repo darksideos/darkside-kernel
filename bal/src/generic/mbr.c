@@ -102,10 +102,14 @@ int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer)
 		/* If it matches the boot partition, mark it as boot */
 		if (entry->start_lba == boot_partition_start)
 		{
+			printf("FOUND IT: %d\n", boot_partition_start);
 			device_set_property((device_t*)partition, "boot", 1);
 		}
 
 		/* Perform filesystem recognition on the partition */
+
+		/* Add it under the boot device */
+		device_add_child((device_t*)blockdev, (device_t*)partition);
 	}
 
 	return 0;
