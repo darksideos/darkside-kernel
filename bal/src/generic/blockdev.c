@@ -19,6 +19,11 @@
 #include <types.h>
 #include <device/blockdev.h>
 
+/* Enumerate the partitions of a block device */
+int blockdev_enumerate(device_t *device)
+{
+}
+
 /* Read from a block device */
 uint64_t blockdev_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numblocks)
 {
