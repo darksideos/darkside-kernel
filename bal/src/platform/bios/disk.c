@@ -17,10 +17,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
-#include <stdlib.h>
 #include <list.h>
+#include <dict.h>
 #include <device/device.h>
 #include <device/blockdev.h>
+
+/* Boot disk object (MAY BE CHANGED LATER TO SUPPORT MULTIPLE DISKS) */
+static blockdev_t boot_disk;
 
 /* BIOS LBA extensions functions */
 uint32_t lbaext_read(void *buffer, uint32_t start, uint32_t numsectors);
@@ -38,4 +41,36 @@ static uint64_t disk_write(blockdev_t *blockdev, void *buffer, uint64_t start, u
 {
 	lbaext_write(buffer, (uint32_t) start, (uint32_t) numsectors);
 	return numsectors;
+}
+
+/* BIOS disk operations */
+static blockdev_ops_t disk_ops =
+{
+	.device_ops =
+	{
+		.enumerate = &blockdev_enumerate;
+	};
+	.read = &disk_read;
+	.write = &disk_write;
+};
+
+/* Create a BIOS disk object */
+blockdev_t *disk_create(uint32_t drive_number, uint32_t partition_start)
+{
+	/* Initialize LBA extensions to use our drive number */
+	lbaext_init(drive_number);
+
+	/* Fill in the boot disk object's fields */
+	boot_disk.device.ops = (device_ops_t*) &disk_ops;
+	boot_disk.device.type = DEVICE_BLOCKDEV;
+	boot_disk.device.children = list_create();
+	boot_disk.device.num_children = 0;
+	boot_disk.properties = dict_create();
+	boot_disk.block_size = 512;
+
+	/* Set its properties */
+	device_set_property((device_t*)&boot_disk, "boot", 1);
+	device_set_property((device_t*)&boot_disk, "boot_part_start", (int)partition_start);
+
+	return &boot_disk;
 }
