@@ -43,12 +43,6 @@ typedef struct device
 	dict_t properties;
 } device_t;
 
-/* Initialize a device */
-int device_init(device_t *device);
-
-/* Shutdown a device */
-int device_shutdown(device_t *device);
-
 /* Enumerate a device's children */
 int device_enumerate(device_t *device);
 

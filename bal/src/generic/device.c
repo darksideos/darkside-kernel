@@ -11,26 +11,6 @@ typedef struct property
 	int value;
 } property_t;
 
-/* Initialize a device */
-int device_init(device_t *device)
-{
-	if (device->ops->init)
-	{
-		return device->init(device);
-	}
-	return -1;
-}
-
-/* Shutdown a device */
-int device_shutdown(device_t *device)
-{
-	if (device->ops->shutdown)
-	{
-		return device->shutdown(device);
-	}
-	return -1;
-}
-
 /* Enumerate a device's children */
 int device_enumerate(device_t *device)
 {
