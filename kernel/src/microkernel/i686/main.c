@@ -161,6 +161,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+		printf("0x%08X\n", sizeof(cpu_t));
 		cpu->flags |= CPU_MM_INIT;
 
 		/* Initialize the interrupt manager and signal it to the APs */
