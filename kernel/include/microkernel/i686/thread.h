@@ -19,6 +19,8 @@
 #ifndef __I686_THREAD
 #define __I686_THREAD
 
+#include <list.h>
+
 /* Thread ID type */
 typedef unsigned tid_t;
 
@@ -32,6 +34,9 @@ typedef unsigned tid_t;
 struct process;
 typedef struct thread
 {
+	/* Linked list entry structure */
+	list_entry_t list_entry;
+
 	/* Parent process */
 	struct process *process;
 
