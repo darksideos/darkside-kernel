@@ -127,15 +127,15 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		printf("Initializing free lists\n");
 		freelist_init(&loader_block, bsp);
 
-		/* Get the PS/2 keyboard and mouse drivers' entry points */
+		/* Get the PS/2 keyboard and mouse drivers' entry points
 		executable_t *ps2mouse_driver = (executable_t*) list_remove_tail(loader_block.modules);
 		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
 		vaddr_t ps2kbd_module_init = ps2kbd_driver->entry_point;
-		vaddr_t ps2mouse_module_init = ps2mouse_driver->entry_point;
+		vaddr_t ps2mouse_module_init = ps2mouse_driver->entry_point;*/
 
-		/* Copy the framebuffer structure */
+		/* Copy the framebuffer structure
 		framebuffer_t fb;
-		memcpy(&fb, loader_block.fb, sizeof(framebuffer_t));
+		memcpy(&fb, loader_block.fb, sizeof(framebuffer_t));*/
 
 		/* Initialize paging, mapping our kernel and modules */
 		printf("Initializing paging\n");
@@ -174,8 +174,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
-		demo(&fb, ps2kbd_module_init, ps2mouse_module_init);
-		while(1);
+		/*demo(&fb, ps2kbd_module_init, ps2mouse_module_init);*/
 
 		/* Start the executive services */
 	}

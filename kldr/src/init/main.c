@@ -42,9 +42,9 @@ void ba_main(loader_block_t *loader_block)
 
 	/* Read and parse the configuration file */
 
-	/* Initialize graphics */
+	/* Initialize graphics
 	framebuffer_t *fb = graphics_init(0, 0, 0);
-	loader_block->fb = fb;
+	loader_block->fb = fb;*/
 
 	/*paddr_t base = fb->buffer_phys;
 	vaddr_t length = (fb->width * fb->height * fb->bpp) + ((fb->height - 1) * fb->pitch);
