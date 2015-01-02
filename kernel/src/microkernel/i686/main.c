@@ -48,6 +48,14 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
+/* Thread entry points */
+void thread_entry(void *arg)
+{
+	printf("%s\n", arg);
+	thread_yield();
+	while(1);
+}
+
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -173,6 +181,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Wait for them to initialize their scheduling queues and signal completion to them */
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
+
+		/* Thread tests, with synchronization primitives */
+		thread_t thread1, thread2;
+		thread_init(&thread1, NULL, &thread_entry, (void*)"Thread 1", 0, POLICY_REALTIME, 31, 0x1000);
+		thread_init(&thread2, NULL, &thread_entry, (void*)"Thread 2", 0, POLICY_REALTIME, 31, 0x1000);
+		scheduler_run();
 
 		/*demo(&fb, ps2kbd_module_init, ps2mouse_module_init);*/
 
