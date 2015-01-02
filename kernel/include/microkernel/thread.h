@@ -26,6 +26,18 @@
 #include <microkernel/i686/thread.h>
 #endif
 
+/* Thread scheduling policies */
+#define POLICY_REALTIME		0
+#define POLICY_HIGH			1
+#define POLICY_LOW			2
+#define POLICY_BACKGROUND	3
+#define NUM_POLICIES		4
+
+/* Thread priorities */
+#define MAX_PRIORITY		31
+#define MIN_PRIORITY		0
+#define NUM_PRIORITIES		32
+
 /* Initialize a thread */
 void thread_init(thread_t *thread, struct process *parent_process, void (*fn)(void *args), void *args, int numa_domain, int policy, int priority, uint32_t stack_size);
 
