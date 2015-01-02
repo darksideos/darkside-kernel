@@ -77,12 +77,12 @@ typedef struct cpu
 	thread_t *current_thread;
 
 	/* Scheduling queues */
-	thread_t *runqueues[NUM_POLICIES][NUM_PRIORITIES];
+	list_t runqueues[NUM_POLICIES][NUM_PRIORITIES];
 	spinlock_t runqueue_locks[NUM_POLICIES][NUM_PRIORITIES];
 
 	/* Variable-frequency and variable-timeslice information */
 	int round[NUM_POLICIES-1];
-	thread_t *expired[NUM_POLICIES-1];
+	list_t expired[NUM_POLICIES-1];
 
 	/* Total CPU load */
 	atomic_t load;
@@ -98,7 +98,7 @@ typedef struct cpu
 
 	/* Bootup and double-fault stack */
 	uint8_t boot_stack[8192];
-	uint8_t double_fault_stack[1688];
+	uint8_t double_fault_stack[1164];
 } __attribute__((packed)) cpu_t;
 
 #endif

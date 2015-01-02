@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <string.h>
+#include <list.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
 #include <microkernel/thread.h>
@@ -56,76 +57,18 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 	int policy = thread->policy;
 	int priority = thread->priority;
 
-	/* Acquire the lock on the scheduling queue */
+	/* Place the thread on the tail of the queue */
 	spinlock_acquire(&cpu->runqueue_locks[policy][priority]);
-
-	/* Take the thread at the head of the queue */
-	thread_t *head = cpu->runqueues[policy][priority];
-	
-	/* Already at least one thread in the queue */
-	if (head)
-	{
-		/* Set the tail to the head's previous */
-		thread_t *tail = head->prev;
-		
-		/* Sandwich thread between head and tail */
-		tail->next = thread;
-		head->prev = thread;
-		
-		thread->next = head;
-		thread->prev = tail;
-	}
-	/* No threads in the queue yet */
-	else
-	{
-		/* Make a self-loop */
-		thread->next = thread;
-		thread->prev = thread;
-		
-		/* Set the runqueue */
-		cpu->runqueues[policy][priority] = thread;
-	}
-
-	/* Release the lock on the scheduling queue */
+	list_insert_tail(&cpu->runqueues[policy][priority], thread);
 	spinlock_release(&cpu->runqueue_locks[policy][priority]);
 }
 
 /* Dequeue a thread from one of a CPU's scheduling queues */
 static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 {
-	/* Acquire the lock on the scheduling queue */
-	spinlock_acquire(&cpu->runqueue_locks[policy][priority]);
-
 	/* Take the thread at the head of the queue */
-	thread_t *thread = cpu->runqueues[policy][priority];
-
-	/* If there is nothing on the queue, return NULL */
-	if (!thread)
-	{
-		spinlock_release(&cpu->runqueue_locks[policy][priority]);
-		return (thread_t*) NULL;
-	}
-
-	/* Get the new head and the tail of the queue */
-	thread_t *new_head = cpu->runqueues[policy][priority]->next;
-	thread_t *tail = cpu->runqueues[policy][priority]->prev;
-	
-	/* Multiple threads in the queue */
-	if (thread != new_head)
-	{
-		new_head->prev = tail;
-		tail->next = new_head;
-	}
-	/* Only one thread in the queue */
-	else
-	{
-		new_head = NULL;
-	}
-	
-	/* Adjust the queue */
-	cpu->runqueues[policy][priority] = new_head;
-
-	/* Release the lock on the scheduling queue and return the thread */
+	spinlock_acquire(&cpu->runqueue_locks[policy][priority]);
+	thread_t *thread = list_remove_head(&cpu->runqueues[policy][priority]);
 	spinlock_release(&cpu->runqueue_locks[policy][priority]);	
 	return thread;
 }
@@ -191,6 +134,8 @@ void scheduler_enqueue(thread_t *thread)
 	/* Enqueue the thread on one of the CPU's queues */
 	cpu_t *cpu = cpu_data_area(best_cpu);
 	enqueue_thread(cpu, thread);
+
+	/* Adjust load statistics */
 	cpu->load++;
 	cpu->numa_domain->load++;
 	total_cpu_load++;
@@ -228,7 +173,8 @@ find_priority: ;
 			}
 
 			/* There are threads in the priority */
- 			if (cpu->runqueues[policy][priority])
+			iterator_t iter = list_head(&cpu->runqueues[policy][priority]);
+ 			if (iter.now(&iter))
 			{
 				current_priority = priority;
 				found_priority = true;
@@ -254,14 +200,15 @@ find_priority: ;
 			}
 
 			/* If there are threads on the expired list */
-			if (cpu->expired[policy-1])
+			iterator_t iter = list_head(&cpu->expired[policy-1]);
+			if (iter.now(&iter))
 			{
 				/* Start taking threads off the expired list and putting them back on the queue */
-				while (cpu->expired[policy-1])
+				thread_t *expired = list_remove_head(&cpu->expired[policy-1]);
+				while (expired)
 				{
-					thread_t *next = cpu->expired[policy-1]->next;
-					enqueue_thread(cpu, cpu->expired[policy-1]);
-					cpu->expired[policy-1] = next;
+					enqueue_thread(cpu, expired);
+					expired = list_remove_head(&cpu->expired[policy-1]);
 				}
 
 				/* Repeat this entire loop */
@@ -303,10 +250,8 @@ void scheduler_run()
 			/* Otherwise, add it to the expired list */
 			else
 			{
-				//printf("Adding thread of priority %d to expired list\n", old_thread->priority);
 				cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-				old_thread->next = cpu->expired[old_thread->policy-1];
-				cpu->expired[old_thread->policy-1] = old_thread;
+				list_insert_head(&cpu->expired[old_thread->policy-1], old_thread);
 			}
 		}
 	}
@@ -336,13 +281,13 @@ void scheduler_init(loader_block_t *loader_block, bool bsp)
 		/* Initialize the scheduling queues and their spinlocks */
 		for (int priority = 0; priority < NUM_PRIORITIES; priority++)
 		{
-			cpu->runqueues[policy][priority] = NULL;
+			cpu->runqueues[policy][priority] = list_create();
 			spinlock_init(&cpu->runqueue_locks[policy][priority]);
 		}
 
 		/* Initialize the variable-frequency and variable-timeslice data */
 		cpu->round[policy-1] = MAX_PRIORITY;
-		cpu->expired[policy-1] = NULL;
+		cpu->expired[policy-1] = list_create();
 	}
 
 	/* Set its load and its NUMA domain's load to 0 */
