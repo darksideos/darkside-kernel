@@ -20,6 +20,7 @@
 #define __MUTEX_H
 
 #include <list.h>
+#include <microkernel/synch.h>
 #include <microkernel/thread.h>
 
 /* Mutex structure */

@@ -20,10 +20,10 @@
 #include <list.h>
 #include <microkernel/atomic.h>
 #include <microkernel/thread.h>
-#include <microkernel/scheduler.h>
 #include <microkernel/synch.h>
 #include <microkernel/lock.h>
 #include <microkernel/mutex.h>
+#include <microkernel/i686/scheduler.h>
 
 /* Initialize a mutex's values */
 void mutex_init(mutex_t *mutex)
@@ -50,6 +50,7 @@ int mutex_acquire(mutex_t *mutex, int timeout)
 	/* If we only wanted to try once, just fail */
 	if (timeout == TIMEOUT_ONCE)
 	{
+		spinlock_release(&mutex->waitqueue_lock);
 		return -1;
 	}
 	/* We want to wait for some amount of time, or forever */
@@ -96,6 +97,7 @@ void mutex_release(mutex_t *mutex)
 
 	/* Wake up the next thread on the wait queue, if one exists */
 	thread_t *next = list_remove_head(&mutex->waitqueue);
+	spinlock_release(&mutex->waitqueue_lock);
 	if (next)
 	{
 		next->state = THREAD_READY;

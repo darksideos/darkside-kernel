@@ -38,6 +38,7 @@
 
 #include <list.h>
 #include <executable/executable.h>
+#include <microkernel/mutex.h>
 
 /* AP trampoline symbols */
 extern void ap_trampoline();
@@ -48,11 +49,32 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
+/* Test mutex */
+mutex_t test_mutex;
+
 /* Thread entry points */
 void thread_entry(void *arg)
 {
-	printf("%s\n", arg);
-	thread_yield();
+	if (arg == 1)
+	{
+		int status = mutex_acquire(&test_mutex, TIMEOUT_NEVER);
+		if (!status) printf("Acquired mutex (1)\n");
+		thread_yield();
+
+		mutex_release(&test_mutex);
+		printf("Released mutex (1)\n");
+		thread_yield();
+	}
+	else
+	{
+		int status = mutex_acquire(&test_mutex, TIMEOUT_ONCE);
+		if (status) printf("Failed to acquire mutex (2)\n");
+		thread_yield();
+
+		status = mutex_acquire(&test_mutex, TIMEOUT_NEVER);
+		if (!status) printf("Acquired mutex (2)\n");
+	}
+
 	while(1);
 }
 
@@ -184,9 +206,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
 		/* Thread tests, with synchronization primitives */
+		mutex_init(&test_mutex);
 		thread_t thread1, thread2;
-		thread_init(&thread1, NULL, &thread_entry, (void*)"Thread 1", 0, POLICY_REALTIME, 31, 0x1000);
-		thread_init(&thread2, NULL, &thread_entry, (void*)"Thread 2", 0, POLICY_REALTIME, 31, 0x1000);
+		thread_init(&thread1, NULL, &thread_entry, (void*)1, 0, POLICY_REALTIME, 31, 0x1000);
+		thread_init(&thread2, NULL, &thread_entry, (void*)2, 0, POLICY_REALTIME, 31, 0x1000);
 		scheduler_run();
 
 		/*demo(&fb, ps2kbd_module_init, ps2mouse_module_init);*/
