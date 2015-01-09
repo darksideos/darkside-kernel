@@ -27,11 +27,12 @@ typedef struct mutex
 {
 	thread_t *owner;
 	list_t waitqueue;
+	spinlock_t waitqueue_lock;
 } mutex_t;
 
 /* Mutex methods */
 void mutex_init(mutex_t *mutex);
-void mutex_acquire(mutex_t *mutex);
+int mutex_acquire(mutex_t *mutex, int timeout);
 void mutex_release(mutex_t *mutex);
 
 #endif
