@@ -20,6 +20,7 @@
 #include <list.h>
 #include <microkernel/atomic.h>
 #include <microkernel/thread.h>
+#include <microkernel/scheduler.h>
 #include <microkernel/synch.h>
 #include <microkernel/lock.h>
 #include <microkernel/mutex.h>
@@ -72,5 +73,32 @@ int mutex_acquire(mutex_t *mutex, int timeout)
 		}
 
 		return 0;
+	}
+}
+
+/* Release a mutex */
+void mutex_release(mutex_t *mutex)
+{
+	/* Get the current thread */
+	thread_t *current = thread_current();
+
+	/* Acquire the wait queue lock */
+	spinlock_acquire(&mutex->waitqueue_lock);
+
+	/* If we're not the owner, just return */
+	if (current != mutex->owner)
+	{
+		return;
+	}
+
+	/* Remove ourselves as the owner */
+	mutex->owner = NULL;
+
+	/* Wake up the next thread on the wait queue, if one exists */
+	thread_t *next = list_remove_head(&mutex->waitqueue);
+	if (next)
+	{
+		next->state = THREAD_READY;
+		scheduler_enqueue(next);
 	}
 }
