@@ -69,9 +69,6 @@ typedef struct thread
 
 	/* Quantum, in microseconds */
 	uint32_t quantum;
-
-	/* Previous and next threads in the queue */
-	struct thread *prev, *next;
 } thread_t;
 
 /* Find the least loaded NUMA domain */

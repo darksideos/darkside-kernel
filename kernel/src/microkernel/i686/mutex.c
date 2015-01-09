@@ -19,5 +19,58 @@
 #include <types.h>
 #include <list.h>
 #include <microkernel/atomic.h>
-#include <microkernel/mutex.h>
 #include <microkernel/thread.h>
+#include <microkernel/synch.h>
+#include <microkernel/lock.h>
+#include <microkernel/mutex.h>
+
+/* Initialize a mutex's values */
+void mutex_init(mutex_t *mutex)
+{
+	mutex->owner = NULL;
+	mutex->waitqueue = list_create();
+	spinlock_init(&mutex->waitqueue_lock);
+}
+
+/* Acquire a mutex */
+int mutex_acquire(mutex_t *mutex, int timeout)
+{
+	/* Acquire the wait queue lock */
+	spinlock_acquire(&mutex->waitqueue_lock);
+
+	/* If the lock is available, just grab it now */
+	if (!mutex->owner)
+	{
+		mutex->owner = thread_current();
+		spinlock_release(&mutex->waitqueue_lock);
+		return 0;
+	}
+
+	/* If we only wanted to try once, just fail */
+	if (timeout == TIMEOUT_ONCE)
+	{
+		return -1;
+	}
+	/* We want to wait for some amount of time, or forever */
+	else
+	{
+		/* Put ourselves on the mutex wait queue */
+		thread_t *current = thread_current();
+		current->state = THREAD_BLOCKED;
+		list_insert_tail(&mutex->waitqueue, current);
+		spinlock_release(&mutex->waitqueue_lock);
+
+		/* If requested, also add us to a timer waitqueue */
+		if (timeout != TIMEOUT_NEVER)
+		{
+			/* TODO: Implement this */
+		}
+		/* Otherwise, just yield ourselves */
+		else
+		{
+			thread_yield();
+		}
+
+		return 0;
+	}
+}
