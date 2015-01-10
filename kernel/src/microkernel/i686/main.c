@@ -67,12 +67,8 @@ void thread_entry(void *arg)
 	}
 	else
 	{
-		int status = mutex_acquire(&test_mutex, TIMEOUT_ONCE);
-		if (status) printf("Failed to acquire mutex (2)\n");
-		thread_yield();
-
-		status = mutex_acquire(&test_mutex, TIMEOUT_NEVER);
-		if (!status) printf("Acquired mutex (2)\n");
+		mutex_acquire(&test_mutex, TIMEOUT_NEVER);
+		printf("Acquired mutex (2)\n");
 	}
 
 	while(1);
