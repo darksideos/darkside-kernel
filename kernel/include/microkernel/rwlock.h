@@ -28,7 +28,7 @@ typedef struct rwlock
 {
 	semaphore_t r, w;
 	spinlock_t lock;
-	uint32_t readcount, writecount;
+	unsigned readcount, writecount;
 } rwlock_t;
 
 /* Readers/writer lock methods */
