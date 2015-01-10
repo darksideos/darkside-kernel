@@ -77,7 +77,7 @@ int mutex_acquire(mutex_t *mutex, int timeout)
 }
 
 /* Release a mutex */
-void mutex_release(mutex_t *mutex)
+int mutex_release(mutex_t *mutex)
 {
 	/* Get the current thread */
 	thread_t *current = thread_current();
@@ -85,10 +85,10 @@ void mutex_release(mutex_t *mutex)
 	/* Acquire the wait queue lock */
 	spinlock_acquire(&mutex->waitqueue_lock);
 
-	/* If we're not the owner, just return */
+	/* If we're not the owner, fail the request */
 	if (current != mutex->owner)
 	{
-		return;
+		return -1;
 	}
 
 	/* Remove ourselves as the owner */
@@ -102,4 +102,6 @@ void mutex_release(mutex_t *mutex)
 		next->state = THREAD_READY;
 		scheduler_enqueue(next);
 	}
+
+	return 0;
 }

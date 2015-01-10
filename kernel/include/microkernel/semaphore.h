@@ -23,6 +23,9 @@
 #include <microkernel/synch.h>
 #include <microkernel/thread.h>
 
+/* Maximum counts */
+#define MAXCOUNT_NONE	-1
+
 /* Semaphore structure */
 typedef struct semaphore
 {
@@ -34,6 +37,6 @@ typedef struct semaphore
 /* Semaphore methods */
 void semaphore_init(semaphore_t *sem, unsigned initial, unsigned max);
 int semaphore_wait(semaphore_t *sem, int timeout);
-void semaphore_signal(semaphore_t *sem);
+int semaphore_signal(semaphore_t *sem);
 
 #endif
