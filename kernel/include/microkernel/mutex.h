@@ -34,6 +34,6 @@ typedef struct mutex
 /* Mutex methods */
 void mutex_init(mutex_t *mutex);
 int mutex_acquire(mutex_t *mutex, int timeout);
-void mutex_release(mutex_t *mutex);
+int mutex_release(mutex_t *mutex);
 
 #endif

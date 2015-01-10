@@ -76,3 +76,28 @@ int semaphore_wait(semaphore_t *sem, int timeout)
 		return 0;
 	}
 }
+
+/* Signal a semaphore */
+int semaphore_signal(semaphore_t *sem)
+{
+	/* Acquire the wait queue lock */
+	spinlock_acquire(&sem->waitqueue_lock);
+
+	/* If we would exceed the maximum count, fail the request */
+	if (sem->count == sem->max_count)
+	{
+		return -1;
+	}
+
+	/* Increase the count and wake up the next thread on the wait queue, if one exists */
+	sem->count++;
+	thread_t *next = list_remove_head(&sem->waitqueue);
+	spinlock_release(&sem->waitqueue_lock);
+	if (next)
+	{
+		next->state = THREAD_READY;
+		scheduler_enqueue(next);
+	}
+
+	return 0;
+}
