@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014, 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * mutex.c - Mutexes for the x86 architecture
  *
@@ -18,7 +18,6 @@
  */
 #include <types.h>
 #include <list.h>
-#include <microkernel/atomic.h>
 #include <microkernel/thread.h>
 #include <microkernel/synch.h>
 #include <microkernel/lock.h>

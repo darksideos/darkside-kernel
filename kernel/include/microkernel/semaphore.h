@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014, 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * semaphore.h - Semaphore public API
  *
@@ -19,18 +19,21 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
-#include <types.h>
+#include <list.h>
+#include <microkernel/synch.h>
+#include <microkernel/thread.h>
 
 /* Semaphore structure */
 typedef struct semaphore
 {
-	uint32_t value;
-	uint32_t max_value;
+	unsigned count, max_count;
+	list_t waitqueue;
+	spinlock_t waitqueue_lock;
 } semaphore_t;
 
 /* Semaphore methods */
-void semaphore_init(semaphore_t *sem, uint32_t initial, uint32_t max);
-void semaphore_wait(semaphore_t *sem);
+void semaphore_init(semaphore_t *sem, unsigned initial, unsigned max);
+int semaphore_wait(semaphore_t *sem, int timeout);
 void semaphore_signal(semaphore_t *sem);
 
 #endif
