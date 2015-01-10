@@ -28,4 +28,19 @@ void rwlock_init(rwlock_t *rwlock)
 /* Acquire a readers/writer lock for reading */
 void rwlock_read_acquire(rwlock_t *rwlock)
 {
+	/* Acquire the wait queue lock */
+	spinlock_acquire(&rwlock->waitqueue_lock);
+
+	/* If a writer currently has the lock, block on the lock */
+	if (rwlock->write_count)
+	{
+		thread_t *current = thread_current();
+		current->state = THREAD_BLOCKED;
+		list_insert_tail(&rwlock->waitqueue, current);
+		spinlock_release(&rwlock->waitqueue_lock);
+		thread_yield();
+	}
+
+	/* One more reader */
+	rwlock->read_count++;
 }
