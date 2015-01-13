@@ -25,8 +25,8 @@
 /* Process ID type */
 typedef unsigned pid_t;
 
-/* Process structure */
-typedef struct process
+/* Microkernel process structure */
+typedef struct mkprocess
 {
 	/* Process ID */
 	pid_t pid;
@@ -52,6 +52,6 @@ typedef struct process
 
 	/* Scheduling policy and priority */
 	int policy, priority;
-} process_t;
+} mkprocess_t;
 
 #endif

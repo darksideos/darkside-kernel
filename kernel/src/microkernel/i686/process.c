@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * process.c - Process management for the x86 architecture
  *
@@ -24,8 +24,8 @@
 /* Current process ID to assign */
 static atomic_t current_pid = 1;
 
-/* Initialize a process */
-void process_init(process_t *process, int numa_domain, int policy, int priority)
+/* Initialize a microkernel process */
+void mkprocess_init(mkprocess_t *process, int numa_domain, int policy, int priority)
 {
 	/* Choose a process ID for the process */
 	process->pid = (pid_t) atomic_xadd(&current_pid, 1);
@@ -50,10 +50,10 @@ void process_init(process_t *process, int numa_domain, int policy, int priority)
 }
 
 /* Get the current process */
-process_t *process_current()
+mkprocess_t *process_current()
 {
 	/* Get the current thread */
-	thread_t *thread = thread_current();
+	mkthread_t *thread = thread_current();
 
 	/* No thread running */
 	if (!thread)
@@ -76,7 +76,7 @@ process_t *process_current()
 pid_t pid_current()
 {
 	/* Get the current thread */
-	thread_t *thread = thread_current();
+	mkthread_t *thread = thread_current();
 
 	/* No thread running */
 	if (!thread)
