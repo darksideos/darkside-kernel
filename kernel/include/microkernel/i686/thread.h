@@ -31,14 +31,14 @@ typedef unsigned tid_t;
 #define THREAD_DEAD		3
 
 /* Thread structure */
-struct process;
-typedef struct thread
+struct mkprocess;
+typedef struct mkthread
 {
 	/* Linked list entry structure */
 	list_entry_t list_entry;
 
 	/* Parent process */
-	struct process *process;
+	struct mkprocess *process;
 
 	/* Thread ID */
 	tid_t tid;
@@ -69,7 +69,7 @@ typedef struct thread
 
 	/* Quantum, in microseconds */
 	uint32_t quantum;
-} thread_t;
+} mkthread_t;
 
 /* Find the least loaded NUMA domain */
 int least_loaded_numa_domain();

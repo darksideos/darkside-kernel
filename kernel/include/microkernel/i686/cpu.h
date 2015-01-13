@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * cpu.h - Per-CPU and NUMA domain data areas structure definitions for the i686 architecture
  *
@@ -74,7 +74,7 @@ typedef struct cpu
 	uint32_t ext_features[2];
 
 	/* Current thread */
-	thread_t *current_thread;
+	mkthread_t *current_thread;
 
 	/* Scheduling queues */
 	list_t runqueues[NUM_POLICIES][NUM_PRIORITIES];

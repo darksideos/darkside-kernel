@@ -1,6 +1,6 @@
 ; Copyright (C) 2014 DarkSide Project
 ; Authored by George Klees <gksharkboy@gmail.com>
-; thread_asn.s - Context saving and switching for the i686 architecture
+; thread_asm.s - Context saving and switching for the i686 architecture
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License version 3 as

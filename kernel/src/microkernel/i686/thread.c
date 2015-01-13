@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * thread.c - Thread management for the x86 architecture
  *
@@ -93,8 +93,8 @@ int least_loaded_numa_domain()
 	return 0;
 }
 
-/* Initialize a thread */
-void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *args), void *args, int numa_domain, int policy, int priority, uint32_t stack_size)
+/* Initialize a microkernel thread structure */
+void mkthread_init(mkthread_t *thread, mkprocess_t *parent_process, void (*fn)(void *args), void *args, int numa_domain, int policy, int priority, uint32_t stack_size)
 {
 	/* Set the thread's parent process */
 	thread->process = parent_process;
@@ -160,16 +160,16 @@ void thread_init(thread_t *thread, process_t *parent_process, void (*fn)(void *a
 }
 
 /* Yield execution to another thread */
-void thread_yield()
+void mkthread_yield()
 {
 	scheduler_run();
 }
 
 /* Run a thread on the current CPU */
-void thread_run(thread_t *thread)
+void mkthread_run(mkthread_t *thread)
 {
 	/* Check if we need to switch address spaces to that of a different process */
-	process_t *process = process_current();
+	mkprocess_t *process = process_current();
 	if (thread->process && thread->process != process)
 	{
 		vmm_switch_address_space(thread->process->addrspace.address_space);
@@ -200,7 +200,7 @@ void thread_run(thread_t *thread)
 }
 
 /* Get the current thread */
-thread_t *thread_current()
+mkthread_t *thread_current()
 {
 	/* Save the interrupt state */
 	uint32_t interrupts;
@@ -212,8 +212,7 @@ thread_t *thread_current()
 
 	/* Get the current thread from the per-CPU data area */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	//printf("0x%08X\n");
-	thread_t *thread = cpu->current_thread;
+	void *thread = cpu->current_thread;
 
 	/* Restore the interrupt state and return the thread */
 	if (interrupts)
@@ -236,7 +235,7 @@ tid_t tid_current()
 
 	/* Get the current thread from the per-CPU data area */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-	thread_t *thread = cpu->current_thread;
+	mkthread_t *thread = cpu->current_thread;
 
 	/* Get its thread ID, using the CPU number if there is no thread */
 	tid_t tid;
