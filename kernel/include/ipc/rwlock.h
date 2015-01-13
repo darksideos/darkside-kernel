@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2014, 2015 DarkSide Project
+ * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * mutex.h - Mutex public API
+ * rwlock.h - Readers/writer lock public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,24 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __MUTEX_H
-#define __MUTEX_H
+#ifndef __RWLOCK_H
+#define __RWLOCK_H
 
 #include <list.h>
-#include <microkernel/synch.h>
-#include <microkernel/thread.h>
+#include <microkernel/lock.h>
 
-/* Mutex structure */
-typedef struct mutex
+/* Readers/writer lock structure */
+typedef struct rwlock
 {
-	thread_t *owner;
+	unsigned read_count, write_count;
 	list_t waitqueue;
 	spinlock_t waitqueue_lock;
-} mutex_t;
+} rwlock_t;
 
-/* Mutex methods */
-void mutex_init(mutex_t *mutex);
-int mutex_acquire(mutex_t *mutex, int timeout);
-int mutex_release(mutex_t *mutex);
+/* Readers/writer lock methods */
+void rwlock_init(rwlock_t *rwlock);
+void rwlock_read_acquire(rwlock_t *rwlock);
+void rwlock_read_release(rwlock_t *rwlock);
+void rwlock_write_acquire(rwlock_t *rwlock);
+void rwlock_write_release(rwlock_t *rwlock);
 
 #endif

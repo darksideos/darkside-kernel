@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2014, 2015 DarkSide Project
+ * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * semaphore.h - Semaphore public API
+ * mutex.h - Mutex public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,27 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __SEMAPHORE_H
-#define __SEMAPHORE_H
+#ifndef __MUTEX_H
+#define __MUTEX_H
 
 #include <list.h>
-#include <microkernel/synch.h>
-#include <microkernel/thread.h>
+#include <microkernel/lock.h>
+#include <ipc/synch.h>
+#include <task/thread.h>
 
-/* Maximum counts */
-#define MAXCOUNT_NONE	-1
-
-/* Semaphore structure */
-typedef struct semaphore
+/* Mutex structure */
+typedef struct mutex
 {
-	unsigned count, max_count;
+	thread_t *owner;
 	list_t waitqueue;
 	spinlock_t waitqueue_lock;
-} semaphore_t;
+} mutex_t;
 
-/* Semaphore methods */
-void semaphore_init(semaphore_t *sem, unsigned initial, unsigned max);
-int semaphore_wait(semaphore_t *sem, int timeout);
-int semaphore_signal(semaphore_t *sem);
+/* Mutex methods */
+void mutex_init(mutex_t *mutex);
+int mutex_acquire(mutex_t *mutex, int timeout);
+int mutex_release(mutex_t *mutex);
 
 #endif
