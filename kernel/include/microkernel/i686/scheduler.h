@@ -23,7 +23,7 @@
 #include <microkernel/thread.h>
 
 /* Enqueue a thread onto a scheduling queue */
-void scheduler_enqueue(thread_t *thread);
+void scheduler_enqueue(mkthread_t *thread);
 
 /* Run the scheduler */
 void scheduler_run();

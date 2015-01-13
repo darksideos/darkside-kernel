@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * scheduler.c - Thread scheduling for the x86 architecture
  *
@@ -51,7 +51,7 @@ static uint32_t total_cpu_load;
 static int num_cpus;
 
 /* Enqueue a thread on one of a CPU's scheduling queues */
-static void enqueue_thread(cpu_t *cpu, thread_t *thread)
+static void enqueue_thread(cpu_t *cpu, mkthread_t *thread)
 {
 	/* Get the policy and priority of the thread */
 	int policy = thread->policy;
@@ -64,17 +64,17 @@ static void enqueue_thread(cpu_t *cpu, thread_t *thread)
 }
 
 /* Dequeue a thread from one of a CPU's scheduling queues */
-static thread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
+static mkthread_t *dequeue_thread(cpu_t *cpu, int policy, int priority)
 {
 	/* Take the thread at the head of the queue */
 	spinlock_acquire(&cpu->runqueue_locks[policy][priority]);
-	thread_t *thread = list_remove_head(&cpu->runqueues[policy][priority]);
+	mkthread_t *thread = list_remove_head(&cpu->runqueues[policy][priority]);
 	spinlock_release(&cpu->runqueue_locks[policy][priority]);	
 	return thread;
 }
 
 /* Enqueue a thread onto a scheduling queue */
-void scheduler_enqueue(thread_t *thread)
+void scheduler_enqueue(mkthread_t *thread)
 {
 	/* Best CPU and best score so far */
 	int best_cpu = -1;
@@ -142,7 +142,7 @@ void scheduler_enqueue(thread_t *thread)
 }
 
 /* Dequeue a thread from the current CPU's scheduling queue */
-static thread_t *scheduler_dequeue()
+static mkthread_t *scheduler_dequeue()
 {
 	/* Get the per-CPU data area of the current CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
@@ -150,7 +150,7 @@ static thread_t *scheduler_dequeue()
 	/* Try to find the highest priority real-time thread */
 	for (int priority = MAX_PRIORITY; priority >= MIN_PRIORITY; priority--)
 	{
-		thread_t *thread = dequeue_thread(cpu, POLICY_REALTIME, priority);
+		mkthread_t *thread = dequeue_thread(cpu, POLICY_REALTIME, priority);
 		if (thread)
 		{
 			return thread;
@@ -186,7 +186,7 @@ find_priority: ;
 		if (found_priority)
 		{
 			/* Get the thread off the head of the queue and return it */
-			thread_t *thread = dequeue_thread(cpu, policy, current_priority);
+			mkthread_t *thread = dequeue_thread(cpu, policy, current_priority);
 			return thread;
 		}
 		/* Otherwise, prepare for the next round */
@@ -204,7 +204,7 @@ find_priority: ;
 			if (iter.now(&iter))
 			{
 				/* Start taking threads off the expired list and putting them back on the queue */
-				thread_t *expired = list_remove_head(&cpu->expired[policy-1]);
+				mkthread_t *expired = list_remove_head(&cpu->expired[policy-1]);
 				while (expired)
 				{
 					enqueue_thread(cpu, expired);
@@ -234,7 +234,7 @@ void scheduler_run()
 	__asm__ volatile("cli");
 
 	/* Get the thread that was interrupted */
-	thread_t *old_thread = thread_current();
+	mkthread_t *old_thread = thread_current();
 
 	/* If a thread was previously running */
 	if (old_thread)
@@ -257,8 +257,8 @@ void scheduler_run()
 	}
 
 	/* Pick a new thread and switch to it */
-	thread_t *new_thread = scheduler_dequeue();
-	thread_run(new_thread);
+	mkthread_t *new_thread = scheduler_dequeue();
+	mkthread_run(new_thread);
 }
 
 /* Initialize the scheduler */
