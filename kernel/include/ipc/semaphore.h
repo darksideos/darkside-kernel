@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2014, 2015 DarkSide Project
+ * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * rwlock.h - Readers/writer lock public API
+ * semaphore.h - Semaphore public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,26 +16,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __RWLOCK_H
-#define __RWLOCK_H
+#ifndef __SEMAPHORE_H
+#define __SEMAPHORE_H
 
-#include <types.h>
 #include <list.h>
 #include <microkernel/lock.h>
+#include <ipc/synch.h>
 
-/* Readers/writer lock structure */
-typedef struct rwlock
+/* Maximum counts */
+#define MAXCOUNT_NONE	-1
+
+/* Semaphore structure */
+typedef struct semaphore
 {
-	unsigned read_count, write_count;
+	unsigned count, max_count;
 	list_t waitqueue;
 	spinlock_t waitqueue_lock;
-} rwlock_t;
+} semaphore_t;
 
-/* Readers/writer lock methods */
-void rwlock_init(rwlock_t *rwlock);
-void rwlock_read_acquire(rwlock_t *rwlock);
-void rwlock_read_release(rwlock_t *rwlock);
-void rwlock_write_acquire(rwlock_t *rwlock);
-void rwlock_write_release(rwlock_t *rwlock);
+/* Semaphore methods */
+void semaphore_init(semaphore_t *sem, unsigned initial, unsigned max);
+int semaphore_wait(semaphore_t *sem, int timeout);
+int semaphore_signal(semaphore_t *sem);
 
 #endif
