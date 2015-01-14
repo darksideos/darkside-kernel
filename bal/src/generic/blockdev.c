@@ -17,8 +17,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <device/blockdev.h>
+
+/* Partition table enumeration functions */
+int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer);
 
 /* Enumerate the partitions of a block device */
 int blockdev_enumerate(device_t *device)
