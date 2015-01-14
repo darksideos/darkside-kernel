@@ -132,8 +132,6 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 			return 0;
 		}
 
-		uint32_t bytes_left = 0;
-
 		/* Are we reading over the block size */
 		if (length >= superblock->block_size)
 		{
@@ -233,7 +231,6 @@ static uint32_t read_block_pointer(filesystem_t *filesystem, void *buffer, uint3
 /* Read data from an inode into a buffer */
 static uint64_t ext2_inode_read(inode_t *node, void *buffer, uint64_t offset, uint64_t length)
 {
-	ext2_superblock_t *superblock = (ext2_superblock_t*) node->filesystem->extension;
 	ext2_inode_t *ext2_node = (ext2_inode_t*) node->extension;
 
 	/* Number of bytes left to read and number of direct blocks read */
