@@ -91,7 +91,7 @@ int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer)
 
 		/* Create a new partition device for it */
 		partition_t *partition = (partition_t*) malloc(sizeof(partition_t));
-		partition->blockdev.device.ops = (device_t*) &partition_ops;
+		partition->blockdev.device.ops = (device_ops_t*) &partition_ops;
 		partition->blockdev.device.type = DEVICE_BLOCKDEV;
 		partition->blockdev.device.children = list_create();
 		partition->blockdev.block_size = 512;
@@ -102,7 +102,6 @@ int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer)
 		/* If it matches the boot partition, mark it as boot */
 		if (entry->start_lba == boot_partition_start)
 		{
-			printf("FOUND IT: %d\n", boot_partition_start);
 			device_set_property((device_t*)partition, "boot", 1);
 		}
 
