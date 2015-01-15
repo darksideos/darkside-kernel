@@ -103,7 +103,7 @@ void object_unref(void *object)
 			/* If we hit a reference count of 0, call the deletion function on every interface */
 			if (old_value == 1)
 			{
-				iterator_t iter = map_iter(&header->interfaces);
+				iterator_t iter = map_values(&header->interfaces);
 
 				object_ops_t **interface = (object_ops_t**) iter.now(&iter);
 				while (interface)
