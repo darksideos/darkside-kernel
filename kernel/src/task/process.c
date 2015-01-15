@@ -30,23 +30,9 @@
 /* Process object slab cache */
 slab_cache_t *process_cache;
 
-/* List of processes to be reaped */
-static list_t reaper_list;
-
-/* Delete a process object */
-static void process_delete(void *object)
+/* Process object deletion function */
+static void process_delete(void *process)
 {
-	/* Get the process object */
-
-	/* Destroy the process's address space */
-	addrspace_destroy(process->addrspace);
-
-	/* Destroy the process tree structures */
-
-	/* Delete the object handle table */
-
-	/* Free the process object back to the slab cache */
-	slab_cache_free(process_cache, process);
 }
 
 /* Process object operations */

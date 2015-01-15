@@ -28,8 +28,16 @@
 /* Thread object slab cache */
 slab_cache_t *thread_cache;
 
-/* List of threads to be reaped */
-static list_t reaper_list;
+/* Thread object deletion function */
+static void thread_delete(void *thread)
+{
+}
+
+/* Thread object operations */
+static object_ops_t thread_ops =
+{
+	.delete = &thread_delete;
+};
 
 /* Create a thread object */
 thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void *args, size_t stack_size, int numa_domain, int policy, int priority)
@@ -45,7 +53,8 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	
 	/* Add the thread object as an interface */
 	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
-	*obj_ptr = object;
+	obj_ptr[0] = object;
+	obj_ptr[1] = (object_t*) &thread_ops;
 	thread_t *thread = (thread_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
 	map_append(&object->interfaces, IID_THREAD, thread);
 
