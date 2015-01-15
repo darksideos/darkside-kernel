@@ -19,9 +19,9 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
-#include <list.h>
+#include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
-#include <ipc/synch.h>
+#include <microkernel/synch.h>
 
 /* Maximum counts */
 #define MAXCOUNT_NONE	-1
@@ -30,8 +30,8 @@
 typedef struct semaphore
 {
 	unsigned count, max_count;
-	list_t waitqueue;
-	spinlock_t waitqueue_lock;
+	waitqueue_t waitqueue;
+	spinlock_t lock;
 } semaphore_t;
 
 /* Semaphore methods */
