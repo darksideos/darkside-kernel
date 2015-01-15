@@ -8,7 +8,7 @@
 typedef list_t waitqueue_t;
 
 /* Create a wait queue */
-waitqueue_t waitqueue_create();
+#define waitqueue_create() list_create()
 
 /* Block and unblock threads on a wait queue */
 void waitqueue_block(waitqueue_t *queue, mkthread_t *thread, int timeout);
