@@ -17,11 +17,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
-#include <list.h>
 #include <microkernel/waitqueue.h>
-#include <microkernel/synch.h>
 #include <microkernel/lock.h>
+#include <microkernel/synch.h>
 #include <ipc/mutex.h>
+#include <task/thread.h>
 
 /* Initialize a mutex's values */
 void mutex_init(mutex_t *mutex)
