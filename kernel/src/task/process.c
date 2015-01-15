@@ -31,6 +31,9 @@
 /* Process object slab cache */
 slab_cache_t *process_cache;
 
+/* List of processes to be reaped */
+static list_t reaper_list;
+
 /* Create a process object */
 process_t *process_create(section_t *section, process_t *parent_process, token_t *token, int numa_domain, int policy, int priority)
 {
@@ -76,4 +79,18 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	/* Create the object handle table */
 
 	/* Set up the executable loader if a section object was passed */
+}
+
+/* Destroy a process object */
+void process_destroy(process_t *process)
+{
+	/* Destroy the address space structure */
+	addrspace_destroy(&process->addrspace);
+
+	/* Destroy the process tree structures */
+
+	/* Delete the object handle table */
+
+	/* Free the process object back to the slab cache */
+	slab_cache_free(process_cache, process);
 }
