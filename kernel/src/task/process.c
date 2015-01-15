@@ -54,6 +54,10 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	/* Initialize the microkernel process structure */
 	mkprocess_init(&process->mkprocess, numa_domain, policy, priority);
 
+	/* Establish a link between the parent process and ourself */
+	list_insert_tail(&parent_process->children, process);
+	object_ref(parent_process);
+
 	/* Set up the process tree structures */
 	process->parent = parent_process;
 	process->children = list_create();
@@ -70,13 +74,15 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	}
 	else
 	{
-		process_t *current_process = (process_t*) process_current();
-		process->user_token = current_process->user_token;
+		/* SECURITY MUST BE CONSIDERED HERE */
+		process->user_token = parent_process->user_token;
 	}
 
 	/* Create the object handle table */
 
 	/* Set up the executable loader if a section object was passed */
+
+	return process;
 }
 
 /* Destroy a process object */
