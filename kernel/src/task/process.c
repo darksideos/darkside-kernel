@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2015 DarkSide Project
+ * Authored by George Klees <gksharkboy@gmail.com>
+ * process.c - Process object implementation
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public Licens
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+#include <types.h>
+#include <list.h>
+#include <map.h>
+#include <microkernel/process.h>
+#include <mm/addrspace.h>
+#include <mm/slab.h>
+#include <mm/section.h>
+#include <object/object.h>
+#include <object/interface.h>
+#include <process/process.h>
+#include <security/token.h>
+
+/* Process object slab cache */
+slab_cache_t *process_cache;
+
+/* Create a process object */
+process_t *process_create(section_t *section, process_t *parent_process, token_t *token, int numa_domain, int policy, int priority)
+{
+	/* Allocate an object from the slab cache */
+	object_t *object = (object_t*) slab_cache_alloc(process_cache);
+	if (object == NULL)
+	{
+		return NULL;
+	}
+
+	/* Initialize the generic object header */
+	
+	/* Add the process object as an interface */
+	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
+	*obj_ptr = object;
+	process_t *process = (process_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*));
+	map_append(&object->interfaces, IID_PROCESS, process);
+
+	/* Initialize the microkernel process structure */
+	mkprocess_init(&process->mkprocess, numa_domain, policy, priority);
+
+	/* Set up the process tree structures */
+	process->parent = parent_process;
+	process->children = list_create();
+	process->threads = list_create();
+
+	/* Initialize the memory management information */
+	paddr_t address_space = process->mkprocess.address_space;
+	addrspace_init(&process->addrspace, address_space, USER_ADDRSPACE_START, KERNEL_ADDRSPACE_START - USER_ADDRSPACE_START);
+	process->working_set = NULL;
+
+	/* Set the user token, or take the current one if not specified */
+	if (token)
+	{
+		process->user_token = token;
+	}
+	else
+	{
+		process_t *current_process = (process_t*) process_current();
+		process->user_token = current_process->user_token;
+	}
+
+	/* Create the object handle table */
+
+	/* Set up the executable loader if a section object was passed */
+}
