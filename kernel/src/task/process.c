@@ -19,7 +19,6 @@
 #include <types.h>
 #include <list.h>
 #include <map.h>
-#include <microkernel/process.h>
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 #include <mm/section.h>
