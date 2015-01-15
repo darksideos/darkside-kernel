@@ -17,6 +17,6 @@ void map_append(map_t *map, uint64_t key, void *item);
 void *map_remove(map_t *map, uint64_t key);
 void *map_get(map_t *map, uint64_t key);
 void map_set(map_t *map, uint64_t key, void *item);
-iterator_t map_iter(map_t *map);
+iterator_t map_values(map_t *map);
 
 #endif
