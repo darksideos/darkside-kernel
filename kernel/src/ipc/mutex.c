@@ -40,7 +40,7 @@ int mutex_acquire(mutex_t *mutex, int timeout)
 	/* If the mutex is available, just grab it now */
 	if (!mutex->owner)
 	{
-		mutex->owner = thread_current();
+		mutex->owner = (thread_t*) thread_current();
 		spinlock_release(&mutex->lock);
 		return 0;
 	}
@@ -60,7 +60,7 @@ int mutex_acquire(mutex_t *mutex, int timeout)
 		spinlock_release(&mutex->lock);
 
 		/* Yield our timeslice */
-		thread_yield();
+		mkthread_yield();
 
 		return 0;
 	}
@@ -70,7 +70,7 @@ int mutex_acquire(mutex_t *mutex, int timeout)
 int mutex_release(mutex_t *mutex)
 {
 	/* Get the current thread */
-	thread_t *current = thread_current();
+	thread_t *current = (thread_t*) thread_current();
 
 	/* Acquire the mutex lock */
 	spinlock_acquire(&mutex->lock);
