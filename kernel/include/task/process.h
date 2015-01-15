@@ -31,9 +31,8 @@ typedef struct process
 	/* Object handle table */
 } process_t;
 
-/* Create and destroy process objects */
+/* Create a process object */
 process_t *process_create(section_t *section, process_t *parent_process, token_t *token, int numa_domain, int policy, int priority);
-void process_destroy(process_t *process);
 
 /* Kill a process */
 void process_kill(process_t *process);
