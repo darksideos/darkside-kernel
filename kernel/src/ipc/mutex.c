@@ -18,58 +18,49 @@
  */
 #include <types.h>
 #include <list.h>
-#include <microkernel/thread.h>
+#include <microkernel/waitqueue.h>
 #include <microkernel/synch.h>
 #include <microkernel/lock.h>
-#include <microkernel/mutex.h>
+#include <ipc/mutex.h>
 
 /* Initialize a mutex's values */
 void mutex_init(mutex_t *mutex)
 {
 	mutex->owner = NULL;
-	mutex->waitqueue = list_create();
-	spinlock_init(&mutex->waitqueue_lock);
+	mutex->waitqueue = waitqueue_create();
+	spinlock_init(&mutex->lock);
 }
 
 /* Acquire a mutex */
 int mutex_acquire(mutex_t *mutex, int timeout)
 {
-	/* Acquire the wait queue lock */
-	spinlock_acquire(&mutex->waitqueue_lock);
+	/* Acquire the mutex lock */
+	spinlock_acquire(&mutex->lock);
 
 	/* If the mutex is available, just grab it now */
 	if (!mutex->owner)
 	{
 		mutex->owner = thread_current();
-		spinlock_release(&mutex->waitqueue_lock);
+		spinlock_release(&mutex->lock);
 		return 0;
 	}
 
 	/* If we only wanted to try once, just fail */
 	if (timeout == TIMEOUT_ONCE)
 	{
-		spinlock_release(&mutex->waitqueue_lock);
+		spinlock_release(&mutex->lock);
 		return -1;
 	}
 	/* We want to wait for some amount of time, or forever */
 	else
 	{
 		/* Put ourselves on the mutex wait queue */
-		thread_t *current = thread_current();
-		current->state = THREAD_BLOCKED;
-		list_insert_tail(&mutex->waitqueue, current);
-		spinlock_release(&mutex->waitqueue_lock);
+		thread_t *current = (thread_t*) thread_current();
+		waitqueue_block(&mutex->waitqueue, (mkthread_t*)current, timeout);
+		spinlock_release(&mutex->lock);
 
-		/* If requested, also add us to a timer waitqueue */
-		if (timeout != TIMEOUT_NEVER)
-		{
-			/* TODO: Implement this */
-		}
-		/* Otherwise, just yield ourselves */
-		else
-		{
-			thread_yield();
-		}
+		/* Yield our timeslice */
+		thread_yield();
 
 		return 0;
 	}
@@ -81,8 +72,8 @@ int mutex_release(mutex_t *mutex)
 	/* Get the current thread */
 	thread_t *current = thread_current();
 
-	/* Acquire the wait queue lock */
-	spinlock_acquire(&mutex->waitqueue_lock);
+	/* Acquire the mutex lock */
+	spinlock_acquire(&mutex->lock);
 
 	/* If we're not the owner, fail the request */
 	if (current != mutex->owner)
@@ -94,13 +85,8 @@ int mutex_release(mutex_t *mutex)
 	mutex->owner = NULL;
 
 	/* Wake up the next thread on the wait queue, if one exists */
-	thread_t *next = list_remove_head(&mutex->waitqueue);
-	spinlock_release(&mutex->waitqueue_lock);
-	if (next)
-	{
-		next->state = THREAD_READY;
-		scheduler_enqueue(next);
-	}
+	waitqueue_unblock(&mutex->waitqueue);
+	spinlock_release(&mutex->lock);
 
 	return 0;
 }
