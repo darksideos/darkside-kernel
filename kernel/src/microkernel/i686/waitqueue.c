@@ -1,6 +1,7 @@
 #include <types.h>
 #include <list.h>
 #include <microkernel/thread.h>
+#include <microkernel/waitqueue.h>
 #include <microkernel/synch.h>
 #include <microkernel/i686/scheduler.h>
 

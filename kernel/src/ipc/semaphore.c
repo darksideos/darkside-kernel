@@ -61,7 +61,7 @@ int semaphore_wait(semaphore_t *sem, int timeout)
 		spinlock_release(&sem->lock);
 
 		/* Yield our timeslice */
-		thread_yield();
+		mkthread_yield();
 
 		return 0;
 	}
