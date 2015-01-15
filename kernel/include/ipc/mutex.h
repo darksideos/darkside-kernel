@@ -19,17 +19,17 @@
 #ifndef __MUTEX_H
 #define __MUTEX_H
 
-#include <list.h>
+#include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
-#include <ipc/synch.h>
+#include <microkernel/synch.h>
 #include <task/thread.h>
 
 /* Mutex structure */
 typedef struct mutex
 {
 	thread_t *owner;
-	list_t waitqueue;
-	spinlock_t waitqueue_lock;
+	waitqueue_t waitqueue;
+	spinlock_t lock;
 } mutex_t;
 
 /* Mutex methods */
