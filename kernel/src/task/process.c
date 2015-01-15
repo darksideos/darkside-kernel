@@ -85,9 +85,11 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	return process;
 }
 
-/* Destroy a process object */
-void process_destroy(process_t *process)
+/* Delete a process object */
+static void process_delete(void *object)
 {
+	/* Get the process object */
+
 	/* Destroy the process's address space */
 	addrspace_destroy(process->addrspace);
 
@@ -98,3 +100,9 @@ void process_destroy(process_t *process)
 	/* Free the process object back to the slab cache */
 	slab_cache_free(process_cache, process);
 }
+
+/* Process object operations */
+static object_ops_t process_ops =
+{
+	.delete = &process_delete;
+};
