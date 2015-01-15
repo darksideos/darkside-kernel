@@ -1,6 +1,7 @@
 #ifndef __TASK_PROCESS_H
 #define __TASK_PROCESS_H
 
+#include <list.h>
 #include <microkernel/process.h>
 #include <mm/addrspace.h>
 #include <mm/page.h>
@@ -12,6 +13,13 @@ typedef struct process
 	/* Microkernel process structure */
 	mkprocess_t mkprocess;
 
+	/* Parent and child process */
+	process_t *parent;
+	list_t children;
+
+	/* Thread list */
+	list_t threads;
+
 	/* Memory management information */
 	addrspace_t addrspace;
 	page_t *working_set;
@@ -22,5 +30,16 @@ typedef struct process
 
 	/* Object handle table */
 } process_t;
+
+/* Create and destroy process objects */
+process_t *process_create(section_t *section, process_t *parent_process, token_t *token, int numa_domain, int policy, int priority);
+void process_destroy(process_t *process);
+
+/* Kill a process */
+void process_kill(process_t *process);
+
+/* Suspend and resume a process */
+void process_suspend(process_t *process);
+void process_resume(process_t *process);
 
 #endif

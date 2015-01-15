@@ -39,6 +39,10 @@ typedef struct token
 	uint8_t privileges[2];
 } token_t;
 
+/* Create and destroy a token */
+token_t *token_create();
+void token_destroy(token_t *token);
+
 /* Get and set a privilege in a token */
 bool token_get_privilege(int privilege);
 void token_set_privilege(int privilege, bool allowed);
