@@ -13,6 +13,8 @@ typedef struct thread
 	token_t *impersonate_token;
 
 	/* Readers/writer lock state */
+
+	/* Outstanding I/O requests for the thread */
 } thread_t;
 
 #endif
