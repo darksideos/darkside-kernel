@@ -33,6 +33,28 @@ slab_cache_t *process_cache;
 /* List of processes to be reaped */
 static list_t reaper_list;
 
+/* Delete a process object */
+static void process_delete(void *object)
+{
+	/* Get the process object */
+
+	/* Destroy the process's address space */
+	addrspace_destroy(process->addrspace);
+
+	/* Destroy the process tree structures */
+
+	/* Delete the object handle table */
+
+	/* Free the process object back to the slab cache */
+	slab_cache_free(process_cache, process);
+}
+
+/* Process object operations */
+static object_ops_t process_ops =
+{
+	.delete = &process_delete;
+};
+
 /* Create a process object */
 process_t *process_create(section_t *section, process_t *parent_process, token_t *token, int numa_domain, int policy, int priority)
 {
@@ -47,8 +69,9 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	
 	/* Add the process object as an interface */
 	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
-	*obj_ptr = object;
-	process_t *process = (process_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*));
+	obj_ptr[0] = object;
+	obj_ptr[1] = (object_t*) &process_ops;
+	process_t *process = (process_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
 	map_append(&object->interfaces, IID_PROCESS, process);
 
 	/* Initialize the microkernel process structure */
@@ -84,25 +107,3 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 
 	return process;
 }
-
-/* Delete a process object */
-static void process_delete(void *object)
-{
-	/* Get the process object */
-
-	/* Destroy the process's address space */
-	addrspace_destroy(process->addrspace);
-
-	/* Destroy the process tree structures */
-
-	/* Delete the object handle table */
-
-	/* Free the process object back to the slab cache */
-	slab_cache_free(process_cache, process);
-}
-
-/* Process object operations */
-static object_ops_t process_ops =
-{
-	.delete = &process_delete;
-};

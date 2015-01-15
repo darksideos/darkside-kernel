@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * object.c - Generic object services
  *
@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <iterator.h>
 #include <map.h>
 #include <microkernel/atomic.h>
 #include <object/object.h>
@@ -25,7 +26,7 @@
 /* Get an object header from a pointer */
 static object_t *get_object_header(void *ptr)
 {
-	object_t **obj_ptr = (object_t**) (((unsigned char*)ptr) - sizeof(object_t*));
+	object_t **obj_ptr = (object_t**) (((unsigned char*)ptr) - sizeof(object_ops_t*) - sizeof(object_t*));
 	return *obj_ptr;
 }
 
@@ -99,10 +100,19 @@ void object_unref(void *object)
 		/* If the exchange succeeded, delete the object if necessary */
 		if (prev_value == old_value)
 		{
-			/* If we hit a reference count of 0, call the deletion function */
+			/* If we hit a reference count of 0, call the deletion function on every interface */
 			if (old_value == 1)
 			{
-				header->ops->delete(object);
+				iterator_t iter = map_iter(&header->interfaces);
+
+				object_ops_t **interface = (object_ops_t**) iter.now(&iter);
+				while (interface)
+				{
+					void *object = ((void*)interface) + sizeof(object_t*) + sizeof(object_ops_t*);
+					object_ops_t *ops = interface[1];
+					ops->delete(object);
+					interface = (object_ops_t**) iter.next(&iter);
+				}
 			}
 
 			return;

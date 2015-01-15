@@ -46,7 +46,7 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	/* Add the thread object as an interface */
 	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
 	*obj_ptr = object;
-	thread_t *thread = (thread_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*));
+	thread_t *thread = (thread_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
 	map_append(&object->interfaces, IID_THREAD, thread);
 
 	/* Initialize the microkernel thread structure */
