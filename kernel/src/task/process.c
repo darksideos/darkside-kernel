@@ -25,8 +25,8 @@
 #include <mm/section.h>
 #include <object/object.h>
 #include <object/interface.h>
-#include <process/process.h>
 #include <security/token.h>
+#include <task/process.h>
 
 /* Process object slab cache */
 slab_cache_t *process_cache;
@@ -61,8 +61,7 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	process->threads = list_create();
 
 	/* Initialize the memory management information */
-	paddr_t address_space = process->mkprocess.address_space;
-	addrspace_init(&process->addrspace, address_space, USER_ADDRSPACE_START, KERNEL_ADDRSPACE_START - USER_ADDRSPACE_START);
+	process->addrspace = &process->mkprocess.addrspace;
 	process->working_set = NULL;
 
 	/* Set the user token, or take the current one if not specified */
@@ -84,8 +83,8 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 /* Destroy a process object */
 void process_destroy(process_t *process)
 {
-	/* Destroy the address space structure */
-	addrspace_destroy(&process->addrspace);
+	/* Destroy the process's address space */
+	addrspace_destroy(process->addrspace);
 
 	/* Destroy the process tree structures */
 

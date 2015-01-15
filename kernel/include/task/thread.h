@@ -2,6 +2,7 @@
 #define __TASK_THREAD_H
 
 #include <microkernel/thread.h>
+#include <security/token.h>
 
 /* Thread object */
 typedef struct thread

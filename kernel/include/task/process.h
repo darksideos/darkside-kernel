@@ -14,14 +14,14 @@ typedef struct process
 	mkprocess_t mkprocess;
 
 	/* Parent and child process */
-	process_t *parent;
+	struct process *parent;
 	list_t children;
 
 	/* Thread list */
 	list_t threads;
 
 	/* Memory management information */
-	addrspace_t addrspace;
+	addrspace_t *addrspace;
 	page_t *working_set;
 
 	/* User and app tokens */
