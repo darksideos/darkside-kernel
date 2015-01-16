@@ -40,11 +40,11 @@ typedef struct object_ops
 /* Object header structure */
 typedef struct object
 {
-	/* Generic object operations */
-	object_ops_t *ops;
-
 	/* Object type ID */
 	int type;
+
+	/* Generic object operations */
+	object_ops_t *ops;
 
 	/* Reference and hardlink count */
 	atomic_t refcount;
@@ -54,8 +54,8 @@ typedef struct object
 	security_descriptor_t security_descriptor;
 } object_t;
 
-/* Query an interface to an object */
-void *object_query_interface(void *object, int iid);
+/* Initialize an object */
+void object_init(object_t *object, int type, object_ops_t *ops);
 
 /* Reference and dereference an object */
 bool object_ref(void *object);
