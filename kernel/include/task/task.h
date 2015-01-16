@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * main.c - Executive initialization
+ * task.h - Process and thread manager initialization public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,13 +16,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include <types.h>
-#include <init/loader.h>
-#include <task/task.h>
+#ifndef __TASK_H
+#define __TASK_H
 
-/* Start the executive services */
-void executive_init(loader_block_t *loader_block)
-{
-	/* Initialize the process and thread manager */
-	tasking_init();
-}
+/* Initialize the process and thread manager */
+void tasking_init();
+
+#endif
