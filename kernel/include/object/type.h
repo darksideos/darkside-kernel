@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * type.h - Executive object type IDs
  *
