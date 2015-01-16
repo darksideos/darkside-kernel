@@ -18,10 +18,9 @@
  */
 #include <types.h>
 #include <list.h>
-#include <map.h>
 #include <mm/slab.h>
 #include <object/object.h>
-#include <object/interface.h>
+#include <object/type.h>
 #include <security/token.h>
 #include <task/thread.h>
 
@@ -29,14 +28,14 @@
 slab_cache_t *thread_cache;
 
 /* Thread object deletion function */
-static void thread_delete(void *thread)
+static void thread_delete(void *object)
 {
 }
 
 /* Thread object operations */
 static object_ops_t thread_ops =
 {
-	.delete = &thread_delete;
+	.delete = &thread_delete
 };
 
 /* Create a thread object */
@@ -50,16 +49,11 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	}
 
 	/* Initialize the generic object header */
-	
-	/* Add the thread object as an interface */
-	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
-	obj_ptr[0] = object;
-	obj_ptr[1] = (object_t*) &thread_ops;
-	thread_t *thread = (thread_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
-	map_append(&object->interfaces, IID_THREAD, thread);
+	object_init(object, TYPE_THREAD, &thread_ops);
+	thread_t *thread = (thread_t*) (((void*)object) + sizeof(object_t));
 
 	/* Initialize the microkernel thread structure */
-	mkprocess_init(&thread->mkthread, parent_process, fn, args, numa_domain, policy, priority, stack_size);
+	mkthread_init(&thread->mkthread, &parent_process->mkprocess, fn, args, numa_domain, policy, priority, stack_size);
 
 	/* Establish a link between the parent process and ourself */
 	if (parent_process)
