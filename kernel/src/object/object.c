@@ -31,7 +31,15 @@ static object_t *get_object_header(void *ptr)
 /* Initialize an object */
 void object_init(object_t *object, int type, object_ops_t *ops)
 {
-	/* TODO: Implement this */
+	/* Set up the type definition info */
+	object->type = type;
+	object->ops = ops;
+
+	/* Initialize the reference counts */
+	atomic_set(&object->refcount, 1);
+	atomic_set(&object->link_count, 0);
+
+	/* Create the security descriptor */
 }
 
 /* Reference an object */
