@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 DarkSide Project
+ * Copyright (C) 2014-2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * main.c - Microkernel initialization for the x86 architecture
  *
@@ -21,6 +21,7 @@
 #include <bootvid.h>
 #include <hal/hal.h>
 #include <init/loader.h>
+#include <init/main.h>
 #include <microkernel/atomic.h>
 #include <microkernel/cpu.h>
 #include <microkernel/paging.h>
@@ -178,6 +179,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/*demo(&fb, ps2kbd_module_init, ps2mouse_module_init);*/
 
 		/* Start the executive services */
+		executive_init(&loader_block);
 	}
 	/* Running on a secondary processor */
 	else
