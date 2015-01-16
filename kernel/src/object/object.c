@@ -26,26 +26,13 @@
 /* Get an object header from a pointer */
 static object_t *get_object_header(void *ptr)
 {
-	object_t **obj_ptr = (object_t**) (((unsigned char*)ptr) - sizeof(object_ops_t*) - sizeof(object_t*));
-	return *obj_ptr;
+	return (object_t*) (((void*)ptr) - sizeof(object_t));
 }
 
-/* Query an interface to an object */
-void *object_query_interface(void *object, int iid)
+/* Initialize an object */
+void object_init(object_t *object, int type, object_ops_t *ops)
 {
-	/* Get the object header */
-	object_t *header = get_object_header(object);
-
-	/* If requested, return the object header */
-	if (iid == IID_OBJECT)
-	{
-		return (void*) header;
-	}
-	/* Otherwise, get the interface normally */
-	else
-	{
-		return map_get(&header->interfaces, (uint64_t) iid);
-	}
+	/* TODO: Implement this */
 }
 
 /* Reference an object */
@@ -100,19 +87,10 @@ void object_unref(void *object)
 		/* If the exchange succeeded, delete the object if necessary */
 		if (prev_value == old_value)
 		{
-			/* If we hit a reference count of 0, call the deletion function on every interface */
+			/* If we hit a reference count of 0, call the deletion function */
 			if (old_value == 1)
 			{
-				iterator_t iter = map_values(&header->interfaces);
-
-				object_ops_t **interface = (object_ops_t**) iter.now(&iter);
-				while (interface)
-				{
-					void *object = ((void*)interface) + sizeof(object_t*) + sizeof(object_ops_t*);
-					object_ops_t *ops = interface[1];
-					ops->delete(object);
-					interface = (object_ops_t**) iter.next(&iter);
-				}
+				header->ops->delete(object);
 			}
 
 			return;
