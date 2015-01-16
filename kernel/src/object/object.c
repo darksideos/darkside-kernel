@@ -21,7 +21,6 @@
 #include <map.h>
 #include <microkernel/atomic.h>
 #include <object/object.h>
-#include <object/interface.h>
 
 /* Get an object header from a pointer */
 static object_t *get_object_header(void *ptr)
