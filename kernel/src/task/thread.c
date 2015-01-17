@@ -53,7 +53,7 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	thread_t *thread = (thread_t*) (((void*)object) + sizeof(object_t));
 
 	/* Initialize the microkernel thread structure */
-	mkthread_init(&thread->mkthread, &parent_process->mkprocess, fn, args, numa_domain, policy, priority, stack_size);
+	mkthread_init(&thread->mkthread, (parent_process ? (&parent_process->mkprocess) : NULL), fn, args, numa_domain, policy, priority, stack_size);
 
 	/* Establish a link between the parent process and ourself */
 	if (parent_process)

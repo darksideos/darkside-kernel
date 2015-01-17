@@ -19,10 +19,29 @@
 #include <types.h>
 #include <init/loader.h>
 #include <task/task.h>
+#include <task/thread.h>
+
+/* Test */
+void test(void *arg)
+{
+	while(1)
+	{
+		printf("%s\n", arg);
+		mkthread_yield();
+	}
+}
 
 /* Start the executive services */
 void executive_init(loader_block_t *loader_block)
 {
 	/* Initialize the process and thread manager */
 	tasking_init();
+
+	/* Create two new threads */
+	thread_create(NULL, &test, "Thread 1", 0, 0, POLICY_REALTIME, 31);
+	thread_create(NULL, &test, "Thread 2", 0, 0, POLICY_REALTIME, 31);
+
+	scheduler_run();
+
+	while(1);
 }
