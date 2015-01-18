@@ -20,7 +20,7 @@
 #include <string.h>
 #include <dict.h>
 #include <object/object.h>
-#include <object/interface.h>
+#include <object/type.h>
 #include <object/directory.h>
 #include <object/namespace.h>
 
@@ -56,7 +56,7 @@ static char *parent_child_split(char *path)
 }
 
 /* Look up an object in the object namespace */
-void *namespace_finddir(char *path, int iid)
+void *namespace_finddir(char *path, int type)
 {
 	/* Current spot in the traversal */
 	directory_t *current = root;
@@ -73,19 +73,15 @@ void *namespace_finddir(char *path, int iid)
 		{
 			return NULL;
 		}
-
+		
 		/* If the entire path has been parsed, return the object */
 		if (!next)
 		{
-			return object_query_interface(child, iid);
+			return child;
 		}
 
 		/* If we have to traverse more and we didn't get a directory, fail */
-		current = (directory_t*) object_query_interface(child, IID_DIRECTORY);
-		if (!current)
-		{
-			return NULL;
-		}
+		/* IMPLEMENT THIS */
 
 		/* Get the next path element */
 		element = next;
@@ -102,7 +98,7 @@ int namespace_hardlink(char *path, void *object)
 	char *child_name = parent_child_split(path);
 
 	/* Get the parent directory and add the child */
-	directory_t *parent = (directory_t*) namespace_finddir(path, IID_DIRECTORY);
+	directory_t *parent = (directory_t*) namespace_finddir(path, TYPE_DIRECTORY);
 	return directory_hardlink(parent, child_name, object);
 }
 
@@ -117,15 +113,15 @@ int namespace_rename(char *oldpath, char *newpath)
 	if ((strlen(old_child_name) == strlen(new_child_name)) && !strcmp(old_child_name, new_child_name))
 	{
 		/* Get the parent directory and rename the child */
-		directory_t *parent = (directory_t*) namespace_finddir(oldpath, IID_DIRECTORY);
+		directory_t *parent = (directory_t*) namespace_finddir(oldpath, TYPE_DIRECTORY);
 		return directory_rename(parent, old_child_name, new_child_name);
 	}
 	/* Otherwise, delete from original directory and add in new one */
 	else
 	{
 		/* Get both parents */
-		directory_t *old_parent = (directory_t*) namespace_finddir(oldpath, IID_DIRECTORY);
-		directory_t *new_parent = (directory_t*) namespace_finddir(newpath, IID_DIRECTORY);
+		directory_t *old_parent = (directory_t*) namespace_finddir(oldpath, TYPE_DIRECTORY);
+		directory_t *new_parent = (directory_t*) namespace_finddir(newpath, TYPE_DIRECTORY);
 
 		/* Get the object from the old directory */
 		void *object = directory_finddir(old_parent, old_child_name);
@@ -158,6 +154,6 @@ int namespace_delete(char *path)
 	char *child_name = parent_child_split(path);
 
 	/* Get the parent directory and remove the child */
-	directory_t *parent = (directory_t*) namespace_finddir(path, IID_DIRECTORY);
+	directory_t *parent = (directory_t*) namespace_finddir(path, TYPE_DIRECTORY);
 	return directory_delete(parent, child_name);
 }
