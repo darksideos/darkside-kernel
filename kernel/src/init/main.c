@@ -21,16 +21,6 @@
 #include <task/task.h>
 #include <task/thread.h>
 
-/* Test */
-void test(void *arg)
-{
-	while(1)
-	{
-		printf("%s\n", arg);
-		mkthread_yield();
-	}
-}
-
 /* Start the executive services */
 void executive_init(loader_block_t *loader_block)
 {
