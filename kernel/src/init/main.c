@@ -27,6 +27,8 @@ void executive_init(loader_block_t *loader_block)
 	/* Called from the microkernel during early initialization */
 	if (loader_block)
 	{
+		/* Initialize the object manager */
+
 		/* Initialize the memory manager */
 
 		/* Start the process and thread manager */
@@ -41,7 +43,13 @@ void executive_init(loader_block_t *loader_block)
 	/* Executive initialization thread */
 	else
 	{
-		printf("Initializing rest of executive\n");
+		/* Initialize the VFS */
+
+		/* Start enumerating the device tree and loading drivers */
+
+		/* Try opening the session manager until the filesystem is enabled */
+
+		/* Create the session manager process */
 	}
 
 	while(1);
