@@ -34,14 +34,25 @@ void test(void *arg)
 /* Start the executive services */
 void executive_init(loader_block_t *loader_block)
 {
-	/* Initialize the process and thread manager */
-	tasking_init();
+	/* Called from the microkernel during early initialization */
+	if (loader_block)
+	{
+		/* Initialize the memory manager */
 
-	/* Create two new threads */
-	thread_create(NULL, &test, "Thread 1", 0, 0, POLICY_REALTIME, 31);
-	thread_create(NULL, &test, "Thread 2", 0, 0, POLICY_REALTIME, 31);
+		/* Start the process and thread manager */
+		tasking_init();
 
-	scheduler_run();
+		/* Set up the module manager from the loader block */
+
+		/* Create a new thread to continue executive initialization */
+		thread_create(NULL, &executive_init, NULL, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		scheduler_run();
+	}
+	/* Executive initialization thread */
+	else
+	{
+		printf("Initializing rest of executive\n");
+	}
 
 	while(1);
 }
