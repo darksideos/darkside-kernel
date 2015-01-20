@@ -31,5 +31,5 @@ if [ -d binutils -a -d gcc ]; then
 		cd ..
 	cd ..
 else
-	echo 'binutils or gcc do not exist. Please download and extract the sources (http://ftp.gnu.org/gnu/binutils/, https://ftp.gnu.org/gnu/gcc/) into binutils and gcc folders.'
+	echo 'binutils or gcc do not exist. Please download and extract the sources \(http://ftp.gnu.org/gnu/binutils/, https://ftp.gnu.org/gnu/gcc/\) into binutils and gcc folders.'
 fi
