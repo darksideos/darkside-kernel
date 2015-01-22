@@ -1,13 +1,9 @@
 #ifndef __ITERATOR_H
 #define __ITERATOR_H
 
-/* Iterator structure */
-typedef struct iterator
+/* Iterator operations */
+typedef struct iterator_ops
 {
-	/* Object and current position */
-	void *object;
-	void *node;
-
 	/* Go back and forward in the iterator */
 	void* (*prev)(struct iterator *iter);
 	void* (*next)(struct iterator *iter);
@@ -19,7 +15,18 @@ typedef struct iterator
 	void (*insert)(struct iterator *iter, void *item);
 	
 	/* Remove the current item and return it */
-	void* (*remove)(struct iterator *iter);
+	void* (*remove)(struct iterator *iter);	
+} iterator_ops_t;
+
+/* Iterator structure */
+typedef struct iterator
+{
+	/* Iterator operations */
+	iterator_ops_t *ops;
+	
+	/* Object and current position */
+	void *object;
+	void *node;
 } iterator_t;
 
 #endif
