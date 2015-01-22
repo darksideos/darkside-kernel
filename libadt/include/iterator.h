@@ -1,6 +1,12 @@
 #ifndef __ITERATOR_H
 #define __ITERATOR_H
 
+/* Iterator public API macros */
+#define iter.now(iterp)		(iter.ops->now(iterp))
+#define iter.prev(iterp)	(iter.ops->prev(iterp))
+#define iter.next(iterp)	(iter.ops->next(iterp))
+#define iter.insert(iterp)	(iter.ops->insert(iterp))
+
 /* Iterator operations */
 typedef struct iterator_ops
 {
