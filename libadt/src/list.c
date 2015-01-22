@@ -168,17 +168,23 @@ static void list_entry_insert(iterator_t *iter, void *item)
 	}
 }
 
+/* List iterator operations */
+iterator_ops_t list_iter_ops =
+{
+	.now = &list_entry_now,
+	.prev = &list_entry_prev,
+	.next = &list_entry_next,
+	.insert = &list_entry_insert
+};
+
 /* Get an iterator for the linked list head */
 iterator_t list_head(list_t *list)
 {
 	iterator_t iter;
 
+	iter.ops = &list_iter_ops;
 	iter.object = list;
 	iter.node = list->head;
-	iter.now = &list_entry_now;
-	iter.prev = &list_entry_prev;
-	iter.next = &list_entry_next;
-	iter.insert = &list_entry_insert;
 
 	return iter;
 }
@@ -188,12 +194,9 @@ iterator_t list_tail(list_t *list)
 {
 	iterator_t iter;
 
+	iter.ops = &list_iter_ops;
 	iter.object = list;
 	iter.node = list->tail;
-	iter.now = &list_entry_now;
-	iter.prev = &list_entry_prev;
-	iter.next = &list_entry_next;
-	iter.insert = &list_entry_insert;
 
 	return iter;
 }
