@@ -2,12 +2,13 @@
 #define __ITERATOR_H
 
 /* Iterator public API macros */
-#define iter.now(iterp)		(iter->ops->now(iterp))
-#define iter.prev(iterp)	(iter->ops->prev(iterp))
-#define iter.next(iterp)	(iter->ops->next(iterp))
-#define iter.insert(iterp)	(iter->ops->insert(iterp))
+#define iter.now(iterp)		(iterp)->ops->now(iterp)
+#define iter.prev(iterp)	(iterp)->ops->prev(iterp)
+#define iter.next(iterp)	(iterp)->ops->next(iterp)
+#define iter.insert(iterp)	(iterp)->ops->insert(iterp)
 
 /* Iterator operations */
+struct iterator;
 typedef struct iterator_ops
 {
 	/* Go back and forward in the iterator */
