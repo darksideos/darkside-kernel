@@ -63,17 +63,17 @@ void *map_remove(map_t *map, uint64_t key)
 {
 	iterator_t iter = list_head(&map->buckets);
 
-	bucket_t *bucket = (bucket_t*) iter.now(&iter);
+	bucket_t *bucket = (bucket_t*) iter_now(&iter);
 	while (bucket)
 	{
 		if (bucket->key == key)
 		{
 			void *value = bucket->value;
-			iter.remove(&iter);
+			iter_remove(&iter);
 			return value;
 		}
 
-		bucket = (bucket_t*) iter.next(&iter);
+		bucket = (bucket_t*) iter_next(&iter);
 	}
 
 	return NULL;
@@ -84,7 +84,7 @@ void *map_get(map_t *map, uint64_t key)
 {
 	iterator_t iter = list_head(&map->buckets);
 
-	bucket_t *bucket = (bucket_t*) iter.now(&iter);
+	bucket_t *bucket = (bucket_t*) iter_now(&iter);
 	while (bucket)
 	{
 		if (bucket->key == key)
@@ -92,7 +92,7 @@ void *map_get(map_t *map, uint64_t key)
 			return bucket->value;
 		}
 
-		bucket = (bucket_t*) iter.next(&iter);
+		bucket = (bucket_t*) iter_next(&iter);
 	}
 
 	return NULL;
@@ -103,7 +103,7 @@ void map_set(map_t *map, uint64_t key, void *item)
 {
 	iterator_t iter = list_head(&map->buckets);
 
-	bucket_t *bucket = (bucket_t*) iter.now(&iter);
+	bucket_t *bucket = (bucket_t*) iter_now(&iter);
 	while (bucket)
 	{
 		if (bucket->key == key)
@@ -111,6 +111,6 @@ void map_set(map_t *map, uint64_t key, void *item)
 			bucket->value = item;
 		}
 
-		bucket = (bucket_t*) iter.next(&iter);
+		bucket = (bucket_t*) iter_next(&iter);
 	}
 }
