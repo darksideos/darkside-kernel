@@ -57,7 +57,7 @@ static void read_cpuid_info()
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
 	/* Read the CPU vendor string */
-	cpuid(CPUID_VENDOR, NULL, &cpu->vendor_string[0], &cpu->vendor_string[4], &cpu->vendor_string[8]);
+	cpuid(CPUID_VENDOR, NULL, &cpu->vendor_string[0], &cpu->vendor_string[8], &cpu->vendor_string[4]);
 
 	/* Read the standard features and extended features */
 	cpuid(CPUID_FEATURES, NULL, NULL, &cpu->features[1], &cpu->features[0]);
