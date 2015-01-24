@@ -19,15 +19,15 @@
 #ifndef __RWLOCK_H
 #define __RWLOCK_H
 
-#include <list.h>
+#include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 
 /* Readers/writer lock structure */
 typedef struct rwlock
 {
 	unsigned read_count, write_count;
-	list_t waitqueue;
-	spinlock_t waitqueue_lock;
+	waitqueue_t waitqueue;
+	spinlock_t lock;
 } rwlock_t;
 
 /* Readers/writer lock methods */
