@@ -89,16 +89,16 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 	/* Insert entries between non-contiguous entries */
 	iterator_t iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter_now(&iter);
 	mem_map_entry_t *next;
 	while (entry)
 	{
-		next = (mem_map_entry_t*) iter.next(&iter);
+		next = (mem_map_entry_t*) iter_next(&iter);
 		if (!next)
 		{
 			break;
 		}
-		iter.prev(&iter);
+		iter_prev(&iter);
 
 		/* If they aren't contiguous */
 		if (next && ((entry->base + entry->length) < next->base))
@@ -111,16 +111,16 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			new->numa_domain = /*0xFFFFFFFF*/0;
 
 			/* Insert it into the list */
-			iter.insert(&iter, new);
+			iter_insert(&iter, new);
 		}
 
-		entry = (mem_map_entry_t*) iter.next(&iter);
+		entry = (mem_map_entry_t*) iter_next(&iter);
 	}
 
 	/* Make the start contiguous if needed */
 	iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *start = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *start = (mem_map_entry_t*) iter_now(&iter);
 	if (start->base != 0)
 	{
 		/* Create a new entry */
@@ -131,13 +131,13 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		new->numa_domain = /*0xFFFFFFFF*/0;
 
 		/* Insert it into the list */
-		iter.insert(&iter, new);
+		iter_insert(&iter, new);
 	}
 
 	/* Find the 1MB mark and split memory there if needed */
 	iter = list_head(&phys_mem_map);
 
-	entry = (mem_map_entry_t*) iter.now(&iter);
+	entry = (mem_map_entry_t*) iter_now(&iter);
 	while (entry)
 	{
 		/* If it falls within the 1MB range, split it */
@@ -154,18 +154,18 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			entry->length = 0x100000 - entry->base;
 
 			/* Insert the new entry into the list and exit the loop  */
-			iter.insert(&iter, new);
+			iter_insert(&iter, new);
 			break;
 		}
 
-		entry = (mem_map_entry_t*) iter.next(&iter);
+		entry = (mem_map_entry_t*) iter_next(&iter);
 	}
 
 	/* Merge adjacent entries of the same type */
 	list_t new_phys_mem_map = list_create();
 	iter = list_head(&phys_mem_map);
 
-	entry = (mem_map_entry_t*) iter.now(&iter);
+	entry = (mem_map_entry_t*) iter_now(&iter);
 	uint64_t base = entry->base;
 	uint64_t length = 0;
 	uint32_t flags = entry->flags;
@@ -175,7 +175,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 		if (entry->flags == flags)
 		{
 			length += entry->length;
-			entry = iter.next(&iter);
+			entry = iter_next(&iter);
 		}
 		else
 		{
@@ -195,7 +195,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 			flags = entry->flags;
 
 			/* Get the next one */
-			entry = iter.next(&iter);
+			entry = iter_next(&iter);
 
 			/* If we're at the end, just add the new entry */
 			if (entry == 0)

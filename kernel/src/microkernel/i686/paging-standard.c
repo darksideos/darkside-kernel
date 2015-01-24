@@ -290,7 +290,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		/* Map the kernel and modules into the kernel address space */
 		iterator_t iter = list_head(loader_block->modules);
 
-		executable_t *module = (executable_t*) iter.now(&iter);
+		executable_t *module = (executable_t*) iter_now(&iter);
 		while (module)
 		{
 			for (vaddr_t i = module->start; i < module->end; i += PAGE_SIZE)
@@ -298,7 +298,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 				vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 			}
 
-			module = (executable_t*) iter.next(&iter);
+			module = (executable_t*) iter_next(&iter);
 		}
 
 		/* Map the per-CPU and NUMA domain data areas */

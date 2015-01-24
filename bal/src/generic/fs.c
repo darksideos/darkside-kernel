@@ -54,7 +54,7 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 	/* Is the filesystem already mounted? */
 	iterator_t iter = list_head(&mountpoints);
 
-	mountpoint_t *mp = (mountpoint_t*) iter.now(&iter);
+	mountpoint_t *mp = (mountpoint_t*) iter_now(&iter);
 	while (mp)
 	{
 		/* Does the node match */
@@ -63,7 +63,7 @@ int fs_mount(device_t *device, char *path, char *fs_name)
 			return -1;
 		}
 
-		mp = (mountpoint_t*) iter.next(&iter);
+		mp = (mountpoint_t*) iter_next(&iter);
 	}
 
 	/* Get the filesystem operations */
@@ -111,7 +111,7 @@ int fs_unmount(char *path)
 	/* Is the filesystem mounted? */
 	iterator_t iter = list_head(&mountpoints);
 
-	mountpoint_t *mp = (mountpoint_t*) iter.now(&iter);
+	mountpoint_t *mp = (mountpoint_t*) iter_now(&iter);
 	while (mp)
 	{
 		/* Does the node match */
@@ -121,7 +121,7 @@ int fs_unmount(char *path)
 			memcpy(node, &mp->orig_node_data, sizeof(inode_t));
 
 			/* Remove the mountpoint from the list */
-			iter.remove(&iter);
+			iter_remove(&iter);
 
 			/* Free the mountpoint's memory */
 			free(mp);
@@ -129,7 +129,7 @@ int fs_unmount(char *path)
 			return 0;
 		}
 
-		mp = (mountpoint_t*) iter.next(&iter);
+		mp = (mountpoint_t*) iter_next(&iter);
 	}
 
 	return -1;

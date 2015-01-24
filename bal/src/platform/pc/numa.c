@@ -36,11 +36,11 @@ void numa_mappings_detect(loader_block_t *loader_block)
 		/* Set all memory to use NUMA domain 0 */
 		iterator_t iter = list_head(loader_block->phys_mem_map);
 
-		mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+		mem_map_entry_t *entry = (mem_map_entry_t*) iter_now(&iter);
 		while (entry)
 		{
 			entry->numa_domain = 0;
-			entry = (mem_map_entry_t*) iter.next(&iter);
+			entry = (mem_map_entry_t*) iter_next(&iter);
 		}
 	}
 }
