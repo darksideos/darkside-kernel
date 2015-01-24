@@ -22,6 +22,9 @@
 #include <map.h>
 #include <security/sd.h>
 
+/* Interface header size */
+#define INTERFACE_HEADER_SIZE	(sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*))
+
 /* Object operations structure */
 struct object;
 typedef struct object_ops
