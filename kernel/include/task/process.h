@@ -5,7 +5,6 @@
 #include <microkernel/process.h>
 #include <mm/addrspace.h>
 #include <mm/page.h>
-#include <mm/section.h>
 #include <security/token.h>
 
 /* Process object */

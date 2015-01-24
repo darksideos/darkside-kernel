@@ -18,11 +18,12 @@
  */
 #include <types.h>
 #include <list.h>
+#include <map.h>
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 #include <mm/section.h>
 #include <object/object.h>
-#include <object/type.h>
+#include <object/interface.h>
 #include <security/token.h>
 #include <task/process.h>
 
@@ -30,14 +31,14 @@
 slab_cache_t *process_cache;
 
 /* Process object deletion function */
-static void process_delete(void *object)
+static void process_delete(void *process)
 {
 }
 
 /* Process object operations */
 static object_ops_t process_ops =
 {
-	.delete = &process_delete
+	.delete = &process_delete;
 };
 
 /* Create a process object */
@@ -51,8 +52,13 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	}
 
 	/* Initialize the generic object header */
-	object_init(object, TYPE_PROCESS, &process_ops);
-	process_t *process = (process_t*) (((void*)object) + sizeof(object_t));
+	
+	/* Add the process object as an interface */
+	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
+	obj_ptr[0] = object;
+	obj_ptr[1] = (object_t*) &process_ops;
+	process_t *process = (process_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
+	map_append(&object->interfaces, IID_PROCESS, process);
 
 	/* Initialize the microkernel process structure */
 	mkprocess_init(&process->mkprocess, numa_domain, policy, priority);
