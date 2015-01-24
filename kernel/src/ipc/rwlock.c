@@ -16,15 +16,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <stdio.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 #include <microkernel/synch.h>
 #include <ipc/rwlock.h>
 #include <task/thread.h>
 
-/* Readers/writer lock states */
-#define RWLOCK_READ_WAIT	0
-#define RWLOCK_WRITE_WAIT	1
+/* Readers/writer lock wait states */
+#define READER_WAITING	0
+#define WRITER_WAITING	1
 
 /* Initialize a readers/writer lock's values */
 void rwlock_init(rwlock_t *rwlock)
@@ -44,7 +45,7 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 	while (rwlock->write_count)
 	{
 		thread_t *current = thread_current();
-		current->rwlock_state = RWLOCK_READ_WAIT;
+		current->rwlock_state = READER_WAITING;
 		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
 		thread_yield();
@@ -90,7 +91,7 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 	while (rwlock->read_count)
 	{
 		thread_t *current = thread_current();
-		current->rwlock_state = RWLOCK_WRITE_WAIT;
+		current->rwlock_state = WRITER_WAITING;
 		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
 		thread_yield();
@@ -100,4 +101,45 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 	/* One more writer */
 	rwlock->write_count++;
 	spinlock_release(&rwlock->lock);
+}
+
+/* Release a readers/writer lock previously acquired for writing */
+void rwlock_write_release(rwlock_t *rwlock)
+{
+	/* Acquire the rwlock lock */
+	spinlock_acquire(&rwlock->lock);
+
+	/* No writers have acquired the lock */
+	if (rwlock->write_count == 0)
+	{
+		spinlock_release(&rwlock->lock);
+		return;
+	}
+
+	/* One fewer writer */
+	rwlock->read_count--;
+
+	/* If all the readers are gone, wake up waiting threads */
+	if (rwlock->read_count == 0)
+	{
+		/* Wake up the first thread on the queue */
+		thread_t *woken = waitqueue_unblock(&rwlock->waitqueue);
+
+		/* No threads waiting or writer thread */
+		if (!woken || woken->rwlock_state == WRITER_WAITING)
+		{
+			spinlock_release(&rwlock->lock);
+			return;
+		}
+		/* Reader thread, so we should wake up all other waiting readers */
+		else if (woken->rwlock_state == READER_WAITING)
+		{
+			/* TODO: Implement this */
+		}
+		/* Something else */
+		else
+		{
+			panic("Invalid rwlock wait state\n");
+		}
+	}
 }
