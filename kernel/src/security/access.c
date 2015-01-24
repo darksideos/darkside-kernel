@@ -54,13 +54,13 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 	/* First make sure none of our desired permissions are denied */
 	iterator_t iter = list_head(&descriptor->denied_object_acl->entries);
 
-	ace_t *entry = (ace_t*) iter.now(&iter);
+	ace_t *entry = (ace_t*) iter_now(&iter);
 	while (entry)
 	{
 		/* Skip the ACE if it doesn't mention our user or group */
 		if (!ace_matches_token(entry, token))
 		{
-			entry = (ace_t*) iter.next(&iter);
+			entry = (ace_t*) iter_next(&iter);
 		}
 
 		/* If one of our desired access rights is denied, fail the check */
@@ -70,19 +70,19 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 		}
 
 		/* Go to the next ACE */
-		entry = (ace_t*) iter.next(&iter);
+		entry = (ace_t*) iter_next(&iter);
 	}
 
 	/* Go through all the allowed permissions and record the ones we get */
 	iter = list_head(&descriptor->allowed_object_acl->entries);
 
-	entry = (ace_t*) iter.now(&iter);
+	entry = (ace_t*) iter_now(&iter);
 	while (entry)
 	{
 		/* Skip the ACE if it doesn't mention our user or group */
 		if (!ace_matches_token(entry, token))
 		{
-			entry = (ace_t*) iter.next(&iter);
+			entry = (ace_t*) iter_next(&iter);
 		}
 
 		/* Record the rights it gives us */
@@ -95,7 +95,7 @@ bool sd_check_access(security_descriptor_t *descriptor, token_t *token, access_m
 		}
 
 		/* Go to the next ACE */
-		entry = (ace_t*) iter.next(&iter);
+		entry = (ace_t*) iter_next(&iter);
 	}
 
 	/* If we didn't get access by now, we lack some permission */

@@ -23,7 +23,7 @@ find_boot: ;
 	/* Go through all of the device's children */
 	iterator_t iter = device_children(current);
 
-	device_t *child = (device_t*) iter.now(&iter);
+	device_t *child = (device_t*) iter_now(&iter);
 	while (child)
 	{
 		/* Is the device marked as boot? */
@@ -34,7 +34,7 @@ find_boot: ;
 		}
 
 		/* Get the next child */
-		child = (device_t*) iter.next(&iter);
+		child = (device_t*) iter_next(&iter);
 
 		/* If we searched all the children unsuccessfully, we failed to find the boot device */
 		if (!child)

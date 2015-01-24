@@ -2,10 +2,11 @@
 #define __ITERATOR_H
 
 /* Iterator public API macros */
-#define iter.now(iterp)		(iterp)->ops->now(iterp)
-#define iter.prev(iterp)	(iterp)->ops->prev(iterp)
-#define iter.next(iterp)	(iterp)->ops->next(iterp)
-#define iter.insert(iterp)	(iterp)->ops->insert(iterp)
+#define iter_now(iterp)			(iterp)->ops->now(iterp)
+#define iter_prev(iterp)		(iterp)->ops->prev(iterp)
+#define iter_next(iterp)		(iterp)->ops->next(iterp)
+#define iter_insert(iterp,item)	(iterp)->ops->insert(iterp,item)
+#define iter_remove(iterp)		(iterp)->ops->remove(iterp)
 
 /* Iterator operations */
 struct iterator;

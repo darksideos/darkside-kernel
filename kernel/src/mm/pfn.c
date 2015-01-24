@@ -70,7 +70,7 @@ void pfn_database_init(loader_block_t *loader_block)
 	/* Go through the physical memory map and add entries into the PFN database */
 	iterator_t iter = list_head(loader_block->phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter_now(&iter);
 	paddr_t index = 0;
 	while (entry)
 	{
@@ -191,6 +191,6 @@ void pfn_database_init(loader_block_t *loader_block)
 		}
 
 		/* Go to the next entry in the memory map */
-		entry = (mem_map_entry_t*) iter.next(&iter);
+		entry = (mem_map_entry_t*) iter_next(&iter);
 	}
 }

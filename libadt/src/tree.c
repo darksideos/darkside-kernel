@@ -65,7 +65,7 @@ void tree_node_insert(tree_node_t *parent, tree_node_t *child, uint32_t tree_ind
 
 	iterator_t iter = list_head(&node);
 	
-	tree_node_t *entry = (tree_node_t*) iter.now(&iter);
+	tree_node_t *entry = (tree_node_t*) iter_now(&iter);
 	
 	while(entry)
 	{
@@ -78,7 +78,7 @@ void tree_node_insert(tree_node_t *parent, tree_node_t *child, uint32_t tree_ind
 
 		tree_node_enumerate(map_get(&node->children, entry->key), level + 1);
 		
-		entry = (tree_node_t*) iter.next(&iter);
+		entry = (tree_node_t*) iter_next(&iter);
 	}
 }*/
 

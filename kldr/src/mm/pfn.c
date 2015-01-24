@@ -33,7 +33,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 	list_t phys_mem_map_copy = list_create();
 	iterator_t iter = list_head(loader_block->phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter_now(&iter);
 	while (entry)
 	{
 		/* Create a new entry */
@@ -47,7 +47,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 		list_insert_tail(&phys_mem_map_copy, new);
 
 		/* Go to the next entry */
-		entry = (mem_map_entry_t*) iter.next(&iter);
+		entry = (mem_map_entry_t*) iter_next(&iter);
 	}
 
 	/* Allocate space for the PFN database */
@@ -56,7 +56,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 
 	iter = list_head(&phys_mem_map_copy);
 
-	entry = (mem_map_entry_t*) iter.now(&iter);
+	entry = (mem_map_entry_t*) iter_now(&iter);
 	mem_map_entry_t *next = entry;
 	while (entry)
 	{
@@ -130,7 +130,7 @@ void pfn_database_alloc(loader_block_t *loader_block)
 		pfn_database = old_pfn_database + old_needed_space;
 
 		/* Go to the next entry */
-		next = (mem_map_entry_t*) iter.next(&iter);
+		next = (mem_map_entry_t*) iter_next(&iter);
 
 		if (!next)
 		{

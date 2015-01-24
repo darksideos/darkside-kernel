@@ -33,12 +33,12 @@ device_t *device_get_child(device_t *device, int child_num)
 	/* Find the entry corresponding to the number */
 	iterator_t iter = list_head(&device->children);
 
-	device_t *entry = (device_t*) iter.now(&iter);
+	device_t *entry = (device_t*) iter_now(&iter);
 	while (child_num > 0)
 	{
 		/* Get the next entry */
 		child_num--;
-		entry = (device_t*) iter.next(&iter);
+		entry = (device_t*) iter_next(&iter);
 
 		/* Return failure if we reach the end */
 		if (!entry)

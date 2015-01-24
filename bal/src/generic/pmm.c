@@ -33,7 +33,7 @@ paddr_t pmm_alloc_page()
 	/* Find the first available free memory */
 	iterator_t iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter_now(&iter);
 	while (entry)
 	{
 		/* If the entry is free */
@@ -43,8 +43,8 @@ paddr_t pmm_alloc_page()
 			uint64_t old_base = entry->base;
 
 			/* Get the previous entry */
-			mem_map_entry_t *prev = (mem_map_entry_t*) iter.prev(&iter);
-			iter.next(&iter);
+			mem_map_entry_t *prev = (mem_map_entry_t*) iter_prev(&iter);
+			iter_next(&iter);
 				
 			/* If the previous entry is compatible with the current one, we can expand the previous and contract the current */
 			if (prev && (prev->flags == (entry->flags & ~MEM_FLAG_FREE)) && (prev->numa_domain == entry->numa_domain))
@@ -65,7 +65,7 @@ paddr_t pmm_alloc_page()
 				new->numa_domain = entry->numa_domain;
 	
 				/* Insert it into the list  */
-				iter.insert(&iter, new);
+				iter_insert(&iter, new);
 	
 				/* Update the current entry */
 				entry->length = 0x1000;
@@ -77,7 +77,7 @@ paddr_t pmm_alloc_page()
 		}
 
 		/* Get the next entry */
-		entry = (mem_map_entry_t*) iter.next(&iter);
+		entry = (mem_map_entry_t*) iter_next(&iter);
 	}
 
 	/* No free memory */
@@ -90,7 +90,7 @@ void pmm_claim_page(paddr_t address)
 	/* Find the entry corresponding to the address */
 	iterator_t iter = list_head(&phys_mem_map);
 
-	mem_map_entry_t *entry = (mem_map_entry_t*) iter.now(&iter);
+	mem_map_entry_t *entry = (mem_map_entry_t*) iter_now(&iter);
 	while (entry)
 	{
 		/* If the address falls within the range of the entry */
@@ -110,8 +110,8 @@ void pmm_claim_page(paddr_t address)
 				entry->length = address - entry->base;
 
 				/* Insert the new entry into the list and jump to the next one  */
-				iter.insert(&iter, new);
-				entry = iter.next(&iter);
+				iter_insert(&iter, new);
+				entry = iter_next(&iter);
 			}
 
 			/* Create a new entry */
@@ -122,7 +122,7 @@ void pmm_claim_page(paddr_t address)
 			new->numa_domain = entry->numa_domain;
 
 			/* Insert it into the list */
-			iter.insert(&iter, new);
+			iter_insert(&iter, new);
 
 			/* Update the current entry */
 			entry->flags &= ~MEM_FLAG_FREE;

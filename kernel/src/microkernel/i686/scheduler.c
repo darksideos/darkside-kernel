@@ -174,7 +174,7 @@ find_priority: ;
 
 			/* There are threads in the priority */
 			iterator_t iter = list_head(&cpu->runqueues[policy][priority]);
- 			if (iter.now(&iter))
+ 			if (iter_now(&iter))
 			{
 				current_priority = priority;
 				found_priority = true;
@@ -201,7 +201,7 @@ find_priority: ;
 
 			/* If there are threads on the expired list */
 			iterator_t iter = list_head(&cpu->expired[policy-1]);
-			if (iter.now(&iter))
+			if (iter_now(&iter))
 			{
 				/* Start taking threads off the expired list and putting them back on the queue */
 				mkthread_t *expired = list_remove_head(&cpu->expired[policy-1]);
