@@ -19,6 +19,7 @@
 #ifndef __OBJECT_H
 #define __OBJECT_H
 
+#include <map.h>
 #include <security/sd.h>
 
 /* Object operations structure */
@@ -40,8 +41,11 @@ typedef struct object_ops
 /* Object header structure */
 typedef struct object
 {
-	/* Object type ID */
-	int type;
+	/* Object operations */
+	object_ops_t *ops;
+
+	/* Interface map */
+	map_t interfaces;
 
 	/* Generic object operations */
 	object_ops_t *ops;
