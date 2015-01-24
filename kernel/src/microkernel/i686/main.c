@@ -27,6 +27,7 @@
 #include <microkernel/paging.h>
 #include <microkernel/interrupt.h>
 #include <microkernel/thread.h>
+#include <microkernel/i686/cpuid.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/exception.h>
@@ -49,6 +50,20 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
+/* Read the CPUID info for a CPU */
+static void read_cpuid_info()
+{
+	/* Get the current CPU data area */
+	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
+
+	/* Read the CPU vendor string */
+	cpuid(CPUID_VENDOR, NULL, &cpu->vendor_string[0], &cpu->vendor_string[4], &cpu->vendor_string[8]);
+
+	/* Read the standard features and extended features */
+	cpuid(CPUID_FEATURES, NULL, NULL, &cpu->features[1], &cpu->features[0]);
+	cpuid(CPUID_EXT_FEATURES, NULL, NULL, &cpu->ext_features[1], &cpu->ext_features[0]);
+}
+
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -70,6 +85,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the per-CPU and NUMA domain data areas */
 		cpu_data_area_init(&loader_block);
+
+		/* Read our CPUID info */
+		read_cpuid_info();
 
 		/* Initialize the processor's GDT and IDT */
 		gdt_init();
@@ -154,7 +172,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Signal memory manager initialization to the APs */
 		cpu_t *cpu = cpu_data_area(CPU_CURRENT);
-		printf("0x%08X\n", sizeof(cpu_t));
 		cpu->flags |= CPU_MM_INIT;
 
 		/* Initialize the interrupt manager and signal it to the APs */
@@ -186,6 +203,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 	{
 		/* Initialize the Local APIC */
 		lapic_init(NULL, bsp);
+
+		/* Read our CPUID info */
+		read_cpuid_info();
 
 		/* Initialize the processor's GDT and use the BSP's IDT */
 		gdt_init();
