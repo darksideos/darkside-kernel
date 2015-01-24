@@ -16,45 +16,55 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <microkernel/waitqueue.h>
+#include <microkernel/lock.h>
+#include <microkernel/synch.h>
+#include <ipc/rwlock.h>
+#include <task/thread.h>
+
+/* Readers/writer lock states */
+#define RWLOCK_READ_WAIT	0
+#define RWLOCK_WRITE_WAIT	1
 
 /* Initialize a readers/writer lock's values */
 void rwlock_init(rwlock_t *rwlock)
 {
 	rwlock->read_count = rwlock->write_count = 0;
-	rwlock->waitqueue = list_create();
-	spinlock_init(&rwlock->waitqueue_lock);
+	rwlock->waitqueue = waitqueue_create();
+	spinlock_init(&rwlock->lock);
 }
 
 /* Acquire a readers/writer lock for reading */
 void rwlock_read_acquire(rwlock_t *rwlock)
 {
-	/* Acquire the wait queue lock */
-	spinlock_acquire(&rwlock->waitqueue_lock);
+	/* Acquire the rwlock lock */
+	spinlock_acquire(&rwlock->lock);
 
 	/* If a writer currently has the lock, block on the lock */
 	while (rwlock->write_count)
 	{
 		thread_t *current = thread_current();
-		current->state = THREAD_BLOCKED;
-		list_insert_tail(&rwlock->waitqueue, current);
-		spinlock_release(&rwlock->waitqueue_lock);
+		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
+		spinlock_release(&rwlock->lock);
 		thread_yield();
-		spinlock_acquire(&rwlock->waitqueue_lock);
+		spinlock_acquire(&rwlock->lock);
 	}
 
 	/* One more reader */
 	rwlock->read_count++;
+	spinlock_release(&rwlock->lock);
 }
 
 /* Release a readers/writer lock previously acquired for reading */
 void rwlock_read_release(rwlock_t *rwlock)
 {
-	/* Acquire the wait queue lock */
-	spinlock_acquire(&rwlock->waitqueue_lock);
+	/* Acquire the rwlock lock */
+	spinlock_acquire(&rwlock->lock);
 
 	/* No readers have acquired the lock */
 	if (rwlock->read_count == 0)
 	{
+		spinlock_release(&rwlock->lock);
 		return;
 	}
 
@@ -64,5 +74,6 @@ void rwlock_read_release(rwlock_t *rwlock)
 	/* If all the readers are gone, wake up a writer if there is one */
 	if (rwlock->read_count == 0)
 	{
+		spinlock_release(&rwlock->lock);
 	}
 }
