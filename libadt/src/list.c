@@ -169,8 +169,9 @@ static void list_entry_insert(iterator_t *iter, void *item)
 }
 
 /* List iterator operations */
-iterator_ops_t list_iter_ops =
+static iterator_ops_t list_iter_ops =
 {
+	.parent_ops = NULL,
 	.now = &list_entry_now,
 	.prev = &list_entry_prev,
 	.next = &list_entry_next,

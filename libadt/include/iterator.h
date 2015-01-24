@@ -12,6 +12,9 @@
 struct iterator;
 typedef struct iterator_ops
 {
+	/* Parent iterator operations */
+	struct iterator_ops *parent_ops;
+
 	/* Go back and forward in the iterator */
 	void* (*prev)(struct iterator *iter);
 	void* (*next)(struct iterator *iter);
