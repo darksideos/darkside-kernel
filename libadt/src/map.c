@@ -114,3 +114,45 @@ void map_set(map_t *map, uint64_t key, void *item)
 		bucket = (bucket_t*) iter_next(&iter);
 	}
 }
+
+/* Get the current value */
+static void *map_entry_now(iterator_t *iter)
+{
+	bucket_t *bucket = (bucket_t*) iter->ops->parent_ops->now(iter);
+	return bucket ? bucket->value : NULL;
+}
+
+/* Get the previous element of an entry */
+static void *map_entry_prev(iterator_t *iter)
+{
+	bucket_t *bucket = (bucket_t*) iter->ops->parent_ops->prev(iter);
+	return bucket ? bucket->value : NULL;
+}
+
+/* Get the next element of an entry */
+static void *map_entry_next(iterator_t *iter)
+{
+	bucket_t *bucket = (bucket_t*) iter->ops->parent_ops->next(iter);
+	return bucket ? bucket->value : NULL;
+}
+
+/* Map iterator operations */
+static iterator_ops_t map_iter_ops =
+{
+	.parent_ops = NULL,
+	.now = &map_entry_now,
+	.prev = &map_entry_prev,
+	.next = &map_entry_next,
+	.insert = NULL
+};
+
+/* Get an iterator for the values in the map */
+iterator_t map_values(map_t *map)
+{
+	iterator_t iter = list_head(&map->buckets);
+	iterator_ops_t *list_iter_ops = iter.ops;
+	iter.ops = &map_iter_ops;
+	iter.ops = list_iter_ops;
+
+	return iter;
+}
