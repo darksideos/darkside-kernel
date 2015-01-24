@@ -44,6 +44,7 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 	while (rwlock->write_count)
 	{
 		thread_t *current = thread_current();
+		current->rwlock_state = RWLOCK_READ_WAIT;
 		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
 		thread_yield();
@@ -74,6 +75,29 @@ void rwlock_read_release(rwlock_t *rwlock)
 	/* If all the readers are gone, wake up a writer if there is one */
 	if (rwlock->read_count == 0)
 	{
+		waitqueue_unblock(&rwlock->waitqueue);
 		spinlock_release(&rwlock->lock);
 	}
+}
+
+/* Acquire a readers/writer lock for writing */
+void rwlock_write_acquire(rwlock_t *rwlock)
+{
+	/* Acquire the rwlock lock */
+	spinlock_acquire(&rwlock->lock);
+
+	/* If a reader currently has the lock, block on the lock */
+	while (rwlock->read_count)
+	{
+		thread_t *current = thread_current();
+		current->rwlock_state = RWLOCK_WRITE_WAIT;
+		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
+		spinlock_release(&rwlock->lock);
+		thread_yield();
+		spinlock_acquire(&rwlock->lock);
+	}
+
+	/* One more writer */
+	rwlock->write_count++;
+	spinlock_release(&rwlock->lock);
 }
