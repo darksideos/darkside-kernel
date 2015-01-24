@@ -48,7 +48,7 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 		current->rwlock_state = READER_WAITING;
 		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
-		thread_yield();
+		mkthread_yield();
 		spinlock_acquire(&rwlock->lock);
 	}
 
@@ -94,7 +94,7 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 		current->rwlock_state = WRITER_WAITING;
 		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
-		thread_yield();
+		mkthread_yield();
 		spinlock_acquire(&rwlock->lock);
 	}
 
