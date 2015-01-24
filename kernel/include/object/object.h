@@ -40,7 +40,6 @@ typedef struct object_ops
 
 /* Object header structure */
 typedef struct object
-<<<<<<< HEAD
 {
 	/* Object operations */
 	object_ops_t *ops;

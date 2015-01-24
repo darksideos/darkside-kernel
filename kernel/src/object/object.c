@@ -105,13 +105,13 @@ void object_unref(void *object)
 			{
 				iterator_t iter = map_values(&header->interfaces);
 
-				object_ops_t **interface = (object_ops_t**) iter.now(&iter);
+				object_ops_t **interface = (object_ops_t**) iter_now(&iter);
 				while (interface)
 				{
-					void *object = ((void*)interface) + sizeof(object_t*) + sizeof(object_ops_t*);
+					void *body = ((void*)interface) + sizeof(object_t*) + sizeof(object_ops_t*);
 					object_ops_t *ops = interface[1];
-					ops->delete(object);
-					interface = (object_ops_t**) iter.next(&iter);
+					ops->delete(body);
+					interface = (object_ops_t**) iter_next(&iter);
 				}
 			}
 

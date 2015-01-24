@@ -3,6 +3,7 @@
 
 #include <microkernel/thread.h>
 #include <security/token.h>
+#include <task/process.h>
 
 /* Thread object */
 typedef struct thread
