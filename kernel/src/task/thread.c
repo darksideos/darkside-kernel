@@ -36,7 +36,7 @@ static void thread_delete(void *thread)
 /* Thread object operations */
 static object_ops_t thread_ops =
 {
-	.delete = &thread_delete;
+	.delete = &thread_delete
 };
 
 /* Create a thread object */
@@ -59,7 +59,7 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	map_append(&object->interfaces, IID_THREAD, thread);
 
 	/* Initialize the microkernel thread structure */
-	mkprocess_init(&thread->mkthread, (parent_process ? (&parent_process->mkprocess) : NULL), fn, args, numa_domain, policy, priority, stack_size);
+	mkthread_init(&thread->mkthread, (parent_process ? (&parent_process->mkprocess) : NULL), fn, args, numa_domain, policy, priority, stack_size);
 
 	/* Establish a link between the parent process and ourself */
 	if (parent_process)

@@ -38,7 +38,7 @@ static void process_delete(void *process)
 /* Process object operations */
 static object_ops_t process_ops =
 {
-	.delete = &process_delete;
+	.delete = &process_delete
 };
 
 /* Create a process object */
