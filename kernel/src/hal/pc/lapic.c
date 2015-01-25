@@ -52,10 +52,7 @@ static uint32_t volatile *lapic = NULL;
 
 /* Handler for the LAPIC timer */
 static bool lapic_timer_handler(interrupt_t *interrupt)
-{
-	/* Print our special message */
-	printf("LAPIC\n");
-	
+{	
 	/* Send an EOI to the Local APIC and resolve the interrupt */
 	lapic[EOI] = 0;
 	return true;

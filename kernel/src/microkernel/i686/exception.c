@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <string.h>
+#include <stdio.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/isr.h>
 #include <mm/mmfault.h>

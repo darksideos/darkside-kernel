@@ -5,13 +5,13 @@
 extern "C"
 {
 #endif
-void *memcpy(void *dest, void *src, size_t count);
+void *memcpy(void *dest, const void *src, size_t count);
 void *memmove(void *dest, void *src, size_t count);
 void *memset(void *dest, uint8_t val, size_t count);
 void *memsetw(void *dest, uint16_t val, size_t count);
 int memcmp(const void *ptr1, const void *ptr2, size_t count);
-char *strcpy(char *dest, char *src);
-char *strncpy(char *dest, char *src, size_t count);
+char *strcpy(char *dest, const char *src);
+char *strncpy(char *dest, const char *src, size_t count);
 char *strdup(char *str1);
 int strcmp(char *s1, char *s2);
 int strncmp(char *s1, char *s2, size_t num);

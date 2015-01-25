@@ -20,7 +20,7 @@
 #include <types.h>
 #include <string.h>
 
-void *memcpy(void *dest, void *src, size_t count)
+void *memcpy(void *dest, const void *src, size_t count)
 {
     const uint8_t *sp = (const uint8_t*) src;
     uint8_t *dp = (uint8_t*) dest;
@@ -77,12 +77,12 @@ int memcmp(const void *ptr1, const void *ptr2, size_t count)
 	return 0;
 }
 
-char *strcpy(char *dest, char *src)
+char *strcpy(char *dest, const char *src)
 {
 	return (char*) memcpy(dest, src, strlen(src) + 1);
 }
 
-char *strncpy(char *dest, char *src, size_t size)
+char *strncpy(char *dest, const char *src, size_t size)
 {
 	return (char*) memcpy(dest, src, size + 1);
 }
