@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * syscall.c - Syscall dispatcher for the x86 architecture
+ * syscall.c - Syscall dispatcher for the i686 architecture
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,13 +17,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
-#include <string.h>
-#include <stdio.h>
 #include <microkernel/cpu.h>
+#include <microkernel/i686/idt.h>
+#include <microkernel/i686/msr.h>
 
-/* SYSENTER and SYSCALL support on 32-bit and 64-bit */
-bool sysenter32 = false, sysenter64 = false;
-bool syscall32 = false, syscall64 = true;
+/* SYSENTER and SYSCALL support flags */
+bool sysenter = false, syscall = false;
+
+/* Entry points for software interrupts, SYSENTER, and SYSCALL */
+void software_int_entry();
+void sysenter_entry();
+void syscall_entry();
 
 /* Initialize the syscall manager */
 void syscalls_init()
@@ -31,39 +35,41 @@ void syscalls_init()
 	/* Get the current CPU data area */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
-	/* Intel processor */
-	if (!strcmp(&cpu->vendor_string[0], CPUID_VENDOR_INTEL))
-	{
-		/* If SYSENTER is supported, it works in 32-bit and 64-bit */
-		if (cpu->features[0] & CPUID_FEAT_EDX_SEP)
-		{
-			sysenter32 = sysenter64 = true;
-		}
+	/* Software interrupts always work */
 
-		/* If SYSCALL is supported, it works in 32-bit */
-		if (cpu->ext_features[0] & CPUID_FEAT_EDX_SEP)
-		{
-			syscall32 = true;
-		}
-	}
-	/* AMD processor */
-	else if (!strcmp(&cpu->vendor_string[0], CPUID_VENDOR_AMD))
-	{
-		/* If SYSENTER is supported, it works in 32-bit only */
-		if (cpu->features[0] & CPUID_FEAT_EDX_SEP)
-		{
-			sysenter32 = true;
-		}
 
-		/* If SYSCALL is supported, it works in 32-bit and 64-bit */
-		if (cpu->ext_features[0] & CPUID_FEAT_EDX_SEP)
-		{
-			syscall32 = syscall64 = true;
-		}
-	}
-	/* Other vendor */
-	else
+	/* SYSENTER is supported */
+	if (cpu->features[0] & CPUID_FEAT_EDX_SEP)
 	{
-		panic("Unsupported CPU vendor\n");
+		/* Set the SYSENTER support flag */
+		sysenter = true;
+
+		/* Set the kernel ESP value */
+		uint32_t low = 0, high = 0;
+		wrmsr(IA32_MSR_SYSENTER_ESP, &low, &high);
+
+		/* Set the kernel CS value */
+		low = KERNEL_CS;
+		wrmsr(IA32_MSR_SYSENTER_CS, &low, &high);
+
+		/* Set the kernel EIP value */
+		low = &sysenter_entry;
+		wrmsr(IA32_MSR_SYSENTER_EIP, &low, &high);
+	}
+
+	/* SYSCALL is supported */
+	if (cpu->ext_features[0] & CPUID_FEAT_EDX_SEP)
+	{
+		/* Set the SYSENTER support flag */
+		sysenter = true;
+
+		/* Set the kernel EFLAGS mask value */
+		uint32_t low = 0, high = 0;
+		wrmsr(AMD64_MSR_SFMASK, &low, &high);
+
+		/* Set the kernel EIP and segment registers */
+		low = &syscall_entry;
+		high = (KERNEL_CS | (USER_CS << 16));
+		wrmsr(AMD64_MSR_STAR, &low, &high);
 	}
 }
