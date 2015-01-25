@@ -18,35 +18,36 @@
 ; Generic syscall dispatcher
 extern memcpy
 syscall_dispatcher:
-	; Check the syscall number
+	; Check the syscall number in EAX
 	cmp eax, 0
 	jl .invalid_num
 	cmp eax, 100
 	jge .invalid_num
 	
-	; Read the syscall target
+	; Read the syscall target into EDI
 	extern syscall_table
 	mov edi, [syscall_table + eax*4]
 	test edi, edi
 	je .no_syscall
 
-	; Get the number of bytes for parameters
+	; Get the number of bytes for parameters into ESI
 	extern param_bytes
-	mov ecx, [param_bytes + eax*4]
+	mov esi, [param_bytes + eax*4]
 	
 	; Verify the parameter data address in EBX
 	
-	; Copy the parameters to the stack
-	sub esp, ecx
+	; Copy the parameters to the stack (ESI bytes from EBX to stack)
+	sub esp, esi
 	mov eax, esp
-	push ecx
+	push esi
 	push ebx
 	push eax
 	call memcpy
 	add esp, 12
 	
-	; Call the syscall and return
+	; Call the syscall and clean up the stack
 	call edi
+	add esp, esi
 .invalid_num:
 .no_syscall:
 	ret
