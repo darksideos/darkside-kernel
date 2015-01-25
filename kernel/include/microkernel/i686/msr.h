@@ -25,6 +25,12 @@
 #define IA32_MSR_SYSENTER_ESP	0x175
 #define IA32_MSR_SYSENTER_EIP	0x176
 
+/* AMD64 MSR values */
+#define AMD64_MSR_STAR			0xC0000081
+#define AMD64_MSR_LSTAR			0xC0000082
+#define AMD64_MSR_CSTAR			0xC0000083
+#define AMD64_MSR_SFMASK		0xC0000084
+
 /* Read a value from an MSR */
 void rdmsr(uint32_t msr, uint32_t *low, uint32_t *high);
 
