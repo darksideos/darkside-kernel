@@ -53,7 +53,7 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 
 	/* Get the page directory and page table from the current page directory */
 	uint32_t *directory, *table;
-	if (address_space == -1)
+	if (address_space == ADDR_SPACE_CURRENT)
 	{
 		/* Get the address of the recursive page directory and recursive page table */
 		directory = (uint32_t*) 0xFFFFF000;
@@ -76,7 +76,7 @@ static uint32_t *get_page(paddr_t address_space, vaddr_t virtual_address, bool m
 	else if (make)
 	{
 		/* Create a new page table */
-		if (address_space == -1)
+		if (address_space == ADDR_SPACE_CURRENT)
 		{
 			/* Map it recursively */
 			int color = vaddr_cache_color((vaddr_t) table, NUMA_DOMAIN_BEST, 0);
