@@ -172,7 +172,7 @@ list_t e820_map_sanitize(e820_entry_t *e820_entries, uint32_t num_e820_entries)
 
 	while (entry)
 	{
-		if (entry->flags == flags)
+		if (entry->flags == (int)flags)
 		{
 			length += entry->length;
 			entry = iter_next(&iter);

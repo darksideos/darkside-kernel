@@ -32,21 +32,21 @@ static list_t mountpoints;
 static inode_t *root;
 
 /* Register a filesystem */
-int fs_register(char *fs_name, filesystem_ops_t *ops)
+int fs_register(const char *fs_name, filesystem_ops_t *ops)
 {
 	dict_append(&filesystems, fs_name, ops);
 	return 0;
 }
 
 /* Unregister a filesystem */
-int fs_unregister(char *fs_name)
+int fs_unregister(const char *fs_name)
 {
 	dict_remove(&filesystems, fs_name);
 	return 0;
 }
 
 /* Mount a filesystem */
-int fs_mount(device_t *device, char *path, char *fs_name)
+int fs_mount(device_t *device, char *path, const char *fs_name)
 {
 	/* Open the node to mount */
 	inode_t *node = fs_open(path);

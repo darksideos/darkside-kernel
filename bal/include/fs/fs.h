@@ -7,11 +7,11 @@
 #include <fs/mountpoint.h>
 
 /* Filesystem registration functions */
-int fs_register(char *fs_name, filesystem_ops_t *ops);
-int fs_unregister(char *fs_name);
+int fs_register(const char *fs_name, filesystem_ops_t *ops);
+int fs_unregister(const char *fs_name);
 
 /* Mounting functions */
-int fs_mount(device_t *device, char *path, char *fs_name);
+int fs_mount(device_t *device, char *path, const char *fs_name);
 int fs_unmount(char *path);
 
 /* Inode and directory functions */
