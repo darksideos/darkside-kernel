@@ -27,6 +27,7 @@
 #include <microkernel/paging.h>
 #include <microkernel/interrupt.h>
 #include <microkernel/thread.h>
+#include <microkernel/syscall.h>
 #include <microkernel/i686/cpuid.h>
 #include <microkernel/i686/gdt.h>
 #include <microkernel/i686/idt.h>
@@ -59,7 +60,7 @@ static void read_cpuid_info()
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
 	/* Read the CPU vendor string */
-	cpuid(CPUID_VENDOR, NULL, &cpu->vendor_string[0], &cpu->vendor_string[8], &cpu->vendor_string[4]);
+	cpuid(CPUID_VENDOR, NULL, (uint32_t*)&cpu->vendor_string[0], (uint32_t*)&cpu->vendor_string[8], (uint32_t*)&cpu->vendor_string[4]);
 
 	/* Read the standard features and extended features */
 	cpuid(CPUID_FEATURES, NULL, NULL, &cpu->features[1], &cpu->features[0]);

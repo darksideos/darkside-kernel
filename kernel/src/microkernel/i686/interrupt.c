@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <string.h>
+#include <stdio.h>
 #include <microkernel/lock.h>
 #include <microkernel/interrupt.h>
 #include <microkernel/i686/idt.h>
