@@ -34,6 +34,10 @@
 #define CPUID_EXT_L1CACHE		0x80000005
 #define CPUID_EXT_L2CACHE		0x80000006
 
+/* CPUID vendor names */
+#define CPUID_VENDOR_INTEL		"GenuineIntel"
+#define CPUID_VENDOR_AMD		"AuthenticAMD"
+
 /* CPUID feature flags */
 enum
 {
