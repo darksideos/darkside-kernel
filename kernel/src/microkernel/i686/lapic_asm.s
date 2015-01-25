@@ -20,10 +20,6 @@
 ; Local APIC spurious IRQ
 global lapic_irq_spurious
 lapic_irq_spurious:
-	; Push the interrupt number and error code
-	push byte 0
-	push byte 255
-
 	; Save all needed registers
 	push eax
 	push ecx
@@ -58,5 +54,4 @@ lapic_irq_spurious:
 	pop eax
 	
 	; Return from the interrupt
-	add esp, 8
 	iret
