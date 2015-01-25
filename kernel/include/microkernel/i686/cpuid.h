@@ -92,7 +92,10 @@ enum
     CPUID_FEAT_ECX_AES          = 1 << 25, 
     CPUID_FEAT_ECX_XSAVE        = 1 << 26, 
     CPUID_FEAT_ECX_OSXSAVE      = 1 << 27, 
-    CPUID_FEAT_ECX_AVX          = 1 << 28
+    CPUID_FEAT_ECX_AVX          = 1 << 28,
+	CPUID_FEAT_ECX_F16C			= 1 << 29,
+	CPUID_FEAT_ECX_RDRAND		= 1 << 30,
+	CPUID_FEAT_ECX_HV			= 1 << 31
 };
 
 /* Perform a CPUID request */
