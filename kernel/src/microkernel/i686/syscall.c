@@ -33,14 +33,15 @@ bool sysenter = false, syscall = false;
 
 /* Syscall table and parameter info */
 void *syscall_table[100];
-uint32_t param_bytes[100];
+size_t param_bytes[100];
 
 /* Register a syscall */
-void syscall_register(int num, void *fn)
+void syscall_register(int num, void *fn, size_t params_size)
 {
 	if (num >= 0 && num < 100)
 	{
 		syscall_table[num] = fn;
+		param_bytes[num] = params_size;
 	}
 }
 
@@ -50,6 +51,7 @@ void syscall_unregister(int num)
 	if (num >= 0 && num < 100)
 	{
 		syscall_table[num] = NULL;
+		param_bytes[num] = 0;
 	}
 }
 
