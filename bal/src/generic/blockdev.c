@@ -45,6 +45,7 @@ int blockdev_enumerate(device_t *device)
 		if (!memcmp(&gpt_sector[0], "EFI PART", 8))
 		{
 			panic("GPT support not implemented!\n");
+			return -1;
 		}
 		/* Only standard MBR */
 		else

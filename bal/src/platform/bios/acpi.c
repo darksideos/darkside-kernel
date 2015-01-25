@@ -56,7 +56,7 @@ static struct acpi_table_header *map_acpi_table(paddr_t physical_address)
 	/* Map the first page of the table */
 	vaddr_t virtual_address = table_address;
 	vmm_map_page(virtual_address, physical_address, PAGE_READ | PAGE_WRITE);
-	struct acpi_table_header *table = (struct acpi_table_header*) (virtual_address + (physical_address & 0xFFF));
+	struct acpi_table_header *table = (struct acpi_table_header*) ((vaddr_t) (virtual_address + (physical_address & 0xFFF)));
 
 	/* Determine how many more we need to map */
 	uint32_t old_size = 0x1000 - (physical_address & 0xFFF);

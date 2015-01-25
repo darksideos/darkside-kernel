@@ -61,7 +61,7 @@ void *memsetw(void *dest, uint16_t val, size_t count)
     return dest;
 }
 
-int memcmp(void *ptr1, void *ptr2, size_t count)
+int memcmp(const void *ptr1, const void *ptr2, size_t count)
 {
 	uint8_t *temp1 = (uint8_t*) ptr1;
 	uint8_t *temp2 = (uint8_t*) ptr2;
