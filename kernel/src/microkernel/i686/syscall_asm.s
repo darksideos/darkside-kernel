@@ -17,11 +17,7 @@
 
 ; Software interrupt entry point
 global software_int_entry
-software_int_entry:
-	; Push the dummy error code and vector number
-	push byte 0
-	push word 0x80
-	
+software_int_entry:	
 	; Save all needed registers
 	push eax
 	push ecx
