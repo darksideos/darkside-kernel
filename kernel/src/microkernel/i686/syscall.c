@@ -36,7 +36,7 @@ void syscalls_init()
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
 	/* Software interrupts always work */
-
+	idt_set_gate(0x80, &software_int_entry, IDT_GATE_INT, true);
 
 	/* SYSENTER is supported */
 	if (cpu->features[0] & CPUID_FEAT_EDX_SEP)
