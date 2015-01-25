@@ -72,7 +72,7 @@ void interrupt_handler(struct regs *regs)
 /* Create an interrupt object */
 interrupt_t *interrupt_create()
 {
-	interrupt_t *interrupt = slab_cache_alloc(interrupt_cache);
+	return (interrupt_t*) slab_cache_alloc(interrupt_cache);
 }
 
 /* Destroy an interrupt object */
