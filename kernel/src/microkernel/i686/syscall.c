@@ -31,13 +31,9 @@ void syscall_entry();
 /* SYSENTER and SYSCALL support flags */
 bool sysenter = false, syscall = false;
 
-/* Syscall table */
-static void *syscall_table[100];
-
-/* Syscall handler */
-void syscall_handler(struct regs *regs)
-{
-}
+/* Syscall table and parameter info */
+void *syscall_table[100];
+uint32_t param_bytes[100];
 
 /* Register a syscall */
 void syscall_register(int num, void *fn)
