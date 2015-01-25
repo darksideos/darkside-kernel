@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <string.h>
+#include <stdio.h>
 #include <list.h>
 #include <init/loader.h>
 #include <microkernel/cpu.h>
