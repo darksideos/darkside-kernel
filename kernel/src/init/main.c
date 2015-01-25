@@ -37,8 +37,7 @@ void executive_init(loader_block_t *loader_block)
 		/* Set up the module manager from the loader block */
 
 		/* Create a new thread to continue executive initialization */
-		thread_create(NULL, &executive_init, NULL, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
-		scheduler_run();
+		//thread_create(NULL, &executive_init, NULL, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
 	}
 	/* Executive initialization thread */
 	else
