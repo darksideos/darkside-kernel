@@ -27,7 +27,7 @@
 #endif
 
 /* Address space mnemonics */
-#define ADDR_SPACE_CURRENT	-1
+#define ADDR_SPACE_CURRENT		((paddr_t)-1)
 
 /* Page protections */
 #define PAGE_READ				0x01
@@ -45,6 +45,9 @@
 #define HYPERSPACE_ADDR_SPACE	0
 #define HYPERSPACE_ZEROPAGE		1
 #define HYPERSPACE_ANY			2
+
+/* Page mapping mnemonics */
+#define MAPPING_INVALID			((paddr_t)-1)
 
 /* Flush a TLB entry and flush the entire TLB */
 void vmm_flush_tlb_entry(vaddr_t virtual_address);

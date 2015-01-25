@@ -33,6 +33,9 @@
 /* Maximum number of cache colors */
 #define MAX_CACHE_COLORS	1
 
+/* Error codes */
+#define OUT_OF_MEMORY		((paddr_t)-1)
+
 /* Allocate one or more physical pages */
 paddr_t pmm_alloc_page(int flags, int numa_domain, int color);
 paddr_t pmm_alloc_pages(int num_pages, int flags, int numa_domain, int color);
