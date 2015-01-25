@@ -19,15 +19,42 @@
 #include <types.h>
 #include <microkernel/cpu.h>
 #include <microkernel/i686/idt.h>
+#include <microkernel/i686/isr.h>
 #include <microkernel/i686/msr.h>
-
-/* SYSENTER and SYSCALL support flags */
-bool sysenter = false, syscall = false;
 
 /* Entry points for software interrupts, SYSENTER, and SYSCALL */
 void software_int_entry();
 void sysenter_entry();
 void syscall_entry();
+
+/* SYSENTER and SYSCALL support flags */
+bool sysenter = false, syscall = false;
+
+/* Syscall table */
+static void *syscall_table[100];
+
+/* Syscall handler */
+void syscall_handler(struct regs *regs)
+{
+}
+
+/* Register a syscall */
+void syscall_register(int num, void *fn)
+{
+	if (num >= 0 && num < 100)
+	{
+		syscall_table[num] = handler;
+	}
+}
+
+/* Unregister a syscall */
+void syscall_unregister(int num)
+{
+	if (num >= 0 && num < 100)
+	{
+		syscall_table[num] = NULL;
+	}
+}
 
 /* Initialize the syscall manager */
 void syscalls_init()

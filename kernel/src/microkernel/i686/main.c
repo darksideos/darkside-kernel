@@ -195,6 +195,9 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/*demo(&fb, ps2kbd_module_init, ps2mouse_module_init);*/
 
+		/* Initialize the syscall manager */
+		syscalls_init();
+
 		/* Start the executive services */
 		executive_init(&loader_block);
 	}
