@@ -198,6 +198,12 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize the syscall manager */
 		syscalls_init();
 
+		/* Register a syscall and call it */
+		syscall_register(0, &bootvid_puts, 4);
+		char *param = "Hello, syscalls";
+		int a;
+		__asm__ volatile("int $0x80" : "=a" (a) : "0" (0), "b" ((int)&param));
+
 		/* Start the executive services */
 		executive_init(&loader_block);
 	}
