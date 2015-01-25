@@ -55,7 +55,6 @@ syscall_dispatcher:
 global software_int_entry
 software_int_entry:	
 	; Save all needed registers
-	push eax
 	push ecx
 	push edx
 	push ds
@@ -64,16 +63,16 @@ software_int_entry:
 	push gs
 	
 	; Load the kernel segment registers
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
+	mov dx, 0x10
+	mov ds, dx
+	mov es, dx
+	mov fs, dx
+	mov gs, dx
 	
 	; Call the syscall dispatcher
 	call syscall_dispatcher
 	
-	; Restore all needed registers (but not EAX, as we replaced it)
+	; Restore all needed registers
 	pop gs
 	pop fs
 	pop es
@@ -82,7 +81,6 @@ software_int_entry:
 	pop ecx
 	
 	; Return from the interrupt
-	add esp, 12
 	iret
 
 ; SYSENTER entry point
