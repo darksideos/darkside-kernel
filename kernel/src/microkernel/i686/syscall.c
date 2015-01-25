@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <microkernel/cpu.h>
+#include <microkernel/i686/cpuid.h>
 #include <microkernel/i686/idt.h>
 #include <microkernel/i686/isr.h>
 #include <microkernel/i686/msr.h>
@@ -43,7 +44,7 @@ void syscall_register(int num, void *fn)
 {
 	if (num >= 0 && num < 100)
 	{
-		syscall_table[num] = handler;
+		syscall_table[num] = fn;
 	}
 }
 
@@ -63,7 +64,7 @@ void syscalls_init()
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
 	/* Software interrupts always work */
-	idt_set_gate(0x80, &software_int_entry, IDT_GATE_INT, true);
+	idt_set_gate(0x80, (uint32_t) &software_int_entry, IDT_GATE_INT, true);
 
 	/* SYSENTER is supported */
 	if (cpu->features[0] & CPUID_FEAT_EDX_SEP)
@@ -73,15 +74,15 @@ void syscalls_init()
 
 		/* Set the kernel ESP value */
 		uint32_t low = 0, high = 0;
-		wrmsr(IA32_MSR_SYSENTER_ESP, &low, &high);
+		wrmsr(IA32_MSR_SYSENTER_ESP, low, high);
 
 		/* Set the kernel CS value */
 		low = KERNEL_CS;
-		wrmsr(IA32_MSR_SYSENTER_CS, &low, &high);
+		wrmsr(IA32_MSR_SYSENTER_CS, low, high);
 
 		/* Set the kernel EIP value */
-		low = &sysenter_entry;
-		wrmsr(IA32_MSR_SYSENTER_EIP, &low, &high);
+		low = (uint32_t) &sysenter_entry;
+		wrmsr(IA32_MSR_SYSENTER_EIP, low, high);
 	}
 
 	/* SYSCALL is supported */
@@ -92,11 +93,11 @@ void syscalls_init()
 
 		/* Set the kernel EFLAGS mask value */
 		uint32_t low = 0, high = 0;
-		wrmsr(AMD64_MSR_SFMASK, &low, &high);
+		wrmsr(AMD64_MSR_SFMASK, low, high);
 
 		/* Set the kernel EIP and segment registers */
-		low = &syscall_entry;
+		low = (uint32_t) &syscall_entry;
 		high = (KERNEL_CS | (USER_CS << 16));
-		wrmsr(AMD64_MSR_STAR, &low, &high);
+		wrmsr(AMD64_MSR_STAR, low, high);
 	}
 }
