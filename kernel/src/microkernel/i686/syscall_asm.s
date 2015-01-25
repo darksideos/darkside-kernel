@@ -1,0 +1,70 @@
+; Copyright (C) 2015 DarkSide Project
+; Authored by George Klees <gksharkboy@gmail.com>
+; syscall_asm.s - Syscall dispatching for the i686 architecture
+;
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License version 3 as
+; published by the Free Software Foundation.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public Licens
+; along with this program; if not, write to the Free Software
+; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+; Software interrupt entry point
+global software_int_entry
+software_int_entry:
+	; Push the dummy error code and vector number
+	push byte 0
+	push word 0x80
+	
+	; Save all needed registers
+	push eax
+	push ecx
+	push edx
+	push ds
+	push es
+	push fs
+	push gs
+	
+	; Load the kernel segment registers
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	
+	; Call the C syscall dispatcher
+	mov eax, esp
+	push eax
+	extern syscall_handler
+	mov eax, syscall_handler
+	call eax
+	pop eax
+	
+	; Restore all needed registers
+	pop gs
+	pop fs
+	pop es
+	pop ds
+	pop edx
+	pop ecx
+	pop eax
+	
+	; Return from the interrupt
+	add esp, 8
+	iret
+
+; SYSENTER entry point
+global sysenter_entry
+sysenter_entry:
+	jmp $
+
+; SYSCALL entry point
+global syscall_entry
+syscall_entry:
+	jmp $
