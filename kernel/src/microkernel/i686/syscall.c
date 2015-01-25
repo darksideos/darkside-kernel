@@ -87,8 +87,8 @@ void syscalls_init()
 	/* SYSCALL is supported */
 	if (cpu->ext_features[0] & CPUID_FEAT_EDX_SEP)
 	{
-		/* Set the SYSENTER support flag */
-		sysenter = true;
+		/* Set the SYSCALL support flag */
+		syscall = true;
 
 		/* Set the kernel EFLAGS mask value */
 		uint32_t low = 0, high = 0;
