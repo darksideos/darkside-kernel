@@ -44,9 +44,9 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 	/* If a writer currently has the lock, block on the lock */
 	while (rwlock->write_count)
 	{
-		thread_t *current = thread_current();
+		thread_t *current = (thread_t*) thread_current();
 		current->rwlock_state = READER_WAITING;
-		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
+		waitqueue_block(&rwlock->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
 		mkthread_yield();
 		spinlock_acquire(&rwlock->lock);
@@ -90,9 +90,9 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 	/* If a reader currently has the lock, block on the lock */
 	while (rwlock->read_count)
 	{
-		thread_t *current = thread_current();
+		thread_t *current = (thread_t*) thread_current();
 		current->rwlock_state = WRITER_WAITING;
-		waitqueue_block(&rwlock->waitqueue, current, TIMEOUT_NEVER);
+		waitqueue_block(&rwlock->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
 		mkthread_yield();
 		spinlock_acquire(&rwlock->lock);
@@ -123,7 +123,7 @@ void rwlock_write_release(rwlock_t *rwlock)
 	if (rwlock->read_count == 0)
 	{
 		/* Wake up the first thread on the queue */
-		thread_t *woken = waitqueue_unblock(&rwlock->waitqueue);
+		thread_t *woken = (thread_t*) waitqueue_unblock(&rwlock->waitqueue);
 
 		/* No threads waiting or writer thread */
 		if (!woken || woken->rwlock_state == WRITER_WAITING)
