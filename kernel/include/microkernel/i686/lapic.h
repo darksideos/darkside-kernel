@@ -19,6 +19,9 @@
 #ifndef __LAPIC_H
 #define __LAPIC_H
 
+/* LAPIC ID shorthands */
+#define LAPIC_ID_NONE		((uint32_t)-1)
+
 /* IPI destination shorthands */
 #define IPI_DEST_SELF		-1
 #define IPI_DEST_ALL		-2

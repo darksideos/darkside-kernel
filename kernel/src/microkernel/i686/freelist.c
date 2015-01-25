@@ -138,7 +138,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 
 		/* No free pages in the bitmap */
 		spinlock_release(&dma_bitmap_lock);
-		return -1;
+		return OUT_OF_MEMORY;
 	}
 
 	/* If needed, calculate the best NUMA domain */
@@ -196,7 +196,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 
 		/* Finally, try the DMA bitmap */
 		paddr_t address = pmm_alloc_page(flags | PAGE_DMA, 0, 0);
-		if (address != -1)
+		if (address != OUT_OF_MEMORY)
 		{
 			void *tmp = vmm_map_hyperspace(HYPERSPACE_ZEROPAGE, address);
 			memset(tmp, 0, PAGE_SIZE);
@@ -247,7 +247,7 @@ paddr_t pmm_alloc_page(int flags, int numa_domain, int color)
 	}
 
 	/* No free pages */
-	return -1;
+	return OUT_OF_MEMORY;
 }
 
 /* Allocate multiple physical pages */
@@ -324,7 +324,7 @@ paddr_t pmm_alloc_pages(int num_pages, int flags, int numa_domain, int color)
 
 		/* No free pages in the bitmap */
 		spinlock_release(&dma_bitmap_lock);
-		return -1;
+		return OUT_OF_MEMORY;
 found: ;
 		/* Save the address found and set every bit */
 		paddr_t address = ((byte_start * 8) + bit_start) * 0x1000;
@@ -353,7 +353,7 @@ found: ;
 	}
 
 	/* No free pages */
-	return -1;
+	return OUT_OF_MEMORY;
 }
 
 /* Free a physical page */

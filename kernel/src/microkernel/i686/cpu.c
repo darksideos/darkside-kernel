@@ -101,7 +101,7 @@ void cpu_data_area_init(loader_block_t *loader_block)
 
 	/* Find out the BSP CPU number */
 	uint32_t lapic_id = lapic_current_id();
-	if (lapic_id == -1)
+	if (lapic_id == LAPIC_ID_NONE)
 	{
 		bsp_cpu = 0;
 	}

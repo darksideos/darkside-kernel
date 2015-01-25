@@ -38,7 +38,7 @@ page_t *pfn_database_get(paddr_t address)
 		return NULL;
 	}
 	/* Not mapped */
-	else if (vmm_get_mapping(-1, (vaddr_t) &pfn_database_entries[address / 0x1000]) == -1)
+	else if (vmm_get_mapping(ADDR_SPACE_CURRENT, (vaddr_t) &pfn_database_entries[address / 0x1000]) == MAPPING_INVALID)
 	{
 		return NULL;
 	}
@@ -94,7 +94,7 @@ void pfn_database_init(loader_block_t *loader_block)
 
 			/* Merge the flags with the previous entry */
 			paddr_t index_prev = index - 1;
-			if (vmm_get_mapping(-1, (vaddr_t) &pfn_database_entries[index_prev]) != -1)
+			if (vmm_get_mapping(ADDR_SPACE_CURRENT, (vaddr_t) &pfn_database_entries[index_prev]) != MAPPING_INVALID)
 			{
 				/* Pointer to the page info */
 				page_t *page = &pfn_database_entries[index_prev];

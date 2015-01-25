@@ -63,7 +63,7 @@ uint32_t lapic_current_id()
 	/* LAPIC does not exist */
 	else
 	{
-		return -1;
+		return LAPIC_ID_NONE;
 	}
 }
 
