@@ -63,7 +63,7 @@ iterator_t device_children(device_t *device)
 }
 
 /* Look up the a property of a device by name */
-int device_get_property(device_t *device, char *property_name)
+int device_get_property(device_t *device, const char *property_name)
 {
 	property_t *property = (property_t*) dict_get(&device->properties, property_name);
 	if (property)
@@ -74,7 +74,7 @@ int device_get_property(device_t *device, char *property_name)
 }
 
 /* Set a property of a device by name */
-void device_set_property(device_t *device, char *property_name, int value)
+void device_set_property(device_t *device, const char *property_name, int value)
 {
 	property_t *property = (property_t*) dict_get(&device->properties, property_name);
 	if (!property)

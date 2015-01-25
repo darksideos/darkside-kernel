@@ -50,9 +50,9 @@ void device_add_child(device_t *device, device_t *child);
 iterator_t device_children(device_t *device);
 
 /* Look up a property of a device by name */
-int device_get_property(device_t *device, char *property_name);
+int device_get_property(device_t *device, const char *property_name);
 
 /* Set a property of a device by name */
-void device_set_property(device_t *device, char *property_name, int value);
+void device_set_property(device_t *device, const char *property_name, int value);
 
 #endif
