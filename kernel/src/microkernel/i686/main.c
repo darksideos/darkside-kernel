@@ -38,6 +38,8 @@
 #include <mm/addrspace.h>
 #include <mm/heap.h>
 
+#include <stdio.h>
+#include <math.h>
 #include <list.h>
 #include <executable/executable.h>
 
@@ -62,6 +64,13 @@ static void read_cpuid_info()
 	/* Read the standard features and extended features */
 	cpuid(CPUID_FEATURES, NULL, NULL, &cpu->features[1], &cpu->features[0]);
 	cpuid(CPUID_EXT_FEATURES, NULL, NULL, &cpu->ext_features[1], &cpu->ext_features[0]);
+}
+
+int test()
+{
+	int ret = pow(500,2);
+	printf("500^2 is %d\n", ret);
+	return ret;
 }
 
 /* Initialize the core microkernel */
@@ -199,10 +208,10 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		syscalls_init();
 
 		/* Register a syscall and call it */
-		syscall_register(0, &bootvid_puts, 4);
-		char *param = "Hello, syscalls";
+		syscall_register(0, &test, 0);
 		int a;
-		__asm__ volatile("int $0x80" : "=a" (a) : "0" (0), "b" ((int)&param));
+		__asm__ volatile("int $0x80" : "=a" (a) : "0" (0));
+		printf("Syscall returned %d\n", a);
 
 		/* Start the executive services */
 		executive_init(&loader_block);
