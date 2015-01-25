@@ -15,6 +15,42 @@
 ; along with this program; if not, write to the Free Software
 ; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+; Generic syscall dispatcher
+extern memcpy
+syscall_dispatcher:
+	; Check the syscall number
+	cmp eax, 0
+	jl .invalid_num
+	cmp eax, 100
+	jge .invalid_num
+	
+	; Read the syscall target
+	extern syscall_table
+	mov edi, [syscall_table + eax*4]
+	test edi, edi
+	je .no_syscall
+
+	; Get the number of bytes for parameters
+	extern param_bytes
+	mov ecx, [param_bytes + eax*4]
+	
+	; Verify the parameter data address in EBX
+	
+	; Copy the parameters to the stack
+	sub esp, ecx
+	mov eax, esp
+	push ecx
+	push ebx
+	push eax
+	call memcpy
+	add esp, 12
+	
+	; Call the syscall and return
+	call edi
+.invalid_num:
+.no_syscall:
+	ret
+
 ; Software interrupt entry point
 global software_int_entry
 software_int_entry:	
@@ -34,25 +70,19 @@ software_int_entry:
 	mov fs, ax
 	mov gs, ax
 	
-	; Call the C syscall dispatcher
-	mov eax, esp
-	push eax
-	extern syscall_handler
-	mov eax, syscall_handler
-	call eax
-	pop eax
+	; Call the syscall dispatcher
+	call syscall_dispatcher
 	
-	; Restore all needed registers
+	; Restore all needed registers (but not EAX, as we replaced it)
 	pop gs
 	pop fs
 	pop es
 	pop ds
 	pop edx
 	pop ecx
-	pop eax
 	
 	; Return from the interrupt
-	add esp, 8
+	add esp, 12
 	iret
 
 ; SYSENTER entry point
