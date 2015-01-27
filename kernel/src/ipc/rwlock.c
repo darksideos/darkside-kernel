@@ -88,8 +88,8 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 	/* Acquire the rwlock lock */
 	spinlock_acquire(&rwlock->lock);
 
-	/* If a reader currently has the lock, block on the lock */
-	while (rwlock->read_count)
+	/* If a reader or writer currently has the lock, block on the lock */
+	while (rwlock->read_count || rwlock->write_count)
 	{
 		thread_t *current = (thread_t*) thread_current();
 		current->rwlock_state = WRITER_WAITING;
@@ -117,39 +117,35 @@ void rwlock_write_release(rwlock_t *rwlock)
 		return;
 	}
 
-	/* One fewer writer */
-	rwlock->read_count--;
+	/* No more writers */
+	rwlock->write_count--;
 
-	/* If all the readers are gone, wake up waiting threads */
-	if (rwlock->read_count == 0)
+	/* Wake up the first thread on the queue */
+	thread_t *woken = (thread_t*) waitqueue_unblock(&rwlock->waitqueue);
+
+	/* No threads waiting or writer thread */
+	if (!woken || woken->rwlock_state == WRITER_WAITING)
 	{
-		/* Wake up the first thread on the queue */
-		thread_t *woken = (thread_t*) waitqueue_unblock(&rwlock->waitqueue);
+		spinlock_release(&rwlock->lock);
+		return;
+	}
+	/* Reader thread, so we should wake up all other waiting readers */
+	else if (woken->rwlock_state == READER_WAITING)
+	{
+		iterator_t iter = waitqueue_threads(&rwlock->waitqueue);
 
-		/* No threads waiting or writer thread */
-		if (!woken || woken->rwlock_state == WRITER_WAITING)
+		thread_t *thread = (thread_t*) iter_now(&iter);
+		while (thread)
 		{
-			spinlock_release(&rwlock->lock);
-			return;
-		}
-		/* Reader thread, so we should wake up all other waiting readers */
-		else if (woken->rwlock_state == READER_WAITING)
-		{
-			iterator_t iter = waitqueue_threads(&rwlock->waitqueue);
-
-			thread_t *thread = (thread_t*) iter_now(&iter);
-			while (thread)
+			if (thread->rwlock_state == READER_WAITING)
 			{
-				if (thread->rwlock_state == READER_WAITING)
-				{
-					thread = (thread_t*) iter_remove(&iter);
-				}
+				thread = (thread_t*) iter_remove(&iter);
 			}
 		}
-		/* Something else */
-		else
-		{
-			panic("Invalid rwlock wait state\n");
-		}
+	}
+	/* Something else */
+	else
+	{
+		panic("Invalid rwlock wait state\n");
 	}
 }
