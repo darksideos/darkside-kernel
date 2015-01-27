@@ -49,7 +49,6 @@ void thread(void *arg)
 		/* 4. Acquire lock for writing */
 		rwlock_write_acquire(&rwlock);
 		printf("Acquired lock for writing (1)\n");
-		mkthread_yield();
 
 		/* 6. Release lock */
 		rwlock_write_release(&rwlock);
