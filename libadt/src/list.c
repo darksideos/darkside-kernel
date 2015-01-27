@@ -81,7 +81,7 @@ void list_insert_tail(list_t *list, void *item)
 void *list_remove_head(list_t *list)
 {
 	if (!list->head) return NULL;
-	
+
 	if (list->head->next)
 	{
 		list->head->next->prev = NULL;
@@ -90,7 +90,7 @@ void *list_remove_head(list_t *list)
 	{
 		list->tail = NULL;
 	}
-	
+
 	list_entry_t *head = list->head;
 	list->head = list->head->next;
 
@@ -101,7 +101,7 @@ void *list_remove_head(list_t *list)
 void *list_remove_tail(list_t *list)
 {
 	if (!list->tail) return NULL;
-	
+
 	if (list->tail->prev)
 	{
 		list->head->prev->next = NULL;
@@ -128,10 +128,10 @@ static void *list_entry_now(iterator_t *iter)
 static void *list_entry_prev(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-	
+
 	entry = entry->prev;
 	iter->node = (void*) entry;
-	
+
 	return (void*) entry;
 }
 
@@ -139,10 +139,10 @@ static void *list_entry_prev(iterator_t *iter)
 static void *list_entry_next(iterator_t *iter)
 {
 	list_entry_t *entry = (list_entry_t*) iter->node;
-	
+
 	entry = entry->next;
 	iter->node = (void*) entry;
-	
+
 	return (void*) entry;
 }
 
@@ -162,10 +162,24 @@ static void list_entry_insert(iterator_t *iter, void *item)
 
 		node->next = entry->next;
 		node->next->prev = node;
-		
+
 		node->prev = entry;
 		entry->next = node;
 	}
+}
+
+/* Remove at a node */
+static void *list_entry_remove(iterator_t *iter)
+{
+	list_t *list = (list_t*) iter->object;
+	list_entry_t *entry = (list_entry_t*) iter->node;
+
+	if (entry->prev) entry->prev->next = entry->next;
+	if (entry->next) entry->next->prev = entry->prev;
+
+	iter->node = (void*) entry->next;
+
+	return entry;
 }
 
 /* List iterator operations */
@@ -175,7 +189,8 @@ static iterator_ops_t list_iter_ops =
 	.now = &list_entry_now,
 	.prev = &list_entry_prev,
 	.next = &list_entry_next,
-	.insert = &list_entry_insert
+	.insert = &list_entry_insert,
+	.remove = &list_entry_remove
 };
 
 /* Get an iterator for the linked list head */
