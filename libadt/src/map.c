@@ -152,7 +152,7 @@ iterator_t map_values(map_t *map)
 	iterator_t iter = list_head(&map->buckets);
 	iterator_ops_t *list_iter_ops = iter.ops;
 	iter.ops = &map_iter_ops;
-	iter.ops = list_iter_ops;
+	map_iter_ops.parent_ops = list_iter_ops;
 
 	return iter;
 }
