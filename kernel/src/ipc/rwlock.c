@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <stdio.h>
+#include <iterator.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 #include <microkernel/synch.h>
@@ -134,7 +135,16 @@ void rwlock_write_release(rwlock_t *rwlock)
 		/* Reader thread, so we should wake up all other waiting readers */
 		else if (woken->rwlock_state == READER_WAITING)
 		{
-			/* TODO: Implement this */
+			iterator_t iter = waitqueue_threads(&rwlock->waitqueue);
+
+			thread_t *thread = (thread_t*) iter_now(&iter);
+			while (thread)
+			{
+				if (thread->rwlock_state == READER_WAITING)
+				{
+					thread = (thread_t*) iter_remove(&iter);
+				}
+			}
 		}
 		/* Something else */
 		else
