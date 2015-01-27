@@ -27,12 +27,15 @@
 /* Test rwlock */
 rwlock_t rwlock;
 
+void scheduler_run();
+
 /* Threads */
 void thread(void *arg)
 {
 	/* Thread 1 */
 	if (arg == (void*)1)
 	{
+		printf("HI\n");
 		/* 1. Acquire lock for reading */
 		rwlock_read_acquire(&rwlock);
 		printf("Acquired lock for reading (1)\n");
@@ -44,8 +47,9 @@ void thread(void *arg)
 		mkthread_yield();
 
 		/* 4. Acquire lock for writing */
-		rwlock_write_release(&rwlock);
+		rwlock_write_acquire(&rwlock);
 		printf("Acquired lock for writing (1)\n");
+		mkthread_yield();
 
 		/* 6. Release lock */
 		rwlock_write_release(&rwlock);
@@ -73,6 +77,7 @@ void executive_init(loader_block_t *loader_block)
 	/* Called from the microkernel during early initialization */
 	if (loader_block)
 	{
+		printf("Started executive\n");
 		/* Initialize the object manager */
 
 		/* Initialize the memory manager */
@@ -87,8 +92,12 @@ void executive_init(loader_block_t *loader_block)
 
 		/* Testing */
 		rwlock_init(&rwlock);
+		printf("Hello\n");
 		thread_create(NULL, &thread, (void*)1, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		printf("Hi\n");
 		thread_create(NULL, &thread, (void*)2, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		printf("Hola\n");
+		scheduler_run();
 	}
 	/* Executive initialization thread */
 	else
