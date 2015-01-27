@@ -21,6 +21,52 @@
 #include <task/task.h>
 #include <task/thread.h>
 
+#include <stdio.h>
+#include <ipc/rwlock.h>
+
+/* Test rwlock */
+rwlock_t rwlock;
+
+/* Threads */
+void thread(void *arg)
+{
+	/* Thread 1 */
+	if (arg == (void*)1)
+	{
+		/* 1. Acquire lock for reading */
+		rwlock_read_acquire(&rwlock);
+		printf("Acquired lock for reading (1)\n");
+		mkthread_yield();
+
+		/* 3. Release lock */
+		rwlock_read_release(&rwlock);
+		printf("Released lock in read mode (1)\n");
+		mkthread_yield();
+
+		/* 4. Acquire lock for writing */
+		rwlock_write_release(&rwlock);
+		printf("Acquired lock for writing (1)\n");
+
+		/* 6. Release lock */
+		rwlock_write_release(&rwlock);
+		printf("Released lock in write mode (1)\n");
+	}
+	/* Thread 2 */
+	else
+	{
+		/* 2. Acquire lock for writing */
+		rwlock_write_acquire(&rwlock);
+		printf("Acquired lock for writing (2)\n");
+		mkthread_yield();
+
+		/* 5. Release lock */
+		rwlock_write_release(&rwlock);
+		printf("Released lock in write mode (2)\n");
+		mkthread_yield();
+	}
+	while(1);
+}
+
 /* Start the executive services */
 void executive_init(loader_block_t *loader_block)
 {
@@ -38,6 +84,11 @@ void executive_init(loader_block_t *loader_block)
 
 		/* Create a new thread to continue executive initialization */
 		//thread_create(NULL, &executive_init, NULL, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+
+		/* Testing */
+		rwlock_init(&rwlock);
+		thread_create(NULL, &thread, (void*)1, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		thread_create(NULL, &thread, (void*)2, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
 	}
 	/* Executive initialization thread */
 	else
