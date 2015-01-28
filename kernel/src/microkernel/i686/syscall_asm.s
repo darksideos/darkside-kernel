@@ -48,7 +48,6 @@ syscall_dispatcher:
 	; Call the syscall and clean up the stack
 	call edi
 	add esp, esi
-	jmp $
 .invalid_num:
 .no_syscall:
 	ret
