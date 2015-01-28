@@ -67,13 +67,6 @@ static void read_cpuid_info()
 	cpuid(CPUID_EXT_FEATURES, NULL, NULL, &cpu->ext_features[1], &cpu->ext_features[0]);
 }
 
-int test()
-{
-	int ret = pow(500,2);
-	printf("500^2 is %d\n", ret);
-	return ret;
-}
-
 /* Initialize the core microkernel */
 void microkernel_init(loader_block_t *_loader_block, bool bsp)
 {
@@ -207,12 +200,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the syscall manager */
 		syscalls_init();
-
-		/* Register a syscall and call it */
-		syscall_register(0, &test, 0);
-		int a;
-		__asm__ volatile("int $0x80" : "=a" (a) : "0" (0));
-		printf("Syscall returned %d\n", a);
 
 		/* Start the executive services */
 		executive_init(&loader_block);
