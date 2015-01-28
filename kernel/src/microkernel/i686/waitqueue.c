@@ -24,8 +24,11 @@ mkthread_t *waitqueue_unblock(waitqueue_t *queue)
 {
 	/* Remove a thread from the wait queue and wake it back up */
 	mkthread_t *thread = (mkthread_t*) list_remove_head(queue);
-	thread->state = THREAD_READY;
-	scheduler_enqueue(thread);
+	if (thread)
+	{
+		thread->state = THREAD_READY;
+		scheduler_enqueue(thread);
+	}
 	return thread;
 }
 
