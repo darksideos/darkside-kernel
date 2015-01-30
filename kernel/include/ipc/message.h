@@ -34,6 +34,10 @@ typedef struct port
 	void *msgbuf;
 	size_t msgbuf_len;
 
+	/* Thread concurrency variables */
+	int max_concurrent_threads;
+	int woken_threads;
+
 	/* Messages that have arrived */
 	list_t arrived_messages;
 
@@ -45,7 +49,7 @@ typedef struct port
 } port_t;
 
 /* Create a server port */
-port_t *port_create(void **msgbuf, size_t *msgbuf_len);
+port_t *port_create(void **msgbuf, size_t *msgbuf_len, int concurrency);
 
 /* Connect to a message port, returning a client port */
 port_t *port_connect(port_t *server_port, void **msgbuf, size_t *msgbuf_len, int timeout);
