@@ -19,6 +19,7 @@
 #ifndef __MESSAGE_H
 #define __MESSAGE_H
 
+#include <list.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 #include <microkernel/synch.h>
