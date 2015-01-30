@@ -16,12 +16,36 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#ifndef __MESSAGE_H
+#define __MESSAGE_H
+
+#include <microkernel/waitqueue.h>
+#include <microkernel/lock.h>
+#include <microkernel/synch.h>
 #include <task/process.h>
 
 /* Message port object */
 typedef struct port
 {
+	/* Server port, if applicable */
+	struct port *server_port;
+
+	/* Message buffer area */
+	void *msgbuf;
+	size_t msgbuf_len;
+
+	/* Messages that have arrived */
+	list_t arrived_messages;
+
+	/* Queue of blocked threads */
+	waitqueue_t waitqueue;
+
+	/* Lock on the object */
+	spinlock_t lock;
 } port_t;
+
+/* Create a server port */
+port_t *port_create(void **msgbuf, size_t *msgbuf_len);
 
 /* Connect to a message port, returning a client port */
 port_t *port_connect(port_t *server_port, void **msgbuf, size_t *msgbuf_len, int timeout);
@@ -32,3 +56,5 @@ int port_accept(port_t *port, port_t *client_port);
 /* Receive and send messages on ports */
 void *port_recv(port_t *port);
 int port_send(port_t *port, void *buffer, size_t length);
+
+#endif
