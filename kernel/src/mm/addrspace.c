@@ -33,16 +33,31 @@ static addrspace_t system_addrspace;
 /* VAD slab cache */
 static slab_cache_t *vad_cache;
 
-/* Initialize an address space */
-void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length)
+/* Resolve an address space constant to a pointer */
+static addrspace_t *resolve_addrspace(addrspace_t *addrspace)
 {
 	/* Current address space */
 	if (addrspace == ADDRSPACE_CURRENT)
 	{
-		/* SHOULD NEVER REACH HERE! */
+		return &(process_current()->addrspace);
 	}
 	/* System address space */
 	else if (addrspace == ADDRSPACE_SYSTEM)
+	{
+		return &system_addrspace;
+	}
+	/* Address space pointer */
+	else
+	{
+		return addrspace;
+	}
+}
+
+/* Initialize an address space */
+void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length)
+{
+	/* System address space */
+	if (addrspace == ADDRSPACE_SYSTEM)
 	{
 		/* Create the initial slab cache for VADs */
 		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
@@ -97,16 +112,8 @@ void addrspace_destroy(addrspace_t *addrspace)
 /* Allocate regions of a virtual address space */
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags)
 {
-	/* Current address space */
-	if (addrspace == ADDRSPACE_CURRENT)
-	{
-		addrspace = &(process_current()->addrspace);
-	}
-	/* System address space */
-	else if (addrspace == ADDRSPACE_SYSTEM)
-	{
-		addrspace = &system_addrspace;
-	}
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
 
 	/* Round up both the reserved and committed sizes to a page boundary */
 	size_reserved = PAGE_ALIGN_UP(size_reserved);
@@ -211,16 +218,8 @@ void addrspace_free(addrspace_t *addrspace, void *ptr, size_t size)
 /* Query the protection of a virtual address */
 int addrspace_query(addrspace_t *addrspace, void *ptr)
 {
-	/* Current address space */
-	if (addrspace == ADDRSPACE_CURRENT)
-	{
-		addrspace = &(process_current()->addrspace);
-	}
-	/* System address space */
-	else if (addrspace == ADDRSPACE_SYSTEM)
-	{
-		addrspace = &system_addrspace;
-	}
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
 
 	/* Look up the VAD for the address */
 	vad_t *vad = vad_tree_lookup(addrspace->used_root, (vaddr_t) ptr);
