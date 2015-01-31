@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 DarkSide Project
+ * Copyright (C) 2014 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * slab.h - Slab cache public API
  *
@@ -25,51 +25,32 @@
 /* Size of a slab */
 #define SLAB_SIZE	0x2000
 
-/* Slab header structure */
-typedef struct slab_header
-{
-	/* Number of free objects */
-	size_t num_free_objs;
-
-	/* Pointer to the next slab */
-	struct slab_header *next;
-
-	/* Lock protecting the slab */
-	spinlock_recursive_t lock;
-
-	/* Bitmap of free objects */
-	uint8_t free_bitmap[];
-} slab_header_t;
-
-/* Slab cache structure */
+/* Slab cache header structure */
 typedef struct slab_cache
 {
-	/* Object size */
+	/* Start of object data */
+	size_t object_data_start;
+
+	/* Object size and number of objects (total and free) */
 	size_t object_size;
-
-	/* Slab header size */
-	size_t slab_header_size;
-
-	/* Number of objects per slab */
-	size_t objs_per_slab;
+	size_t num_total_objs, num_free_objs;
 
 	/* Page protection */
 	int flags;
 
-	/* Empty, partial, and full slabs */
-	slab_header_t *empty;
-	slab_header_t *partial;
-	slab_header_t *full;
-
-	/* Lock protecting the slab cache */
+	/* Lock protecting the slab */
 	spinlock_recursive_t lock;
+
+	/* Pointer to the next slab */
+	struct slab_cache *next;
+
+	/* Bitmap of free objects */
+	uint8_t free_bitmap[];
 } slab_cache_t;
 
-/* Initialize a slab cache without any allocations */
-void slab_cache_init(slab_cache_t *slab_cache, void *slab, size_t object_size, int flags);
-
-/* Create and destroy a slab cache */
+/* Create, initialize, and destroy a slab cache */
 slab_cache_t *slab_cache_create(size_t object_size, int flags);
+void slab_cache_init(slab_cache_t *slab_cache, size_t object_size, int flags);
 void slab_cache_destroy(slab_cache_t *slab_cache);
 
 /* Allocate and free objects from a slab cache */
