@@ -147,7 +147,11 @@ find_slab: ;
 	{
 		/* Allocate a new slab and fill in its information */
 		slab_header = (slab_header_t*) addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, slab_cache->flags | PAGE_GLOBAL);
-		if (!slab_header) return NULL;
+		if (!slab_header)
+		{
+			spinlock_recursive_release(&slab_cache->lock);
+			return NULL;
+		}
 		init_slab(slab_cache, slab_header, slab_cache->slab_header_size - sizeof(slab_header_t));
 
 		/* Add it to the empty list and redo this */
@@ -189,4 +193,103 @@ find_slab: ;
 			return object;
 		}
 	}
+}
+
+/* Free an object to a slab cache */
+void slab_cache_free(slab_cache_t *slab_cache, void *ptr)
+{
+	/* Lock the entire slab cache */
+	spinlock_recursive_acquire(&slab_cache->lock);
+
+	/* Set up our slab cache variables */
+	slab_header_t *slab_header = NULL, *prev_slab_header = NULL;
+	slab_header_t *candidate = NULL, *prev_candidate = NULL;
+	bool partial_slab = false;
+
+	/* First search the partial slabs for our object */
+	candidate = slab_cache->partial;
+	while (candidate)
+	{
+		/* Pointer is inside slab */
+		if (ptr > (void*) candidate && ptr < (((void*) candidate) + SLAB_SIZE))
+		{
+			slab_header = candidate;
+			prev_slab_header = prev_candidate;
+			partial_slab = true;
+			goto found_slab;
+		}
+
+		/* Get the next slab */
+		prev_candidate = candidate;
+		candidate = candidate->next;
+	}
+
+	/* Next search the full slabs for our object */
+	candidate = slab_cache->full;
+	prev_candidate = NULL;
+	while (candidate)
+	{
+		/* Pointer is inside the slab */
+		if (ptr > (void*) candidate && ptr < (((void*) candidate) + SLAB_SIZE))
+		{
+			slab_header = candidate;
+			prev_slab_header = prev_candidate;
+			goto found_slab;
+		}
+
+		/* Get the next slab */
+		prev_candidate = candidate;
+		candidate = candidate->next;
+	}
+
+	/* Object not in slab cache */
+	return;
+
+found_slab:
+	/* Acquire the lock on the slab */
+	spinlock_recursive_acquire(&slab_header->lock);
+
+	/* Clear the object's location in the bitmap and increment the number of free objects */
+	size_t object_num = (size_t) (ptr - ((void*) slab_cache) - slab_cache->slab_header_size) / slab_cache->object_size;
+	if (object_num < slab_cache->objs_per_slab)
+	{
+		size_t byte_start = object_num / 8;
+		uint8_t bit_start = object_num % 8;
+		slab_header->free_bitmap[byte_start] &= ~(1 << bit_start);
+	}
+	slab_header->num_free_objs++;
+
+	/* Release the lock on the slab */
+	spinlock_recursive_release(&slab_header->lock);
+
+	/* Slab was previously on the full list */
+	if (!partial_slab)
+	{
+		if (prev_slab_header) prev_slab_header->next = slab_header->next;
+		else slab_cache->full = slab_header->next;
+	}
+
+	/* Slab should be moved to the empty list */
+	if (slab_header->num_free_objs == slab_cache->objs_per_slab)
+	{
+		/* If necessary, remove it from the partial list */
+		if (partial_slab)
+		{
+			if (prev_slab_header) prev_slab_header->next = slab_header->next;
+			else slab_cache->partial = slab_header->next;
+		}
+
+		slab_header->next = slab_cache->empty;
+		slab_cache->empty = slab_header;
+	}
+	/* Slab should be moved to the partial list */
+	else if (!partial_slab)
+	{
+		slab_header->next = slab_cache->partial;
+		slab_cache->partial = slab_header;
+	}
+
+	/* Release the slab cache lock and return */
+	spinlock_recursive_release(&slab_cache->lock);
+	return;
 }
