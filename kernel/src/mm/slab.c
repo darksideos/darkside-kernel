@@ -64,8 +64,8 @@ void slab_cache_init(slab_cache_t *slab_cache, void *slab, size_t object_size, i
 	while (true)
 	{
 		/* Calculate the space needed for objects and bitmaps */
-		size_t object_space = (num_total_objs + 1) * object_size;
-		size_t bitmap_space = ceil(num_total_objs + 1, 8);
+		size_t object_space = (objs_per_slab + 1) * object_size;
+		size_t bitmap_space = ceil(objs_per_slab + 1, 8);
 
 		/* Adjust the bitmap space to a multiple of 4, if needed */
 		if (bitmap_space & 3)
@@ -108,7 +108,7 @@ find_slab: ;
 	if (slab_cache->empty)
 	{
 		/* Use the first empty slab we see */
-		slab_header = slab_header->empty;
+		slab_header = slab_cache->empty;
 
 		/* No objects left after allocation, so put the slab in full */
 		if (slab_header->num_free_objs == 1)
@@ -121,7 +121,7 @@ find_slab: ;
 		/* Otherwise, put it in the partial list */
 		else
 		{
-			slab_header_t *old_partial_head = slab_cache->patial;
+			slab_header_t *old_partial_head = slab_cache->partial;
 			slab_cache->empty = slab_header->next;
 			slab_header->next = old_partial_head;
 			slab_cache->partial = slab_header;
@@ -131,7 +131,7 @@ find_slab: ;
 	else if (slab_cache->partial)
 	{
 		/* Use the first partial slab we see */
-		slab_header = slab_header->partial;
+		slab_header = slab_cache->partial;
 
 		/* No objects left after allocation */
 		if (slab_header->num_free_objs == 1)
@@ -168,7 +168,7 @@ find_slab: ;
 	slab_header->num_free_objs--;
 
 	/* Search the bitmap for an available free object */
-	for (uint32_t i = 0; i < ceil(slab_cache->num_total_objs, 8); i++)
+	for (uint32_t i = 0; i < ceil(slab_cache->objs_per_slab, 8); i++)
 	{
 		uint8_t byte = slab_header->free_bitmap[i];
 
@@ -193,6 +193,9 @@ find_slab: ;
 			return object;
 		}
 	}
+
+	/* Should never reach here */
+	return NULL;
 }
 
 /* Free an object to a slab cache */
