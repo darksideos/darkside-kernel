@@ -25,7 +25,7 @@
 #include <mm/slab.h>
 
 /* Initialize a slab */
-void init_slab(slab_cache_t *slab_cache, slab_header_t *slab_header, size_t bitmap_space)
+static void init_slab(slab_cache_t *slab_cache, slab_header_t *slab_header, size_t bitmap_space)
 {
 	/* Set up the slab's data */
 	size_t objs_per_slab = slab_cache->objs_per_slab;
