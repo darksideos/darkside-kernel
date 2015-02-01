@@ -31,7 +31,7 @@
 static addrspace_t system_addrspace;
 
 /* VAD slab cache */
-static slab_cache_t *vad_cache;
+static slab_cache_t vad_cache;
 
 /* Resolve an address space constant to a pointer */
 static addrspace_t *resolve_addrspace(addrspace_t *addrspace)
@@ -59,14 +59,16 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 	/* System address space */
 	if (addrspace == ADDRSPACE_SYSTEM)
 	{
-		/* Create the initial slab cache for VADs */
+		/* Allocate a slab */
 		for (size_t i = free_start; i < free_start + SLAB_SIZE; i += PAGE_SIZE)
 		{
 			int color = vaddr_cache_color(i, NUMA_DOMAIN_BEST, 0);
 			vmm_map_page(address_space, i, pmm_alloc_page(0, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE | PAGE_GLOBAL);
 		}
-		vad_cache = (slab_cache_t*) free_start;
-		slab_cache_init(vad_cache, sizeof(vad_t), PAGE_READ | PAGE_WRITE);
+
+		/* Create the initial slab cache for VADs */
+		void *slab = (void*) free_start;
+		slab_cache_init(&vad_cache, slab, sizeof(vad_t), PAGE_READ | PAGE_WRITE);
 		free_start += SLAB_SIZE;
 		free_length -= SLAB_SIZE;
 
@@ -171,7 +173,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 				vad->next->prev = vad->prev;
 
 				/* Free the VAD */
-				slab_cache_free(vad_cache, vad);
+				slab_cache_free(&vad_cache, vad);
 			}
 			/* Root VAD */
 			else
@@ -181,7 +183,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 				memcpy(vad, vad_next, sizeof(vad_t));
 
 				/* Free the dynamically-allocated VAD */
-				slab_cache_free(vad_cache, vad_next);
+				slab_cache_free(&vad_cache, vad_next);
 			}
 		}
 
@@ -189,7 +191,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		if (!(flags & PAGE_PRIVATE))
 		{
 			/* Create a new VAD to represent the now-used region */
-			vad = slab_cache_alloc(vad_cache);
+			vad = slab_cache_alloc(&vad_cache);
 			vad->start = address;
 			vad->length = size_reserved;
 			vad->flags = flags;
