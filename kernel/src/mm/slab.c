@@ -24,6 +24,27 @@
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 
+/* Initialize a slab */
+void init_slab(slab_cache_t *slab_cache, slab_header_t *slab_header, size_t bitmap_space)
+{
+	/* Set up the slab's data */
+	size_t objs_per_slab = slab_cache->objs_per_slab;
+	slab_header->num_free_objs = objs_per_slab;
+	slab_header->next = NULL;
+	spinlock_recursive_init(&slab_header->lock);
+
+	/* Mark the entire bitmap as used */
+	memset(slab_header->free_bitmap, 0xFF, bitmap_space);
+
+	/* Free objects that are in both the slab and bitmap */
+	for (size_t i = 0; i < objs_per_slab; i++)
+	{
+		size_t byte_start = i / 8;
+		uint8_t bit_start = i % 8;
+		slab_header->free_bitmap[byte_start] &= ~(1 << bit_start);
+	}
+}
+
 /* Initialize a slab cache without any allocations */
 void slab_cache_init(slab_cache_t *slab_cache, void *slab, size_t object_size, int flags)
 {
@@ -63,26 +84,109 @@ void slab_cache_init(slab_cache_t *slab_cache, void *slab, size_t object_size, i
 			slab_cache->objs_per_slab = objs_per_slab;
 
 			/* Set up the slab's data */
-			slab_header_t *slab_header = (slab_header_t*) slab;
-			slab_header->num_free_objs = objs_per_slab;
-			slab_header->next = NULL;
-			spinlock_recursive_init(&slab_header->lock);
-
-			/* Mark the entire bitmap as used */
-			memset(slab_header->free_bitmap, 0xFF, bitmap_space);
-
-			/* Free objects that are in both the slab and bitmap */
-			for (size_t i = 0; i < objs_per_slab; i++)
-			{
-				size_t byte_start = i / 8;
-				uint8_t bit_start = i % 8;
-				slab_header->free_bitmap[byte_start] &= ~(1 << bit_start);
-			}
+			init_slab(slab_cache, (slab_header_t*) slab, bitmap_space);
 
 			return;
 		}
 
 		/* We can fit one more object than our original guess */
 		objs_per_slab++;
+	}
+}
+
+/* Create a slab cache */
+
+/* Allocate an object from a slab cache */
+void *slab_cache_alloc(slab_cache_t *slab_cache)
+{
+	/* Lock the entire slab cache */
+	spinlock_recursive_acquire(&slab_cache->lock);
+
+	/* Take an empty slab if possible, or a partial one if not */
+find_slab: ;
+	slab_header_t *slab_header = NULL;
+	if (slab_cache->empty)
+	{
+		/* Use the first empty slab we see */
+		slab_header = slab_header->empty;
+
+		/* No objects left after allocation, so put the slab in full */
+		if (slab_header->num_free_objs == 1)
+		{
+			slab_header_t *old_full_head = slab_cache->full;
+			slab_cache->empty = slab_header->next;
+			slab_header->next = old_full_head;
+			slab_cache->full = slab_header;
+		}
+		/* Otherwise, put it in the partial list */
+		else
+		{
+			slab_header_t *old_partial_head = slab_cache->patial;
+			slab_cache->empty = slab_header->next;
+			slab_header->next = old_partial_head;
+			slab_cache->partial = slab_header;
+		}
+	}
+	/* Partial slab available */
+	else if (slab_cache->partial)
+	{
+		/* Use the first partial slab we see */
+		slab_header = slab_header->partial;
+
+		/* No objects left after allocation */
+		if (slab_header->num_free_objs == 1)
+		{
+			slab_header_t *old_full_head = slab_cache->full;
+			slab_cache->partial = slab_header->next;
+			slab_header->next = old_full_head;
+			slab_cache->full = slab_header;
+		}
+	}
+	/* No empty or partial slabs available */
+	else
+	{
+		/* Allocate a new slab and fill in its information */
+		slab_header = (slab_header_t*) addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, slab_cache->flags | PAGE_GLOBAL);
+		if (!slab_header) return NULL;
+		init_slab(slab_cache, slab_header, slab_cache->slab_header_size - sizeof(slab_header_t));
+
+		/* Add it to the empty list and redo this */
+		slab_header->next = slab_cache->empty;
+		slab_cache->empty = slab_header;
+		goto find_slab;
+	}
+
+	/* Now that we've found a slab, we can lock it and unlock the entire cache */
+	spinlock_recursive_acquire(&slab_header->lock);
+	spinlock_recursive_release(&slab_cache->lock);
+
+	/* One less object in the slab */
+	slab_header->num_free_objs--;
+
+	/* Search the bitmap for an available free object */
+	for (uint32_t i = 0; i < ceil(slab_cache->num_total_objs, 8); i++)
+	{
+		uint8_t byte = slab_header->free_bitmap[i];
+
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			if (byte == 0xFF)
+			{
+				break;
+			}
+
+			if (byte & 1)
+			{
+				byte >>= 1;
+				continue;
+			}
+
+			slab_header->free_bitmap[i] |= (1 << j);
+
+			size_t object_num = (i * 8) + j;
+			void *object = ((void*) slab_header) + slab_cache->slab_header_size + (object_num * slab_cache->object_size);
+			spinlock_recursive_release(&slab_header->lock);
+			return object;
+		}
 	}
 }
