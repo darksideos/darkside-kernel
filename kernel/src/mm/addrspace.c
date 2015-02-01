@@ -27,6 +27,8 @@
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 
+#include <stdio.h>
+
 /* System address space */
 static addrspace_t system_addrspace;
 
@@ -71,6 +73,16 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 		slab_cache_init(&vad_cache, slab, sizeof(vad_t), PAGE_READ | PAGE_WRITE);
 		free_start += SLAB_SIZE;
 		free_length -= SLAB_SIZE;
+
+		/* Allocation test */
+		void *ptr1 = slab_cache_alloc(&vad_cache);
+		void *ptr2 = slab_cache_alloc(&vad_cache);
+		void *ptr3 = slab_cache_alloc(&vad_cache);
+		printf("0x%08X 0x%08X 0x%08X\n", ptr1, ptr2, ptr3);
+		slab_cache_free(&vad_cache, ptr2);
+		void *ptr4 = slab_cache_alloc(&vad_cache);
+		printf("0x%08X\n", ptr4);
+		while(1);
 
 		/* Set up the pointer to the system address space */
 		addrspace = &system_addrspace;

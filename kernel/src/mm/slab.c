@@ -24,6 +24,8 @@
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 
+#include <stdio.h>
+
 /* Initialize a slab */
 static void init_slab(slab_cache_t *slab_cache, slab_header_t *slab_header, size_t bitmap_space)
 {
@@ -216,6 +218,7 @@ void slab_cache_free(slab_cache_t *slab_cache, void *ptr)
 		/* Pointer is inside slab */
 		if (ptr > (void*) candidate && ptr < (((void*) candidate) + SLAB_SIZE))
 		{
+			printf("Found partial slab\n");
 			slab_header = candidate;
 			prev_slab_header = prev_candidate;
 			partial_slab = true;
@@ -253,7 +256,8 @@ found_slab:
 	spinlock_recursive_acquire(&slab_header->lock);
 
 	/* Clear the object's location in the bitmap and increment the number of free objects */
-	size_t object_num = (size_t) (ptr - ((void*) slab_cache) - slab_cache->slab_header_size) / slab_cache->object_size;
+	size_t object_num = (size_t) (ptr - ((void*) slab_header) - slab_cache->slab_header_size) / slab_cache->object_size;
+	printf("Object num: %d\n", object_num);
 	if (object_num < slab_cache->objs_per_slab)
 	{
 		size_t byte_start = object_num / 8;
