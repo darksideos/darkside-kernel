@@ -197,6 +197,7 @@ find_slab: ;
 	}
 
 	/* Should never reach here */
+	spinlock_recursive_release(&slab_header->lock);
 	return NULL;
 }
 
