@@ -104,10 +104,25 @@ void *slab_cache_alloc(slab_cache_t *slab_cache)
 	/* Lock the entire slab cache */
 	spinlock_recursive_acquire(&slab_cache->lock);
 
-	/* Take an empty slab if possible, or a partial one if not */
+	/* Take a partial slab if possible, or an empty one if not */
 find_slab: ;
 	slab_header_t *slab_header = NULL;
-	if (slab_cache->empty)
+	if (slab_cache->partial)
+	{
+		/* Use the first partial slab we see */
+		slab_header = slab_cache->partial;
+
+		/* No objects left after allocation */
+		if (slab_header->num_free_objs == 1)
+		{
+			slab_header_t *old_full_head = slab_cache->full;
+			slab_cache->partial = slab_header->next;
+			slab_header->next = old_full_head;
+			slab_cache->full = slab_header;
+		}
+	}
+	/* Empty slab available */
+	else if (slab_cache->empty)
 	{
 		/* Use the first empty slab we see */
 		slab_header = slab_cache->empty;
@@ -127,21 +142,6 @@ find_slab: ;
 			slab_cache->empty = slab_header->next;
 			slab_header->next = old_partial_head;
 			slab_cache->partial = slab_header;
-		}
-	}
-	/* Partial slab available */
-	else if (slab_cache->partial)
-	{
-		/* Use the first partial slab we see */
-		slab_header = slab_cache->partial;
-
-		/* No objects left after allocation */
-		if (slab_header->num_free_objs == 1)
-		{
-			slab_header_t *old_full_head = slab_cache->full;
-			slab_cache->partial = slab_header->next;
-			slab_header->next = old_full_head;
-			slab_cache->full = slab_header;
 		}
 	}
 	/* No empty or partial slabs available */
