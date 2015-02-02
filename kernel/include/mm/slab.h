@@ -76,4 +76,7 @@ void slab_cache_destroy(slab_cache_t *slab_cache);
 void *slab_cache_alloc(slab_cache_t *slab_cache);
 void slab_cache_free(slab_cache_t *slab_cache, void *ptr);
 
+/* Reap a slab cache's memory */
+void slab_cache_reap(slab_cache_t *slab_cache);
+
 #endif

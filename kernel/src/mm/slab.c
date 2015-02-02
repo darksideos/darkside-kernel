@@ -299,3 +299,22 @@ found_slab:
 	spinlock_recursive_release(&slab_cache->lock);
 	return;
 }
+
+/* Reap a slab cache's memory */
+void slab_cache_reap(slab_cache_t *slab_cache)
+{
+	/* Lock the entire slab cache */
+	spinlock_recursive_acquire(&slab_cache->lock);
+
+	/* Go through and free every empty slab */
+	slab_header_t *slab_header = slab_cache->empty;
+	while (slab_header)
+	{
+		addrspace_free(ADDRSPACE_SYSTEM, slab_header, SLAB_SIZE);
+		slab_header = slab_header->next;
+	}
+
+	/* Release the slab cache lock and return */
+	spinlock_recursive_release(&slab_cache->lock);
+	return;
+}
