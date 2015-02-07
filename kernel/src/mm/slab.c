@@ -170,7 +170,8 @@ find_slab: ;
 	slab_header->num_free_objs--;
 
 	/* Search the bitmap for an available free object */
-	for (uint32_t i = 0; i < ceil(slab_cache->objs_per_slab, 8); i++)
+	size_t bitmap_space = slab_cache->slab_header_size - sizeof(slab_header_t);
+	for (size_t i = 0; i < bitmap_space; i++)
 	{
 		uint8_t byte = slab_header->free_bitmap[i];
 
