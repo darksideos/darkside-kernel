@@ -38,6 +38,9 @@
 /* Get the current Local APIC ID */
 uint32_t lapic_current_id();
 
+/* Set the logical destination register */
+void lapic_set_ldr(uint32_t logical_destination);
+
 /* Send an IPI to another processor */
 void lapic_send_ipi(int64_t destination, uint8_t vector, uint8_t delivery_mode, bool logical);
 

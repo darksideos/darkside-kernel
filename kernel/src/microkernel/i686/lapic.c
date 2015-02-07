@@ -28,6 +28,7 @@
 #define APICVER		0x0C
 #define TSKPRI		0x20
 #define EOI			0x2C
+#define LDR			0x34
 #define SPURIOUS	0x3C
 #define ICR_LOW		0xC0
 #define ICR_HIGH	0xC4
@@ -65,6 +66,12 @@ uint32_t lapic_current_id()
 	{
 		return LAPIC_ID_NONE;
 	}
+}
+
+/* Set the logical destination register */
+void lapic_set_ldr(uint32_t logical_destination)
+{
+	lapic[LDR] = logical_destination;
 }
 
 /* Send an IPI to another processor */
@@ -130,8 +137,9 @@ void lapic_init(loader_block_t *loader_block, bool bsp)
 	lapic[LVT_PERF] = APIC_DISABLE;
 	lapic[LVT_ERR] = APIC_DISABLE;
 	
-	/* Allow all interrupts */
+	/* Allow all interrupts and clear logical destination */
 	lapic[TSKPRI] = 0;
+	lapic[LDR] = 0;
 
 	/* Hardware-enable the Local APIC and set up the spurious interrupt vector */
 	uint32_t eax, edx;
