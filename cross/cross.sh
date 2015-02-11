@@ -31,5 +31,11 @@ if [ -d binutils -a -d gcc ]; then
 		cd ..
 	cd ..
 else
-	echo "binutils or gcc do not exist. Please download and extract the sources \(http://ftp.gnu.org/gnu/binutils/, https://ftp.gnu.org/gnu/gcc/\) into 'binutils' and 'gcc' folders."
+	wget http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
+	tar -xvf binutils-2.25.tar.gz
+	mv binutils-2.25 binutils
+
+	wget http://mirrors.concertpass.com/gcc/releases/gcc-4.9.2/gcc-4.9.2.tar.gz
+	tar -xvf gcc-4.9.2.tar.gz
+	mv gcc-4.9.2 gcc
 fi
