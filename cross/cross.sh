@@ -1,13 +1,7 @@
 #!/usr/bin/bash
-#
-#Password must be typed for three sudo prompts. Otherwise, run as root.
-#
-#/
-#	binutils/
-#	gcc/
 
 LANGS=c,c++,java
-export PREFIX="/opt/cross"
+export PREFIX="/$HOME/cross"
 export TARGET=$1
 export PATH="$PREFIX/bin:$PATH"
 
@@ -31,11 +25,13 @@ if [ -d binutils -a -d gcc ]; then
 		cd ..
 	cd ..
 else
-	wget http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
-	tar -xvf binutils-2.25.tar.gz
-	mv binutils-2.25 binutils
-
-	wget http://mirrors.concertpass.com/gcc/releases/gcc-4.9.2/gcc-4.9.2.tar.gz
-	tar -xvf gcc-4.9.2.tar.gz
-	mv gcc-4.9.2 gcc
+	echo "Downloading binutils..."
+	wget -q http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
+	mkdir binutils
+	tar xf binutils-2.25.tar.gz -C binutils --strip-components=1
+	echo "Downloading gcc..."
+	wget -q http://mirrors.concertpass.com/gcc/releases/gcc-4.9.2/gcc-4.9.2.tar.gz
+	mkdir gcc
+	tar xf gcc-4.9.2.tar.gz -C gcc --strip-components=1
+	echo "Download complete. Please run this script again."
 fi
