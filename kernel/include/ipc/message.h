@@ -31,9 +31,9 @@ typedef struct port
 	/* Server port, if applicable */
 	struct port *server_port;
 
-	/* Message buffer area */
-	void *msgbuf;
-	size_t msgbuf_len;
+	/* Message buffers for send and receive */
+	void *send_buffer, *recv_buffer;
+	size_t sendbuf_len, recvbuf_len;
 
 	/* Thread concurrency variables */
 	int concurrency_limit;
@@ -50,16 +50,16 @@ typedef struct port
 } port_t;
 
 /* Create a server port */
-port_t *port_create(void **msgbuf, size_t *msgbuf_len, int concurrency);
+port_t *port_create(void *msgbuf, size_t msgbuf_len, int concurrency);
 
 /* Connect to a message port, returning a client port */
-port_t *port_connect(port_t *server_port, void **msgbuf, size_t *msgbuf_len, int timeout);
+port_t *port_connect(port_t *server_port, void *msgbuf, size_t msgbuf_len, int timeout);
 
 /* Accept an incoming connection */
 int port_accept(port_t *port, port_t *client_port);
 
-/* Receive and send messages on ports */
-void *port_recv(port_t *port);
+/* Send and receive messages on ports */
 int port_send(port_t *port, void *buffer, size_t length);
+void *port_recv(port_t *port);
 
 #endif

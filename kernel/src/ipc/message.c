@@ -23,13 +23,3 @@
 #include <microkernel/synch.h>
 #include <task/process.h>
 #include <task/thread.h>
-
-/* Message entry structure */
-typedef struct message
-{
-	/* Linked list entry structure */
-	list_entry_t list_entry;
-
-	/* Data pointer */
-	void *data;
-} message_t;
