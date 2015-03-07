@@ -21,5 +21,20 @@
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 #include <microkernel/synch.h>
+#include <mm/mdl.h>
 #include <task/process.h>
 #include <task/thread.h>
+
+/* Message info structure */
+typedef struct message
+{
+	/* Message data, as a bounce-buffer or MDL */
+	union
+	{
+		void *buffer;
+		mdl_t *physical_pages;
+	}
+
+	/* Length of the message */
+	size_t length;
+} message_t;
