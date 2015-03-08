@@ -31,6 +31,10 @@ typedef struct port
 	/* Server port, if applicable */
 	struct port *server_port;
 
+	/* Handles to this object and client token, for the server */
+	int connection_port_handle;
+	int client_token_handle;
+
 	/* Thread concurrency variables */
 	int concurrency_limit;
 	int woken_threads;
