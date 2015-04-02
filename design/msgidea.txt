@@ -1,0 +1,5 @@
+A: Send request message to port, goes to intermediate buffer
+B: Waits on all attached queues, including port, and wakes up on port
+B: Copies from intermediate buffer to its own queue, and processes it
+B: Send reply to the reply queue specified (thread's own if nothing specified)
+A: Gets reply on its own queue
