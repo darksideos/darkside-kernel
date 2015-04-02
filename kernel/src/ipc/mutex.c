@@ -94,7 +94,8 @@ int mutex_release(mutex_t *mutex)
 /* Mutex object ops */
 static object_ops_t mutex_ops =
 {
-	.wait = &mutex_acquire
+	.wait = &mutex_acquire,
+	.signal = &mutex_release
 };
 
 /* Create a mutex object */
