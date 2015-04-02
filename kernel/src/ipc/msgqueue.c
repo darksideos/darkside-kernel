@@ -20,56 +20,47 @@
 #include <string.h>
 #include <stdlib.h>
 #include <list.h>
-#include <ipc/msgqueue.h>
+#include <ipc/message.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 #include <mm/mdl.h>
-
-/* Message info structure */
-typedef struct message
-{
-	/* Linked list entry structure */
-	list_entry_t list_entry;
-
-	/* Message data, as a bounce-buffer or MDL */
-	union
-	{
-		void *buffer;
-		mdl_t *physical_pages;
-	}
-
-	/* Length of the message */
-	size_t length;
-} message_t;
-
-/* Message info structure slab cache */
-slab_cache_t *message_cache;
+#include <task/thread.h>
 
 /* Send a message to a queue */
 size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 {
-	/* Intermediate message buffer */
-	void *int_buffer = NULL;
+	/* Fail if the message size is smaller than the header */
+	if (length < sizeof(message_t))
+	{
+		return 0;
+	}
 
-	/* Small message (2048 bytes or less) */
+	/* Intermediate message buffer */
+	message_t *message = NULL;
+
+	/* Small message (2048 bytes or less), which is a direct copy */
 	if (length <= 2048)
 	{
-		int_buffer = malloc(length);
-		memcpy(int_buffer, buffer, length);
+		/* Allocate a buffer and copy the message in */
+		message = (message_t*) malloc(length);
+		memcpy(message, buffer, length);
 	}
 	/* Large message, which uses an MDL */
 	else
 	{
+		/* Allocate a buffer and just copy the header */
+		message = (message_t*) malloc(sizeof(message_t) + sizeof(mdl_t*));
+		memcpy(message, buffer, sizeof(message_t));
 	}
 
 	/* TODO: Optimize out copying between threads in the same address space */
 
-	/* Allocate a message info structure and fill it out */
-	message_t *message = (message_t*) slab_cache_alloc(message_cache);
-	message->buffer = int_buffer;
+	/* Fill out the header fields before sending */
 	message->length = length;
+	message->sender_tid = tid_current();
+	//message->reply_port = ???;
 
-	/* Put the message info structure on the buffer */
+	/* Put the message buffer on the queue */
 	spinlock_acquire(&msgqueue->lock);
 	list_insert_tail(&msgqueue->arrived_messages, message);
 	spinlock_release(&msgqueue->lock);
