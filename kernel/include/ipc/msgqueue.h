@@ -51,4 +51,7 @@ typedef struct msgqueue
 size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length);
 void *msgqueue_recv(msgqueue_t *msgqueue);
 
+/* Attach a queue to the current thread */
+void msgqueue_attach(msgqueue_t *msgqueue);
+
 #endif
