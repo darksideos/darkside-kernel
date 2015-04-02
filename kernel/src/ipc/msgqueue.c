@@ -80,10 +80,10 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 
 	/* If no messages are on the queue, block until there are */
 	message_t *message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
+	thread_t *current = (thread_t*) thread_current();
 	while (!message)
 	{
 		/* Block on the message queue, releasing the lock */
-		thread_t *current = (thread_t*) thread_current();
 		waitqueue_block(&msgqueue->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&msgqueue->lock);
 		mkthread_yield();
