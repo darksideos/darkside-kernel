@@ -41,7 +41,7 @@ typedef struct msgqueue
 } msgqueue_t;
 
 /* Send and receive messages on a queue */
-int msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length);
+size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length);
 void *msgqueue_recv(msgqueue_t *msgqueue);
 
 #endif
