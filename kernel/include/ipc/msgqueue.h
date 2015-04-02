@@ -33,6 +33,10 @@ typedef struct msgqueue
 	/* Offset of available space in the buffer */
 	size_t buffer_offset;
 
+	/* Thread concurrency variables */
+	int concurrency_limit;
+	int woken_threads;
+
 	/* Messages that have arrived */
 	list_t arrived_messages;
 
