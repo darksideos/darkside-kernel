@@ -17,6 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <string.h>
+#include <stdlib.h>
 #include <list.h>
 #include <ipc/msgqueue.h>
 #include <microkernel/waitqueue.h>
@@ -40,9 +42,37 @@ typedef struct message
 	size_t length;
 } message_t;
 
+/* Message info structure slab cache */
+slab_cache_t *message_cache;
+
 /* Send a message to a queue */
 int msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 {
+	/* Intermediate message buffer */
+	void *int_buffer = NULL;
+
+	/* Small message (2048 bytes or less) */
+	if (length <= 2048)
+	{
+		int_buffer = malloc(length);
+		memcpy(int_buffer, buffer, length);
+	}
+	/* Large message, which uses an MDL */
+	else
+	{
+	}
+
+	/* TODO: Optimize out copying between threads in the same address space */
+
+	/* Allocate a message info structure and fill it out */
+	message_t *message = (message_t*) slab_cache_alloc(message_cache);
+	message->buffer = int_buffer;
+	message->length = length;
+
+	/* Put the message info structure on the buffer */
+	spinlock_acquire(&msgqueue->lock);
+	list_insert_tail(&msgqueue->arrived_messages, message);
+	spinlock_release(&msgqueue->lock);
 }
 
 /* Receive a message from a queue */
