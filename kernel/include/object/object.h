@@ -39,6 +39,7 @@ typedef struct object_ops
 	void (*delete)(void *object);
 
 	/* Wait on the object */
+	int (*wait)(void *object, int timeout);
 } object_ops_t;
 
 /* Object header structure */
