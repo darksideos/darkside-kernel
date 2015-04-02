@@ -46,7 +46,7 @@ typedef struct message
 slab_cache_t *message_cache;
 
 /* Send a message to a queue */
-int msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
+size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 {
 	/* Intermediate message buffer */
 	void *int_buffer = NULL;
@@ -73,9 +73,42 @@ int msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 	spinlock_acquire(&msgqueue->lock);
 	list_insert_tail(&msgqueue->arrived_messages, message);
 	spinlock_release(&msgqueue->lock);
+
+	/* Wake up the first blocked thread, if any exist */
+	waitqueue_unblock(&msgqueue->waitqueue);
+
+	return length;
 }
 
 /* Receive a message from a queue */
 void *msgqueue_recv(msgqueue_t *msgqueue)
 {
+	/* Acquire the message queue lock */
+	spinlock_acquire(&msgqueue->lock);
+
+	/* If no messages are on the queue, block until there are */
+	message_t *message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
+	while (!message)
+	{
+		/* Block on the message queue, releasing the lock */
+		thread_t *current = (thread_t*) thread_current();
+		waitqueue_block(&msgqueue->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
+		spinlock_release(&msgqueue->lock);
+		mkthread_yield();
+
+		/* Re-acquire the lock grab a message from the queue */
+		spinlock_acquire(&msgqueue->lock);
+		message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
+	}
+
+	/* Small message (2048 bytes or less) */
+	if (message->length <= 2048)
+	{
+		/* Copy the message to the receiver's own queue */
+	}
+	/* Large message, which uses an MDL */
+	else
+	{
+		/* Map the MDL into the receiver's own queue */
+	}
 }
