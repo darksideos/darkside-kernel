@@ -26,7 +26,7 @@ typedef struct message
 {
 	size_t length;
 	tid_t sender_tid;
-	int reply_port;
+	int reply_queue;
 	int protocol;
 } message_t;
 
