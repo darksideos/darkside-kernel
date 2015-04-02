@@ -89,15 +89,3 @@ int semaphore_signal(semaphore_t *sem)
 
 	return 0;
 }
-
-/* Semaphore object ops */
-static object_ops_t mutex_ops =
-{
-	.wait = &semaphore_wait,
-	.signal = &semaphore_signal
-};
-
-/* Create a semaphore object */
-mutex_t *semaphore_create(unsigned initial, unsigned max)
-{
-}

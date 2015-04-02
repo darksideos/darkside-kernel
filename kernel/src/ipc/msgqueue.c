@@ -23,6 +23,7 @@
 #include <ipc/message.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
+#include <microkernel/synch.h>
 #include <mm/mdl.h>
 #include <task/thread.h>
 
@@ -102,4 +103,6 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 	{
 		/* Map the MDL into the receiver's own queue */
 	}
+
+	return NULL;
 }

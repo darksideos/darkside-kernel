@@ -135,4 +135,5 @@ int object_wait_single(void *object, int timeout)
 int object_wait_multiple(void **objects, int num_objects, int timeout)
 {
 	/* TODO: Implement this */
+	return 0;
 }
