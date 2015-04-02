@@ -122,3 +122,17 @@ void object_unref(void *object)
 		old_value = prev_value;
 	}
 }
+
+/* Wait for a single object */
+int object_wait_single(void *object, int timeout)
+{
+	/* Get the object header and call the wait function */
+	object_t *header = get_object_header(object);
+	return header->ops->wait(object, timeout);
+}
+
+/* Wait for multiple objects */
+int object_wait_multiple(void **objects, int num_objects, int timeout)
+{
+	/* TODO: Implement this */
+}
