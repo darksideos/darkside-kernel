@@ -22,7 +22,6 @@
 #include <list.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
-#include <task/thread.h>
 
 /* Message queue object */
 typedef struct msgqueue

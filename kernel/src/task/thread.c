@@ -71,5 +71,7 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	/* Set the impersonation token to NULL */
 	thread->impersonate_token = NULL;
 
+	/* Create the thread message queue (TODO: Do this) */
+
 	return thread;
 }
