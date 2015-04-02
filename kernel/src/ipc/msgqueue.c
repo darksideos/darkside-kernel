@@ -67,7 +67,6 @@ size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 	/* Put the message buffer on the queue */
 	spinlock_acquire(&msgqueue->lock);
 	list_insert_tail(&msgqueue->arrived_messages, message);
-	spinlock_release(&msgqueue->lock);
 
 	/* Wake up the first blocked thread, if any exist */
 	waitqueue_unblock(&msgqueue->waitqueue);
