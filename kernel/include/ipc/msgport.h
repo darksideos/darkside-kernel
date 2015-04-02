@@ -35,7 +35,4 @@ bool msgport_connect(msgport_t *port, int timeout);
 size_t msgport_send(msgport_t *port, void *buffer, size_t length);
 void *msgport_recv(msgport_t *port);
 
-/* Attach a port to the current thread */
-void msgport_attach(msgport_t *port);
-
 #endif
