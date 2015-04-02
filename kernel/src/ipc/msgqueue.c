@@ -78,9 +78,12 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 	/* Acquire the message queue lock */
 	spinlock_acquire(&msgqueue->lock);
 
+	/* Get the thread message queue for receiving */
+	thread_t *current = (thread_t*) thread_current();
+	msgqueue_t *recvqueue = current->msgqueue;
+
 	/* If no messages are on the queue, block until there are */
 	message_t *message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
-	thread_t *current = (thread_t*) thread_current();
 	while (!message)
 	{
 		/* Block on the message queue, releasing the lock */
@@ -91,12 +94,29 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 		/* Re-acquire the lock grab a message from the queue */
 		spinlock_acquire(&msgqueue->lock);
 		message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
+
+		/* If we don't have room for it at all, put it back and fail */
+		if (message->length > recvqueue->buffer_length)
+		{
+			list_insert_head(&msgqueue->arrived_messages, message);
+			spinlock_release(&msgqueue->lock);
+			return NULL;
+		}
 	}
 
 	/* Small message (2048 bytes or less) */
+	void *buffer = NULL;
 	if (message->length <= 2048)
 	{
-		/* Copy the message to the receiver's own queue */
+		/* If the needed space exceeds what's available, restart at the beginning */
+		if (recvqueue->buffer_offset + message->length <= recvqueue->buffer_length)
+		{
+			recvqueue->buffer_offset = 0;
+		}
+
+		/* Copy the data into the queue */
+		buffer = recvqueue->buffer_address + recvqueue->buffer_offset;
+		memcpy(buffer, message, message->length);
 	}
 	/* Large message, which uses an MDL */
 	else
@@ -104,5 +124,6 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 		/* Map the MDL into the receiver's own queue */
 	}
 
-	return NULL;
+	spinlock_release(&msgqueue->lock);
+	return buffer;
 }

@@ -31,6 +31,7 @@ typedef struct msgqueue
 	size_t buffer_length;
 
 	/* Offset of available space in the buffer */
+	size_t buffer_offset;
 
 	/* Messages that have arrived */
 	list_t arrived_messages;
