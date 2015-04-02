@@ -90,3 +90,14 @@ int mutex_release(mutex_t *mutex)
 
 	return 0;
 }
+
+/* Mutex object ops */
+static object_ops_t mutex_ops =
+{
+	.wait = &mutex_acquire
+};
+
+/* Create a mutex object */
+mutex_t *mutex_create()
+{
+}
