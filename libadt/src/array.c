@@ -60,7 +60,7 @@ void array_destroy(array_t *array)
 uint32_t array_append(array_t *array, void *item)
 {
 	/* If the array is at max capacity, double it */
-	if (array->occupied == array->allocated) array_resize(array, array->allocated * 2);
+	if (array->occupied == array->allocated) array_reserve(array, array->allocated * 2);
 
 	/* Copy the item into the array */
 	uint8_t *bytes = (uint8_t*) array->data;
