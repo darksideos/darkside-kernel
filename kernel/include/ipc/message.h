@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * msgqueue.h - Message queue public API
+ * message.h - Message-passing public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,35 +16,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __MSGQUEUE_H
-#define __MSGQUEUE_H
+#ifndef __MESSAGE_H
+#define __MESSAGE_H
 
-#include <list.h>
-#include <microkernel/waitqueue.h>
-#include <microkernel/lock.h>
-#include <task/thread.h>
-
-/* Message queue object */
-typedef struct msgqueue
+/* Message header */
+typedef struct message
 {
-	/* Message buffer and length */
-	void *buffer_address;
-	size_t buffer_length;
+	size_t length;
+	tid_t sender_tid;
+	int reply_port;
+	int protocol;
+} message_t;
 
-	/* Offset of available space in the buffer */
-
-	/* Messages that have arrived */
-	list_t arrived_messages;
-
-	/* Queue of blocked threads */
-	waitqueue_t waitqueue;
-
-	/* Lock on the object */
-	spinlock_t lock;
-} msgqueue_t;
-
-/* Send and receive messages on a queue */
-size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length);
-void *msgqueue_recv(msgqueue_t *msgqueue);
+/* Message queue and port APIs */
+#include <ipc/msgqueue.h>
 
 #endif
