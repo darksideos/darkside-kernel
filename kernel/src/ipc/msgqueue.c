@@ -27,6 +27,9 @@
 #include <mm/mdl.h>
 #include <task/thread.h>
 
+/* Maximum size of a small message */
+#define SMALL_MSG_SIZE	2048
+
 /* Send a message to a queue */
 size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 {
@@ -40,7 +43,7 @@ size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 	message_t *message = NULL;
 
 	/* Small message (2048 bytes or less), which is a direct copy */
-	if (length <= 2048)
+	if (length <= SMALL_MSG_SIZE)
 	{
 		/* Allocate a buffer and copy the message in */
 		message = (message_t*) malloc(length);
@@ -106,7 +109,7 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 
 	/* Small message (2048 bytes or less) */
 	void *buffer = NULL;
-	if (message->length <= 2048)
+	if (message->length <= SMALL_MSG_SIZE)
 	{
 		/* If the needed space exceeds what's available, restart at the beginning */
 		if (recvqueue->buffer_offset + message->length <= recvqueue->buffer_length)
