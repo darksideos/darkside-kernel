@@ -176,7 +176,7 @@ int vmm_get_protection(paddr_t address_space, vaddr_t virtual_address)
 	}
 
 	/* Create the page protection flags */
-	int flags = PAGE_READ;
+	int flags = PAGE_READ | PAGE_EXECUTE;
 	uint32_t x86_flags = *page & 0xFFF;
 
 	if (x86_flags & 0x2)
