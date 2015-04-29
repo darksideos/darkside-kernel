@@ -62,7 +62,6 @@ size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 	/* Fill out the header fields before sending */
 	message->length = length;
 	message->sender_tid = tid_current();
-	//message->reply_port = ???;
 
 	/* Put the message buffer on the queue */
 	spinlock_acquire(&msgqueue->lock);
@@ -124,6 +123,8 @@ void *msgqueue_recv(msgqueue_t *msgqueue)
 	else
 	{
 		/* Map the MDL into the receiver's own queue */
+
+		/* Copy the header over what the sender put */
 	}
 
 	spinlock_release(&msgqueue->lock);

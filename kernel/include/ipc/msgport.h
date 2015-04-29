@@ -36,6 +36,6 @@ msgport_t *msgport_connect(msgport_t *port, int timeout);
 
 /* Send and receive messages on ports */
 size_t msgport_send(msgport_t *port, void *buffer, size_t length);
-void *msgport_recv(msgport_t *port);
+void *msgport_recv(msgport_t *port, int timeout);
 
 #endif
