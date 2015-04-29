@@ -27,7 +27,7 @@ if [ "$(uname -s)" == "Linux" ]
 		sudo cp "graphics/boot screen.bmp" /mnt/hdd/boot
 		sudo umount /mnt/hdd
 		sudo rm -rf /mnt/hdd
-		if [ "$(whoami)" == "george" ]
+		if [ "$(whoami)" == "George" ]
 			then
 				sudo cp kldr/build/bootapp*.bin /media/george/DarkSide/boot
 				sudo cp kernel/build/kernel-*.elf /media/george/DarkSide/boot
