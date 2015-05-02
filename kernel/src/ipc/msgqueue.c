@@ -74,7 +74,7 @@ size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 }
 
 /* Receive a message from a queue */
-void *msgqueue_recv(msgqueue_t *msgqueue)
+void *msgqueue_recv(msgqueue_t *msgqueue, int timeout)
 {
 	/* Acquire the message queue lock */
 	spinlock_acquire(&msgqueue->lock);
