@@ -22,9 +22,11 @@
 /* Connect to a server port, returning a client port */
 msgport_t *msgport_connect(msgport_t *port, int timeout)
 {
+	return NULL;
 }
 
 /* Send and receive messages on ports */
 size_t msgport_send(msgport_t *port, void *buffer, size_t length)
 {
+	return 0;
 }
