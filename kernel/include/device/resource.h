@@ -1,6 +1,8 @@
 #ifndef __RESOURCE_H
 #define __RESOURCE_H
 
+#include <microkernel/interrupt.h>
+
 /* Resource types */
 #define RESOURCE_IO			0x00	/* I/O space */
 #define RESOURCE_MMIO		0x01	/* MMIO registers */
