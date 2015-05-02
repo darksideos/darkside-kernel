@@ -43,9 +43,9 @@ void rwlock_read_acquire(rwlock_t *rwlock)
 	spinlock_acquire(&rwlock->lock);
 
 	/* If a writer currently has the lock, block on the lock */
+	thread_t *current = (thread_t*) thread_current();
 	while (rwlock->write_count)
 	{
-		thread_t *current = (thread_t*) thread_current();
 		current->rwlock_state = READER_WAITING;
 		waitqueue_block(&rwlock->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);
@@ -89,9 +89,9 @@ void rwlock_write_acquire(rwlock_t *rwlock)
 	spinlock_acquire(&rwlock->lock);
 
 	/* If a reader or writer currently has the lock, block on the lock */
+	thread_t *current = (thread_t*) thread_current();
 	while (rwlock->read_count || rwlock->write_count)
 	{
-		thread_t *current = (thread_t*) thread_current();
 		current->rwlock_state = WRITER_WAITING;
 		waitqueue_block(&rwlock->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&rwlock->lock);

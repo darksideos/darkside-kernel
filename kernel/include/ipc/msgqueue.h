@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * message.h - Message-passing public API
+ * msgqueue.h - Message queue public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,20 +16,42 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include <types.h>
+#ifndef __MSGQUEUE_H
+#define __MSGQUEUE_H
+
 #include <list.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
-#include <microkernel/synch.h>
-#include <task/process.h>
-#include <task/thread.h>
 
-/* Message entry structure */
-typedef struct message
+/* Message queue object */
+typedef struct msgqueue
 {
-	/* Linked list entry structure */
-	list_entry_t list_entry;
+	/* Message buffer and length */
+	void *buffer_address;
+	size_t buffer_length;
 
-	/* Data pointer */
-	void *data;
-} message_t;
+	/* Offset of available space in the buffer */
+	size_t buffer_offset;
+
+	/* Thread concurrency variables */
+	int concurrency_limit;
+	int woken_threads;
+
+	/* Messages that have arrived */
+	list_t arrived_messages;
+
+	/* Queue of blocked threads */
+	waitqueue_t waitqueue;
+
+	/* Lock on the object */
+	spinlock_t lock;
+} msgqueue_t;
+
+/* Send and receive messages on a queue */
+size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length);
+void *msgqueue_recv(msgqueue_t *msgqueue, int timeout);
+
+/* Attach a queue to the current thread */
+void msgqueue_attach(msgqueue_t *msgqueue);
+
+#endif

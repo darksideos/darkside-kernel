@@ -1,6 +1,7 @@
 #ifndef __TASK_THREAD_H
 #define __TASK_THREAD_H
 
+#include <ipc/msgqueue.h>
 #include <microkernel/thread.h>
 #include <security/token.h>
 #include <task/process.h>
@@ -17,8 +18,8 @@ typedef struct thread
 	/* Readers/writer lock state */
 	int rwlock_state;
 
-	/* Dequeued message */
-	void *dequeued_message;
+	/* Thread message queue */
+	msgqueue_t *msgqueue;
 
 	/* Outstanding I/O requests for the thread */
 } thread_t;
