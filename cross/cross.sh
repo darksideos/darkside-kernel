@@ -6,7 +6,7 @@
 #	binutils/
 #	gcc/
 
-LANGS=c,c++,java
+LANGS=c,c++
 export PREFIX="/opt/cross"
 export TARGET=$1
 export PATH="$PREFIX/bin:$PATH"
