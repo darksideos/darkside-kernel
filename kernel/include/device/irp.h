@@ -1,6 +1,8 @@
 #ifndef __IRP_H
 #define __IRP_H
 
+#include <ipc/message.h>
+
 /* I/O Request Packet (IRP) structure */
 typedef struct irp
 {

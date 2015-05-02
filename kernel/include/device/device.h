@@ -1,6 +1,8 @@
 #ifndef __DEVICE_H
 #define __DEVICE_H
 
+#include <list.h>
+
 /* Device class codes */
 #define DEVICE_SYSTEM		0x00
 #define DEVICE_STORAGE		0x01
