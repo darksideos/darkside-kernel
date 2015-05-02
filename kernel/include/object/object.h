@@ -39,6 +39,10 @@ typedef struct object_ops
 	void (*delete)(void *object);
 
 	/* Wait on the object */
+	int (*wait)(void *object, int timeout);
+
+	/* Signal the object */
+	int (*signal)(void *object);
 } object_ops_t;
 
 /* Object header structure */
@@ -68,5 +72,10 @@ void object_unref(void *object);
 /* Get and set the security descriptor of an object */
 security_descriptor_t *object_get_security(void *object);
 void object_set_security(void *object, security_descriptor_t *descriptor);
+
+/* Wait and signal an object */
+int object_wait_single(void *object, int timeout);
+int object_wait_multiple(void **object, int num_objects, int timeout);
+int object_signal(void *object);
 
 #endif
