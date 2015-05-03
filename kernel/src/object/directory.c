@@ -20,7 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dict.h>
-#include <microkernel/rwlock.h>
+#include <ipc/rwlock.h>
 #include <mm/slab.h>
 #include <object/object.h>
 #include <object/directory.h>
@@ -34,6 +34,8 @@ int directory_init(directory_t *dir, directory_ops_t *ops)
 	dir->ops = ops;
 	dir->dirents = dict_create();
 	rwlock_init(&dir->dirents_lock);
+
+	return 0;
 }
 
 /* Look up an object in a directory by name */
