@@ -19,7 +19,7 @@
 #ifndef __DIRECTORY_H
 #define __DIRECTORY_H
 
-#include <microkernel/rwlock.h>
+#include <ipc/rwlock.h>
 
 /* Backing store operations */
 struct directory;
