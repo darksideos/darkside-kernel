@@ -21,11 +21,12 @@
 
 #include <mm/section.h>
 
+/* Inode types */
 #define INODE_FILE			0
 #define INODE_DIRECTORY		1
 #define INODE_SYMLINK		2
 
-/* Inode structure */
+/* Inode object */
 typedef struct inode
 {
 	/* Filesystem the inode resides on */
@@ -43,5 +44,9 @@ typedef struct inode
 	/* Section objects (data and image) */
 	section_t *data_section, *image_section;
 } inode_t;
+
+/* Read and write data from inodes */
+int inode_read(inode_t *inode, void *buffer, uint64_t offset, uint64_t length, bool cached, void *completion_obj);
+int inode_write(inode_t *inode, void *buffer, uint64_t offset, uint64_t length, bool cached, void *completion_obj);
 
 #endif
