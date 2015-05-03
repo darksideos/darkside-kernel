@@ -22,6 +22,9 @@ typedef struct req
 	/* Request size */
 	size_t length;
 
+	/* Targeted device */
+	device_t *device;
+
 	/* Interface and request code */
 	int iface, request;
 
@@ -37,6 +40,6 @@ void irp_destroy(irp_t *irp);
 req_t *irp_push(irp_t *length, size_t length);
 
 /* Send an IRP to a device */
-void irp_send(irp_t *irp, device_t *device);
+int irp_send(irp_t *irp, device_t *device);
 
 #endif
