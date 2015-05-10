@@ -36,7 +36,8 @@ void nanosleep(uint64_t ns);
 /* Stall execution for a specified amount of time */
 void ustall(uint64_t us);
 
-/* Get the system time */
+/* Get and set the system time */
 uint64_t get_systime();
+void set_systime(uint64_t systime);
 
 #endif
