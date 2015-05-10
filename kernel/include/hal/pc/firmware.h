@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * main.c - Hardware Abstraction Layer initialization for PCs
+ * main.c - Hardware Abstraction Layer firmware interface API for PCs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,16 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include <types.h>
-#include <init/loader.h>
-#include <hal/pc/lapic.h>
+#ifndef __FIRMWARE_H
+#define __FIRMWARE_H
 
-/* Initialize the HAL */
-void hal_init(loader_block_t *loader_block, bool bsp)
+/* Firmware interface operations */
+typedef struct firmware_iface_ops
 {
-	/* Initialize the firmware interface */
+	/* Detect the interrupt controllers */
+	int (*detect_int_controllers)();
+} firmware_iface_ops_t;
 
-	/* Detect and setup the interrupt controllers */
-
-	/* Enumerate the timers and choose the best for each task */
-}
+#endif
