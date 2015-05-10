@@ -18,7 +18,8 @@
  */
 #include <types.h>
 #include <init/loader.h>
-#include <hal/pc/lapic.h>
+#include <hal/pc/firmware.h>
+#include <hal/pc/rtc.h>
 
 /* Initialize the HAL */
 void hal_init(loader_block_t *loader_block, bool bsp)
@@ -27,5 +28,8 @@ void hal_init(loader_block_t *loader_block, bool bsp)
 
 	/* Detect and setup the interrupt controllers */
 
-	/* Enumerate the timers and choose the best for each task */
+	/* Enumerate the system timers and choose the best */
+
+	/* Start counting system time with the RTC */
+	rtc_init();
 }

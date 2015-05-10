@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * main.c - Hardware Abstraction Layer firmware interface API for PCs
+ * main.c - Hardware Abstraction Layer RTC public API for PCs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,22 +16,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __FIRMWARE_H
-#define __FIRMWARE_H
+#ifndef __RTC_H
+#define __RTC_H
 
-#include <microkernel/interrupt.h>
-
-/* Firmware interface operations */
-typedef struct firmware_iface_ops
-{
-	/* Get an interrupt object for an ISA interrupt */
-	interrupt_t* (*get_isa_interrupt)();
-
-	/* Detect the interrupt controllers */
-	int (*detect_int_controllers)();
-
-	/* Detect the system timers */
-	int (*detect_sys_timers)();
-} firmware_iface_ops_t;
+/* Initialize the RTC */
+void rtc_init();
 
 #endif

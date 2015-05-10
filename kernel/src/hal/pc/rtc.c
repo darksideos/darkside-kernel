@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * main.c - Hardware Abstraction Layer firmware interface API for PCs
+ * main.c - Hardware Abstraction Layer RTC management for PCs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,22 +16,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __FIRMWARE_H
-#define __FIRMWARE_H
+#include <types.h>
+#include <hal/pc/firmware.h>
+#include <microkernel/ports.h>
 
-#include <microkernel/interrupt.h>
+/* Global system time */
+static uint64_t global_systime;
 
-/* Firmware interface operations */
-typedef struct firmware_iface_ops
+/* Get the system time */
+uint64_t get_systime()
 {
-	/* Get an interrupt object for an ISA interrupt */
-	interrupt_t* (*get_isa_interrupt)();
+	return global_systime;
+}
 
-	/* Detect the interrupt controllers */
-	int (*detect_int_controllers)();
+/* Set the system time */
+void set_systime(uint64_t systime)
+{
+	global_systime = systime;
+}
 
-	/* Detect the system timers */
-	int (*detect_sys_timers)();
-} firmware_iface_ops_t;
-
-#endif
+/* Initialize the RTC */
+void rtc_init()
+{
+}
