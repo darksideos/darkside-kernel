@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * interrupt.h - Interrupt manager public API
  *
@@ -24,16 +24,16 @@
 #include <microkernel/i686/interrupt.h>
 #endif
 
-/* Create an interrupt object */
-interrupt_t *interrupt_create();
+/* Register and get an interrupt controller for a GSI range */
+void interrupt_controller_register(interrupt_controller_ops_t **controller, int gsi_start, int gsi_range);
+interrupt_controller_ops_t **interrupt_controller_get(int gsi);
 
-/* Destroy an interrupt object */
+/* Create and destroy an interrupt object */
+interrupt_t *interrupt_create();
 void interrupt_destroy(interrupt_t *interrupt);
 
-/* Register an interrupt object and its handler */
+/* Register and unregister an interrupt object and its handler */
 void interrupt_register_handler(interrupt_t *interrupt, interrupt_handler_t handler);
-
-/* Unregister an interrupt object and its handler */
 void interrupt_unregister_handler(interrupt_t *interrupt, interrupt_handler_t handler);
 
 /* Initialize the interrupt manager */
