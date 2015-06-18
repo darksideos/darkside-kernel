@@ -74,25 +74,6 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_
 		free_start += SLAB_SIZE;
 		free_length -= SLAB_SIZE;
 
-		/* Allocation test */
-		void *ptr1 = slab_cache_alloc(&vad_cache);
-		void *ptr2 = slab_cache_alloc(&vad_cache);
-		void *ptr3 = slab_cache_alloc(&vad_cache);
-		printf("0x%08X 0x%08X 0x%08X\n", ptr1, ptr2, ptr3);
-		slab_cache_free(&vad_cache, ptr2);
-		void *ptr4 = slab_cache_alloc(&vad_cache);
-		printf("0x%08X\n", ptr4);
-		slab_cache_free(&vad_cache, ptr1);
-		slab_cache_free(&vad_cache, ptr4);
-		void *ptr5 = slab_cache_alloc(&vad_cache);
-		printf("0x%08X\n", ptr5);
-		slab_cache_free(&vad_cache, ptr1);
-		slab_cache_free(&vad_cache, ptr5);
-		slab_cache_free(&vad_cache, ptr3);
-		void *ptr6 = slab_cache_alloc(&vad_cache);
-		printf("0x%08X\n", ptr6);
-		while(1);
-
 		/* Set up the pointer to the system address space */
 		addrspace = &system_addrspace;
 	}
