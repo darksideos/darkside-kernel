@@ -104,7 +104,7 @@ void *list_remove_tail(list_t *list)
 
 	if (list->tail->prev)
 	{
-		list->head->prev->next = NULL;
+		list->tail->prev->next = NULL;
 	}
 	else
 	{
