@@ -297,8 +297,9 @@ static void copy_kldr_data(loader_block_t *loader_block, int num_boot_modules)
 	executable_t *module_old = (executable_t*) iter_now(&iter);
 	while (module_old)
 	{
-		/* Copy the metadata over */
+		/* Copy the metadata over and add it to the list */
 		memcpy(module_new, module_old, sizeof(executable_t));
+		list_insert_tail(modules, module_new);
 
 		/* Remake the symbol table dictionary (TODO: Implement this) */
 
