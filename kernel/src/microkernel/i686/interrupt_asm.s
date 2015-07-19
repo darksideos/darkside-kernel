@@ -44,8 +44,7 @@ interrupt_common_stub:
 	mov eax, esp
 	push eax
 	extern interrupt_handler
-	mov eax, interrupt_handler
-	call eax
+	call interrupt_handler
 	pop eax
 	
 	; Restore all needed registers
