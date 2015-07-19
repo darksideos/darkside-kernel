@@ -40,8 +40,7 @@ lapic_irq_spurious:
 	mov eax, esp
 	push eax
 	extern lapic_spurious_handler
-	mov eax, lapic_spurious_handler
-	call eax
+	call lapic_spurious_handler
 	pop eax
 	
 	; Restore all needed registers

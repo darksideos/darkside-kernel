@@ -90,8 +90,7 @@ exception_common_stub:
 	mov eax, esp
 	push eax
 	extern exception_handler
-	mov eax, exception_handler
-	call eax
+	call exception_handler
 	pop eax
 	
 	; Restore all needed registers
