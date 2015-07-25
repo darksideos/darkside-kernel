@@ -26,8 +26,21 @@
 /* Get an object header from a pointer */
 static object_t *get_object_header(void *ptr)
 {
-	object_t **obj_ptr = (object_t**) (((unsigned char*)ptr) - sizeof(object_ops_t*) - sizeof(object_t*));
+	object_t **obj_ptr = (object_t**) (ptr - INTERFACE_HEADER_SIZE);
 	return *obj_ptr;
+}
+
+/* Initialize an interface to an object */
+void object_init_interface(void *object, object_t *header, int iid, object_ops_t *ops)
+{
+	/* Set up the object header and interface ops pointers */
+	void **obj_ptr = (void**) object;
+	obj_ptr[0] = header;
+	obj_ptr[1] = ops;
+
+	/* Add the interface body to the list */
+	void *body = object + INTERFACE_HEADER_SIZE;
+	map_append(&header->interfaces, iid, body);
 }
 
 /* Query an interface to an object */

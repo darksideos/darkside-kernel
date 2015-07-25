@@ -29,6 +29,6 @@ slab_cache_t *process_cache, *thread_cache;
 void tasking_init()
 {
 	/* Create the slab caches for process and thread objects */
-	//process_cache = slab_cache_create(INTERFACE_HEADER_SIZE + sizeof(process_t), PAGE_READ | PAGE_WRITE);
-	//thread_cache = slab_cache_create(INTERFACE_HEADER_SIZE + sizeof(thread_t), PAGE_READ | PAGE_WRITE);
+	//process_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(process_t), PAGE_READ | PAGE_WRITE);
+	//thread_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(thread_t), PAGE_READ | PAGE_WRITE);
 }

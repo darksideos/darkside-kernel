@@ -23,7 +23,7 @@
 #include <security/sd.h>
 
 /* Interface header size */
-#define INTERFACE_HEADER_SIZE	(sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*))
+#define INTERFACE_HEADER_SIZE	(sizeof(object_t*) + sizeof(object_ops_t*))
 
 /* Object operations structure */
 struct object;
@@ -62,7 +62,8 @@ typedef struct object
 	security_descriptor_t security_descriptor;
 } object_t;
 
-/* Query an interface to an object */
+/* Initialize and query an interface to an object */
+void object_init_interface(void *object, object_t *header, int iid, object_ops_t *ops);
 void *object_query_interface(void *object, int iid);
 
 /* Reference and dereference an object */

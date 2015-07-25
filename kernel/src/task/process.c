@@ -54,11 +54,8 @@ process_t *process_create(section_t *section, process_t *parent_process, token_t
 	/* Initialize the generic object header */
 	
 	/* Add the process object as an interface */
-	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
-	obj_ptr[0] = object;
-	obj_ptr[1] = (object_t*) &process_ops;
-	process_t *process = (process_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
-	map_append(&object->interfaces, IID_PROCESS, process);
+	object_init_interface(((void*)object) + sizeof(object_t), object, IID_PROCESS, &process_ops);
+	process_t *process = (process_t*) (((void*)object) + sizeof(object_t) + INTERFACE_HEADER_SIZE);
 
 	/* Initialize the microkernel process structure */
 	mkprocess_init(&process->mkprocess, numa_domain, policy, priority);
