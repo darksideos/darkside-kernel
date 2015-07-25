@@ -52,11 +52,8 @@ thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void 
 	/* Initialize the generic object header */
 	
 	/* Add the thread object as an interface */
-	object_t **obj_ptr = (object_t**) (((unsigned char*)object) + sizeof(object_t));
-	obj_ptr[0] = object;
-	obj_ptr[1] = (object_t*) &thread_ops;
-	thread_t *thread = (thread_t*) (((unsigned char*)object) + sizeof(object_t) + sizeof(object_t*) + sizeof(object_ops_t*));
-	map_append(&object->interfaces, IID_THREAD, thread);
+	object_init_interface(((void*)object) + sizeof(object_t), object, IID_THREAD, &thread_ops);
+	thread_t *thread = (thread_t*) (((void*)object) + sizeof(object_t) + INTERFACE_HEADER_SIZE);
 
 	/* Initialize the microkernel thread structure */
 	mkthread_init(&thread->mkthread, (parent_process ? (&parent_process->mkprocess) : NULL), fn, args, numa_domain, policy, priority, stack_size);
