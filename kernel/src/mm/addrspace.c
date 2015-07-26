@@ -63,7 +63,91 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range
 /* Allocate regions of a virtual address space */
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags)
 {
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
 
+	/* Round up both the reserved and committed sizes to a page boundary */
+	size_reserved = PAGE_ALIGN_UP(size_reserved);
+	size_committed = PAGE_ALIGN_UP(size_committed);
+
+	/* Make sure we don't commit more than we reserve */
+	if (size_committed > size_reserved)
+	{
+		size_committed = size_reserved;
+	}
+
+	/* Search the address space for a free region of suitable size */
+	spinlock_recursive_acquire(&addrspace->lock);
+	vad_t *vad = &addrspace->free;
+	while (vad)
+	{
+		/* Move on if it doesn't fit our allocation */
+		if (vad->length < size_reserved)
+		{
+			vad = vad->next;
+			continue;
+		}
+
+		/* Keep the starting address of the allocation */
+		vaddr_t address = vad->start;
+
+		/* Create the guard page if requested */
+		vaddr_t i = address;
+		if (flags & GUARD_BOTTOM)
+		{
+			vmm_map_page(addrspace->address_space, i, 0, PAGE_INVALID);
+			i += PAGE_SIZE;
+		}
+
+		/* Commit all the needed pages */
+		for (; i < address + size_committed; i += PAGE_SIZE)
+		{
+			int color = vaddr_cache_color(i, addrspace->numa_domain, 0);
+			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
+		}
+
+		/* If there is more space, remove the allocation size from the VAD */
+		if (size_reserved < vad->length)
+		{
+			vad->start += size_reserved;
+			vad->length -= size_reserved;
+		}
+		/* Entire VAD has been allocated, so remove from the free list */
+		else
+		{
+			/* VAD from the slab cache, so relink and free */
+			if (vad != &addrspace->free)
+			{
+				/* Readjust the linked list */
+				vad->prev->next = vad->next;
+				vad->next->prev = vad->prev;
+
+				/* Free the VAD */
+				slab_cache_free(&vad_cache, vad);
+			}
+			/* Root VAD, so copy the next VAD over it */
+			else
+			{
+				/* Copy the next VAD into the root one */
+				vad_t *vad_next = vad->next;
+				memcpy(vad, vad_next, sizeof(vad_t));
+
+				/* Free the dynamically-allocated VAD */
+				slab_cache_free(&vad_cache, vad_next);
+			}
+		}
+
+		/* Record allocation metadata, unless told not to */
+
+		/* Return the address of the allocated region */
+		spinlock_recursive_release(&addrspace->lock);
+		return (void*) address;
+	}
+
+	/* No free region of the address space available */
+	spinlock_recursive_release(&addrspace->lock);
+	return NULL;
+}
 }
 
 /* Initialize the system address space */

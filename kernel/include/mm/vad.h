@@ -23,6 +23,8 @@
 #define PAGE_PRIVATE			0x200
 #define PAGE_MAPPED_DATA		0x400
 #define PAGE_MAPPED_IMAGE		0x800
+#define PAGE_GUARD_BOTTOM		0x1000
+#define PAGE_GUARD_TOP			0x2000
 
 /* Virtual address descriptor structure */
 typedef struct vad
