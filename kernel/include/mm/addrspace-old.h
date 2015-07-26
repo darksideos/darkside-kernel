@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 DarkSide Project
+ * Copyright (C) 2014 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * addrspace.h - Address space management public API
  *
@@ -19,14 +19,16 @@
 #ifndef __ADDRSPACE_H
 #define __ADDRSPACE_H
 
-#include <init/loader.h>
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
 #include <mm/vad.h>
 
 /* Special address space pointers */
-#define ADDRSPACE_CURRENT	(addrspace_t*)1
-#define ADDRSPACE_SYSTEM	(addrspace_t*)2
+#define ADDRSPACE_CURRENT	(addrspace_t*) 1
+#define ADDRSPACE_SYSTEM	(addrspace_t*) 2
+
+/* Virtual address allocation flags */
+#define GUARD_BOTTOM		0x1000
 
 /* Address space structure */
 typedef struct addrspace
@@ -36,6 +38,8 @@ typedef struct addrspace
 
 	/* Used and free regions */
 	vad_t used, free;
+
+	/* Root of the used region tree */
 	vad_t *used_root;
 
 	/* NUMA domain */
@@ -46,7 +50,7 @@ typedef struct addrspace
 } addrspace_t;
 
 /* Initialize and destroy an address space */
-void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range_start, size_t range_length);
+void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length);
 void addrspace_destroy(addrspace_t *addrspace);
 
 /* Allocate and free regions of a virtual address space */
@@ -62,8 +66,5 @@ void addrspace_protect(addrspace_t *addrspace, void *ptr, size_t size, int flags
 /* Lock and unlock memory regions */
 void addrspace_lock(addrspace_t *addrspace, void *ptr, size_t size);
 void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size);
-
-/* Initialize the system address space */
-void system_addrspace_init(loader_block_t *loader_block, paddr_t address_space);
 
 #endif
