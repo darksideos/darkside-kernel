@@ -60,6 +60,12 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range
 	addrspace->free.prev = addrspace->free.next = NULL;
 }
 
+/* Destroy an address space */
+void addrspace_destroy(addrspace_t *addrspace)
+{
+	/* TODO: Implement this */
+}
+
 /* Allocate regions of a virtual address space */
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags)
 {
@@ -106,7 +112,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 			vmm_map_page(addrspace->address_space, i, pmm_alloc_page(0, addrspace->numa_domain, color), flags);
 		}
 
-		/* If there is more space, remove the allocation size from the VAD */
+		/* If there is more space, shrink the VAD's region */
 		if (size_reserved < vad->length)
 		{
 			vad->start += size_reserved;
@@ -138,6 +144,19 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		}
 
 		/* Record allocation metadata, unless told not to */
+		if (!(flags & PAGE_PRIVATE))
+		{
+			/* Create a new VAD to represent the now-used region */
+			vad = slab_cache_alloc(&vad_cache);
+			vad->start = address;
+			vad->length = size_reserved;
+			vad->flags = flags;
+			vad->left = vad->right = NULL;
+			vad->height = 0;
+
+			/* Insert it into the tree */
+			addrspace->used_root = vad_tree_insert(addrspace->used_root, vad);
+		}
 
 		/* Return the address of the allocated region */
 		spinlock_recursive_release(&addrspace->lock);
@@ -148,6 +167,46 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 	spinlock_recursive_release(&addrspace->lock);
 	return NULL;
 }
+
+/* Free regions of a virtual address space */
+void addrspace_free(addrspace_t *addrspace, void *ptr, size_t size)
+{
+	/* TODO: Implement this */
+}
+
+/* Query the protection of a virtual address */
+int addrspace_query(addrspace_t *addrspace, void *ptr)
+{
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
+
+	/* Look up the VAD for the address */
+	vad_t *vad = vad_tree_lookup(addrspace->used_root, (vaddr_t) ptr);
+	if (!vad)
+	{
+		return PAGE_INVALID;
+	}
+
+	/* Return the protection flags */
+	return vad->flags;
+}
+
+/* Set the protection of a virtual address range */
+void addrspace_protect(addrspace_t *addrspace, void *ptr, size_t size, int flags)
+{
+	/* TODO: Implement this */
+}
+
+/* Lock a memory region */
+void addrspace_lock(addrspace_t *addrspace, void *ptr, size_t size)
+{
+	/* TODO: Implement this */
+}
+
+/* Unlock a memory region */
+void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size)
+{
+	/* TODO: Implement this */
 }
 
 /* Initialize the system address space */
@@ -162,7 +221,7 @@ void system_addrspace_init(loader_block_t *loader_block, paddr_t address_space)
 	}
 
 	/* Create the initial slab cache for VADs */
-	slab_cache_init(&vad_cache, (void*)free_start, sizeof(vad_t), PAGE_READ | PAGE_WRITE);
+	slab_cache_init(&vad_cache, (void*)free_start, sizeof(vad_t), PAGE_READ | PAGE_WRITE | PAGE_PRIVATE);
 	free_start += SLAB_SIZE;
 
 	/* Initialize the system address space */

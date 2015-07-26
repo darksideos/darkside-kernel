@@ -25,6 +25,7 @@
 #define PAGE_MAPPED_IMAGE		0x800
 #define PAGE_GUARD_BOTTOM		0x1000
 #define PAGE_GUARD_TOP			0x2000
+#define PAGE_LOCKED				0x4000
 
 /* Virtual address descriptor structure */
 typedef struct vad
