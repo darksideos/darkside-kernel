@@ -28,8 +28,6 @@
 #include <mm/addrspace.h>
 #include <mm/slab.h>
 
-#include <stdio.h>
-
 /* System address space */
 static addrspace_t system_addrspace;
 
@@ -217,7 +215,6 @@ void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size)
 /* Claim a memory region under certain flags */
 void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags)
 {
-	printf("Claim 0x%08X bytes at 0x%08X\n", size, ptr);
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
 
@@ -273,25 +270,6 @@ void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags)
 
 	/* Release the lock on the addrspace */
 	spinlock_recursive_release(&addrspace->lock);
-
-	//if (ptr == (void*)0xFFC00000)
-	//{
-		printf("Free VADs\n");
-		vad = &addrspace->free;
-		while (vad)
-		{
-			printf("start=0x%08X, length=0x%08X\n", vad->start, vad->length);
-			vad = vad->next;
-		}
-
-		printf("Used VADs\n");
-		vad = addrspace->used_root;
-		while (vad)
-		{
-			printf("start=0x%08X, length=0x%08X\n", vad->start, vad->length);
-			vad = vad->next;
-		}
-	//}
 }
 
 /* Initialize the system address space */
