@@ -154,10 +154,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		paging_init(&loader_block, bsp);
 
 		/* Initialize the system address space */
+		printf("Initializing system address space\n");
 		paddr_t address_space;
 		__asm__ volatile("mov %%cr3, %0" : "=r"(address_space));
-		printf("Initializing system address space\n");
-		addrspace_init(ADDRSPACE_SYSTEM, address_space, loader_block.system_free_start, 0xFFC00000 - loader_block.system_free_start);
+		system_addrspace_init(&loader_block, address_space);
+		addrspace_claim(ADDRSPACE_SYSTEM, (void*)KERNEL_ADDRSPACE_START, loader_block.system_free_start - KERNEL_ADDRSPACE_START,
+						PAGE_READ | PAGE_WRITE | PAGE_EXECUTE | PAGE_GLOBAL);
+		addrspace_claim(ADDRSPACE_SYSTEM, (void*)0xFFC00000, 0x400000, PAGE_READ | PAGE_WRITE);
 
 		/* Initialize the kernel heap */
 		printf("Initializing kernel heap\n");

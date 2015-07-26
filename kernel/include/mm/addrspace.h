@@ -63,6 +63,9 @@ void addrspace_protect(addrspace_t *addrspace, void *ptr, size_t size, int flags
 void addrspace_lock(addrspace_t *addrspace, void *ptr, size_t size);
 void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size);
 
+/* Claim a memory region under certain flags */
+void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags);
+
 /* Initialize the system address space */
 void system_addrspace_init(loader_block_t *loader_block, paddr_t address_space);
 
