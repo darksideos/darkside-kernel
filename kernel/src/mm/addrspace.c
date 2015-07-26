@@ -82,6 +82,9 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 		size_committed = size_reserved;
 	}
 
+	/* Fail a 0 byte allocation */
+	if (size_reserved == 0) return NULL;
+
 	/* Search the address space for a free region of suitable size */
 	spinlock_recursive_acquire(&addrspace->lock);
 	vad_t *vad = &addrspace->free;
@@ -212,7 +215,61 @@ void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size)
 /* Claim a memory region under certain flags */
 void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags)
 {
-	/* TODO: Implement this */
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
+
+	/* Search the address space for a free region of suitable size */
+	spinlock_recursive_acquire(&addrspace->lock);
+	vad_t *vad = &addrspace->free;
+	while (vad)
+	{
+		/* Move on if it doesn't fit our range */
+		if ((vaddr_t)ptr < vad->start || size > (vaddr_t)ptr - vad->start)
+		{
+			vad = vad->next;
+			continue;
+		}
+
+		/* Address is at the start of the VAD region */
+		if ((vaddr_t)ptr == vad->start)
+		{
+			/* Modify the VAD's base and size */
+			vad->start = (vaddr_t)ptr + size;
+			vad->length -= size;
+
+			/* If the VAD is entirely used, remove it */
+			if (vad->length == 0)
+			{
+				/* TODO: Implement this */
+			}
+		}
+		/* Range reaches the end of the VAD region */
+		else if (((vaddr_t)ptr - vad->start) + size == vad->length)
+		{
+			/* Modify the VAD's size */
+			vad->length = size;
+		}
+		/* Range is in the middle of the VAD region */
+		else
+		{
+			/* TODO: Implement this */
+		}
+
+		/* Create a new VAD to represent the now-used region */
+		vad = slab_cache_alloc(&vad_cache);
+		vad->start = (vaddr_t)ptr;
+		vad->length = size;
+		vad->flags = flags;
+		vad->left = vad->right = NULL;
+		vad->height = 0;
+
+		/* Insert it into the tree */
+		addrspace->used_root = vad_tree_insert(addrspace->used_root, vad);
+		break;
+	}
+
+	/* Release the lock on the addrspace */
+	spinlock_recursive_release(&addrspace->lock);
 }
 
 /* Initialize the system address space */
