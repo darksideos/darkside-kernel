@@ -99,7 +99,7 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 
 		/* Create the guard page if requested */
 		vaddr_t i = address;
-		if (flags & GUARD_BOTTOM)
+		if (flags & PAGE_GUARD_BOTTOM)
 		{
 			vmm_map_page(addrspace->address_space, i, 0, PAGE_INVALID);
 			i += PAGE_SIZE;
@@ -209,6 +209,12 @@ void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size)
 	/* TODO: Implement this */
 }
 
+/* Claim a memory region under certain flags */
+void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags)
+{
+	/* TODO: Implement this */
+}
+
 /* Initialize the system address space */
 void system_addrspace_init(loader_block_t *loader_block, paddr_t address_space)
 {
@@ -222,7 +228,7 @@ void system_addrspace_init(loader_block_t *loader_block, paddr_t address_space)
 
 	/* Create the initial slab cache for VADs */
 	slab_cache_init(&vad_cache, (void*)free_start, sizeof(vad_t), PAGE_READ | PAGE_WRITE | PAGE_PRIVATE);
-	free_start += SLAB_SIZE;
+	loader_block->system_free_start += SLAB_SIZE;
 
 	/* Initialize the system address space */
 	addrspace_init(&system_addrspace, address_space, KERNEL_ADDRSPACE_START, KERNEL_ADDRSPACE_SIZE);
