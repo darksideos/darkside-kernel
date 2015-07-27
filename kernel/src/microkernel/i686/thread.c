@@ -127,6 +127,9 @@ void mkthread_init(mkthread_t *thread, mkprocess_t *parent_process, void (*fn)(v
 		context_init((struct context*) thread->context, fn, args, 0);
 	}
 
+	/* Set the thread's current address space to NULL */
+	thread->addrspace = NULL;
+
 	/* Set the thread's state to ready-to-run */
 	thread->state = THREAD_READY;
 
@@ -174,8 +177,8 @@ void mkthread_run(mkthread_t *thread)
 	{
 		vmm_switch_address_space(thread->process->addrspace.address_space);
 	}
-	/* Kernel thread, so run in the current process's address space */
-	else
+	/* Kernel thread and current process, so run in the current process's address space */
+	else if (thread->process && process)
 	{
 		/* Try to reference the address space, and make sure it isn't gone */
 		bool avail = addrspace_ref(&process->addrspace);
