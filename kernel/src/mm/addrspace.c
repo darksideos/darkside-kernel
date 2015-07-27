@@ -49,6 +49,9 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
 
+	/* Disallow a NULL address space */
+	if (!addrspace) return;
+
 	/* Fill in the information */
 	addrspace->address_space = address_space;
 	addrspace->numa_domain = NUMA_DOMAIN_CURRENT;
@@ -67,6 +70,9 @@ bool addrspace_ref(addrspace_t *addrspace)
 {
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
+
+	/* Disallow a NULL address space */
+	if (!addrspace) return false;
 
 	/* Make sure it didn't already hit 0, which indicates deletion */
 	atomic_t old_value = atomic_read(&addrspace->refcount);
@@ -104,6 +110,9 @@ void addrspace_unref(addrspace_t *addrspace)
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
 
+	/* Disallow a NULL address space */
+	if (!addrspace) return;
+
 	/* Retrieve the old reference count */
 	atomic_t old_value = atomic_read(&addrspace->refcount);
 
@@ -135,6 +144,9 @@ void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_
 {
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
+
+	/* Disallow a NULL address space */
+	if (!addrspace) return NULL;
 
 	/* Round up both the reserved and committed sizes to a page boundary */
 	size_reserved = PAGE_ALIGN_UP(size_reserved);
@@ -247,6 +259,9 @@ int addrspace_query(addrspace_t *addrspace, void *ptr)
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
 
+	/* Disallow a NULL address space */
+	if (!addrspace) return PAGE_INVALID;
+
 	/* Look up the VAD for the address */
 	vad_t *vad = vad_tree_lookup(addrspace->used_root, (vaddr_t) ptr);
 	if (!vad)
@@ -281,6 +296,9 @@ void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags)
 {
 	/* Get the address space pointer */
 	addrspace = resolve_addrspace(addrspace);
+
+	/* Disallow a NULL address space */
+	if (!addrspace) return;
 
 	/* Search the address space for a free region of suitable size */
 	spinlock_recursive_acquire(&addrspace->lock);
