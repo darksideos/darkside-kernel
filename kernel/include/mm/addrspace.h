@@ -41,13 +41,19 @@ typedef struct addrspace
 	/* NUMA domain */
 	int numa_domain;
 
+	/* Reference count */
+	atomic_t refcount;
+
 	/* Address space lock */
 	spinlock_recursive_t lock;
 } addrspace_t;
 
-/* Initialize and destroy an address space */
+/* Initialize an address space */
 void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range_start, size_t range_length);
-void addrspace_destroy(addrspace_t *addrspace);
+
+/* Reference and dereference an address space */
+bool addrspace_ref(addrspace_t *addrspace);
+void addrspace_unref(addrspace_t *addrspace);
 
 /* Allocate and free regions of a virtual address space */
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags);
