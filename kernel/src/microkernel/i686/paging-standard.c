@@ -137,7 +137,8 @@ paddr_t vmm_create_address_space()
 /* Switch to an address space */
 void vmm_switch_address_space(paddr_t address_space)
 {
-	__asm__ volatile("mov %0, %%cr3" :: "r" (address_space));
+	if (address_space == ADDR_SPACE_KERNEL) __asm__ volatile("mov %0, %%cr3" :: "r" (kernel_directory));
+	else __asm__ volatile("mov %0, %%cr3" :: "r" (address_space));
 }
 
 /* Query a virtual address's mapping */

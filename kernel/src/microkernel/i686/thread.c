@@ -174,15 +174,38 @@ void mkthread_run(mkthread_t *thread)
 	{
 		vmm_switch_address_space(thread->process->addrspace.address_space);
 	}
+	/* Kernel thread, so run in the current process's address space */
+	else
+	{
+		/* Try to reference the address space, and make sure it isn't gone */
+		bool avail = addrspace_ref(&process->addrspace);
+
+		/* Current process's address space is available */
+		if (avail)
+		{
+			thread->addrspace = &process->addrspace;
+		}
+		/* Address space was deleted, so use the system address space */
+		else
+		{
+			thread->addrspace = ADDRSPACE_SYSTEM;
+			addrspace_ref(ADDRSPACE_SYSTEM);
+			vmm_switch_address_space(ADDR_SPACE_KERNEL);
+		}
+	}
 
 	/* Get the per-CPU data area of the current CPU */
 	cpu_t *cpu = cpu_data_area(CPU_CURRENT);
 
-	/* Save a pointer to the old thread's context */
+	/* Clean up and save the previous thread's state */
 	void **old_context_ptr = NULL;
 	if (cpu->current_thread)
 	{
+		/* Save the old thread's context */
 		old_context_ptr = &cpu->current_thread->context;
+
+		/* Old thread was a kernel thread, so unref its old address space */
+		if (!cpu->current_thread->process) addrspace_unref(cpu->current_thread->addrspace);
 	}
 
 	/* Set the CPU's current thread to our new thread */

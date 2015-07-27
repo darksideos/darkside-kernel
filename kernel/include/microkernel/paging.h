@@ -28,6 +28,7 @@
 
 /* Address space mnemonics */
 #define ADDR_SPACE_CURRENT		((paddr_t)-1)
+#define ADDR_SPACE_KERNEL		((paddr_t)-2)
 
 /* Page protections */
 #define PAGE_READ				0x01

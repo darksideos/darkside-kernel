@@ -31,7 +31,7 @@ void mkprocess_init(mkprocess_t *process, int numa_domain, int policy, int prior
 	process->pid = (pid_t) atomic_xadd(&current_pid, 1);
 	
 	/* Initialize the process's address space */
-	addrspace_init(&process->addrspace, vmm_create_address_space(), USER_ADDRSPACE_START, KERNEL_ADDRSPACE_START);
+	addrspace_init(&process->addrspace, vmm_create_address_space(), USER_ADDRSPACE_START, USER_ADDRSPACE_SIZE);
 
 	/* No NUMA domain specified, so pick the least loaded one */
 	if (numa_domain == -1)

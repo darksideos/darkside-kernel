@@ -32,6 +32,7 @@ typedef unsigned tid_t;
 
 /* Thread structure */
 struct mkprocess;
+struct addrspace;
 typedef struct mkthread
 {
 	/* Linked list entry structure */
@@ -48,6 +49,9 @@ typedef struct mkthread
 
 	/* Kernel stack */
 	vaddr_t kernel_stack;
+
+	/* Address space running in, for kernel threads */
+	struct addrspace *addrspace;
 
 	/* Thread state */
 	int state;
