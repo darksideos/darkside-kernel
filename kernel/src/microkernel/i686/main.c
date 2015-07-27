@@ -53,6 +53,18 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
+/* Thread test
+static void test(void *arg)
+{
+	uint32_t a = (uint32_t)arg;
+	while(1)
+	{
+		printf("0x%08X\n", a);
+		mkthread_yield();
+		a++;
+	}
+}*/
+
 /* Read the CPUID info for a CPU */
 static void read_cpuid_info()
 {
@@ -193,6 +205,11 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 
 		/* Initialize the syscall manager */
 		syscalls_init();
+
+		/* Thread test
+		mkthread_t thread;
+		mkthread_init(&thread, NULL, &test, (void*)0, 0, POLICY_REALTIME, 31, 0x2000);
+		scheduler_run();*/
 
 		/* Get the PS/2 keyboard and mouse drivers' entry points */
 		executable_t *ps2mouse_driver = (executable_t*) list_remove_tail(loader_block.modules);
