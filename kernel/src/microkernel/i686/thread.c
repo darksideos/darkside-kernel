@@ -178,7 +178,7 @@ void mkthread_run(mkthread_t *thread)
 		vmm_switch_address_space(thread->process->addrspace.address_space);
 	}
 	/* Kernel thread and current process, so run in the current process's address space */
-	else if (thread->process && process)
+	else if (!thread->process && process)
 	{
 		/* Try to reference the address space, and make sure it isn't gone */
 		bool avail = addrspace_ref(&process->addrspace);
