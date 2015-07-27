@@ -19,6 +19,7 @@
 #include <types.h>
 #include <string.h>
 #include <init/loader.h>
+#include <microkernel/atomic.h>
 #include <microkernel/cpu.h>
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
@@ -51,6 +52,7 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range
 	/* Fill in the information */
 	addrspace->address_space = address_space;
 	addrspace->numa_domain = NUMA_DOMAIN_CURRENT;
+	atomic_set(&addrspace->refcount, 1);
 	spinlock_recursive_init(&addrspace->lock);
 
 	/* Initialize the free VAD */
@@ -60,10 +62,66 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range
 	addrspace->free.prev = addrspace->free.next = NULL;
 }
 
-/* Destroy an address space */
-void addrspace_destroy(addrspace_t *addrspace)
+/* Reference an address space */
+bool addrspace_ref(addrspace_t *addrspace)
 {
-	/* TODO: Implement this */
+	/* Make sure it didn't already hit 0, which indicates deletion */
+	atomic_t old_value = atomic_read(&addrspace->refcount);
+	if (old_value == 0)
+	{
+		return false;
+	}
+
+	/* Try to increment the reference count */
+	while(1)
+	{
+		/* Exchange the new value with the old one */
+		atomic_t prev_value = atomic_cmpxchg(&addrspace->refcount, old_value, old_value + 1);
+
+		/* If the exchange succeeded, return true */
+		if (prev_value == old_value)
+		{
+			return true;
+		}
+
+		/* If it got changed to 0 behind our back, the object has been deleted */
+		if (prev_value == 0)
+		{
+			return false;
+		}
+
+		/* Try again with the new value */
+		old_value = prev_value;
+	}
+}
+
+/* Dereference an address space */
+void addrspace_unref(addrspace_t *addrspace)
+{
+	/* Retrieve the old reference count */
+	atomic_t old_value = atomic_read(&addrspace->refcount);
+
+	/* Try to decrement the reference count */
+	while(1)
+	{
+		/* Exchange the new value with the old one */
+		atomic_t prev_value = atomic_cmpxchg(&addrspace->refcount, old_value, old_value - 1);
+
+		/* If the exchange succeeded, delete the object if necessary */
+		if (prev_value == old_value)
+		{
+			/* If we hit a reference count of 0, destroy the address space */
+			if (old_value == 1)
+			{
+				/* TODO: Implement this */
+			}
+
+			return;
+		}
+
+		/* Try again with the new value */
+		old_value = prev_value;
+	}
 }
 
 /* Allocate regions of a virtual address space */
