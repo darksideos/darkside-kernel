@@ -65,6 +65,9 @@ void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range
 /* Reference an address space */
 bool addrspace_ref(addrspace_t *addrspace)
 {
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
+
 	/* Make sure it didn't already hit 0, which indicates deletion */
 	atomic_t old_value = atomic_read(&addrspace->refcount);
 	if (old_value == 0)
@@ -98,6 +101,9 @@ bool addrspace_ref(addrspace_t *addrspace)
 /* Dereference an address space */
 void addrspace_unref(addrspace_t *addrspace)
 {
+	/* Get the address space pointer */
+	addrspace = resolve_addrspace(addrspace);
+
 	/* Retrieve the old reference count */
 	atomic_t old_value = atomic_read(&addrspace->refcount);
 
