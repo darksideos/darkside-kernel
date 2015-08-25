@@ -68,7 +68,7 @@ void *directory_finddir(directory_t *dir, char *name)
 	}
 
 	/* Add the entry we've read to the cache and return it */
-	dict_set(&dir->dirents, name, dirent);
+	dict_put(&dir->dirents, name, dirent);
 	rwlock_write_release(&dir->dirents_lock);
 	return dirent->object;
 }
@@ -95,7 +95,7 @@ int directory_hardlink(directory_t *dir, char *name, void *object)
 	dirent->name[name_length] = 0;
 
 	/* Modify the entry in the cache */
-	dict_set(&dir->dirents, name, dirent);
+	dict_put(&dir->dirents, name, dirent);
 
 	/* Write the new entry to the backing store if it exists */
 	if (dir->ops)

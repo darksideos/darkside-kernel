@@ -17,6 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <string.h>
+#include <stdlib.h>
 #include <dict.h>
 
 /* Initial dictionary capacity */
@@ -74,6 +76,7 @@ static void dict_resize(dict_t *dict, uint32_t capacity)
 /* Set an item in a dictionary */
 static void dict_set(dict_t *dict, const char *key, void *item)
 {
+	dict_entry_t *entries = *(dict->entries);
 	uint64_t hash_key = hash(key);
 
 	/* If load factor >= .5, double the size */
