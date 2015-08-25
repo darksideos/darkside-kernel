@@ -12,7 +12,7 @@ typedef struct dict {
     uint32_t occupied;
     uint32_t total_size;
 
-    dict_entry_t **entries;
+    dict_entry_t *entries;
 };
 
 /* Dictionary methods */

@@ -19,6 +19,12 @@
 #include <types.h>
 #include <dict.h>
 
+/* Initial dictionary capacity */
+#define INIT_CAPACITY	16
+
+/* Set an item in a dictionary */
+static void dict_set(dict_t *dict, const char *key, void *item);
+
 /* Hash a dictionary key */
 static uint64_t hash(const char *key)
 {
@@ -35,13 +41,13 @@ static uint64_t hash(const char *key)
 }
 
 /* Create a dictionary */
-dict_t dict_create(uint32_t capacity)
+dict_t dict_create()
 {
 	dict_t dict;
 
 	dict.occupied = 0;
-	dict.total_size = capacity;
-	dict.entries = (dict_entry_t**) malloc(sizeof(dict_entry_t) * capacity);
+	dict.total_size = INIT_CAPACITY;
+	dict.entries = (dict_entry_t*) malloc(sizeof(dict_entry_t) * INIT_CAPACITY);
 
 	return dict;
 }
@@ -49,62 +55,70 @@ dict_t dict_create(uint32_t capacity)
 /* Destroy a dictionary */
 void dict_destroy(dict_t *dict)
 {
-	free(dict.entries);
+	free(dict->entries);
 }
 
 /* Increase a dictionary's capacity when its load factor grows too large */
 static void dict_resize(dict_t *dict, uint32_t capacity)
 {
-	dict_entry_t old_entries[] = *(dict->entries);
-	dict->entries = (dict_entry_t**) malloc(sizeof(dict_entry_t) * capacity);
+	dict_entry_t *old_entries = dict->entries;
+	dict->entries = (dict_entry_t*) malloc(sizeof(dict_entry_t) * capacity);
+	dict->total_size = capacity;
 
 	for (int i = 0; i < dict->occupied; i++)
 	{
-		if (old_entries[i] != NULL) dict_set(dict, old_entries[i].key, old_entries[i].value);
+		if (old_entries[i].key != NULL) dict_set(dict, old_entries[i].key, old_entries[i].value);
 	}
 }
 
 /* Set an item in a dictionary */
 static void dict_set(dict_t *dict, const char *key, void *item)
 {
-	dict_entry_t entries[] = *(dict->entries);
 	uint64_t hash_key = hash(key);
 
 	/* If load factor >= .5, double the size */
 	if (dict->occupied >= dict->total_size / 2) dict_resize(dict, 2 * dict->total_size);
-
-	for (int i = hash_key % dict->total_size; entries[i].key != NULL; i = (i+1) % dict->total_size)
+    
+	int i;
+	for (i = hash_key % dict->total_size; dict->entries[i].key != NULL; i = (i+1) % dict->total_size)
 	{
-		if (strcmp(entries[i].key, key))
+		if (strcmp((char*) dict->entries[i].key, (char*) key))
 		{
-			entries[i].value = item;
+			dict->entries[i].value = item;
 			return;
 		}
 	}
 
-	entries[i].key = key;
-	entries[i].value = value;
-}
-
-/* Put an item in a dictionary */
-void dict_put(dict_t *dict, const char *key, void *item)
-{
-	size_t len = strlen(key);
-	const char *buf = malloc(len+1);
-	memcpy(buf, key, len+1);
-
-	dict_set(dict, buf, item);
+	dict->entries[i].key = key;
+	dict->entries[i].value = item;
 }
 
 /* Get an item in a dictionary */
 void *dict_get(dict_t *dict, const char *key)
 {
-	dict_entry_t entries[] = *(dict->entries);
+    uint64_t hash_key = hash(key);
 
-	for (int i = hash_key % dict->total_size; entries[i].key != NULL; i = (i+1) % dict->total_size)
+	for (int i = hash_key % dict->total_size; dict->entries[i].key != NULL; i = (i+1) % dict->total_size)
 	{
-		if (strcmp(entries[i].key, key)) return entries[i].value;
+		if (strcmp((char*) dict->entries[i].key, (char*) key)) return dict->entries[i].value;
 	}
 
+	return NULL;
+}
+
+/* Put an item in a dictionary */
+void dict_put(dict_t *dict, const char *key, void *item)
+{
+	size_t len = strlen((char*)key);
+	const char *buf = malloc(len+1);
+	memcpy((void*)buf, (void*)key, len+1);
+
+	dict_set(dict, buf, item);
+}
+
+/* Remove an item from a dictionary */
+void *dict_remove(dict_t *dict, const char *key)
+{
+	/* TODO: Implement this */
 	return NULL;
 }
