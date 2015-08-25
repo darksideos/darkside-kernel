@@ -76,7 +76,6 @@ static void dict_resize(dict_t *dict, uint32_t capacity)
 /* Set an item in a dictionary */
 static void dict_set(dict_t *dict, const char *key, void *item)
 {
-	dict_entry_t *entries = *(dict->entries);
 	uint64_t hash_key = hash(key);
 
 	/* If load factor >= .5, double the size */
