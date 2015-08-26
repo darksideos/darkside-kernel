@@ -64,10 +64,13 @@ void dict_destroy(dict_t *dict)
 static void dict_resize(dict_t *dict, uint32_t capacity)
 {
 	dict_entry_t *old_entries = dict->entries;
+    size_t old_size = dict->total_size;
+    
 	dict->entries = (dict_entry_t*) malloc(sizeof(dict_entry_t) * capacity);
 	dict->total_size = capacity;
+    dict->occupied = 0;
 
-	for (int i = 0; i < dict->occupied; i++)
+	for (int i = 0; i < old_size; i++)
 	{
 		if (old_entries[i].key != NULL) dict_set(dict, old_entries[i].key, old_entries[i].value);
 	}
@@ -84,7 +87,7 @@ static void dict_set(dict_t *dict, const char *key, void *item)
 	int i;
 	for (i = hash_key % dict->total_size; dict->entries[i].key != NULL; i = (i+1) % dict->total_size)
 	{
-		if (strcmp((char*) dict->entries[i].key, (char*) key))
+		if (strlen((char*) dict->entries[i].key) == strlen((char*) key) && strcmp((char*) dict->entries[i].key, (char*) key) == 0)
 		{
 			dict->entries[i].value = item;
 			return;
@@ -93,6 +96,7 @@ static void dict_set(dict_t *dict, const char *key, void *item)
 
 	dict->entries[i].key = key;
 	dict->entries[i].value = item;
+    dict->occupied++;
 }
 
 /* Get an item in a dictionary */
@@ -102,7 +106,10 @@ void *dict_get(dict_t *dict, const char *key)
 
 	for (int i = hash_key % dict->total_size; dict->entries[i].key != NULL; i = (i+1) % dict->total_size)
 	{
-		if (strcmp((char*) dict->entries[i].key, (char*) key)) return dict->entries[i].value;
+		if (strlen((char*) dict->entries[i].key) == strlen((char*) key) && strcmp((char*) dict->entries[i].key, (char*) key) == 0)
+        {
+            return dict->entries[i].value;
+        }
 	}
 
 	return NULL;
