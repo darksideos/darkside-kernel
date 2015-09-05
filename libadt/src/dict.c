@@ -50,6 +50,7 @@ dict_t dict_create()
 	dict.occupied = 0;
 	dict.total_size = INIT_CAPACITY;
 	dict.entries = (dict_entry_t*) malloc(sizeof(dict_entry_t) * INIT_CAPACITY);
+	memset(dict.entries, 0, sizeof(dict_entry_t) * INIT_CAPACITY);
 
 	return dict;
 }
@@ -67,7 +68,7 @@ static void dict_resize(dict_t *dict, uint32_t capacity)
     size_t old_size = dict->total_size;
     
 	dict->entries = (dict_entry_t*) malloc(sizeof(dict_entry_t) * capacity);
-	printf("total_size=%d\n", capacity);
+	memset(dict->entries, 0, sizeof(dict_entry_t) * capacity);
 	dict->total_size = capacity;
     dict->occupied = 0;
 
@@ -85,7 +86,6 @@ static void dict_set(dict_t *dict, const char *key, void *item)
 	/* If load factor >= .5, double the size */
 	if (dict->occupied >= dict->total_size / 2) dict_resize(dict, 2 * dict->total_size);
     
-	printf("dict_set() total_size: %d\n", dict->total_size);
 	int i;
 	for (i = hash_key % dict->total_size; dict->entries[i].key != NULL; i = (i+1) % dict->total_size)
 	{
@@ -106,7 +106,6 @@ void *dict_get(dict_t *dict, const char *key)
 {
     uint64_t hash_key = hash(key);
 
-	printf("dict_get() total_size: %d\n", dict->total_size);
 	for (int i = hash_key % dict->total_size; dict->entries[i].key != NULL; i = (i+1) % dict->total_size)
 	{
 		if (strlen((char*) dict->entries[i].key) == strlen((char*) key) && strcmp((char*) dict->entries[i].key, (char*) key) == 0)

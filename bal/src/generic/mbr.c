@@ -89,7 +89,6 @@ int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer)
 	{
 		/* Get a pointer to the MBR entry */
 		mbr_entry_t *entry = &mbr_entries[i];
-		printf("MBR entry %d: start=%d, length=%d\n", i, entry->start_lba, entry->length);
 
 		/* Create a new partition device for it */
 		partition_t *partition = (partition_t*) malloc(sizeof(partition_t));
