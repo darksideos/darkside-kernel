@@ -65,21 +65,17 @@ iterator_t device_children(device_t *device)
 /* Look up the a property of a device by name */
 int device_get_property(device_t *device, const char *property_name)
 {
-	printf("Getting %s\n", property_name);
 	property_t *property = (property_t*) dict_get(&device->properties, property_name);
 	if (property)
 	{
-		printf("%s=%d\n\n", property_name, property->value);
 		return property->value;
 	}
-	printf("%s=-1\n\n", property_name);
 	return -1;
 }
 
 /* Set a property of a device by name */
 void device_set_property(device_t *device, const char *property_name, int value)
 {
-	printf("Getting %s\n", property_name);
 	property_t *property = (property_t*) dict_get(&device->properties, property_name);
 	if (!property)
 	{
@@ -87,5 +83,4 @@ void device_set_property(device_t *device, const char *property_name, int value)
 		dict_append(&device->properties, property_name, property);
 	}
 	property->value = value;
-	printf("%s=%d\n\n", property_name, value);
 }
