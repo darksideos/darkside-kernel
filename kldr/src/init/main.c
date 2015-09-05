@@ -64,8 +64,13 @@ void ba_main(loader_block_t *loader_block)
 	loader_block->modules = &modules;
 
 	/* Load the kernel into virtual memory */
+	printf("Loading kernel\n");
+	while(1);
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
+
+	printf("Kernel loaded\n");
+	while(1);
 	
 	/* Load the PS/2 keyboard and mouse drivers */
 	executable_t *ps2kbd_driver = elf_executable_load_object("/boot/ps2kbd.elf", 0x40000000, kernel);
