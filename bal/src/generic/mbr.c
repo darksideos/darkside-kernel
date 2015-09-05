@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <list.h>
+#include <dict.h>
 #include <device/blockdev.h>
 #include <device/partition.h>
 
@@ -88,12 +89,15 @@ int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer)
 	{
 		/* Get a pointer to the MBR entry */
 		mbr_entry_t *entry = &mbr_entries[i];
+		printf("MBR entry %d: start=%d, length=%d\n", i, entry->start_lba, entry->length);
 
 		/* Create a new partition device for it */
 		partition_t *partition = (partition_t*) malloc(sizeof(partition_t));
 		partition->blockdev.device.ops = (device_ops_t*) &partition_ops;
 		partition->blockdev.device.type = DEVICE_BLOCKDEV;
 		partition->blockdev.device.children = list_create();
+		partition->blockdev.device.num_children = 0;
+		partition->blockdev.device.properties = dict_create();
 		partition->blockdev.block_size = 512;
 		partition->parent = blockdev;
 		partition->start = (uint64_t) entry->start_lba;

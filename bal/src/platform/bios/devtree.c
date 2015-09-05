@@ -19,5 +19,6 @@ int devtree_init(uint32_t drive_number, uint32_t partition_start)
 	/* Add the boot disk to the device tree and enumerate it */
 	blockdev_t *boot_disk = disk_create(drive_number, partition_start);
 	device_add_child(root, (device_t*)boot_disk);
+	printf("Begin enumeration\n");
 	return device_enumerate((device_t*)boot_disk);
 }
