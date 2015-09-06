@@ -1,8 +1,6 @@
 #ifndef __DICT_H
 #define __DICT_H
 
-#include <map.h>
-
 typedef struct dict_entry
 {
     const char *key;
