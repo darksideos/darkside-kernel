@@ -201,8 +201,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
-		/*demo(&fb, ps2kbd_module_init, ps2mouse_module_init);*/
-
 		/* Initialize the syscall manager */
 		syscalls_init();
 
@@ -210,11 +208,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		mkthread_t thread;
 		mkthread_init(&thread, NULL, &test, (void*)0, 0, POLICY_REALTIME, 31, 0x2000);
 		scheduler_run();*/
-
-		/* Get the PS/2 keyboard and mouse drivers' entry points */
-		executable_t *ps2mouse_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		printf("KBD: 0x%08X, Mouse: 0x%08X\n", ps2kbd_driver->entry_point, ps2mouse_driver->entry_point);
 
 		/* Start the executive services */
 		executive_init(&loader_block);

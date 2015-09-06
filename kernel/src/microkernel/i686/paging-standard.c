@@ -266,10 +266,10 @@ int vaddr_cache_color(vaddr_t virtual_address, int numa_domain, int bias)
 }
 
 /* Copy the bootloader data structures into kernel memory */
-static void copy_kldr_data(loader_block_t *loader_block, int num_boot_modules)
+static void copy_kldr_data(loader_block_t *loader_block)
 {
 	/* Reserve space for the bootloader data */
-	size_t kldrdata_size = sizeof(framebuffer_t) + /*modreg size*/ + sizeof(list_t) + (sizeof(executable_t) * num_boot_modules);
+	size_t kldrdata_size = sizeof(framebuffer_t) + sizeof(executable_t);
 	for (vaddr_t i = loader_block->system_free_start; i < loader_block->system_free_start + kldrdata_size; i += PAGE_SIZE)
 	{
 		int color = vaddr_cache_color(i, NUMA_DOMAIN_BEST, 0);
@@ -284,31 +284,12 @@ static void copy_kldr_data(loader_block_t *loader_block, int num_boot_modules)
 	memcpy(new_fb, loader_block->fb, sizeof(framebuffer_t));
 	loader_block->fb = new_fb;
 
-	/* TODO: Handle the module registry */
+	/* Copy the kernel's executable structure */
+	executable_t *new_kernel = (executable_t*) (((void*)new_fb) + sizeof(framebuffer_t));
+	memcpy(new_kernel, loader_block->kernel, sizeof(executable_t));
+	loader_block->kernel = new_kernel;
 
-	/* Make an empty modules list in the kernel memory space */
-	list_t empty = list_create();
-	list_t *modules = (list_t*) (((void*)new_fb) + sizeof(framebuffer_t));
-	memcpy(modules, &empty, sizeof(list_t));
-
-	/* Copy each loaded module's metadata into kernel memory and update the loader block */
-	iterator_t iter = list_head(loader_block->modules);
-
-	executable_t *module_new = (executable_t*) (((void*)modules) + sizeof(list_t));
-	executable_t *module_old = (executable_t*) iter_now(&iter);
-	while (module_old)
-	{
-		/* Copy the metadata over and add it to the list */
-		memcpy(module_new, module_old, sizeof(executable_t));
-		list_insert_tail(modules, module_new);
-
-		/* Remake the symbol table dictionary (TODO: Implement this) */
-
-		module_new++;
-		module_old = (executable_t*) iter_next(&iter);
-	}
-
-	loader_block->modules = modules;
+	/* TODO: Copy the kernel's exports dictionary */
 
 	/* Update the free start of the system address space */
 	loader_block->system_free_start = PAGE_ALIGN_UP(loader_block->system_free_start + kldrdata_size);
@@ -337,20 +318,15 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 			vmm_map_page(kernel_directory, table, pmm_alloc_page(PAGE_ZERO, NUMA_DOMAIN_BEST, color), PAGE_READ | PAGE_WRITE);
 		}
 
-		/* Map the kernel and modules into the kernel address space */
-		int num_boot_modules = 0;
-		iterator_t iter = list_head(loader_block->modules);
-
-		executable_t *module = (executable_t*) iter_now(&iter);
-		while (module)
+		/* Map the kernel and initrd into the kernel address space */
+		executable_t *kernel = loader_block->kernel;
+		for (vaddr_t i = kernel->start; i < kernel->end; i += PAGE_SIZE)
 		{
-			for (vaddr_t i = module->start; i < module->end; i += PAGE_SIZE)
-			{
-				vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
-			}
-
-			num_boot_modules++;
-			module = (executable_t*) iter_next(&iter);
+			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
+		}
+		for (vaddr_t i = (vaddr_t)loader_block->initrd; i < ((vaddr_t)loader_block->initrd) + loader_block->initrd_size; i += PAGE_SIZE)
+		{
+			vmm_map_page(kernel_directory, i, vmm_get_mapping(ADDR_SPACE_CURRENT, i), vmm_get_protection(ADDR_SPACE_CURRENT, i) | PAGE_GLOBAL);
 		}
 
 		/* Map the per-CPU and NUMA domain data areas */
@@ -377,7 +353,7 @@ void paging_init(loader_block_t *loader_block, bool bsp)
 		}
 
 		/* Copy the bootloader data structures into kernel memory */
-		copy_kldr_data(loader_block, num_boot_modules);
+		copy_kldr_data(loader_block);
 
 		/* TEMPORARY: Map the VGA text framebuffer */
 		vmm_map_page(kernel_directory, 0xB8000, 0xB8000, PAGE_READ | PAGE_WRITE);

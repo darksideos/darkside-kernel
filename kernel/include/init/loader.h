@@ -20,6 +20,7 @@
 #define __LOADER_H
 
 #include <list.h>
+#include <executable/executable.h>
 #include <init/graphics.h>
 
 /* Loader block structure */
@@ -45,10 +46,12 @@ typedef struct loader_block
 	/* Graphics framebuffer */
 	framebuffer_t *fb;
 
-	/* Module registry */
+	/* Loaded kernel */
+	executable_t *kernel;
 
-	/* Loaded modules */
-	list_t *modules;
+	/* Initrd for the kernel */
+	void *initrd;
+	size_t initrd_size;
 
 /* PC extension */
 #if defined(__i386__)
