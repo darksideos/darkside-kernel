@@ -3,6 +3,7 @@
 
 #include <ipc/mqueue.h>
 #include <microkernel/thread.h>
+#include <microkernel/scheduler.h>
 #include <security/token.h>
 #include <task/process.h>
 
