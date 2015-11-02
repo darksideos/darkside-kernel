@@ -30,6 +30,26 @@
 /* Maximum size of a small message */
 #define SMALL_MSG_SIZE	2048
 
+/* Initialize a message queue */
+void mqueue_init(mqueue_t *queue, void *msgbuf_addr, size_t msgbuf_len, int concurrency)
+{
+	/* Set up the message buffer */
+	queue->msgbuf_addr = msgbuf_addr;
+	queue->msgbuf_len = msgbuf_len;
+	queue->msgbuf_offset = 0;
+
+	/* Initialize the thread concurrency variables */
+	queue->concurrency_limit = concurrency;
+	queue->woken_threads = 0;
+
+	/* Set up the arrived messages list and thread wait queue */
+	queue->arrived_messages = list_create();
+	queue->waitqueue = waitqueue_create();
+
+	/* Initialize the spinlock */
+	spinlock_init(&queue->lock);
+}
+
 /* Send a message to a queue */
 size_t mqueue_send(mqueue_t *mqueue, void *buffer, size_t length)
 {
@@ -97,7 +117,7 @@ void *mqueue_recv(mqueue_t *mqueue, int timeout)
 		message = (message_t*) list_remove_head(&mqueue->arrived_messages);
 
 		/* If we don't have room for it at all, put it back and fail */
-		if (message->length > recvqueue->buffer_length)
+		if (message->length > recvqueue->msgbuf_len)
 		{
 			list_insert_head(&mqueue->arrived_messages, message);
 			spinlock_release(&mqueue->lock);
@@ -110,13 +130,13 @@ void *mqueue_recv(mqueue_t *mqueue, int timeout)
 	if (message->length <= SMALL_MSG_SIZE)
 	{
 		/* If the needed space exceeds what's available, restart at the beginning */
-		if (recvqueue->buffer_offset + message->length <= recvqueue->buffer_length)
+		if (recvqueue->msgbuf_offset + message->length <= recvqueue->msgbuf_len)
 		{
-			recvqueue->buffer_offset = 0;
+			recvqueue->msgbuf_offset = 0;
 		}
 
 		/* Copy the data into the queue */
-		buffer = recvqueue->buffer_address + recvqueue->buffer_offset;
+		buffer = recvqueue->msgbuf_addr + recvqueue->msgbuf_offset;
 		memcpy(buffer, message, message->length);
 	}
 	/* Large message, which uses an MDL */

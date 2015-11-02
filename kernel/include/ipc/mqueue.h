@@ -27,11 +27,11 @@
 typedef struct mqueue
 {
 	/* Message buffer and length */
-	void *buffer_address;
-	size_t buffer_length;
+	void *msgbuf_addr;
+	size_t msgbuf_len;
 
 	/* Offset of available space in the buffer */
-	size_t buffer_offset;
+	size_t msgbuf_offset;
 
 	/* Thread concurrency variables */
 	int concurrency_limit;
@@ -46,6 +46,9 @@ typedef struct mqueue
 	/* Lock on the object */
 	spinlock_t lock;
 } mqueue_t;
+
+/* Initialize a message queue */
+void mqueue_init(mqueue_t *queue, void *msgbuf_addr, size_t msgbuf_len, int concurrency);
 
 /* Send and receive messages on a queue */
 size_t mqueue_send(mqueue_t *queue, void *buffer, size_t length);
