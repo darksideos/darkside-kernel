@@ -21,6 +21,8 @@
 #include <task/task.h>
 #include <task/thread.h>
 
+#include <stdio.h>
+
 /* Start the executive services */
 void executive_init(loader_block_t *loader_block)
 {
@@ -37,11 +39,15 @@ void executive_init(loader_block_t *loader_block)
 		/* Set up the module manager from the loader block */
 
 		/* Create a new thread to continue executive initialization */
-		//thread_create(NULL, &executive_init, NULL, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		thread_create(NULL, (void (*)(void*))&executive_init, NULL, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		scheduler_run();
 	}
 	/* Executive initialization thread */
 	else
 	{
+		/* MESSAGING TEST */
+		printf("Message test\n");
+
 		/* Initialize the VFS */
 
 		/* Start enumerating the device tree and loading drivers */
