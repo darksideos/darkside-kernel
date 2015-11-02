@@ -26,7 +26,7 @@
 #include <task/thread.h>
 
 /* Thread object slab cache */
-slab_cache_t *thread_cache;
+slab_cache_t thread_cache;
 
 /* Thread object deletion function */
 static void thread_delete(void *thread)
@@ -43,7 +43,7 @@ static object_ops_t thread_ops =
 thread_t *thread_create(process_t *parent_process, void (*fn)(void *args), void *args, size_t stack_size, int numa_domain, int policy, int priority)
 {
 	/* Allocate an object from the slab cache */
-	object_t *object = (object_t*) slab_cache_alloc(thread_cache);
+	object_t *object = (object_t*) slab_cache_alloc(&thread_cache);
 	if (object == NULL)
 	{
 		return NULL;

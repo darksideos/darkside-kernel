@@ -28,7 +28,7 @@
 #include <task/process.h>
 
 /* Process object slab cache */
-slab_cache_t *process_cache;
+slab_cache_t process_cache;
 
 /* Process object deletion function */
 static void process_delete(void *process)
@@ -45,7 +45,7 @@ static object_ops_t process_ops =
 process_t *process_create(section_t *section, process_t *parent_process, token_t *token, int numa_domain, int policy, int priority)
 {
 	/* Allocate an object from the slab cache */
-	object_t *object = (object_t*) slab_cache_alloc(process_cache);
+	object_t *object = (object_t*) slab_cache_alloc(&process_cache);
 	if (object == NULL)
 	{
 		return NULL;
