@@ -69,7 +69,7 @@ typedef struct slab_cache
 void slab_cache_init(slab_cache_t *slab_cache, void *slab, size_t object_size, int flags);
 
 /* Create and destroy a slab cache */
-slab_cache_t *slab_cache_create(size_t object_size, int flags);
+slab_cache_t slab_cache_create(size_t object_size, int flags);
 void slab_cache_destroy(slab_cache_t *slab_cache);
 
 /* Allocate and free objects from a slab cache */
