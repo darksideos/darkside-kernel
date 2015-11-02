@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * msgport.c - Message port implementation
+ * mport.h - Message port public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,17 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include <types.h>
-#include <ipc/message.h>
+#ifndef __MPORT_H
+#define __MPORT_H
+
+#include <ipc/mqueue.h>
+
+/* Message port object */
+typedef struct mport
+{
+	/* Backing message queue */
+	mqueue_t *msgqueue;
+
+	/* Server handles to the reply queue and client token 
+	int reply_queue_handle, client_token_handle;*/
+} mport_t;
 
 /* Connect to a server port, returning a client port */
-msgport_t *msgport_connect(msgport_t *port, int timeout)
-{
-	return NULL;
-}
+mport_t *mport_connect(mport_t *port, int timeout);
 
-/* Send and receive messages on ports */
-size_t msgport_send(msgport_t *port, void *buffer, size_t length)
-{
-	return 0;
-}
+/* Send a message over a port */
+size_t mport_send(mport_t *port, void *buffer, size_t length);
+
+#endif

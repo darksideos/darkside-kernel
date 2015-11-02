@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * msgqueue.c - Message queue implementation
+ * mqueue.c - Message queue implementation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -31,7 +31,7 @@
 #define SMALL_MSG_SIZE	2048
 
 /* Send a message to a queue */
-size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
+size_t mqueue_send(mqueue_t *mqueue, void *buffer, size_t length)
 {
 	/* Fail if the message size is smaller than the header */
 	if (length < sizeof(message_t))
@@ -64,43 +64,43 @@ size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length)
 	message->sender_tid = tid_current();
 
 	/* Put the message buffer on the queue */
-	spinlock_acquire(&msgqueue->lock);
-	list_insert_tail(&msgqueue->arrived_messages, message);
+	spinlock_acquire(&mqueue->lock);
+	list_insert_tail(&mqueue->arrived_messages, message);
 
 	/* Wake up the first blocked thread, if any exist */
-	waitqueue_unblock(&msgqueue->waitqueue);
+	waitqueue_unblock(&mqueue->waitqueue);
 
 	return length;
 }
 
 /* Receive a message from a queue */
-void *msgqueue_recv(msgqueue_t *msgqueue, int timeout)
+void *mqueue_recv(mqueue_t *mqueue, int timeout)
 {
 	/* Acquire the message queue lock */
-	spinlock_acquire(&msgqueue->lock);
+	spinlock_acquire(&mqueue->lock);
 
 	/* Get the thread message queue for receiving */
 	thread_t *current = (thread_t*) thread_current();
-	msgqueue_t *recvqueue = current->msgqueue;
+	mqueue_t *recvqueue = current->mqueue;
 
 	/* If no messages are on the queue, block until there are */
-	message_t *message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
+	message_t *message = (message_t*) list_remove_head(&mqueue->arrived_messages);
 	while (!message)
 	{
 		/* Block on the message queue, releasing the lock */
-		waitqueue_block(&msgqueue->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
-		spinlock_release(&msgqueue->lock);
+		waitqueue_block(&mqueue->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
+		spinlock_release(&mqueue->lock);
 		mkthread_yield();
 
 		/* Re-acquire the lock grab a message from the queue */
-		spinlock_acquire(&msgqueue->lock);
-		message = (message_t*) list_remove_head(&msgqueue->arrived_messages);
+		spinlock_acquire(&mqueue->lock);
+		message = (message_t*) list_remove_head(&mqueue->arrived_messages);
 
 		/* If we don't have room for it at all, put it back and fail */
 		if (message->length > recvqueue->buffer_length)
 		{
-			list_insert_head(&msgqueue->arrived_messages, message);
-			spinlock_release(&msgqueue->lock);
+			list_insert_head(&mqueue->arrived_messages, message);
+			spinlock_release(&mqueue->lock);
 			return NULL;
 		}
 	}
@@ -127,6 +127,12 @@ void *msgqueue_recv(msgqueue_t *msgqueue, int timeout)
 		/* Copy the header over what the sender put */
 	}
 
-	spinlock_release(&msgqueue->lock);
+	spinlock_release(&mqueue->lock);
 	return buffer;
+}
+
+/* Attach a queue to the current thread */
+void mqueue_attach(mqueue_t *queue)
+{
+	/* TODO: Implement this */
 }

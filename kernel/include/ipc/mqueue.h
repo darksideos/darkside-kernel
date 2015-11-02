@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
- * msgqueue.h - Message queue public API
+ * mqueue.h - Message queue public API
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -16,15 +16,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __MSGQUEUE_H
-#define __MSGQUEUE_H
+#ifndef __MQUEUE_H
+#define __MQUEUE_H
 
 #include <list.h>
 #include <microkernel/waitqueue.h>
 #include <microkernel/lock.h>
 
 /* Message queue object */
-typedef struct msgqueue
+typedef struct mqueue
 {
 	/* Message buffer and length */
 	void *buffer_address;
@@ -45,13 +45,13 @@ typedef struct msgqueue
 
 	/* Lock on the object */
 	spinlock_t lock;
-} msgqueue_t;
+} mqueue_t;
 
 /* Send and receive messages on a queue */
-size_t msgqueue_send(msgqueue_t *msgqueue, void *buffer, size_t length);
-void *msgqueue_recv(msgqueue_t *msgqueue, int timeout);
+size_t mqueue_send(mqueue_t *queue, void *buffer, size_t length);
+void *mqueue_recv(mqueue_t *queue, int timeout);
 
 /* Attach a queue to the current thread */
-void msgqueue_attach(msgqueue_t *msgqueue);
+void mqueue_attach(mqueue_t *queue);
 
 #endif
