@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <init/loader.h>
+#include <ipc/ipc.h>
 #include <task/task.h>
 #include <task/thread.h>
 
@@ -33,8 +34,11 @@ void executive_init(loader_block_t *loader_block)
 
 		/* Initialize the memory manager */
 
-		/* Start the process and thread manager */
+		/* Initialize the process and thread manager */
 		tasking_init();
+
+		/* Initialize the IPC manager */
+		ipc_init();
 
 		/* Set up the module manager from the loader block */
 

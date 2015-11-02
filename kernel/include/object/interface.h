@@ -35,17 +35,17 @@
 #define IID_THREAD		5
 
 /* IPC manager interfaces */
-#define IID_MSGQUEUE	6
-#define IID_PIPE		7
-#define IID_SOCKET		8
-#define IID_SEMAPHORE	9
-#define IID_MUTEX		10
-#define IID_RWLOCK		11
-#define IID_TIMER		12
+#define IID_MQUEUE		6
+#define IID_MPORT		7
+#define IID_PIPE		8
+#define IID_SOCKET		9
+#define IID_SEMAPHORE	10
+#define IID_MUTEX		11
+#define IID_RWLOCK		12
+#define IID_TIMER		13
 
 /* VFS interfaces */
-#define IID_INODE		13
-#define IID_FILE		14
+#define IID_INODE		14
 
 /* Module manager interfaces */
 #define IID_MODULE		15
