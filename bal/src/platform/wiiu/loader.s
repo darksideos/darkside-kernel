@@ -9,8 +9,10 @@ _mem1_entry:
 .extern bal_main
 _start:
 	# Jump to our C code
-	li r3, 0x1000
 	bl bal_main
+	
+	# Go back to Cafe OS
+	rfi
 
 # Macro for interrupt vectors
 .macro interrupt addr, name

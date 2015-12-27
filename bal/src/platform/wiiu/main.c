@@ -20,10 +20,18 @@
 #include <ios.h>
 
 /* Boot Abstraction Layer main function */
-int bal_main(int r3)
+int bal_main()
 {
-	/* Close the given IOSU handle */
-	IOS_Close(r3);
+	/* Open /dev/socket */
+	int fd = IOS_Open("/dev/socket", 1);
+	
+	/* Create a new socket */
+	uint32_t sparams[3] = {2, 1, 6};
+	int sock = IOS_Ioctl(fd, 0x11, sparams, 12, NULL, 0);
+
+	/* Connect to PC (192.168.1.153:12345) */
+	uint32_t cparams[6] = {(uint32_t)sock, 0x00023039, 0xC0A80199, 0x00000000, 0x00000000, 0x10};
+	IOS_Ioctl(fd, 0x04, cparams, 24, NULL, 0);
 
 	/* Infinite loop */
 	while(1);
