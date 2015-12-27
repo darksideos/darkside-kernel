@@ -25,6 +25,9 @@ extern int num_irqs;
 /* Boot Abstraction Layer main function */
 int bal_main()
 {
+	/* Test */
+	return 0xC0DEFACE;
+
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
 	if (num_irqs != 0) return 0x0BADBABE;

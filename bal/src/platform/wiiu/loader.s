@@ -34,14 +34,14 @@ _start:
 	stw r5, 4(r4)
 	
 	# Enable EEs
-	#mfmsr r0
-	#ori r0, r0, 0x8000
-	#mtmsr r0
-	#isync
+	mfmsr r0
+	ori r0, r0, 0x8000
+	mtmsr r0
+	isync
 	
 	# Jump to our C code
-	#bl bal_main
-	li r3, -1
+	bl bal_main
+	mr r6, r3
 	
 	# Enable the L2 cache
 	mfspr r3, 0x3f9
@@ -62,6 +62,7 @@ _start:
 	mtsrr0 r5
 	lwz r5, 4(r4)
 	mtsrr1 r5
+	mr r3, r6
 	rfi
 
 # Macro for interrupt vectors
