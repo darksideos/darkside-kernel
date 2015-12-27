@@ -22,10 +22,10 @@
 /* Boot Abstraction Layer main function */
 int bal_main()
 {
-	if ((6 ^ 7) >= 1) return 0xDEADBEEF;
-
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
+	if (fd == 0) return 0;
+	else return fd;
 	
 	/* Create a new socket */
 	uint32_t sparams[3] = {2, 1, 6};

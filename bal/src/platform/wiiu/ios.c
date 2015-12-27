@@ -58,7 +58,7 @@ static void ipc_bell(uint32_t val)
 
 static void ipc_wait_ack()
 {
-	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_ACK | PPCCTRL_ACK_IRQ)) != (PPCCTRL_ACK | PPCCTRL_ACK_IRQ));
+	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_ACK | PPCCTRL_ACK_IRQ)) != (PPCCTRL_ACK/* | PPCCTRL_ACK_IRQ*/));
 }
 
 static void ipc_wait_reply()
@@ -67,7 +67,7 @@ static void ipc_wait_reply()
 }
 
 /* Send an IPC request */
-static void ipc_send_req()
+static int ipc_send_req()
 {
 	/* Flush the IPC request buffer */
 	DCFlushRange(&ipc, sizeof(ipc));
@@ -78,6 +78,7 @@ static void ipc_send_req()
 
 	/* Wait for an acknowledgement of the sending, and clear it */
 	ipc_wait_ack();
+	return 0xC0DEFACE;
 	ipc_bell(PPCCTRL_ACK);
 
 	/* Acknowledge the Latte IRQ */
@@ -142,7 +143,7 @@ int IOS_Open(char *path, int mode)
 	ipc_set_common_fields();
 
 	/* Send the request, wait for the reply, and return it */
-	ipc_send_req();
+	return ipc_send_req();
 	ipc_recv_reply();
 	return ipc.reply;
 }
