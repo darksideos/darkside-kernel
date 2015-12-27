@@ -32,16 +32,30 @@ _start:
 	stw r5, 0(r4)
 	mfsrr1 r5
 	stw r5, 4(r4)
+	stw r1, 8(r4)
 	
 	# Enable EEs
 	mfmsr r0
 	ori r0, r0, 0x8000
-	mtmsr r0
+	#mtmsr r0
 	isync
+	
+	# Load a new stack
+	lis r1, stack_top@ha
+	ori r1, r1, stack_top@l
 	
 	# Jump to our C code
 	bl bal_main
 	mr r6, r3
+	
+	# Restore our Cafe OS state
+	lis r4, cos_srr0@ha
+	ori r4, r4, cos_srr0@l
+	lwz r5, 0(r4)
+	mtsrr0 r5
+	lwz r5, 4(r4)
+	mtsrr1 r5
+	lwz r1, 8(r4)
 	
 	# Enable the L2 cache
 	mfspr r3, 0x3f9
@@ -56,12 +70,6 @@ _start:
 	sync
 	
 	# Go back to Cafe OS
-	lis r4, cos_srr0@ha
-	ori r4, r4, cos_srr0@l
-	lwz r5, 0(r4)
-	mtsrr0 r5
-	lwz r5, 4(r4)
-	mtsrr1 r5
 	mr r3, r6
 	rfi
 
@@ -118,7 +126,13 @@ interrupt 0x1700 thermal
 .section .data
 cos_srr0: .space 4, 0x0
 cos_srr1: .space 4, 0x0
+cos_r1: .space 4, 0x0
 
 # IRQ count
 .globl num_irqs
 num_irqs: .space 4, 0x0
+
+# Stack
+.section .bss
+stack_bottom: .space 0x200, 0x0
+stack_top:

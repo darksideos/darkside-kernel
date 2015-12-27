@@ -70,7 +70,7 @@ static void ipc_wait_reply()
 static void ipc_send_req()
 {
 	/* Flush the IPC request buffer */
-	DCFlushRange(&ipc, sizeof(ipc));
+	//DCFlushRange(&ipc, sizeof(ipc));
 
 	/* Send the request buffer and execute the command */
 	*LT_IPC_PPC1_PPCMSG = (uint32_t)&ipc;
@@ -128,9 +128,11 @@ int IOS_Open(char *path, int mode)
 	/* Clear the request buffer */
 	memset(&ipc, 0, sizeof(ipc));
 
+	return 0;
+
 	/* Get the length of the path and flush the path */
 	size_t pathlen = strlen(path);
-	DCFlushRange(path, pathlen+1);
+	//DCFlushRange(path, pathlen+1);
 
 	/* Set the command and its arguments, and fill in the common fields */
 	ipc.cmd = ipc.prev_cmd = 1;
