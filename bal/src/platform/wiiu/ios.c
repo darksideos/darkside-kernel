@@ -128,8 +128,6 @@ int IOS_Open(char *path, int mode)
 	/* Clear the request buffer */
 	memset(&ipc, 0, sizeof(ipc));
 
-	return 0;
-
 	/* Get the length of the path and flush the path */
 	size_t pathlen = strlen(path);
 	//DCFlushRange(path, pathlen+1);
@@ -142,9 +140,11 @@ int IOS_Open(char *path, int mode)
 	ipc.args[2] = mode;
 	ipc_set_common_fields();
 
+	return 0;
+
 	/* Send the request, wait for the reply, and return it */
 	ipc_send_req();
-	//ipc_recv_reply();
+	ipc_recv_reply();
 	return ipc.reply;
 }
 

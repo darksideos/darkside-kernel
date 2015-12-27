@@ -27,7 +27,7 @@ int bal_main()
 {
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
-	if (num_irqs == 0) return 0x0BAD0B01;
+	if (num_irqs == 0) return 0xA600DB01;
 	else return 0xCAFECAFE;
 	
 	/* Create a new socket */

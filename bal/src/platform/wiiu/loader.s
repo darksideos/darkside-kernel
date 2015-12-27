@@ -43,6 +43,7 @@ _start:
 	# Load a new stack
 	lis r1, stack_top@ha
 	ori r1, r1, stack_top@l
+	addi r1, r1, -8
 	
 	# Jump to our C code
 	bl bal_main
