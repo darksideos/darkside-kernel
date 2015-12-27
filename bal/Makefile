@@ -23,10 +23,12 @@ GENSRCDIR			:= $(SRCDIR)/generic
 I686SRCDIR			:= $(SRCDIR)/arch/i686
 AMD64SRCDIR			:= $(SRCDIR)/arch/amd64
 ARMSRCDIR			:= $(SRCDIR)/arch/arm
+PPCSRCDIR			:= $(SRCDIR)/arch/ppc
 
 PCSRCDIR			:= $(SRCDIR)/platform/pc
 BIOSSRCDIR			:= $(SRCDIR)/platform/bios
 RASPISRCDIR			:= $(SRCDIR)/platform/raspi
+WIIUSRCDIR			:= $(SRCDIR)/platform/wiiu
 
 # i686 BIOS-based PC
 ifeq ($(MAKECMDGOALS),i686-bios)
@@ -77,7 +79,24 @@ RASPISFILES			:= $(shell find $(RASPISRCDIR) -type f -name "*.s")
 
 MACROS				:=
 INCLUDES			:= -I./include/platform/raspi
-OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(ARMCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(ARMSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(RASPICFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(RASPISFILES))
+OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(GENCFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(ARMCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(ARMSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(RASPICFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(RASPISFILES))
+
+# Wii U
+else ifeq ($(MAKECMDGOALS),wiiu)
+# The Wii U doesn't use nasm
+ASM					:= $(CCBASE)-as
+ASMFLAGS			:= -mregnames
+
+GENCFILES			:= $(shell find $(GENSRCDIR) -type f -name "*.c")
+PPCCFILES			:= $(shell find $(PPCSRCIDR) -type f -name "*.c")
+PPCSFILES			:= $(shell find $(PPCSRCDIR) -type f -name "*.s")
+WIIUCFILES			:= $(shell find $(WIIUSRCDIR) -type f -name "*.c")
+WIIUSFILES			:= $(shell find $(WIIUSRCDIR) -type f -name "*.s")
+
+MACROS				:=
+INCLUDES			:= -I./include/platform/wiiu
+OBJFILES			:= $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(PPCCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(PPCSFILES)) $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(WIIUCFILES)) $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(WIIUSFILES))
+
 endif
 
 i686-bios: $(OBJFILES)
@@ -87,6 +106,9 @@ amd64-bios: $(OBJFILES)
 raspi: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/raspi/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
 		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/kernel.img
+wiiu: $(OBJFILES)
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/wiiu/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
+		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/bal.elf
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)
