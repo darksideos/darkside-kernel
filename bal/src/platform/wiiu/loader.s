@@ -9,6 +9,22 @@ _mem1_entry:
 . = 0x100
 .extern bal_main
 _start:
+	# Disable the L2 cache
+	mfspr r3, 0x3f9
+	lis r4, 0x7FFF
+	ori r4, r4, 0xFFFF
+	and r3, r3, r4
+	mtspr 0x3f9, r3
+	sync
+	
+	# Disable caching (ICache and DCache) in HID0
+	mfspr r3, 0x3f0
+	lis r4, 0xFFFF
+	ori r4, r4, 0x3FFF
+	and r3, r3, r4
+	mtspr 0x3f0, r3
+	sync
+
 	# Save our Cafe OS state
 	lis r4, cos_srr0@ha
 	ori r4, r4, cos_srr0@l
@@ -18,13 +34,26 @@ _start:
 	stw r5, 4(r4)
 	
 	# Enable EEs
-	mfmsr r0
-	ori r0, r0, 0x8000
-	mtmsr r0
-	isync
+	#mfmsr r0
+	#ori r0, r0, 0x8000
+	#mtmsr r0
+	#isync
 	
 	# Jump to our C code
-	bl bal_main
+	#bl bal_main
+	li r3, -1
+	
+	# Enable the L2 cache
+	mfspr r3, 0x3f9
+	oris r3, r3, 0x8000
+	mtspr 0x3f9, r3
+	sync
+	
+	# Enable caching (ICache and DCache) in HID0
+	mfspr r3, 0x3f0
+	ori r3, r3, 0xC000
+	mtspr 0x3f0, r3
+	sync
 	
 	# Go back to Cafe OS
 	lis r4, cos_srr0@ha

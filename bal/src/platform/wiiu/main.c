@@ -27,8 +27,8 @@ int bal_main()
 {
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
-	if (num_irqs == 0) return 0x0BADBABE;
-	else while(1);
+	if (num_irqs != 0) return 0x0BADBABE;
+	else return 0xDEADBABE;
 	
 	/* Create a new socket */
 	uint32_t sparams[3] = {2, 1, 6};
