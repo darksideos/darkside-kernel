@@ -77,10 +77,10 @@ static void ipc_send_req()
 	*LT_IPC_PPC1_PPCCTRL = /*PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ*/0;
 	ipc_bell(PPCCTRL_EXEC_CMD);
 
-	/* Wait for an acknowledgement of the sending, clear it, and acknowledge the ack IRQ 
+	/* Wait for an acknowledgement of the sending, clear it, and acknowledge the ack IRQ */
 	ipc_wait_ack();
 	ipc_bell(PPCCTRL_ACK);
-	*((uint32_t*)0x0d000454) = 0x40000000;*/
+	/**((uint32_t*)0x0d000454) = 0x40000000;*/
 }
 
 /* Wait for an IPC reply back */
@@ -98,7 +98,7 @@ static void ipc_recv_reply(void)
 		ipc_bell(PPCCTRL_DONE);
 
 		/* Acknowledge the Latte IRQ and tell IOSU to relaunch */
-		*((uint32_t*)0x0d000454) = 0x40000000;
+		//*((uint32_t*)0x0d000454) = 0x40000000;
 		ipc_bell(PPCCTRL_RELAUNCH);
 	}
 
