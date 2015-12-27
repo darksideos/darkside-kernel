@@ -108,7 +108,7 @@ raspi: $(OBJFILES)
 		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/kernel.img
 wiiu: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/wiiu/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
-		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/bal.elf
+		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/bal.bin
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)

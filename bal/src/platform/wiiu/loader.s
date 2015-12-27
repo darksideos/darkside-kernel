@@ -1,7 +1,16 @@
 # Entry point
-_start:
-	nop
+. = 0x000
+_mem1_entry:
+	# Jump to the reset vector
 	b _start
+
+# Reset vector
+. = 0x100
+.extern bal_main
+_start:
+	# Jump to our C code
+	li r3, 0x1000
+	bl bal_main
 
 # Macro for interrupt vectors
 .macro interrupt addr, name
@@ -12,26 +21,25 @@ _start:
 .endm
 
 # Interrupt vectors
-interrupt 0x100  reset
 interrupt 0x200  machine_check
 interrupt 0x300  dsi
 interrupt 0x400  isi
 interrupt 0x500  external
 interrupt 0x600  alignment
-interrupt 0x700  UNK1
-interrupt 0x800  UNK2
-interrupt 0x900  UNK3
-interrupt 0xA00  UNK4
-interrupt 0xB00  UNK5
+interrupt 0x700  program
+interrupt 0x800  fp_unavail
+interrupt 0x900  timer
+interrupt 0xA00  RSDV1
+interrupt 0xB00  RSVD2
 interrupt 0xC00  syscall
-interrupt 0xD00  UNK6
-interrupt 0xE00  UNK7
+interrupt 0xD00  trace
+interrupt 0xE00  fp_assist
 interrupt 0xF00  ici
-interrupt 0x1000 UNK8
-interrupt 0x1100 UNK9
-interrupt 0x1200 UNKA
+interrupt 0x1000 RSVD3
+interrupt 0x1100 RSVD4
+interrupt 0x1200 RSVD5
 interrupt 0x1300 iabr
-interrupt 0x1400 UNKB
-interrupt 0x1500 UNKC
-interrupt 0x1600 UNKD
-interrupt 0x1700 UNKE
+interrupt 0x1400 UNK
+interrupt 0x1500 RSVD6
+interrupt 0x1600 RSVD7
+interrupt 0x1700 thermal
