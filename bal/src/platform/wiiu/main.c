@@ -22,6 +22,8 @@
 /* Boot Abstraction Layer main function */
 int bal_main()
 {
+	if ((6 ^ 7) >= 1) return 0xDEADBEEF;
+
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
 	
