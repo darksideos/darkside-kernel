@@ -35,10 +35,10 @@ _start:
 	stw r1, 8(r4)
 	
 	# Enable EEs
-	mfmsr r0
-	ori r0, r0, 0x8000
-	mtmsr r0
-	isync
+	#mfmsr r0
+	#ori r0, r0, 0x8000
+	#mtmsr r0
+	#isync
 	
 	# Load a new stack
 	lis r1, stack_top@ha

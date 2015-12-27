@@ -76,6 +76,7 @@ static void ipc_send_req()
 	*LT_IPC_PPC1_PPCMSG = (uint32_t)&ipc;
 	*LT_IPC_PPC1_PPCCTRL = PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ;
 	ipc_bell(PPCCTRL_EXEC_CMD);
+	return;
 
 	/* Wait for an acknowledgement of the sending, clear it, and acknowledge the ack IRQ 
 	ipc_wait_ack();
@@ -141,8 +142,8 @@ int IOS_Open(char *path, int mode)
 	ipc_set_common_fields();
 
 	/* Send the request, wait for the reply, and return it */
-	return 0;
 	ipc_send_req();
+	return 0;
 	ipc_recv_reply();
 	return ipc.reply;
 }
