@@ -30,6 +30,11 @@ amd64-bios: $(OBJFILES)
 		$(LD) -T linker-amd64bios.ld -o $(BUILDDIR)/bootapp64.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-amd64 -lc-amd64 -ladt-amd64 -lbootvid-amd64
 		$(OBJDUMP) -S $(BUILDDIR)/bootapp64.elf > $(BUILDDIR)/disasm.s
 		$(OBJCOPY) -O binary $(BUILDDIR)/bootapp64.elf $(BUILDDIR)/bootapp64.bin
+
+wiiu:
+		$(LD) -T linker-wiiu.ld -o $(BUILDDIR)/wiiuldr.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o`
+		$(OBJDUMP) -S $(BUILDDIR)/wiiuldr.elf > $(BUILDDIR)/disasm.s
+		$(OBJCOPY) -O binary $(BUILDDIR)/wiiuldr.elf $(BUILDDIR)/wiiuldr.bin
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS)

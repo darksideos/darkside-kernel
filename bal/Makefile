@@ -107,8 +107,7 @@ raspi: $(OBJFILES)
 		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/raspi/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
 		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/kernel.img
 wiiu: $(OBJFILES)
-		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/wiiu/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o`
-		$(OBJCOPY) $(BUILDDIR)/bal.o -O binary $(BUILDDIR)/bal.bin
+		$(LD) $(LDFLAGS) -o $(BUILDDIR)/bal.o $(BUILDDIR)/platform/wiiu/loader.o `find $(BUILDDIR) -type f -name *.o ! -name loader.o ! -name bal.o` -L ../libc/build -L ../libadt/build -lc-ppc -ladt-ppc
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)

@@ -10,6 +10,11 @@ amd64-libs:
 		cd libc; make amd64 CCBASE="$(CCBASE)"
 		cd libadt; make amd64 CCBASE="$(CCBASE)"
 		cd bootvid/pc; make amd64 CCBASE="$(CCBASE)"
+ppc-libs:
+		$(eval CCBASE ?= powerpc-eabi)
+
+		cd libc; make ppc CCBASE="$(CCBASE)"
+		cd libadt; make ppc CCBASE="$(CCBASE)"
 
 i686-pc: i686-libs
 		$(eval CCBASE ?= i686-elf)
@@ -45,6 +50,11 @@ raspi:
 
 		cd bootvid/raspi; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
 		cd bal; make raspi CCBASE="$(CCBASE)" CFLAGS="$(CFLAGS)"
+wiiu: ppc-libs
+		$(eval CCBASE ?= powerpc-eabi)
+		
+		cd bal; make wiiu CCBASE="$(CCBASE)"
+		cd kldr; make wiiu CCBASE="$(CCBASE)"
 
 clean:
 		rm -f -- $(shell find bal kldr kernel libc libadt bootvid/pc -type f -name "*.o" -or -name "*.a") bal/build/kernel.img

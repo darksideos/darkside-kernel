@@ -20,7 +20,7 @@
 #include <ios.h>
 
 /* Boot Abstraction Layer main function */
-void bal_main(int r3)
+int bal_main(int r3)
 {
 	/* Close the given IOSU handle */
 	IOS_Close(r3);

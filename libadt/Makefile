@@ -17,8 +17,10 @@ i686: $(OBJFILES)
 		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-i686.a $(OBJFILES)
 amd64: $(OBJFILES)
 		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-amd64.a $(OBJFILES)
-raspi: $(OBJFILES)
-		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-raspi.a $(OBJFILES)
+arm: $(OBJFILES)
+		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-arm.a $(OBJFILES)
+ppc: $(OBJFILES)
+		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libadt-ppc.a $(OBJFILES)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS)

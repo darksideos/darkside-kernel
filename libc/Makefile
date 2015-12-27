@@ -17,6 +17,8 @@ i686: $(OBJFILES)
 		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libc-i686.a $(OBJFILES)
 amd64: $(OBJFILES)
 		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libc-amd64.a $(OBJFILES)
+ppc: $(OBJFILES)
+		$(AR) $(ARFLAGS) -o $(BUILDDIR)/libc-ppc.a $(OBJFILES)
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 		$(CC) -o $@ -c $< $(CFLAGS)
