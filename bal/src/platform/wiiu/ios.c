@@ -91,9 +91,9 @@ static void ipc_recv_reply(void)
 	while(reply != &ipc)
 	{
 		/* Wait for the ARM to indicate request completion */
-		return;
-		ipc_wait_reply();
 		//return;
+		ipc_wait_reply();
+		return;
 
 		/* Get the reply message and clear the completion flag */
 		reply = (struct ipcbuf*)*LT_IPC_PPC1_ARMMSG;
