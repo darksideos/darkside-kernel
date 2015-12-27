@@ -37,7 +37,7 @@ _start:
 	# Enable EEs
 	mfmsr r0
 	ori r0, r0, 0x8000
-	#mtmsr r0
+	mtmsr r0
 	isync
 	
 	# Load a new stack

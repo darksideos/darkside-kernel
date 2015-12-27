@@ -140,9 +140,8 @@ int IOS_Open(char *path, int mode)
 	ipc.args[2] = mode;
 	ipc_set_common_fields();
 
-	return 0;
-
 	/* Send the request, wait for the reply, and return it */
+	return 0;
 	ipc_send_req();
 	ipc_recv_reply();
 	return ipc.reply;
