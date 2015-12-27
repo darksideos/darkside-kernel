@@ -17,10 +17,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <ios.h>
 
 /* Boot Abstraction Layer main function */
 void bal_main(int r3)
 {
-	while (r3 > 0) r3--;
-	while(r3 == 0);
+	/* Close the given IOSU handle */
+	IOS_Close(r3);
+
+	/* Infinite loop */
+	while(1);
 }
