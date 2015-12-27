@@ -63,7 +63,7 @@ static void ipc_wait_ack()
 
 static void ipc_wait_reply()
 {
-	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_DONE | PPCCTRL_DONE_IRQ)) != (PPCCTRL_DONE/* | PPCCTRL_DONE_IRQ*/));
+	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_DONE/* | PPCCTRL_DONE_IRQ*/)) != (PPCCTRL_DONE/* | PPCCTRL_DONE_IRQ*/));
 }
 
 /* Send an IPC request */
