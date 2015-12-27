@@ -58,7 +58,7 @@ static void ipc_bell(uint32_t val)
 
 static void ipc_wait_ack()
 {
-	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_ACK | PPCCTRL_ACK_IRQ)) != (PPCCTRL_ACK/* | PPCCTRL_ACK_IRQ*/));
+	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_ACK/* | PPCCTRL_ACK_IRQ*/)) != (PPCCTRL_ACK/* | PPCCTRL_ACK_IRQ*/));
 }
 
 static void ipc_wait_reply()
@@ -74,9 +74,8 @@ static void ipc_send_req()
 
 	/* Send the request buffer and execute the command */
 	*LT_IPC_PPC1_PPCMSG = (uint32_t)&ipc;
-	*LT_IPC_PPC1_PPCCTRL = PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ;
+	*LT_IPC_PPC1_PPCCTRL = /*PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ*/0;
 	ipc_bell(PPCCTRL_EXEC_CMD);
-	return;
 
 	/* Wait for an acknowledgement of the sending, clear it, and acknowledge the ack IRQ 
 	ipc_wait_ack();
