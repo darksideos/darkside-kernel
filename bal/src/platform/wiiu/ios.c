@@ -74,6 +74,7 @@ static void ipc_send_req()
 
 	/* Send the request buffer and execute the command */
 	*LT_IPC_PPC1_PPCMSG = (uint32_t)&ipc;
+	*LT_IPC_PPC1_PPCCTRL = PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ;
 	ipc_bell(PPCCTRL_EXEC_CMD);
 
 	/* Wait for an acknowledgement of the sending, clear it, and acknowledge the ack IRQ 
@@ -83,7 +84,7 @@ static void ipc_send_req()
 }
 
 /* Wait for an IPC reply back */
-static int ipc_recv_reply(void)
+static void ipc_recv_reply(void)
 {
 	/* Loop until the reply arrives */
 	struct ipcbuf *reply = NULL;
@@ -91,7 +92,6 @@ static int ipc_recv_reply(void)
 	{
 		/* Wait for the ARM to indicate request completion */
 		ipc_wait_reply();
-		return 0xC0DEDEAD;
 
 		/* Get the reply message and clear the completion flag */
 		reply = (struct ipcbuf*)*LT_IPC_PPC1_ARMMSG;
@@ -142,7 +142,7 @@ int IOS_Open(char *path, int mode)
 
 	/* Send the request, wait for the reply, and return it */
 	ipc_send_req();
-	return ipc_recv_reply();
+	//ipc_recv_reply();
 	return ipc.reply;
 }
 

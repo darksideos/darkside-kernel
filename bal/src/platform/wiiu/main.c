@@ -19,13 +19,16 @@
 #include <types.h>
 #include <ios.h>
 
+/* IRQ count */
+extern int num_irqs;
+
 /* Boot Abstraction Layer main function */
 int bal_main()
 {
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
-	if (fd == 0) return 0;
-	else return fd;
+	if (num_irqs == 0) return 0x0BADBABE;
+	else while(1);
 	
 	/* Create a new socket */
 	uint32_t sparams[3] = {2, 1, 6};
