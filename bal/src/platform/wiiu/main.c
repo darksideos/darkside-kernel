@@ -17,7 +17,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <string.h>
 #include <ios.h>
+#include <socket.h>
 
 /* IRQ count */
 extern int num_irqs;
@@ -28,16 +30,17 @@ int bal_main()
 	/* Initialize the IOSU IPC interface */
 	iosu_ipc_init();
 
-	/* Open /dev/socket */
-	int fd = IOS_Open("/dev/socket", 1);
-	
-	/* Create a new socket */
-	uint32_t sparams[3] = {2, 1, 6};
-	int sock = IOS_Ioctl(fd, 0x11, sparams, 12, NULL, 0);
+	/* Initialize the sockets interface */
+	sockets_init();
 
-	/* Connect to PC (192.168.1.153:12345) */
-	uint32_t cparams[6] = {(uint32_t)sock, 0x00023039, 0xC0A80199, 0x00000000, 0x00000000, 0x10};
-	IOS_Ioctl(fd, 0x04, cparams, 24, NULL, 0);
+	/* Create a socket and connect to the PC */
+	int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	struct sockaddr sin;
+	sin.sin_family = AF_INET;
+	sin.sin_port = 12345;
+	sin.sin_addr = 0xC0A80199;
+	memset(sin.sin_zero, 0, sizeof(sin.sin_zero));
+	connect(sockfd, &sin, sizeof(sin));
 
 	/* Infinite loop */
 	while(1);

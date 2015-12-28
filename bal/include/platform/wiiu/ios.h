@@ -10,7 +10,7 @@ struct iovec
 };
 
 /* Open an IOSU node */
-int IOS_Open(char *path, int mode);
+int IOS_Open(const char *path, int mode);
 
 /* Close an open IOSU handle */
 int IOS_Close(int fd);

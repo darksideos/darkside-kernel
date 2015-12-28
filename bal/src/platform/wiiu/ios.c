@@ -1,8 +1,8 @@
 #include <types.h>
 #include <string.h>
 #include <arch/ppc/cache.h>
-#include <platform/wiiu/mmio.h>
-#include <platform/wiiu/ios.h>
+#include <mmio.h>
+#include <ios.h>
 
 /* IPC engine registers */
 #define LT_IPC_PPC1_PPCMSG	0x0D000410
@@ -123,14 +123,14 @@ static void ipc_set_common_fields()
 }
 
 /* Open an IOSU node */
-int IOS_Open(char *path, int mode)
+int IOS_Open(const char *path, int mode)
 {
 	/* Clear the request buffer */
 	memset(&ipc, 0, sizeof(ipc));
 
 	/* Get the length of the path and flush the path */
-	size_t pathlen = strlen(path);
-	DCFlushRange(path, pathlen+1);
+	size_t pathlen = strlen((char*)path);
+	DCFlushRange((void*)path, pathlen+1);
 
 	/* Set the command and its arguments, and fill in the common fields */
 	ipc.cmd = ipc.prev_cmd = 1;
