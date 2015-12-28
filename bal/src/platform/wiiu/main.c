@@ -30,7 +30,7 @@ int bal_main()
 
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
-	if (num_irqs == 0) return 0xCAFE1917;
+	if (num_irqs == 0) return 0xCAFE1932;
 	else return 0xCAFECAFE;
 	
 	/* Create a new socket */

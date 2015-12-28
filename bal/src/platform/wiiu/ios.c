@@ -92,6 +92,7 @@ static void ipc_recv_reply(void)
 	{
 		/* Wait for the ARM to indicate request completion */
 		ipc_wait_reply();
+		return;
 
 		/* Get the reply message and clear the completion flag */
 		reply = (struct ipcbuf*)read32(LT_IPC_PPC1_ARMMSG);
@@ -142,7 +143,6 @@ int IOS_Open(char *path, int mode)
 
 	/* Send the request, wait for the reply, and return it */
 	ipc_send_req();
-	return 0;
 	ipc_recv_reply();
 	return ipc.reply;
 }
