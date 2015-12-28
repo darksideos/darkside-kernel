@@ -30,7 +30,6 @@ int bal_main()
 
 	/* Open /dev/socket */
 	int fd = IOS_Open("/dev/socket", 1);
-	return fd;
 	
 	/* Create a new socket */
 	uint32_t sparams[3] = {2, 1, 6};
