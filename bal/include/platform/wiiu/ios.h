@@ -27,4 +27,7 @@ int IOS_Ioctl(int fd, int cmd, void *inbuf, size_t inlen, void *outbuf, size_t o
 /* Send an ioctlv to an open IOSU node */
 int IOS_Ioctlv(int fd, int cmd, int cnt_io, int cnt_out, struct iovec *vecs);
 
+/* Initialize the IOSU IPC interface */
+void iosu_ipc_init();
+
 #endif

@@ -1,13 +1,14 @@
 #include <types.h>
 #include <string.h>
 #include <arch/ppc/cache.h>
+#include <platform/wiiu/mmio.h>
 #include <platform/wiiu/ios.h>
 
 /* IPC engine registers */
-#define LT_IPC_PPC1_PPCMSG	((volatile uint32_t*)0x0D000410)
-#define LT_IPC_PPC1_PPCCTRL	((volatile uint32_t*)0x0D000414)
-#define LT_IPC_PPC1_ARMMSG	((volatile uint32_t*)0x0D000418)
-#define LT_IPC_PPC1_ARMCTRL	((volatile uint32_t*)0x0D00041C)
+#define LT_IPC_PPC1_PPCMSG	0x0D000410
+#define LT_IPC_PPC1_PPCCTRL	0x0D000414
+#define LT_IPC_PPC1_ARMMSG	0x0D000418
+#define LT_IPC_PPC1_ARMCTRL	0x0D00041C
 
 /* PPCCTRL bit flags */
 #define PPCCTRL_EXEC_CMD	0x01
@@ -53,17 +54,17 @@ static struct ipcbuf ipc;
 /* IPC engine functions (thanks to Team Twiizers) */
 static void ipc_bell(uint32_t val)
 {
-	*LT_IPC_PPC1_PPCCTRL = (*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ)) | val;
+	write32(LT_IPC_PPC1_PPCCTRL, (read32(LT_IPC_PPC1_PPCCTRL) & (PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ)) | val);
 }
 
 static void ipc_wait_ack()
 {
-	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_ACK/* | PPCCTRL_ACK_IRQ*/)) != (PPCCTRL_ACK/* | PPCCTRL_ACK_IRQ*/));
+	while (!(read32(LT_IPC_PPC1_PPCCTRL) & PPCCTRL_ACK));
 }
 
 static void ipc_wait_reply()
 {
-	while ((*LT_IPC_PPC1_PPCCTRL & (PPCCTRL_DONE/* | PPCCTRL_DONE_IRQ*/)) != (PPCCTRL_DONE/* | PPCCTRL_DONE_IRQ*/));
+	while (!(read32(LT_IPC_PPC1_PPCCTRL) & PPCCTRL_DONE));
 }
 
 /* Send an IPC request */
@@ -73,8 +74,7 @@ static void ipc_send_req()
 	//DCFlushRange(&ipc, sizeof(ipc));
 
 	/* Send the request buffer and execute the command */
-	*LT_IPC_PPC1_PPCMSG = (uint32_t)&ipc;
-	*LT_IPC_PPC1_PPCCTRL = /*PPCCTRL_ACK_IRQ | PPCCTRL_DONE_IRQ*/0;
+	write32(LT_IPC_PPC1_PPCMSG, (uint32_t)&ipc);
 	ipc_bell(PPCCTRL_EXEC_CMD);
 
 	/* Wait for an acknowledgement of the sending, clear it, and acknowledge the ack IRQ */
@@ -91,12 +91,10 @@ static void ipc_recv_reply(void)
 	while(reply != &ipc)
 	{
 		/* Wait for the ARM to indicate request completion */
-		//return;
 		ipc_wait_reply();
-		return;
 
 		/* Get the reply message and clear the completion flag */
-		reply = (struct ipcbuf*)*LT_IPC_PPC1_ARMMSG;
+		reply = (struct ipcbuf*)read32(LT_IPC_PPC1_ARMMSG);
 		ipc_bell(PPCCTRL_DONE);
 
 		/* Acknowledge the Latte IRQ and tell IOSU to relaunch */
@@ -144,6 +142,7 @@ int IOS_Open(char *path, int mode)
 
 	/* Send the request, wait for the reply, and return it */
 	ipc_send_req();
+	return 0;
 	ipc_recv_reply();
 	return ipc.reply;
 }
@@ -275,4 +274,12 @@ int IOS_Ioctlv(int fd, int cmd, int cnt_io, int cnt_out, struct iovec *vecs)
 	ipc_send_req();
 	ipc_recv_reply();
 	return ipc.reply;
+}
+
+/* Initialize the IOSU IPC interface */
+void iosu_ipc_init()
+{
+	/* Clear the ACK and DONE flags, disable IRQs */
+	write32(LT_IPC_PPC1_PPCCTRL, PPCCTRL_ACK | PPCCTRL_DONE);
+	write32(LT_IPC_PPC1_PPCCTRL, 0);
 }
