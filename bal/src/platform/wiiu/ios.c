@@ -116,7 +116,7 @@ static void ipc_set_common_fields()
 	ipc.server_handle = 0;
 
 	/* Requests from CPU1 */
-	ipc.cpu = 1;
+	ipc.cpu = 2;
 
 	/* Assume permissions of Internet Browser */
 	ipc.pid = 4;
