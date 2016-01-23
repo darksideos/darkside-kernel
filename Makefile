@@ -3,13 +3,11 @@ i686-libs:
 
 		cd libc; make i686 CCBASE="$(CCBASE)"
 		cd libadt; make i686 CCBASE="$(CCBASE)"
-		cd bootvid/pc; make i686 CCBASE="$(CCBASE)"
 amd64-libs:
 		$(eval CCBASE ?= x86_64-elf)
 
 		cd libc; make amd64 CCBASE="$(CCBASE)"
 		cd libadt; make amd64 CCBASE="$(CCBASE)"
-		cd bootvid/pc; make amd64 CCBASE="$(CCBASE)"
 ppc-libs:
 		$(eval CCBASE ?= powerpc-eabi)
 
@@ -25,6 +23,7 @@ i686-pc: i686-libs
 		$(eval BITS ?= 32)
 
 		cd biosldr; make $(FS)
+		cd bootvid/pc; make i686 CCBASE="$(CCBASE)"
 		cd bal; make i686-$(FIRMWARE) CCBASE="$(CCBASE)"
 		cd kldr; make i686-$(FIRMWARE) CCBASE="$(CCBASE)" BITS="$(BITS)"
 		cd kernel; make i686 CCBASE="$(CCBASE)"
@@ -38,6 +37,7 @@ amd64-pc: amd64-libs
 		$(eval BITS ?= 64)
 
 		cd biosldr; make $(FS)
+		cd bootvid/pc; make amd64 CCBASE="$(CCBASE)"
 		cd bal; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
 		cd kldr; make amd64-$(FIRMWARE) CCBASE="$(CCBASE)"
 		#cd kernel; make amd64 CCBASE="$(CCBASE)"
@@ -53,6 +53,7 @@ raspi:
 wiiu: ppc-libs
 		$(eval CCBASE ?= powerpc-eabi)
 		
+		cd bootvid/wiiu; make wiiu CCBASE="$(CCBASE)"
 		cd bal; make wiiu CCBASE="$(CCBASE)"
 		cd kldr; make wiiu CCBASE="$(CCBASE)"
 

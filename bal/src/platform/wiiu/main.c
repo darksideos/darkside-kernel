@@ -18,6 +18,7 @@
  */
 #include <types.h>
 #include <string.h>
+#include <bootvid.h>
 #include <ios.h>
 #include <socket.h>
 
@@ -27,6 +28,9 @@ extern uint32_t end;
 /* Boot Abstraction Layer main function */
 int bal_main()
 {
+	/* Initialize the boot video driver */
+	bootvid_init(COLOR_WHITE, COLOR_BLACK);
+
 	/* Set up the watermark heap after the loader, aligning it to 0x1000 bytes 
 	watermark_init((end % 0x1000 == 0) ? end : (end & ~0xFFF) + 0x1000);*/
 
