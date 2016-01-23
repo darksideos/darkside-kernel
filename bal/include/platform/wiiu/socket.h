@@ -26,10 +26,10 @@ int socket(int domain, int type, int protocol);
 int connect(int sockfd, const struct sockaddr *addr, size_t addrlen);
 
 /* Send data over a socket */
-int send(int sockfd, const void *buffer, int len, int flags);
+int send(int sockfd, const void *buffer, size_t len, int flags);
 
 /* Receive data from over a socket */
-int recv(int sockfd, void *buffer, int len, int flags);
+int recv(int sockfd, void *buffer, size_t len, int flags);
 
 /* Initialize the socket interface */
 void sockets_init();

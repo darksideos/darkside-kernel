@@ -21,12 +21,15 @@
 #include <ios.h>
 #include <socket.h>
 
-/* IRQ count */
-extern int num_irqs;
+/* End of the binary */
+extern uint32_t end;
 
 /* Boot Abstraction Layer main function */
 int bal_main()
 {
+	/* Set up the watermark heap after the loader, aligning it to 0x1000 bytes 
+	watermark_init((end % 0x1000 == 0) ? end : (end & ~0xFFF) + 0x1000);*/
+
 	/* Initialize the IOSU IPC interface */
 	iosu_ipc_init();
 
@@ -38,9 +41,12 @@ int bal_main()
 	struct sockaddr sin;
 	sin.sin_family = AF_INET;
 	sin.sin_port = 12345;
-	sin.sin_addr = 0xC0A80199;
+	sin.sin_addr = 0xC0A801A9;
 	memset(sin.sin_zero, 0, sizeof(sin.sin_zero));
 	connect(sockfd, &sin, sizeof(sin));
+
+	/* Send a test string */
+	send(sockfd, "Hello!\n", 7, 0);
 
 	/* Infinite loop */
 	while(1);
