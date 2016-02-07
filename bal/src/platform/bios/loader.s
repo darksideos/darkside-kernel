@@ -98,12 +98,26 @@ a20_bios:
 	int 0x15
 	
 	; If there was an error, try the next method
-	jc a20_kbc
+	jc a20_fast
 	
 	; Check if A20 is enabled
 	call a20_check
 	cmp eax, 1
 	je near enter_pm
+
+; Try to use fast A20
+a20_fast:
+	in al, 0x92
+	test al, 2
+	jnz .after
+	or al, 2
+	and al, 0xFE
+	out 0x92, al
+.after:
+	; Check if A20 is enabled
+	call a20_check
+	cmp eax, 1
+	je enter_pm
 
 ; Try to use the keyboard controller to enable A20
 a20_kbc:
@@ -138,7 +152,7 @@ a20_kbc:
 	call a20_check
 	cmp eax, 1
 	je enter_pm
-	jmp a20_fast
+	jmp a20_fail
 .wait_read:
 	in al, 0x64
 	test al, 1
@@ -150,23 +164,10 @@ a20_kbc:
 	jnz .wait_write
 	ret
 
-; Try to use fast A20
-a20_fast:
-	in al, 0x92
-	test al, 2
-	jnz .after
-	or al, 2
-	and al, 0xFE
-	out 0x92, al
-.after:
-	; Check if A20 is enabled
-	call a20_check
-	cmp eax, 1
-	je enter_pm
-
 ; If we got here, A20 can't be enabled, so hang
-mov ax, error_a20
-jmp error
+a20_fail:
+	mov ax, error_a20
+	jmp error
 
 ; Check if A20 is enabled
 a20_check:
