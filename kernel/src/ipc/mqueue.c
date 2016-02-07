@@ -60,21 +60,26 @@ size_t mqueue_send(mqueue_t *mqueue, void *buffer, size_t length)
 	}
 
 	/* Intermediate message buffer */
-	message_t *message = NULL;
+	void *msg;
+	message_t *message;
 
 	/* Small message (2048 bytes or less), which is a direct copy */
 	if (length <= SMALL_MSG_SIZE)
 	{
 		/* Allocate a buffer and copy the message in */
-		message = (message_t*) malloc(length);
+		msg = malloc(sizeof(list_entry_t) + length);
+		message = (message_t*) (msg + sizeof(list_entry_t));
 		memcpy(message, buffer, length);
 	}
 	/* Large message, which uses an MDL */
 	else
 	{
 		/* Allocate a buffer and just copy the header */
-		message = (message_t*) malloc(sizeof(message_t) + sizeof(mdl_t*));
+		msg = malloc(sizeof(list_entry_t) + sizeof(message_t) + sizeof(mdl_t*));
+		message = (message_t*) (msg + sizeof(list_entry_t));
 		memcpy(message, buffer, sizeof(message_t));
+
+		/* TODO: MDL stuff */
 	}
 
 	/* TODO: Optimize out copying between threads in the same address space */
@@ -85,7 +90,7 @@ size_t mqueue_send(mqueue_t *mqueue, void *buffer, size_t length)
 
 	/* Put the message buffer on the queue */
 	spinlock_acquire(&mqueue->lock);
-	list_insert_tail(&mqueue->arrived_messages, message);
+	list_insert_tail(&mqueue->arrived_messages, msg);
 
 	/* Wake up the first blocked thread, if any exist */
 	waitqueue_unblock(&mqueue->waitqueue);
@@ -104,26 +109,29 @@ void *mqueue_recv(mqueue_t *mqueue, int timeout)
 	mqueue_t *recvqueue = current->mqueue;
 
 	/* If no messages are on the queue, block until there are */
-	message_t *message = (message_t*) list_remove_head(&mqueue->arrived_messages);
-	while (!message)
+	message_t *message;
+	void *msg = list_remove_head(&mqueue->arrived_messages);
+	if (!msg)
 	{
 		/* Block on the message queue, releasing the lock */
 		waitqueue_block(&mqueue->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&mqueue->lock);
 		mkthread_yield();
 
-		/* Re-acquire the lock grab a message from the queue */
+		/* Re-acquire the lock and grab a message from the queue */
 		spinlock_acquire(&mqueue->lock);
-		message = (message_t*) list_remove_head(&mqueue->arrived_messages);
+		msg = list_remove_head(&mqueue->arrived_messages);
+		message = (message_t*) (msg + sizeof(list_entry_t));
 
 		/* If we don't have room for it at all, put it back and fail */
 		if (message->length > recvqueue->msgbuf_len)
 		{
-			list_insert_head(&mqueue->arrived_messages, message);
+			list_insert_head(&mqueue->arrived_messages, msg);
 			spinlock_release(&mqueue->lock);
 			return NULL;
 		}
 	}
+	else message = (message_t*) (msg + sizeof(list_entry_t));
 
 	/* Small message (2048 bytes or less) */
 	void *buffer = NULL;
