@@ -27,6 +27,8 @@
 #include <mm/mdl.h>
 #include <task/thread.h>
 
+#include <stdio.h>
+
 /* Maximum size of a small message */
 #define SMALL_MSG_SIZE	2048
 
@@ -95,6 +97,7 @@ size_t mqueue_send(mqueue_t *mqueue, void *buffer, size_t length)
 	/* Wake up the first blocked thread, if any exist */
 	waitqueue_unblock(&mqueue->waitqueue);
 
+	spinlock_release(&mqueue->lock);
 	return length;
 }
 
@@ -111,12 +114,15 @@ void *mqueue_recv(mqueue_t *mqueue, int timeout)
 	/* If no messages are on the queue, block until there are */
 	message_t *message;
 	void *msg = list_remove_head(&mqueue->arrived_messages);
+	//printf("msg=0x%08X\n", msg);
 	if (!msg)
 	{
 		/* Block on the message queue, releasing the lock */
 		waitqueue_block(&mqueue->waitqueue, (mkthread_t*)current, TIMEOUT_NEVER);
 		spinlock_release(&mqueue->lock);
+		//printf("Yielding\n");
 		mkthread_yield();
+		//printf("Control back\n");
 
 		/* Re-acquire the lock and grab a message from the queue */
 		spinlock_acquire(&mqueue->lock);

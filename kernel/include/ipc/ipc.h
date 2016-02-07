@@ -19,11 +19,11 @@
 #ifndef __IPC_H
 #define __IPC_H
 
+#include <microkernel/waitqueue.h>
 #include <ipc/mutex.h>
 #include <ipc/semaphore.h>
 #include <ipc/rwlock.h>
-#include <ipc/mqueue.h>
-#include <ipc/mport.h>
+#include <ipc/message.h>
 
 /* Initialize the IPC manager */
 void ipc_init();
