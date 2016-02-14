@@ -76,6 +76,7 @@ int fs_mount(device_t *device, char *path, const char *fs_name)
 		filesystem_t *filesystem = (filesystem_t*) malloc(sizeof(filesystem_t));
 		filesystem->ops = ops;
 		filesystem->device = device;
+		//if (device == NULL) while(1);
 		int status = ops->init(filesystem, device);
 
 		/* Fail mounting if initializing the filesystem failed */

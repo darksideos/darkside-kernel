@@ -33,10 +33,7 @@ void lbaext_init(uint32_t drive_number);
 /* Read data from the disk into a buffer */
 static uint64_t disk_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint64_t numsectors)
 {
-	//return (uint64_t) lbaext_read(buffer, (uint32_t) start, (uint32_t) numsectors);
-	uint64_t ret = (uint64_t) lbaext_read(buffer, (uint32_t) start, (uint32_t) numsectors);
-	//while(1);
-	return ret;
+	return (uint64_t) lbaext_read(buffer, (uint32_t) start, (uint32_t) numsectors);
 }
 
 /* Write data from a buffer to the disk */

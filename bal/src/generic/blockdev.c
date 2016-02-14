@@ -50,6 +50,7 @@ int blockdev_enumerate(device_t *device)
 		/* Only standard MBR */
 		else
 		{
+			//while(1);
 			return mbr_partitions_enumerate(blockdev, first_sector);
 		}
 	}
@@ -68,10 +69,10 @@ uint64_t blockdev_read(blockdev_t *blockdev, void *buffer, uint64_t start, uint6
 	blockdev_ops_t *ops = (blockdev_ops_t*) blockdev->device.ops;
 	if (ops->read)
 	{
-		//return ops->read(blockdev, buffer, start, numblocks);
-		uint64_t ret = ops->read(blockdev, buffer, start, numblocks);
+		return ops->read(blockdev, buffer, start, numblocks);
+		//uint64_t ret = ops->read(blockdev, buffer, start, numblocks);
 		//while(1);
-		return ret;
+		//return ret;
 	}
 	return 0;
 }
