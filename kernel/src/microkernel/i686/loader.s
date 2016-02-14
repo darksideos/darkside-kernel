@@ -21,6 +21,8 @@
 section .text
 global start
 start:
+	jmp $
+
 	; Save the loader block pointer in EAX
 	pop eax
 

@@ -39,6 +39,7 @@ void ba_main(loader_block_t *loader_block)
 	{
 		panic("Failed to mount boot device, error %d\n", status);
 	}
+	while(1);
 
 	/* Read and parse the configuration file */
 

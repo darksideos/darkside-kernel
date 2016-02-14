@@ -22,12 +22,12 @@ ASMFLAGS			:= -f elf64
 endif
 
 i686-bios: $(OBJFILES)
-		$(LD) -T linker-i686bios.ld -o $(BUILDDIR)/bootapp$(BITS).elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-i686 -lc-i686 -ladt-i686 -lbootvid-i686
+		$(LD) -T linker-i686bios.ld -o $(BUILDDIR)/bootapp$(BITS).elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lc-i686 -ladt-i686 -lbootvid-i686 -lgcc-i686
 		$(OBJDUMP) -S $(BUILDDIR)/bootapp$(BITS).elf > $(BUILDDIR)/disasm.s
 		$(OBJCOPY) -O binary $(BUILDDIR)/bootapp$(BITS).elf $(BUILDDIR)/bootapp$(BITS).bin
 
 amd64-bios: $(OBJFILES)
-		$(LD) -T linker-amd64bios.ld -o $(BUILDDIR)/bootapp64.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lgcc-amd64 -lc-amd64 -ladt-amd64 -lbootvid-amd64
+		$(LD) -T linker-amd64bios.ld -o $(BUILDDIR)/bootapp64.elf ../bal/build/bal.o `find $(BUILDDIR) -type f -name *.o` -L ../libgcc/build -L ../libc/build -L ../libadt/build -L ../bootvid/build -lc-amd64 -ladt-amd64 -lbootvid-amd64 -lgcc-amd64
 		$(OBJDUMP) -S $(BUILDDIR)/bootapp64.elf > $(BUILDDIR)/disasm.s
 		$(OBJCOPY) -O binary $(BUILDDIR)/bootapp64.elf $(BUILDDIR)/bootapp64.bin
  

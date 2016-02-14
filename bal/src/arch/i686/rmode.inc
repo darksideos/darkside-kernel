@@ -64,7 +64,7 @@
 %endmacro
 
 %macro rm2pm 0
-	; Reenable protected mode and paging
+	; Reenable protected mode and paging	
 	cli
 	mov eax, cr0
 	or eax, 0x80000001
