@@ -21,11 +21,6 @@
 section .text
 global start
 start:
-	mov eax, 0xE0000000
-	mov dword [eax], 0x00FF0000
-	mov dword [eax+4], 0x00FF0000
-	jmp $
-
 	; Save the loader block pointer in EAX
 	pop eax
 

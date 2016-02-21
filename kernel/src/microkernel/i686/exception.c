@@ -63,6 +63,7 @@ static isr_t handlers[32];
 /* Common handler for all exceptions */
 void exception_handler(struct regs *regs)
 {
+	regs = (struct regs*)0x66664444;
 	if (handlers[regs->int_no])
 	{
 		isr_t handler = handlers[regs->int_no];
