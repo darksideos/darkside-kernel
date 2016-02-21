@@ -54,6 +54,10 @@
 	mov ss, ax
 	
 	; Load the real mode IDT
+	;mov eax, 0x500
+	;mov word [eax+0], 0x3FF
+	;mov dword [eax+2], 0
+	;lidt [eax]
 	lidt [idt16]
 	sti
 	

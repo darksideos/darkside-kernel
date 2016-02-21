@@ -54,7 +54,30 @@ void bal_main(data_t *_data)
 	vmm_init();
 
 	/* Initialize the device tree */
+	//if (data->partition_start == 69842944) while(1);
+	//else devtree_init(*((int*)0x10000000), data->partition_start);
 	devtree_init(data->drive_number, data->partition_start);
+
+	/* Init graphics */
+	framebuffer_t *fb = graphics_init(1024, 768, 32);
+
+	paddr_t base = fb->buffer_phys;
+	vaddr_t length = (fb->width * fb->height * fb->bpp) + ((fb->height - 1) * fb->pitch);
+
+	for (vaddr_t i = 0; i < length; i += 0x1000)
+	{
+		vmm_map_page(0x80000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+	}
+
+	fb->buffer = (void*) 0x80000000;
+
+	init_vbe_bootvid(fb);
+
+	/* Display stuff */
+	//turtle_test();
+	//while(1);
+	vbe_bootvid_puts("0123456789\n");
+	while(1);
 
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();

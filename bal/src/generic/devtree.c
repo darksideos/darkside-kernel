@@ -43,7 +43,7 @@ find_boot: ;
 		/* If we searched all the children unsuccessfully, we failed to find the boot device */
 		if (!child)
 		{
-			if (nchilds == 4) while(1);
+			//if (nchilds == 4) while(1);
 			return NULL;
 		}
 	}

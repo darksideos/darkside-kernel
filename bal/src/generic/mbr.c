@@ -99,10 +99,13 @@ int mbr_partitions_enumerate(blockdev_t *blockdev, uint8_t *sector_buffer)
 		partition->start = (uint64_t) entry->start_lba;
 		partition->numsectors = (uint64_t) entry->length;
 
+		//if (i == 3 && partition->start == 69842944) while(1);
+
 		/* If it matches the boot partition, mark it as boot */
 		if (entry->start_lba == boot_partition_start)
 		{
 			device_set_property((device_t*)partition, "boot", 1);
+			//while(1);
 		}
 
 		/* Perform filesystem recognition on the partition */
