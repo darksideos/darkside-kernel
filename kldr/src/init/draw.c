@@ -23,7 +23,7 @@
 #include <init/bmp.h>
 #include <math.h>
 
-framebuffer_t *fb;
+framebuffer_t *fb = NULL;
 int origin_x = 8, origin_y = 32;
 int off_x = 0, off_y = 0;
 int color = 0;
@@ -88,8 +88,10 @@ void pen_down(int n)
 	}
 }
 
-void vbe_bootvid_puts(char *str)
+void bootvid_puts(char *str)
 {
+	if (!fb) return;
+
 	char ch = *str++;
 	while (ch != 0)
 	{
@@ -241,7 +243,7 @@ void vbe_bootvid_puts(char *str)
 			off_x = off_y = 0;
 			break;
 		default:
-			//off_x += 16;
+			off_x += 16;
 			break;
 		}
 

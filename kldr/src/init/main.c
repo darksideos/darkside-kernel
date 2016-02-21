@@ -39,7 +39,6 @@ void ba_main(loader_block_t *loader_block)
 	{
 		panic("Failed to mount boot device, error %d\n", status);
 	}
-	while(1);
 
 	/* Read and parse the configuration file */
 
@@ -68,11 +67,11 @@ void ba_main(loader_block_t *loader_block)
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	list_insert_tail(&modules, kernel);
 	
-	/* Load the PS/2 keyboard and mouse drivers */
+	/* Load the PS/2 keyboard and mouse drivers 
 	executable_t *ps2kbd_driver = elf_executable_load_object("/boot/ps2kbd.elf", 0x40000000, kernel);
 	executable_t *ps2mouse_driver = elf_executable_load_object("/boot/ps2mouse.elf", 0x50000000, kernel);
 	list_insert_tail(&modules, ps2kbd_driver);
-	list_insert_tail(&modules, ps2mouse_driver);
+	list_insert_tail(&modules, ps2mouse_driver);*/
 
 	/* Read and parse the module registry */
 

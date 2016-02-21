@@ -343,7 +343,6 @@ static int ext2_filesystem_init(filesystem_t *filesystem, device_t *device)
 	ext2_superblock_t *superblock = (ext2_superblock_t*) malloc(EXT2_SUPERBLOCK_LENGTH);
 
 	uint64_t bytes_read = blockdev_read(blockdev, superblock, EXT2_SUPERBLOCK_START / blockdev->block_size, EXT2_SUPERBLOCK_LENGTH / blockdev->block_size);
-	//while(1);
 	if (bytes_read != EXT2_SUPERBLOCK_LENGTH / blockdev->block_size)
 	{
 		return -1;

@@ -53,11 +53,6 @@ void bal_main(data_t *_data)
 	list_t *phys_mem_map = pmm_init(e820_map_sanitize(data->e820_entries, data->num_e820_entries));
 	vmm_init();
 
-	/* Initialize the device tree */
-	//if (data->partition_start == 69842944) while(1);
-	//else devtree_init(*((int*)0x10000000), data->partition_start);
-	devtree_init(data->drive_number, data->partition_start);
-
 	/* Init graphics */
 	framebuffer_t *fb = graphics_init(1024, 768, 32);
 
@@ -66,18 +61,23 @@ void bal_main(data_t *_data)
 
 	for (vaddr_t i = 0; i < length; i += 0x1000)
 	{
-		vmm_map_page(0x80000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
+		vmm_map_page(0xE0000000 + i, base + i, PAGE_READ | PAGE_WRITE | PAGE_NOCACHE);
 	}
 
-	fb->buffer = (void*) 0x80000000;
+	fb->buffer = (void*) 0xE0000000;
 
 	init_vbe_bootvid(fb);
+
+	/* Initialize the device tree */
+	//if (data->partition_start == 69842944) while(1);
+	//else devtree_init(*((int*)0x10000000), data->partition_start);
+	devtree_init(data->drive_number, data->partition_start);
 
 	/* Display stuff */
 	//turtle_test();
 	//while(1);
-	vbe_bootvid_puts("0123456789\n");
-	while(1);
+	//printf("%u\n", 2338990521);
+	//while(1);
 
 	/* Initialize the filesystem and each filesystem driver */
 	fs_init();

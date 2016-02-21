@@ -3,6 +3,8 @@
 #include <device/device.h>
 #include <device/devtree.h>
 
+#include <device/partition.h>
+
 /* Root of the device tree */
 static device_t root;
 
@@ -17,7 +19,7 @@ device_t *devtree_boot_device()
 {
 	/* Current device */
 	device_t *current = &root;
-	int nchilds = 0;
+	int level = 0;
 
 	/* Keep looking further in the device tree for a device marked as boot */
 find_boot: ;
@@ -27,15 +29,21 @@ find_boot: ;
 	device_t *child = (device_t*) iter_now(&iter);
 	while (child)
 	{
+		/*if (level == 0) printf("%u\n", child->num_children);
+
+		if (level == 1)
+		{
+			partition_t *part = (partition_t*)child;
+			printf("%u\n", (uint32_t)part->start);
+		}*/
+
 		/* Is the device marked as boot? */
 		if (device_get_property(child, "boot") == 1)
 		{
 			current = child;
-			nchilds = 0;
+			level++;
 			goto find_boot;
 		}
-
-		nchilds++;
 
 		/* Get the next child */
 		child = (device_t*) iter_next(&iter);
@@ -43,7 +51,8 @@ find_boot: ;
 		/* If we searched all the children unsuccessfully, we failed to find the boot device */
 		if (!child)
 		{
-			//if (nchilds == 4) while(1);
+			//printf("0000\n");
+			//while(1);
 			return NULL;
 		}
 	}
@@ -51,6 +60,8 @@ find_boot: ;
 	/* If there were no children and we're not at the root, return the device */
 	if (current != &root)
 	{
+		//printf("1111\n");
+		//while(1);
 		return current;
 	}
 

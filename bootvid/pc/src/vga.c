@@ -123,7 +123,7 @@ void bootvid_putch(char c)
 }
 
 /* Uses the above routine to output a string */
-void bootvid_puts(char *str)
+void __attribute__((weak)) bootvid_puts(char *str)
 {
     for (size_t i = 0; i < strlen(str); i++)
 	{
