@@ -19,7 +19,6 @@ device_t *devtree_boot_device()
 {
 	/* Current device */
 	device_t *current = &root;
-	int level = 0;
 
 	/* Keep looking further in the device tree for a device marked as boot */
 find_boot: ;
@@ -41,7 +40,6 @@ find_boot: ;
 		if (device_get_property(child, "boot") == 1)
 		{
 			current = child;
-			level++;
 			goto find_boot;
 		}
 

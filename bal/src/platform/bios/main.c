@@ -53,7 +53,7 @@ void bal_main(data_t *_data)
 	list_t *phys_mem_map = pmm_init(e820_map_sanitize(data->e820_entries, data->num_e820_entries));
 	vmm_init();
 
-	/* Init graphics */
+	/* Init graphics *
 	framebuffer_t *fb = graphics_init(1024, 768, 32);
 
 	paddr_t base = fb->buffer_phys;
@@ -66,7 +66,7 @@ void bal_main(data_t *_data)
 
 	fb->buffer = (void*) 0xE0000000;
 
-	init_vbe_bootvid(fb);
+	init_vbe_bootvid(fb);*/
 
 	/* Initialize the device tree */
 	//if (data->partition_start == 69842944) while(1);
