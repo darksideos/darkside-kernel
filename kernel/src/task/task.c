@@ -23,12 +23,12 @@
 #include <task/thread.h>
 
 /* Process and thread object slab caches */
-slab_cache_t *process_cache, *thread_cache;
+slab_cache_t process_cache, thread_cache;
 
 /* Initialize the process and thread manager */
 void tasking_init()
 {
 	/* Create the slab caches for process and thread objects */
-	//process_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(process_t), PAGE_READ | PAGE_WRITE);
-	//thread_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(thread_t), PAGE_READ | PAGE_WRITE);
+	process_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(process_t), PAGE_READ | PAGE_WRITE);
+	thread_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(thread_t), PAGE_READ | PAGE_WRITE);
 }

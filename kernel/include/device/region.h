@@ -5,7 +5,7 @@
 typedef struct region
 {
 	/* Message queue */
-	msgqueue_t *msgqueue;
+	mqueue_t *mqueue;
 
 	/* IRP stack frame size */
 	size_t irp_frame_sz;

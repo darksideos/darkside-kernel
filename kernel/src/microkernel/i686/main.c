@@ -57,6 +57,18 @@ extern uint32_t kinit_stack, kinit_func;
 /* Number of APs that need to initialize the scheduler */
 static atomic_t num_scheduler_inits_left;
 
+/* Thread test
+static void test(void *arg)
+{
+	uint32_t a = (uint32_t)arg;
+	while(1)
+	{
+		printf("0x%08X\n", a);
+		mkthread_yield();
+		a++;
+	}
+}*/
+
 /* Read the CPUID info for a CPU */
 static void read_cpuid_info()
 {
@@ -171,10 +183,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		//while(1);
 
 		/* Initialize the system address space */
+		printf("Initializing system address space\n");
 		paddr_t address_space;
 		__asm__ volatile("mov %%cr3, %0" : "=r"(address_space));
-		printf("Initializing system address space\n");
-		addrspace_init(ADDRSPACE_SYSTEM, address_space, loader_block.system_free_start, 0xFFC00000 - loader_block.system_free_start);
+		system_addrspace_init(&loader_block, address_space);
+		addrspace_claim(ADDRSPACE_SYSTEM, (void*)KERNEL_ADDRSPACE_START, loader_block.system_free_start - KERNEL_ADDRSPACE_START,
+						PAGE_READ | PAGE_WRITE | PAGE_EXECUTE | PAGE_GLOBAL);
+		addrspace_claim(ADDRSPACE_SYSTEM, (void*)0xFFC00000, 0x400000, PAGE_READ | PAGE_WRITE);
 
 		/* Initialize the kernel heap */
 		printf("Initializing kernel heap\n");
@@ -206,21 +221,13 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		while(num_scheduler_inits_left);
 		cpu->flags |= CPU_SCHEDULER_INIT;
 
-		//printf("0x%08X\n", *((uint32_t*)0xDEADBEEF));
-		//while(1);
-
-		/* Demo */
-		executable_t *ps2mouse_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		demo(loader_block.fb, (void*)ps2kbd_driver->entry_point, (void*)ps2mouse_driver->entry_point);
-
 		/* Initialize the syscall manager */
 		syscalls_init();
 
-		/* Get the PS/2 keyboard and mouse drivers' entry points 
-		executable_t *ps2mouse_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		executable_t *ps2kbd_driver = (executable_t*) list_remove_tail(loader_block.modules);
-		printf("KBD: 0x%08X, Mouse: 0x%08X\n", ps2kbd_driver->entry_point, ps2mouse_driver->entry_point);*/
+		/* Thread test
+		mkthread_t thread;
+		mkthread_init(&thread, NULL, &test, (void*)0, 0, POLICY_REALTIME, 31, 0x2000);
+		scheduler_run();*/
 
 		/* Start the executive services */
 		executive_init(&loader_block);

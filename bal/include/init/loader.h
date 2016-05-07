@@ -45,10 +45,12 @@ typedef struct loader_block
 	/* Graphics framebuffer */
 	framebuffer_t *fb;
 
-	/* Module registry */
+	/* Loaded kernel */
+	void *kernel;
 
-	/* Loaded modules */
-	list_t *modules;
+	/* Initrd for the kernel */
+	void *initrd;
+	size_t initrd_size;
 
 /* PC extension */
 #if defined(__i386__) | defined(__x86_64__)

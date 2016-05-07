@@ -59,26 +59,29 @@ void ba_main(loader_block_t *loader_block)
 	draw_bmp_32(fb, "/boot/boot screen.bmp", 0, 0);
 	while(1);*/
 
-	/* Create a list of modules */
-	list_t modules = list_create();
-	loader_block->modules = &modules;
-
 	/* Load the kernel into virtual memory */
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
-	list_insert_tail(&modules, kernel);
+	if (!kernel) panic("Failed to load kernel\n");
+	loader_block->kernel = kernel;
 	
-	/* Load the PS/2 keyboard and mouse drivers */
-	executable_t *ps2kbd_driver = elf_executable_load_object("/boot/ps2kbd.elf", 0x40000000, kernel);
-	executable_t *ps2mouse_driver = elf_executable_load_object("/boot/ps2mouse.elf", 0x50000000, kernel);
-	list_insert_tail(&modules, ps2kbd_driver);
-	list_insert_tail(&modules, ps2mouse_driver);
+	/* Load the initrd into virtual memory */
+	inode_t *initrd_img = fs_open("/boot/initrd.img");
+	if (!initrd_img) panic("Failed to open initrd\n");
 
-	/* Read and parse the module registry */
+	for (vaddr_t i = 0; i < initrd_img->size; i += 0x1000)
+	{
+		vmm_map_page(kernel->end + i, pmm_alloc_page(), PAGE_READ | PAGE_WRITE);
 
-	/* Load the boot modules into memory */
+		uint64_t read_size = (initrd_img->size - i > 0x1000) ? 0x1000: (initrd_img->size - i);
+		uint64_t bytes_read = fs_read(initrd_img, kernel->end + i, i, read_size);
+		if (bytes_read != read_size) panic("Failed to read initrd\n");
+	}
+
+	loader_block->initrd = (void*)kernel->end;
+	loader_block->initrd_size = (size_t)initrd_img->size;
 
 	/* Mark the start of available memory in the system address space */
-	loader_block->system_free_start = kernel->end;
+	loader_block->system_free_start = kernel->end + PAGE_ALIGN_UP(initrd_img->size);
 
 	/* Detect the CPUs and NUMA domains in the system */
 	topology_detect(loader_block);

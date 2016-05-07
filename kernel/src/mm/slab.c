@@ -29,6 +29,9 @@
 /* Initialize a slab */
 static void init_slab(slab_cache_t *slab_cache, slab_header_t *slab_header, size_t bitmap_space)
 {
+	/* Return if the slab is NULL */
+	if (!slab_header) return;
+
 	/* Set up the slab's data */
 	size_t objs_per_slab = slab_cache->objs_per_slab;
 	slab_header->num_free_objs = objs_per_slab;
@@ -97,6 +100,15 @@ void slab_cache_init(slab_cache_t *slab_cache, void *slab, size_t object_size, i
 }
 
 /* Create a slab cache */
+slab_cache_t slab_cache_create(size_t object_size, int flags)
+{
+	slab_cache_t slab_cache;
+
+	void *slab = addrspace_alloc(ADDRSPACE_SYSTEM, SLAB_SIZE, SLAB_SIZE, flags | PAGE_GLOBAL);
+	slab_cache_init(&slab_cache, slab, object_size, flags);
+
+	return slab_cache;
+}
 
 /* Allocate an object from a slab cache */
 void *slab_cache_alloc(slab_cache_t *slab_cache)

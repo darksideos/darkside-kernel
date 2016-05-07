@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <list.h>
+#include <dict.h>
 #include <device/blockdev.h>
 #include <device/partition.h>
 

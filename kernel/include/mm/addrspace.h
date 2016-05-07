@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2015 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * addrspace.h - Address space management public API
  *
@@ -19,16 +19,14 @@
 #ifndef __ADDRSPACE_H
 #define __ADDRSPACE_H
 
+#include <init/loader.h>
 #include <microkernel/lock.h>
 #include <microkernel/paging.h>
 #include <mm/vad.h>
 
 /* Special address space pointers */
-#define ADDRSPACE_CURRENT	(addrspace_t*) 1
-#define ADDRSPACE_SYSTEM	(addrspace_t*) 2
-
-/* Virtual address allocation flags */
-#define GUARD_BOTTOM		0x1000
+#define ADDRSPACE_CURRENT	(addrspace_t*)1
+#define ADDRSPACE_SYSTEM	(addrspace_t*)2
 
 /* Address space structure */
 typedef struct addrspace
@@ -38,20 +36,24 @@ typedef struct addrspace
 
 	/* Used and free regions */
 	vad_t used, free;
-
-	/* Root of the used region tree */
 	vad_t *used_root;
 
 	/* NUMA domain */
 	int numa_domain;
 
+	/* Reference count */
+	atomic_t refcount;
+
 	/* Address space lock */
 	spinlock_recursive_t lock;
 } addrspace_t;
 
-/* Initialize and destroy an address space */
-void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t free_start, vaddr_t free_length);
-void addrspace_destroy(addrspace_t *addrspace);
+/* Initialize an address space */
+void addrspace_init(addrspace_t *addrspace, paddr_t address_space, vaddr_t range_start, size_t range_length);
+
+/* Reference and dereference an address space */
+bool addrspace_ref(addrspace_t *addrspace);
+void addrspace_unref(addrspace_t *addrspace);
 
 /* Allocate and free regions of a virtual address space */
 void *addrspace_alloc(addrspace_t *addrspace, size_t size_reserved, size_t size_committed, int flags);
@@ -66,5 +68,11 @@ void addrspace_protect(addrspace_t *addrspace, void *ptr, size_t size, int flags
 /* Lock and unlock memory regions */
 void addrspace_lock(addrspace_t *addrspace, void *ptr, size_t size);
 void addrspace_unlock(addrspace_t *addrspace, void *ptr, size_t size);
+
+/* Claim a memory region under certain flags */
+void addrspace_claim(addrspace_t *addrspace, void *ptr, size_t size, int flags);
+
+/* Initialize the system address space */
+void system_addrspace_init(loader_block_t *loader_block, paddr_t address_space);
 
 #endif

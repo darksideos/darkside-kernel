@@ -24,14 +24,24 @@
 /* Message header */
 typedef struct message
 {
+	/* Length of message, including header */
 	size_t length;
+
+	/* Thread ID of sender */
 	tid_t sender_tid;
+
+	/* Handle of message queue to reply to */
 	int reply_queue;
+
+	/* Message type (protocol and meaning) */
 	int protocol;
 } message_t;
 
 /* Message queue and port APIs */
-#include <ipc/msgqueue.h>
-#include <ipc/msgport.h>
+#include <ipc/mqueue.h>
+#include <ipc/mport.h>
+
+/* Receive a message */
+message_t *msg_recv();
 
 #endif
