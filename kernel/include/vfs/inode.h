@@ -45,7 +45,7 @@ typedef struct inode
 	section_t *data_section, *image_section;
 } inode_t;
 
-/* Read and write data from inodes */
+/* Read and write data from an inode */
 int inode_read(inode_t *inode, void *buffer, uint64_t offset, uint64_t length, bool cached, void *completion_obj);
 int inode_write(inode_t *inode, void *buffer, uint64_t offset, uint64_t length, bool cached, void *completion_obj);
 

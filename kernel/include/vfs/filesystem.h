@@ -2,6 +2,7 @@
 #define __FILESYSTEM_H
 
 #include <device/device.h>
+#include <device/driver.h>
 
 /* Filesystem structure */
 typedef struct filesystem
