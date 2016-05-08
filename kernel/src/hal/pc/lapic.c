@@ -53,7 +53,7 @@ static uint32_t volatile *lapic = NULL;
 
 /* Handler for the LAPIC timer */
 static bool lapic_timer_handler(interrupt_t *interrupt)
-{	
+{
 	/* Send an EOI to the Local APIC and resolve the interrupt */
 	lapic[EOI] = 0;
 	return true;
@@ -93,11 +93,12 @@ static void lapic_timer_init()
 	
 	/* Calculate the CPU's bus frequency, which is 16x the number of ticks that occurred in a 100 Hz burst */
 	uint32_t cpubusfreq = ticks * 16 * 100;
-	
+    
 	/* Ticks to count down from */
 	ticks = cpubusfreq / 16;
 	lapic[TMR_INITCNT] = ticks;
 	
+    printf("Not enabled yet\n");
 	/* Re-enable the Local APIC timer in periodic mode */
 	lapic[LVT_TIMER] = 0xFE | TMR_PERIODIC;
 	
@@ -110,7 +111,6 @@ void lapic_hal_init(loader_block_t *loader_block)
 {
 	/* Find the Local APIC's address in memory */
 	lapic = (uint32_t volatile*) loader_block->lapic;
-    printf("Value: %08X %08X\n", lapic, loader_block);
 	
 	lapic_timer_init();
 }

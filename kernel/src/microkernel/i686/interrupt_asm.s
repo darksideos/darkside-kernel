@@ -43,8 +43,9 @@ interrupt_common_stub:
 	; Call the C interrupt handler
 	mov eax, esp
 	push eax
-	extern interrupt_handler
-	call interrupt_handler
+    extern interrupt_handler
+    mov eax, interrupt_handler
+    call eax
 	pop eax
 	
 	; Restore all needed registers
