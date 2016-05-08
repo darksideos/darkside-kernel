@@ -140,6 +140,6 @@ void interrupts_init()
 	/* Calculate the size of the ASM interrupt stub template */
 
 	/* Create the interrupt object and ASM interrupt code slab caches */
-	//interrupt_cache = slab_cache_create(sizeof(interrupt_t), PAGE_READ | PAGE_WRITE);
-	//asm_interrupt_stub_cache = slab_cache_create(0x31, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
+	interrupt_cache = &slab_cache_create(sizeof(interrupt_t), PAGE_READ | PAGE_WRITE);
+	asm_interrupt_stub_cache = &slab_cache_create(0x31, PAGE_READ | PAGE_WRITE | PAGE_EXECUTE);
 }

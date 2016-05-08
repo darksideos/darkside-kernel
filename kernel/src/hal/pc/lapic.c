@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <types.h>
+#include <stdio.h>
 #include <hal/pc/lapic.h>
 #include <init/loader.h>
 #include <microkernel/interrupt.h>
@@ -109,6 +110,7 @@ void lapic_hal_init(loader_block_t *loader_block)
 {
 	/* Find the Local APIC's address in memory */
 	lapic = (uint32_t volatile*) loader_block->lapic;
+    printf("Value: %08X %08X\n", lapic, loader_block);
 	
 	lapic_timer_init();
 }
