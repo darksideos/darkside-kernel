@@ -6,11 +6,12 @@
 #include <vfs/inode.h>
 
 /* Request codes */
-#define FS_REQ_READWRITE	0x00
-#define FS_REQ_FINDDIR		0x01
-#define FS_REQ_HARDLINK		0x02
-#define FS_REQ_RENAME		0x03
-#define FS_REQ_DELETE		0x04
+#define FS_REQ_READ			0x00
+#define FS_REQ_WRITE		0x01
+#define FS_REQ_FINDDIR		0x02
+#define FS_REQ_HARDLINK		0x03
+#define FS_REQ_RENAME		0x04
+#define FS_REQ_DELETE		0x05
 
 /* Read/write request */
 typedef struct rw_req
