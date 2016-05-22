@@ -42,9 +42,6 @@ void bal_main(data_t *_data)
 	/* Initialize the boot video driver */
 	bootvid_init(COLOR_WHITE, COLOR_BLACK);
 
-	printf("In the BAL: %d\n", *((int*)0x40000000));	
-	while(1);
-
 	/* Set up the watermark allocator */
 	watermark_init(0x700);
 

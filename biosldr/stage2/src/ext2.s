@@ -103,19 +103,22 @@ read_stage3:
 	call ext2_finddir
 	
 	; Read the inode for stage3
-	;mov ebx, eax
-	;mov eax, INODE_LOC
-	;call read_inode
+	mov ebx, eax
+	mov eax, INODE_LOC
+	call read_inode
 	
 	; Load stage3's data from the disk
-	;mov ebx, STAGE3_LOC
-	;mov ecx, [INODE(eax, low_size)]
-	;call ext2_read	
+	mov ebx, STAGE3_LOC
+	mov ecx, [INODE(eax, low_size)]
+	call ext2_read
+
+	;mov byte [error_stage3], 'C'
+	;jmp error	
 
 	; Jump to stage3
-	;mov dl, [DATA(drive)]
-	;mov eax, [DATA(part_start)]
-	;jmp 0x0000:STAGE3_LOC
+	mov dl, [DATA(drive)]
+	mov eax, [DATA(part_start)]
+	jmp 0x0000:STAGE3_LOC
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -427,7 +430,7 @@ ext2_finddir:
 	push ecx
 	call ext2_read
 
-	mov byte [nent], 0
+;	mov byte [nent], 0
 	
 	; Prepare the loop
 	pop ebp
@@ -446,14 +449,14 @@ ext2_finddir:
 	push eax
 	push ecx
 
-	cmp byte [nfind], 1
-	jne .read
-	cmp byte [nent], 0
-	jne .read
-	mov eax, dword [DIRENT_LOC + ecx + 8]
-	mov dword [error_stage3], eax
-	jmp error
-.read:
+;	cmp byte [nfind], 1
+;	jne .read
+;	cmp byte [nent], 3
+;	jne .read
+;	mov eax, dword [DIRENT_LOC + ecx + 8]
+;	mov dword [error_stage3], eax
+;	jmp error
+;.read:
 	
 	; Compare the 2 string lengths (if not the same length, obviously not equal)
 	call strlen
@@ -468,7 +471,7 @@ ext2_finddir:
 	add ecx, edx
 	pop eax
 	pop ebp
-	inc byte [nent]
+;	inc byte [nent]
 	jmp .loop
 .compare:
 	; Set up loop stuff
@@ -520,7 +523,7 @@ boot			db "boot",0
 stage3			db "bootapp32.bin",0
 
 nfind db 0
-nent db 0
+;nent db 0
 
 ; Reset function
 reset:
