@@ -40,7 +40,7 @@ mov eax, ORG_LOC + 0x200
 mov ebx, 1
 mov ecx, 1
 call partition_read
-	
+
 ; Read the superblock
 read_superblock:
 	; Read the superblock into memory
@@ -97,25 +97,25 @@ read_stage3:
 	mov eax, 2
 	mov ebx, boot
 	call ext2_finddir
-	
+
 	; Find the inode for /boot/bootapp[32|36|64].bin
 	mov ebx, stage3
 	call ext2_finddir
 	
 	; Read the inode for stage3
-	mov ebx, eax
-	mov eax, INODE_LOC
-	call read_inode
+	;mov ebx, eax
+	;mov eax, INODE_LOC
+	;call read_inode
 	
 	; Load stage3's data from the disk
-	mov ebx, STAGE3_LOC
-	mov ecx, [INODE(eax, low_size)]
-	call ext2_read
-	
+	;mov ebx, STAGE3_LOC
+	;mov ecx, [INODE(eax, low_size)]
+	;call ext2_read	
+
 	; Jump to stage3
-	mov dl, [DATA(drive)]
-	mov eax, [DATA(part_start)]
-	jmp 0x0000:STAGE3_LOC
+	;mov dl, [DATA(drive)]
+	;mov eax, [DATA(part_start)]
+	;jmp 0x0000:STAGE3_LOC
 
 ; Read from the partition (eax = Buffer, ebx = Sector, ecx = Numsectors)
 partition_read:
@@ -143,13 +143,10 @@ partition_read:
 	
 ; Read a block (eax = Buffer, ebx = Block)
 read_block:
-	; Calculate the starting sector
+	; Calculate the starting sector and number of sectors
 	mov ecx, [SUPERBLOCK(block_size)]
-	imul ebx, ecx
-	shr ebx, 9
-	
-	; Calculate the number of sectors
 	shr ecx, 9
+	imul ebx, ecx
 	
 	; Read the block into memory and return
 	call partition_read
@@ -199,13 +196,15 @@ read_inode:
 	; Calculate the block and offset, storing them in EAX and EDX
 	mov eax, edx									; EAX = table_index
 	mov ebx, [EXT_SUPERBLOCK(inode_size)]			; EBX = (ext_superblock->inode_size)
+
+	; second run: ebx=0x100, edx=0
 	mul ebx											; EAX = table_index * (ext_superblock->inode_size)
 	xor edx, edx
 	mov ebx, [SUPERBLOCK(block_size)]				; EBX = (superblock->block_size)
 	div ebx											; EAX = (table_index * (ext_superblock->inode_size)) / (superblock->block_size)
 													; EDX = (table_index * (ext_superblock->inode_size)) % (superblock->block_size)
 	add eax, [BGDESC(edi, inode_table_block)]
-	
+
 	; Read the block
 	mov ebx, eax									; EBX = (bgdesc->inode_table_block) + table_block
 	pop eax											; Restore the buffer into EAX
@@ -238,7 +237,7 @@ read_block_pointer:
 	; Check whether we're reading the block size or less
 	mov esi, [SUPERBLOCK(block_size)]
 	cmp ecx, esi
-	jl .direct_continue
+	jb .direct_continue
 	mov ecx, esi
 .direct_continue:
 	push ecx
@@ -248,7 +247,7 @@ read_block_pointer:
 .indirect:
 	; Make sure we're not way over the max level
 	cmp edx, 3
-	ja error
+	ja reset
 	
 	; Read the indirect block pointers
 	push eax										; Save the buffer
@@ -269,7 +268,7 @@ read_block_pointer:
 	
 	pop ecx											; Restore the length into ECX
 	cmp ecx, eax
-	jl .indirect_continue
+	jb .indirect_continue
 	mov ecx, eax
 .indirect_continue:
 	pop eax											; Restore the buffer into EAX
@@ -291,7 +290,7 @@ read_block_pointer:
 	je .loop_end									; Goto .loop_end
 	mov ecx, [SUPERBLOCK_LOC + 0x400]				; ECX = block_size / 4
 	cmp edi, ecx									; If blocks_read >= block_size / 4
-	jge .loop_end									; Goto .loop_end
+	jae .loop_end									; Goto .loop_end
 	
 	; Set up function args
 	pop eax											; EAX = buffer
@@ -345,7 +344,7 @@ ext2_read:
 	cmp esi, 0										; If bytes_left == 0
 	je .success										; Goto .success
 	cmp edi, 48										; If blocks_read >= 12
-	jge .read_single								; Goto .read_single
+	jae .read_single								; Goto .read_single
 	
 	; Set up args
 	mov eax, ebx
@@ -394,7 +393,7 @@ ext2_read:
 	
 	; If there are more bytes left to read, fail
 	cmp esi, 0
-	ja error
+	ja reset
 .success:
 	ret
 	
@@ -416,17 +415,19 @@ strlen:
 ext2_finddir:
 	; Save the name
 	push ebx
-	
+
 	; Read the inode into memory
 	mov ebx, eax
 	mov eax, INODE_LOC
 	call read_inode
-	
+
 	; Load the inode's data from the disk
 	mov ebx, DIRENT_LOC
 	mov ecx, [INODE(eax, low_size)]
 	push ecx
 	call ext2_read
+
+	mov byte [nent], 0
 	
 	; Prepare the loop
 	pop ebp
@@ -437,12 +438,22 @@ ext2_finddir:
 .loop:
 	; Make sure we haven't exceeded the length
 	cmp ecx, ebp
-	jge error
+	mov byte [error_stage3], 'A'
+	jae error
 	
 	; Save regs
 	push ebp
 	push eax
 	push ecx
+
+	cmp byte [nfind], 1
+	jne .read
+	cmp byte [nent], 1
+	jne .read
+	mov eax, dword [DIRENT_LOC + ecx + 8]
+	mov dword [error_stage3], eax
+	jmp error
+.read:
 	
 	; Compare the 2 string lengths (if not the same length, obviously not equal)
 	call strlen
@@ -473,7 +484,7 @@ ext2_finddir:
 .compare_loop:
 	; Success
 	cmp edx, ebp
-	jge .success
+	jae .success
 	
 	; Loop and compare, if there's ever a non-match, the compare failed
 	mov al, byte [esi]
@@ -485,6 +496,8 @@ ext2_finddir:
 	inc edx
 	jmp .compare_loop
 .exit_comparison:
+	inc byte [nent]
+
 	; Restore and increment the directory entry offset
 	pop ecx
 	mov bp, [DIRENT(ecx, size)]
@@ -495,6 +508,8 @@ ext2_finddir:
 	pop ebp
 	jmp .loop
 .success:
+	inc byte [nfind]
+
 	pop ecx
 	pop eax
 	mov eax, [DIRENT(ecx, inode)]
@@ -503,6 +518,19 @@ ext2_finddir:
 	
 boot			db "boot",0
 stage3			db "bootapp32.bin",0
+
+nfind db 0
+nent db 0
+
+; Reset function
+reset:
+;	in al, 0x64
+;	and al, 2
+;	jnz reset
+
+;	mov al, 0xFE
+;	out 0x64, al
+;	hlt
 
 ; Error function
 error:
@@ -515,10 +543,10 @@ error:
 	xor dh, dh				; row
 	xor dl, dl				; column
 	int 0x10
-	
+
 	jmp $						; Hang forever
 
-error_stage3	db "Unable to load stage3..."
+error_stage3	db "Unable to load stage3"
 
 ; Fill the remaining bytes with zeroes
 times 1024 - ($ - $$) db 0
