@@ -63,6 +63,9 @@ void ba_main(loader_block_t *loader_block)
 	executable_t *kernel = elf_executable_load_executable("/boot/kernel-i686.elf");
 	if (!kernel) panic("Failed to load kernel\n");
 	loader_block->kernel = kernel;
+
+	printf("Loading kernel worked\n");
+	while(1);
 	
 	/* Load the initrd into virtual memory */
 	inode_t *initrd_img = fs_open("/boot/initrd.img");
