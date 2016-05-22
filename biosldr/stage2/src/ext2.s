@@ -393,7 +393,7 @@ ext2_read:
 	
 	; If there are more bytes left to read, fail
 	cmp esi, 0
-	ja reset
+	ja error
 .success:
 	ret
 	
@@ -448,9 +448,10 @@ ext2_finddir:
 
 	cmp byte [nfind], 1
 	jne .read
-	cmp byte [nent], 1
+	cmp byte [nent], 0
 	jne .read
-	mov eax, dword [DIRENT_LOC + ecx + 8]
+	xor eax, eax
+	add ax, word [INODE_LOC + ecx + 8]
 	mov dword [error_stage3], eax
 	jmp error
 .read:
@@ -463,10 +464,12 @@ ext2_finddir:
 	cmp al, bl
 	je .compare
 	pop ecx
+	xor edx, edx
 	mov dx, [DIRENT(ecx, size)]
 	add ecx, edx
 	pop eax
 	pop ebp
+	inc byte [nent]
 	jmp .loop
 .compare:
 	; Set up loop stuff
@@ -496,8 +499,6 @@ ext2_finddir:
 	inc edx
 	jmp .compare_loop
 .exit_comparison:
-	inc byte [nent]
-
 	; Restore and increment the directory entry offset
 	pop ecx
 	mov bp, [DIRENT(ecx, size)]
