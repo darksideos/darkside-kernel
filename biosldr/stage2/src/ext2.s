@@ -450,8 +450,7 @@ ext2_finddir:
 	jne .read
 	cmp byte [nent], 0
 	jne .read
-	xor eax, eax
-	add ax, word [INODE_LOC + ecx + 8]
+	mov eax, dword [DIRENT_LOC + ecx + 8]
 	mov dword [error_stage3], eax
 	jmp error
 .read:
