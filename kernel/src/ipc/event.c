@@ -82,11 +82,25 @@ int event_signal(event_t *event)
 	/* Signal the event */
 	event->signaled = true;
 
-	/* Wake up every thread on the wait queue */
-	while (event->num_waiting > 0)
+	/* Auto-reset, so only wake up the first waiting thread */
+	if (event->autoreset)
 	{
-		waitqueue_unblock(&event->waitqueue);
-		event->num_waiting--;
+		if (event->num_waiting > 0)
+		{
+			waitqueue_unblock(&event->waitqueue);
+			event->num_waiting--;
+		}
+
+		event->signaled = false;
+	}
+	/* Wake up every thread on the wait queue */
+	else
+	{
+		while (event->num_waiting > 0)
+		{
+			waitqueue_unblock(&event->waitqueue);
+			event->num_waiting--;
+		}
 	}
 
 	spinlock_release(&event->lock);
