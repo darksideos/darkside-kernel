@@ -99,7 +99,7 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* If present, initialize the Local APIC */
 		if (loader_block.lapic)
 		{
-            printf("Lapic addr: %08X\n", loader_block.lapic);
+            printf("Initializing LAPIC at %08X\n", loader_block.lapic);
 			lapic_init(&loader_block, bsp);
 		}
 
@@ -211,7 +211,6 @@ void microkernel_init(loader_block_t *_loader_block, bool bsp)
 		/* Initialize the HAL */
 		hal_init(&loader_block, bsp);
 		__asm__ volatile("sti");
-        while(1);
 
 		/* Detect the relevant CPU topology information for itself */
 

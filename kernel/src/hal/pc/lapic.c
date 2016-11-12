@@ -98,7 +98,8 @@ static void lapic_timer_init()
 	ticks = cpubusfreq / 16;
 	lapic[TMR_INITCNT] = ticks;
 	
-    printf("Not enabled yet\n");
+    //printf("Not enabled yet\n");
+
 	/* Re-enable the Local APIC timer in periodic mode */
 	lapic[LVT_TIMER] = 0xFE | TMR_PERIODIC;
 	
