@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 DarkSide Project
+ * Copyright (C) 2014-2016 DarkSide Project
  * Authored by George Klees <gksharkboy@gmail.com>
  * thread.h - Thread structure definition for the x86 architecture
  *
@@ -73,6 +73,9 @@ typedef struct mkthread
 
 	/* Quantum, in microseconds */
 	uint32_t quantum;
+
+	/* Kernel-mode and user-mode APCs to execute */
+	list_t kernel_apcs, user_apcs;
 } mkthread_t;
 
 /* Find the least loaded NUMA domain */

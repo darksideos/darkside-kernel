@@ -20,6 +20,7 @@
 #define __THREAD_H
 
 #include <init/loader.h>
+#include <microkernel/apc.h>
 
 /* i386 */
 #if defined(__i386__)
@@ -43,6 +44,9 @@ void mkthread_init(mkthread_t *thread, struct mkprocess *parent_process, void (*
 
 /* Yield execution to another thread */
 void mkthread_yield();
+
+/* Queue an APC to a thread */
+void mkthread_queue_apc(mkthread_t *thread, apc_t *apc);
 
 /* Run a thread */
 void mkthread_run(mkthread_t *thread);

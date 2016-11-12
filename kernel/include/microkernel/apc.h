@@ -19,7 +19,7 @@
 #ifndef __APC_H
 #define __APC_H
 
-#include <microkernel/thread.h>
+#include <list.h>
 
 /* APC types */
 #define APC_KERNEL		0
@@ -27,11 +27,14 @@
 #define APC_USER_NOINT	2	/* Only delivered if thread is blocked (WinNT mechanics) */
 
 /* APC handler type */
-typedef (*apc_handler_t)(void *context);
+typedef void (*apc_handler_t)(void *context);
 
 /* APC object */
 typedef struct apc
 {
+	/* Linked list entry structure */
+	list_entry_t list_entry;
+
 	/* Handler function */
 	apc_handler_t handler;
 
@@ -44,9 +47,6 @@ typedef struct apc
 
 /* Initialize an APC object */
 void apc_init(apc_t *apc, apc_handler_t handler, void *context, int type);
-
-/* Queue an APC to a thread */
-void apc_queue(thread_t *thread, apc_t *thread);
 
 #endif
 

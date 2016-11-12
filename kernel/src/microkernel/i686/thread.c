@@ -158,6 +158,12 @@ void mkthread_init(mkthread_t *thread, mkprocess_t *parent_process, void (*fn)(v
 	thread->policy = policy;
 	thread->priority = priority;
 
+	/* Choose the proper quantum for the thread */
+
+	/* Create the lists of queued APCs */
+	thread->kernel_apcs = list_create();
+	thread->user_apcs = list_create();
+
 	/* Enqueue the thread on a scheduling queue */
 	scheduler_enqueue(thread);
 }
@@ -166,6 +172,12 @@ void mkthread_init(mkthread_t *thread, mkprocess_t *parent_process, void (*fn)(v
 void mkthread_yield()
 {
 	scheduler_run();
+}
+
+/* Queue an APC to a thread */
+void mkthread_queue_apc(mkthread_t *thread, apc_t *apc)
+{
+	/* TODO: Implement this */
 }
 
 /* Run a thread on the current CPU */
@@ -220,6 +232,15 @@ void mkthread_run(mkthread_t *thread)
 	/* Make the TSS and SYSENTER MSR point to the thread's kernel stack */
 	cpu->normal_tss.esp0 = thread->kernel_stack;
 	wrmsr(IA32_MSR_SYSENTER_ESP, thread->kernel_stack, 0);
+
+	/* Execute any queued kernel-mode APCs */
+	apc_t *kapc = (apc_t*) list_remove_head(&thread->kernel_apcs);
+	while (kapc)
+	{
+		kapc->handler(kapc->context);
+
+		kapc = (apc_t*) list_remove_head(&thread->kernel_apcs);
+	}
 
 	/* Switch to the new thread's register context */
 	save_and_switch(old_context_ptr, &thread->context);
