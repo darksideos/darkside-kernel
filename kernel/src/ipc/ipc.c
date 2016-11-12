@@ -24,6 +24,7 @@
 #include <ipc/rwlock.h>
 #include <ipc/mqueue.h>
 #include <ipc/mport.h>
+#include <ipc/apc.h>
 
 /* Semaphore, mutex, and readers/writer lock slab caches */
 slab_cache_t semaphore_cache, mutex_cache, rwlock_cache;
@@ -31,13 +32,24 @@ slab_cache_t semaphore_cache, mutex_cache, rwlock_cache;
 /* Message queue and message port slab caches */
 slab_cache_t mqueue_cache, mport_cache;
 
+/* APC slab cache */
+slab_cache_t apc_cache;
+
 /* Initialize the IPC manager */
 void ipc_init()
 {
-	/* Create the slab caches for the IPC object types */
+	/* Create the slab caches for the synchronization objects */
 	semaphore_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(semaphore_t), PAGE_READ | PAGE_WRITE);
 	mutex_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(mutex_t), PAGE_READ | PAGE_WRITE);
 	rwlock_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(rwlock_t), PAGE_READ | PAGE_WRITE);
+
+	/* Create the slab caches for the message objects */
 	mqueue_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(mqueue_t), PAGE_READ | PAGE_WRITE);
 	mport_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(mport_t), PAGE_READ | PAGE_WRITE);
+
+	/* Create the slab cache for APC objects */
+	apc_cache = slab_cache_create(sizeof(object_t) + INTERFACE_HEADER_SIZE + sizeof(apc_t), PAGE_READ | PAGE_WRITE);
+
+	/* Allow kernel-mode code to generate its own APCs */
+	apcs_init();
 }
