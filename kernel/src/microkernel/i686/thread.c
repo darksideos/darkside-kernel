@@ -181,7 +181,28 @@ void mkthread_yield()
 /* Queue an APC to a thread */
 void mkthread_queue_apc(mkthread_t *thread, apc_t *apc)
 {
-	/* TODO: Implement this */
+	/* Lock the thread's low-level state */
+	spinlock_acquire(&thread->lock);
+
+	/* Kernel-mode APC */
+	if (apc->type == APC_KERNEL)
+	{
+		list_insert_tail(&thread->kernel_apcs, apc);
+	}
+	/* User-mode APCs */
+	else if (apc->type == APC_USER || apc->type == APC_USER_NOINT)
+	{
+		/* Only queue if the thread has a user-mode context */
+		if (thread->process) list_insert_tail(&thread->user_apcs, apc);
+	}
+	/* Corrupt APC state */
+	else
+	{
+		/* TODO: Log/report error in some way */
+	}
+
+	/* Unlock the thread's low-level state */
+	spinlock_release(&thread->lock);
 }
 
 /* Run a thread on the current CPU */
