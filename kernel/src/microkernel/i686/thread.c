@@ -20,6 +20,7 @@
 #include <init/loader.h>
 #include <microkernel/atomic.h>
 #include <microkernel/cpu.h>
+#include <microkernel/lock.h>
 #include <microkernel/paging.h>
 #include <microkernel/thread.h>
 #include <microkernel/process.h>
@@ -96,6 +97,9 @@ int least_loaded_numa_domain()
 /* Initialize a microkernel thread structure */
 void mkthread_init(mkthread_t *thread, mkprocess_t *parent_process, void (*fn)(void *args), void *args, int numa_domain, int policy, int priority, uint32_t stack_size)
 {
+	/* Initialize the spinlock for low-level state */
+	spinlock_init(&thread->lock);
+
 	/* Set the thread's parent process */
 	thread->process = parent_process;
 	

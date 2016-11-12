@@ -19,9 +19,6 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
-#include <types.h>
-#include <microkernel/thread.h>
-
 /* Spinlock structure */
 typedef struct spinlock
 {

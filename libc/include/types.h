@@ -5,4 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+/* Thread ID type */
+typedef unsigned tid_t;
+
 #endif

@@ -20,9 +20,7 @@
 #define __I686_THREAD
 
 #include <list.h>
-
-/* Thread ID type */
-typedef unsigned tid_t;
+#include <microkernel/lock.h>
 
 /* Thread states */
 #define THREAD_READY	0
@@ -37,6 +35,9 @@ typedef struct mkthread
 {
 	/* Linked list entry structure */
 	list_entry_t list_entry;
+
+	/* Spinlock for low-level state */
+	spinlock_t lock;
 
 	/* Parent process */
 	struct mkprocess *process;
