@@ -25,28 +25,50 @@
 #include <string.h>
 #include <stdio.h>
 
-/* Message queues for both threads */
-mqueue_t queue1, queue2;
+/* Thread objects */
+thread_t *t1, *t2;
 
-/* Request and reply messages */
-typedef struct
+/* APC handler 1 */
+void apc1(void *ctx)
 {
-	message_t hdr;
-	char str[16];
-	int str_len;
-} hashreq_t;
+	printf("APC handler 1: ctx=0x%08X\n", ctx);
+}
 
-typedef struct
+/* APC handler 2 */
+void apc2(void *ctx)
 {
-	message_t hdr;
-	uint32_t hash;
-} hashreply_t;
+	printf("APC handler 2: ctx=0x%08X\n", ctx);
+}
+
+/* Thread function 1 */
+void thread1(void *ctx)
+{
+	t1 = (thread_t*)thread_current();
+	mkthread_yield();
+
+	apc_queue(t2, apc2, (void*)0xDEADBEEF, APC_KERNEL);
+	mkthread_yield();
+
+	while(1) mkthread_yield();
+}
+
+/* Thread function 2 */
+void thread2(void *ctx)
+{
+	t2 = (thread_t*)thread_current();
+	mkthread_yield();
+
+	apc_queue(t1, apc1, (void*)0xCAFECAFE, APC_KERNEL);
+	mkthread_yield();
+
+	while(1) mkthread_yield();
+}
 
 /* Start the executive services */
 void executive_init(loader_block_t *loader_block)
 {
 	/* Called from the microkernel during early initialization */
-	if (loader_block != (loader_block_t*)0 && loader_block != (loader_block_t*)1)
+	if (loader_block)
 	{
 		/* Initialize the object manager */
 
@@ -60,62 +82,10 @@ void executive_init(loader_block_t *loader_block)
 
 		/* Set up the module manager from the loader block */
 
-		/* Initialize message queues */
-		mqueue_init(&queue1, addrspace_alloc(ADDRSPACE_SYSTEM, 0x1000, 0x1000, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL), 0x1000, 1);
-		mqueue_init(&queue2, addrspace_alloc(ADDRSPACE_SYSTEM, 0x1000, 0x1000, PAGE_READ | PAGE_WRITE | PAGE_GLOBAL), 0x1000, 1);
-
-		/* Create two new threads to test messaging */
-		thread_create(NULL, (void (*)(void*))&executive_init, (void*)0, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
-		thread_create(NULL, (void (*)(void*))&executive_init, (void*)1, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		/* Create two new threads to test APCs */
+		thread_create(NULL, &thread1, (void*)0, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
+		thread_create(NULL, &thread2, (void*)1, 0, -1, POLICY_REALTIME, MAX_PRIORITY);
 		scheduler_run();
-	}
-	/* Message test thread 1 */
-	else if (loader_block == (loader_block_t*)0)
-	{
-		/* Set up current thread's message queue */
-		((thread_t*)thread_current())->mqueue = &queue1;
-
-		/* Try to get a bunch of strings hashed */
-		const char *strs[4] = {"Fun", "with", "message", "testing"};
-		for (int i = 0; i < 4; i++)
-		{
-			/* Build and send a request */
-			hashreq_t req;
-			req.str_len = strlen((char*)strs[i]);
-			memcpy(req.str, strs[i], req.str_len + 1);
-			mqueue_send(&queue2, &req, sizeof(req));
-			printf("\nThread 1: Request hash for string \"%s\"\n", strs[i]);
-
-			/* Get the reply back and print it */
-			hashreply_t *reply = mqueue_recv(&queue1, TIMEOUT_NEVER);
-			printf("Thread 1: hash=0x%08X\n", reply->hash);
-		}
-	}
-	/* Message test thread 2 */
-	else if (loader_block == (loader_block_t*)1)
-	{
-		/* Set up current thread's message queue */
-		((thread_t*)thread_current())->mqueue = &queue2;
-
-		/* Hash strings requested as long as they come in */
-		while(1)
-		{
-			/* Receive a request and handle it */
-			hashreq_t *req = mqueue_recv(&queue2, TIMEOUT_NEVER);
-			printf("Thread 2: Hash requested for string \"%s\"\n", &req->str[0]);
-			uint32_t hash = 0;
-			for (int i = 0; i < req->str_len; i++)
-			{
-				hash *= 0x1F;
-				hash += req->str[i];
-			}
-
-			/* Send a reply back */
-			hashreply_t reply;
-			reply.hash = hash;
-			mqueue_send(&queue1, &reply, sizeof(reply));
-			printf("Thread 2: Send back hash=0x%08X\n", hash);
-		}
 	}
 
 	while(1);

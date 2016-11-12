@@ -25,6 +25,7 @@
 #include <ipc/rwlock.h>
 #include <ipc/message.h>
 #include <ipc/event.h>
+#include <ipc/apc.h>
 
 /* Initialize the IPC manager */
 void ipc_init();
