@@ -47,6 +47,7 @@ void thread1(void *ctx)
 	mkthread_yield();
 
 	apc_queue(t2, apc2, (void*)0xDEADBEEF, APC_KERNEL);
+	printf("Queued APC 2 to thread 2\n");
 	mkthread_yield();
 
 	while(1) mkthread_yield();
@@ -59,6 +60,7 @@ void thread2(void *ctx)
 	mkthread_yield();
 
 	apc_queue(t1, apc1, (void*)0xCAFECAFE, APC_KERNEL);
+	printf("Queued APC 1 to thread 1\n");
 	mkthread_yield();
 
 	while(1) mkthread_yield();
